@@ -1,0 +1,189 @@
+# backbone.yml — Project Backbone (Template)
+#
+# This file is the single source of truth that tells Claude (and any other
+# AI coding agent) how YOUR project is laid out: where the code lives, how
+# to run it, which rules and workflows apply, and which conventions to follow.
+#
+# HOW THIS TEMPLATE WORKS
+# -----------------------
+# When `meta.template_status` is `uninitialized`, the AI agent reading this
+# file MUST treat the project as freshly bootstrapped and run the first-time
+# init flow described in CLAUDE.md (see "FIRST-TIME INIT TRIGGER" block).
+# After the user approves the inferred values, the agent fills the placeholders
+# in this file and flips `template_status` to `initialized`.
+#
+# Placeholders use the form `<<...>>`. Anything inside `<<...>>` MUST be
+# replaced before declaring the backbone initialized. Lines marked with
+# `# example:` are illustrative — uncomment / adapt the section that matches
+# your stack, then delete the others.
+
+version: 1
+
+meta:
+  template_status: uninitialized # uninitialized | initialized
+  template_source: minimal-vibe-coding-kit # do not change — used for telemetry/upgrades
+  initialized_at: null # ISO-8601 timestamp, set on first init
+  schema_version: 2 # bump if backbone.yml schema changes
+  init_runbook: FIRST_TIME_INIT.md # the AI must follow this on first init
+  init_done_marker: .vibekit/INIT_DONE # sentinel file written when init completes
+  # Init is considered DONE only when ALL of the following are true:
+  #   1. template_status == initialized
+  #   2. initialized_at is a non-null ISO-8601 timestamp
+  #   3. the file at init_done_marker exists
+  # See FIRST_TIME_INIT.md § "Done-Marker Check" for the full table.
+
+project:
+  name: <<PROJECT_NAME>> # e.g. acme-checkout, my-app
+  description: <<ONE_LINE_DESCRIPTION>>
+  type: <<single-repo | mono-repo | multi-repo>>
+  primary_language: <<go | ts | py | rs | java | mixed>>
+  repos: # one entry per code root; use a single "app" entry for single-repo projects
+    # example single-repo:
+    #   app: .
+    # example multi-repo (delete if unused):
+    #   backend: <<BACKEND_DIR>>
+    #   frontend: <<FRONTEND_DIR>>
+    app: <<REPO_ROOT_RELATIVE_PATH>>
+
+# ----------------------------------------------------------------------------
+# detection — fingerprints the AI uses to auto-fill this file on first init.
+# Do NOT remove this block; it stays useful for re-bootstrapping forks.
+# ----------------------------------------------------------------------------
+detection:
+  stack_fingerprints:
+    go: [go.mod, go.sum, "cmd/**/main.go"]
+    node:
+      [
+        package.json,
+        "pnpm-lock.yaml",
+        "yarn.lock",
+        "package-lock.json",
+        "bun.lockb",
+      ]
+    python: [pyproject.toml, requirements.txt, Pipfile, poetry.lock]
+    rust: [Cargo.toml, Cargo.lock]
+    java: [pom.xml, "build.gradle*", "settings.gradle*"]
+    dotnet: ["*.csproj", "*.sln"]
+    php: [composer.json]
+    ruby: [Gemfile, Gemfile.lock]
+    docker: [Dockerfile, docker-compose.yml, compose.yml]
+    k8s: ["k8s/**", "deploy/**/*.yaml", "helm/**"]
+    terraform: ["*.tf", "terraform/**"]
+  framework_hints:
+    next: ["next.config.js", "next.config.ts", "next.config.mjs"]
+    vite: ["vite.config.ts", "vite.config.js"]
+    react: ["src/App.tsx", "src/App.jsx"]
+    chi: ["go.mod with github.com/go-chi/chi"]
+    gin: ["go.mod with github.com/gin-gonic/gin"]
+    fastapi: ["main.py with FastAPI", "app/main.py"]
+    django: ["manage.py", "settings.py"]
+    spring: ["pom.xml with spring-boot", "build.gradle with spring-boot"]
+  monorepo_markers:
+    ["turbo.json", "nx.json", "pnpm-workspace.yaml", "lerna.json", "go.work"]
+
+# ----------------------------------------------------------------------------
+# structure — where things live. Fill the sections relevant to your stack,
+# delete the rest. The AI uses these paths to locate code without re-scanning.
+# ----------------------------------------------------------------------------
+structure:
+  claude:
+    init: .claude/Init CLaude.md # optional; remove if unused
+    rules: # files the AI must load as global rules
+      - .claude/rules/global.md
+      # add stack-specific rules as you create them, e.g.:
+      # - .claude/rules/<<backend-rule>>.md
+      # - .claude/rules/<<frontend-rule>>.md
+    workflows: # task playbooks
+      - .claude/workflows/default-task-flow.md
+      # - .claude/workflows/init-project.md
+    skills_dir: .claude/skills
+    commands_dir: .claude/command
+
+  # --- Pick ONE of the blocks below (or duplicate per repo for multi-repo) ---
+
+  # example: backend service (Go / Node / Python / etc.)
+  # backend:
+  #   entrypoint: <<path/to/main entry>>     # e.g. cmd/api/main.go, src/index.ts, app/main.py
+  #   server:     <<path/to/server bootstrap>>
+  #   modules:    <<path/to/business modules>>
+  #   migrations: <<path/to/migrations>>
+  #   docs:       <<path/to/README.md>>
+  #   env_files:  [".env.example", "<<repo>>/.env"]
+  #   claude_references:
+  #     # any deep-link refs the AI should always know about, e.g.:
+  #     # db_policy: .claude/skills/<<skill>>/references/database-change-policy.md
+
+  # example: frontend app (React/Vue/Svelte/etc.)
+  # frontend:
+  #   app:        <<path/to/App entry>>      # e.g. src/App.tsx
+  #   hooks:      <<path/to/hooks dir>>
+  #   components: <<path/to/components dir>>
+  #   api:        <<path/to/api client dir>>
+  #   styles:     <<path/to/styles>>
+
+  # example: shared / monorepo packages
+  # packages:
+  #   shared:  <<packages/shared>>
+  #   ui:      <<packages/ui>>
+
+# ----------------------------------------------------------------------------
+# conventions — runtime defaults the AI should respect.
+# ----------------------------------------------------------------------------
+conventions:
+  package_manager: <<npm | pnpm | yarn | bun | go | uv | pip | poetry | cargo | gradle | maven>>
+  default_branch: <<main | master>>
+  branch_naming: "<<feat|fix|chore|autoresearch>>/<<YYYY-MM-DD>>-<<slug>>"
+  commit_style: <<conventional-commits | freeform>>
+
+  # HTTP / API conventions — delete if not a web project
+  api_prefix: <<e.g. /api/v1>>
+  health_path: <<e.g. /healthz>>
+
+  # Local dev ports
+  ports:
+    backend: <<e.g. 8080>>
+    frontend: <<e.g. 5173>>
+
+  # Commands the AI should run before declaring work "done".
+  # Use a single string per stack — leave only the ones you actually have.
+  command_checks:
+    # example backend (Go):
+    # backend: "go test ./... && go vet ./..."
+    # example frontend (Bun/Vite/TS):
+    # frontend: "bun run typecheck && bun run build"
+    # example python:
+    # python: "ruff check . && pytest -q"
+    default: <<COMMAND_TO_VERIFY_BUILD_OR_TESTS>>
+
+  # Paths the AI must NEVER modify without explicit user approval.
+  protected_paths:
+    - .env
+    - .env.*
+    - "**/secrets/**"
+    - "**/migrations/**" # remove if you want AI to manage migrations
+    - "**/*.lock"
+    - package-lock.json
+    - pnpm-lock.yaml
+    - yarn.lock
+    - go.sum
+    - Cargo.lock
+
+  # Paths the AI is allowed to freely edit (used by autoresearch / agent flows).
+  editable_paths:
+    - src/**
+    - lib/**
+    - internal/**
+    - app/**
+    - tests/**
+    - "**/*.md"
+
+# ----------------------------------------------------------------------------
+# automation — optional hooks the AI can trigger on its own.
+# ----------------------------------------------------------------------------
+automation:
+  autoresearch:
+    enabled: true
+    results_file: results.tsv
+    workdir: .autoresearch/
+  pre_commit_checks: true
+  post_change_checks: ["command_checks.default"]
