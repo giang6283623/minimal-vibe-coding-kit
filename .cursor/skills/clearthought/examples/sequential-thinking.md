@@ -377,4 +377,4 @@ Returns: `thoughtNumber: 3`, complete chain
 **For more examples, see:**
 - [decision-framework.md](decision-framework.md)
 - [metagame-examples.md](metagame-examples.md)
-- `../reference/parameter-reference.md`
+- `../references/parameter-reference.md`

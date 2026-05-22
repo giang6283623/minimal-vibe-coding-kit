@@ -533,4 +533,4 @@ Advanced frameworks for high-stakes problem-solving and rapid iteration.
 **For more examples:**
 - [sequential-thinking.md](sequential-thinking.md)
 - [decision-framework.md](decision-framework.md)
-- `../reference/output-schemas.md`
+- `../references/output-schemas.md`

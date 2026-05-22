@@ -437,5 +437,5 @@
 ---
 
 **For more decision examples, see:**
-- `../reference/parameter-reference.md`
+- `../references/parameter-reference.md`
 - [metagame-examples.md](metagame-examples.md)

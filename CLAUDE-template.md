@@ -8,7 +8,7 @@ This file is intentionally small. Shared rules live in `AGENTS.md`, project fact
 
 1. Read `backbone.yml`.
 2. If `meta.template_status` is `uninitialized`, follow `FIRST_TIME_INIT.md` before other work.
-3. If initialized, continue with the user's task.
+3. If initialized, follow `backbone.yml` `conventions` and continue with the user's task.
 
 ## Useful skills
 

@@ -14,6 +14,8 @@ on:
       - "skills/**"
       - "commands/**"
       - "scripts/**"
+      - "docs/backbone.schema.json"
+      - "package.json"
       - ".github/workflows/vibekit-validate.yml"
   push:
     branches: [main]
@@ -22,15 +24,21 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ["18", "20", "22"]
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: "24"
-      - uses: actions/setup-python@v6
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
-      - name: Validate kit structure
-        run: node scripts/validate-kit.mjs .
+      - name: Syntax, install behavior, and structure tests
+        run: npm test
       - name: AgentShield read-only probe
-        run: python skills/agentshield-security-review/scripts/agentshield_repo_probe.py .
+        run: npm run security:probe
+      - name: Verify npm package contents
+        run: npm run pack:dry-run

@@ -13,14 +13,16 @@ function usage() {
   console.log(`Minimal Vibe Coding Kit
 
 Usage:
-  mvck install [target] [--profile all|claude,cursor,codex] [--force] [--dry-run]
-  mvck init [target] [--propose|--write --yes]
+  mvck install [target] [--profile all|claude,cursor,codex] [--force] [--dry-run] [--json]
+  mvck init [target] [--propose|--write --yes] [--preset nextjs|wordpress|python|laravel|docker]
   mvck validate [target]
+  mvck doctor [target] [--write-report] [--json]
   mvck daily [target] [--write-report]
 
 Examples:
   node scripts/mvck.mjs install ~/work/my-repo --profile all
   node scripts/mvck.mjs init . --propose
+  node scripts/mvck.mjs doctor .
   node scripts/mvck.mjs validate .
 `);
 }
@@ -37,16 +39,35 @@ function optionValue(name, fallback = null) {
   return match ? match.slice(prefix.length) : fallback;
 }
 
-function positionalAfter(command) {
-  const out = [];
-  let skip = false;
-  for (const item of args.slice(1)) {
-    if (skip) { skip = false; continue; }
-    if (item === '--profile') { skip = true; continue; }
-    if (item.startsWith('--')) continue;
-    out.push(item);
+function parseTargetAndFlags(command, { valueFlags = [] } = {}) {
+  const values = new Set(valueFlags);
+  const flags = [];
+  const positionals = [];
+  const rest = args[0] === command ? args.slice(1) : args.slice();
+
+  for (let i = 0; i < rest.length; i += 1) {
+    const item = rest[i];
+    if (item === '--') {
+      positionals.push(...rest.slice(i + 1));
+      break;
+    }
+    if (!item.startsWith('--')) {
+      positionals.push(item);
+      continue;
+    }
+
+    flags.push(item);
+    if (!item.includes('=') && values.has(item) && rest[i + 1] && !rest[i + 1].startsWith('--')) {
+      flags.push(rest[i + 1]);
+      i += 1;
+    }
   }
-  return out;
+
+  return {
+    target: path.resolve(positionals[0] || process.cwd()),
+    flags,
+    positionals
+  };
 }
 
 function ensureDir(dir, dryRun) {
@@ -112,10 +133,18 @@ function appendManagedBlock(file, block, begin, end, { dryRun = false } = {}) {
   }
 }
 
+function managedBlockFromTemplate(block, begin, end) {
+  const start = block.indexOf(begin);
+  const finish = block.indexOf(end);
+  if (start >= 0 && finish > start) return block.slice(start, finish + end.length);
+  return `${begin}\n${block.trim()}\n${end}`;
+}
+
 function install() {
   const force = hasFlag('--force');
   const dryRun = hasFlag('--dry-run');
-  const target = path.resolve(positionalAfter('install')[0] || process.cwd());
+  const json = hasFlag('--json');
+  const target = parseTargetAndFlags('install', { valueFlags: ['--profile'] }).target;
   const profileRaw = optionValue('--profile', 'all');
   const profiles = new Set(profileRaw === 'all' ? ['claude', 'cursor', 'codex'] : profileRaw.split(',').map((x) => x.trim()).filter(Boolean));
 
@@ -129,12 +158,36 @@ function install() {
   for (const dir of ['skills', 'commands', 'docs']) {
     actions.push(copyDirSafe(dir, dir, target, opts));
   }
-  for (const file of ['scripts/mvck.mjs', 'scripts/init-backbone.mjs', 'scripts/daily-enhance.mjs', 'scripts/validate-kit.mjs']) {
+  for (const file of ['scripts/mvck.mjs', 'scripts/init-backbone.mjs', 'scripts/daily-enhance.mjs', 'scripts/validate-kit.mjs', 'scripts/doctor.mjs', 'scripts/test-install.mjs', 'scripts/agentshield-probe.mjs', 'scripts/pack-dry-run.mjs']) {
     actions.push(copyFileSafe(file, file, target, opts));
   }
 
-  if (profiles.has('claude')) actions.push(copyDirSafe('.claude', '.claude', target, opts));
-  if (profiles.has('cursor')) actions.push(copyDirSafe('.cursor', '.cursor', target, opts));
+  if (profiles.has('claude')) {
+    for (const dir of [
+      '.claude/agents',
+      '.claude/commands',
+      '.claude/rules',
+      '.claude/skills/autoresearch-coding',
+      '.claude/skills/agentshield-security-review',
+      '.claude/skills/daily-workflow-curator',
+      '.claude/skills/vibekit-init'
+    ]) {
+      actions.push(copyDirSafe(dir, dir, target, opts));
+    }
+    for (const skill of ['clearthought', 'sequential-thinking', 'reviewing-4p-priorities']) {
+      actions.push(copyDirSafe(`.claude/skills/${skill}`, `.claude/skills/${skill}`, target, opts));
+    }
+    actions.push(copyFileSafe('.claude/settings.json', '.claude/settings.json', target, opts));
+  }
+  if (profiles.has('cursor')) {
+    for (const dir of ['.cursor/rules', '.cursor/commands']) {
+      actions.push(copyDirSafe(dir, dir, target, opts));
+    }
+    for (const skill of ['clearthought', 'sequential-thinking', 'reviewing-4p-priorities']) {
+      actions.push(copyDirSafe(`.cursor/skills/${skill}`, `.cursor/skills/${skill}`, target, opts));
+    }
+    actions.push(copyFileSafe('.cursor/settings.json', '.cursor/settings.json', target, opts));
+  }
   if (profiles.has('codex')) {
     actions.push(copyDirSafe('.agents', '.agents', target, opts));
     actions.push(copyDirSafe('.codex', '.codex', target, opts));
@@ -150,7 +203,7 @@ function install() {
     if (!fs.existsSync(claudeTarget)) {
       actions.push(copyFileSafe('CLAUDE-template.md', 'CLAUDE.md', target, { force: false, dryRun }));
     } else {
-      const block = `<!-- BEGIN: minimal-vibe-coding-kit -->\n@AGENTS.md\n\n## Minimal Vibe Coding Kit\n\n- Read \`backbone.yml\` before changing code.\n- If \`meta.template_status\` is \`uninitialized\`, follow \`FIRST_TIME_INIT.md\` and wait for approval before writing.\n- Prefer project skills for multi-step workflows: \`/autoresearch-coding\`, \`/security-scan\`, \`/daily-enhance\`.\n<!-- END: minimal-vibe-coding-kit -->`;
+      const block = `<!-- BEGIN: minimal-vibe-coding-kit -->\n@AGENTS.md\n\n## Minimal Vibe Coding Kit\n\n- Read \`backbone.yml\` before changing code.\n- If \`meta.template_status\` is \`uninitialized\`, follow \`FIRST_TIME_INIT.md\` and wait for approval before writing.\n- After init, follow \`backbone.yml\` \`conventions\` before adding new project patterns.\n- Prefer project skills for multi-step workflows: \`/autoresearch-coding\`, \`/security-scan\`, \`/daily-enhance\`.\n<!-- END: minimal-vibe-coding-kit -->`;
       appendManagedBlock(claudeTarget, block, '<!-- BEGIN: minimal-vibe-coding-kit -->', '<!-- END: minimal-vibe-coding-kit -->', { dryRun });
       actions.push({ action: 'managed-block', path: 'CLAUDE.md' });
     }
@@ -163,21 +216,35 @@ function install() {
     const block = fs.readFileSync(path.join(kitRoot, 'AGENTS.md'), 'utf8');
     const begin = '<!-- BEGIN: minimal-vibe-coding-kit -->';
     const end = '<!-- END: minimal-vibe-coding-kit -->';
-    const managed = block.slice(block.indexOf(begin), block.indexOf(end) + end.length);
+    const managed = managedBlockFromTemplate(block, begin, end);
     appendManagedBlock(agentsTarget, managed, begin, end, { dryRun });
     actions.push({ action: 'managed-block', path: 'AGENTS.md' });
+  }
+
+  const nextPrompt = 'Read FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit. Print requirements first, infer project conventions, propose a diff, and wait for my yes before writing.';
+  if (json) {
+    console.log(JSON.stringify({
+      status: dryRun ? 'dry-run' : 'installed',
+      target,
+      profiles: [...profiles].sort(),
+      force,
+      dryRun,
+      actions,
+      nextPrompt
+    }, null, 2));
+    return;
   }
 
   console.log(dryRun ? 'Dry-run install plan:' : 'Install complete:');
   for (const a of actions) console.log(`- ${a.action}: ${a.path}`);
   console.log('\nNext prompt:');
-  console.log('Read FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit. Print requirements first, propose a diff, and wait for my yes before writing.');
+  console.log(nextPrompt);
 }
 
-function delegate(scriptName) {
-  const target = positionalAfter(args[0])[0] || process.cwd();
+function delegate(scriptName, { valueFlags = [] } = {}) {
+  const { target, flags } = parseTargetAndFlags(args[0], { valueFlags });
   const script = path.join(kitRoot, 'scripts', scriptName);
-  const childArgs = [script, target, ...args.slice(2)];
+  const childArgs = [script, target, ...flags];
   const result = spawnSync(process.execPath, childArgs, { stdio: 'inherit' });
   process.exit(result.status ?? 1);
 }
@@ -189,9 +256,11 @@ try {
   } else if (command === 'install') {
     install();
   } else if (command === 'init') {
-    delegate('init-backbone.mjs');
+    delegate('init-backbone.mjs', { valueFlags: ['--preset'] });
   } else if (command === 'validate') {
     delegate('validate-kit.mjs');
+  } else if (command === 'doctor') {
+    delegate('doctor.mjs');
   } else if (command === 'daily') {
     delegate('daily-enhance.mjs');
   } else {

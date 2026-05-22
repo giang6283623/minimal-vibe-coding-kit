@@ -3,4 +3,4 @@ description: Minimal Vibe Coding Kit core workflow for all Cursor agent tasks.
 alwaysApply: true
 ---
 
-Read `backbone.yml` before changing code. If `meta.template_status` is `uninitialized`, follow `FIRST_TIME_INIT.md` and wait for approval before writing. Keep diffs small, validate after relevant edits, and preserve user instructions outside managed blocks.
+Read `backbone.yml` before changing code. If `meta.template_status` is `uninitialized`, follow `FIRST_TIME_INIT.md` and wait for approval before writing. After init, follow `backbone.yml` `conventions`. Keep diffs small, validate after relevant edits, and preserve user instructions outside managed blocks.

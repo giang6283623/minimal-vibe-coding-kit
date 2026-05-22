@@ -15,12 +15,14 @@ Before writing anything, print this checklist and mark each item as found, missi
 5. Git status is known. If user changes exist, do not overwrite them.
 6. A validation command is inferred or set to `node scripts/validate-kit.mjs .` for the kit itself.
 7. Protected paths include `.env*`, secrets, lockfiles, generated files, build output, migrations, and infra unless the user says otherwise.
+8. Existing naming, architecture, resource, and localization conventions are scanned or marked missing.
 
 ## Canonical prompt
 
 ```text
 Read FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit.
 First print the requirements you will check. Then run detection, propose one diff for backbone.yml and managed instruction blocks, and wait for my yes before writing.
+Include inferred project conventions for naming, architecture, resources, localization, generated definitions, and per-app/package differences.
 After approval, write the files, run validation, and summarize what changed.
 ```
 
@@ -44,6 +46,20 @@ Prefer filesystem evidence over README claims.
 - Package manager: lockfile wins.
 - Commands: infer test, lint, typecheck, build from package scripts, Makefile, Go, Python, Rust, Java, dotnet, PHP, Ruby, or existing CI.
 - Paths: infer source, tests, docs, config, generated output.
+- Conventions: infer naming style, folder architecture, shared resource access, localization/message access, generated-code boundaries, and per-app or per-package differences.
+
+## FIRST_TIME_INIT_RULES
+
+Create project rules from evidence in the existing repo, not from a fixed language or framework template.
+
+- Scope rules to the smallest accurate boundary: repo, app, package, service, module, or folder. In monorepos and multi-repo workspaces, do not force one package's style onto another when evidence differs.
+- Naming: detect dominant file, directory, symbol, test, component, handler, model, and module naming patterns from nearby code. If no pattern is clear, propose a neutral default and ask before writing it into `backbone.yml`.
+- Architecture: detect existing structures such as MVC, MVVM, feature modules, services/repositories, domain/application/infrastructure layers, route/page/screen folders, package boundaries, or framework-specific layouts. New code should enter the nearest matching structure before introducing a new top-level pattern.
+- Resources: detect whether assets, images, icons, routes, API paths, themes, configs, or other shared resources are accessed through constants, registries, generated APIs, or helper modules. If such a pattern exists, rules must prefer that accessor over hardcoded literals. For example, prefer a detected `AppImages.logo` or equivalent project accessor over a raw path such as `assets/images/logo.png`.
+- Localization and copy: detect catalogs and accessors such as `.arb`, locale folders, message files, generated localization APIs, or translation helpers. If present, rules must prefer those accessors over hardcoded user-facing text.
+- Generated and shared definitions: detect generated files, enums, schemas, OpenAPI/GraphQL clients, design tokens, route maps, or other single-source definitions. Rules should reuse or update the source definition instead of duplicating literals.
+- Missing conventions: if the repo lacks a shared abstraction and adding one would affect many files, propose it as a pending rule and ask the user to reply `yes`, `edit`, or `abort` before implementation.
+- Store confirmed rules in `backbone.yml` under `conventions`. Future agents must follow those confirmed rules and ask before changing them.
 
 Optional helper:
 
@@ -56,6 +72,7 @@ node scripts/init-backbone.mjs . --propose
 Show one unified diff for:
 
 - `backbone.yml`
+- the `backbone.yml` `conventions` rules inferred from existing code, including evidence and unresolved questions
 - `CLAUDE.md` managed block or new file when Claude is active
 - `AGENTS.md` managed block or new file when Codex/general agent support is active
 - missing `.cursor/rules` or `.agents/skills` shims only if the installer did not add them
@@ -63,7 +80,7 @@ Show one unified diff for:
 Ask exactly:
 
 ```text
-Apply this proposed backbone? Reply yes, edit, or abort.
+Apply this proposed backbone and convention rules? Reply yes, edit, or abort.
 ```
 
 ## Apply after user says yes
@@ -96,6 +113,7 @@ node scripts/init-backbone.mjs . --write --yes
 
 - Read `backbone.yml` before changing code.
 - If `meta.template_status` is `uninitialized`, follow `FIRST_TIME_INIT.md` and wait for approval before writing.
+- After init, follow `backbone.yml` `conventions` before adding new project patterns.
 - Prefer project skills for multi-step workflows: `/autoresearch-coding`, `/security-scan`, `/daily-enhance`.
 <!-- END: minimal-vibe-coding-kit -->
 ```
@@ -112,4 +130,5 @@ node scripts/init-backbone.mjs . --write --yes
 - Do not run package scripts, hooks, MCP servers, deploys, migrations, or destructive commands during init.
 - Do not modify protected paths unless the user explicitly approves.
 - Keep `CLAUDE.md`, `AGENTS.md`, and Cursor rules concise. Move procedures into skills.
+- Do not hardcode paths, resources, user-facing text, config keys, routes, or generated values when the repo already has a shared accessor or definition.
 - If unsure, produce a proposal and ask for `yes`, `edit`, or `abort`.

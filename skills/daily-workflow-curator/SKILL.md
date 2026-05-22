@@ -26,7 +26,7 @@ node scripts/validate-kit.mjs .
 4. Run AgentShield read-only probe if present:
 
 ```bash
-python skills/agentshield-security-review/scripts/agentshield_repo_probe.py .
+node scripts/agentshield-probe.mjs .
 ```
 
 5. Identify stale, duplicated, or overly broad rules.
