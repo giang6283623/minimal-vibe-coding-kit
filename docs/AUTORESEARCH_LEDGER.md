@@ -6,6 +6,6 @@ This file summarizes the improvement loop used to build the enhanced kit artifac
 |---|---:|---|---|
 | Baseline review | clone unavailable; web inspection showed current kit has core files and long init/backbone templates | keep | established requirements and constraints |
 | Build enhanced structure | `node scripts/validate-kit.mjs .` | pending during build | created installer, minimal templates, skills, rules, Codex support, AgentShield integration |
-| Security probe | `python skills/agentshield-security-review/scripts/agentshield_repo_probe.py .` | pending during build | validates agent surfaces without executing hooks |
+| Security probe | `node scripts/agentshield-probe.mjs .` | pending during build | validates agent surfaces without executing hooks |
 
 Final validation results are reported in `BUILD_REPORT.md` at artifact generation time.

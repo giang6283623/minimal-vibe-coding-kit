@@ -30,6 +30,27 @@ paths:
     - build/
     - coverage/
 
+conventions:
+  review_required_before_write: true
+  scope: <<repo|per-app|per-package|mixed>>
+  naming:
+    files: <<detected|not-detected>>
+    directories: <<detected|not-detected>>
+    symbols: <<detected|not-detected>>
+    evidence: []
+  architecture:
+    detected: []
+    rule: detect existing layers, modules, screens, services, packages, or apps before adding new structure
+  resources:
+    detected_asset_roots: []
+    detected_registries: []
+    rule: use existing resource accessors or generated APIs before hardcoding asset/resource paths
+  localization:
+    detected_catalogs: []
+    detected_accessors: []
+    rule: use existing message/localization accessors before hardcoding user-facing text
+  custom_rules: []
+
 commands:
   install: null
   test: null
@@ -74,5 +95,5 @@ automation:
     report_dir: .vibekit/reports
     write_mode: propose_only
   security:
-    probe: python skills/agentshield-security-review/scripts/agentshield_repo_probe.py .
+    probe: node scripts/agentshield-probe.mjs .
     scan: npx ecc-agentshield scan --path . --format text --min-severity medium

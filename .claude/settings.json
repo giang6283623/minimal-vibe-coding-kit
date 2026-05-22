@@ -7,7 +7,10 @@
       "Bash(curl *|*sh:*)",
       "Bash(wget *|*sh:*)",
       "Bash(npm publish:*)",
-      "Bash(npx * --yes:*)"
+      "Bash(npx * --yes:*)",
+      "Bash(migrate *)",
+      "Bash(docker compose up*)",
+      "Bash(docker-compose up*)"
     ]
   },
   "skillOverrides": {

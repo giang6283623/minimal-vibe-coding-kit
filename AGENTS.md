@@ -9,12 +9,14 @@ Shared instructions for Claude, Cursor, Codex, and other coding agents.
 
 - Read `backbone.yml` before changing code.
 - If `meta.template_status` is `uninitialized`, follow `FIRST_TIME_INIT.md` and wait for approval before writing.
+- After init, follow the `conventions` rules in `backbone.yml`; ask before changing broad project patterns.
 - Prefer concise root instructions. Put long procedures in skills and docs.
 
 ### Work style
 
 - Start with a short plan for multi-file or risky changes.
 - Prefer small, reviewable diffs.
+- Reuse existing resource, localization, route, config, and generated-definition accessors instead of hardcoding literals when the repo has them.
 - Run the validation command listed in `backbone.yml` after relevant changes.
 - Summarize changed files, validation results, and remaining risks.
 

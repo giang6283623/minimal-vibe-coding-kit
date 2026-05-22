@@ -7,6 +7,7 @@ Use one of these after installing the kit into a project.
 ```text
 Read FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit.
 First print the requirements you will check. Then run detection, propose one diff for backbone.yml and managed instruction blocks, and wait for my yes before writing.
+Include inferred project conventions for naming, architecture, resources, localization, generated definitions, and per-app/package differences.
 After approval, write the files, run validation, and summarize what changed.
 ```
 
@@ -25,7 +26,7 @@ Read FIRST_TIME_INIT.md and .cursor/rules. Initialize backbone.yml. Do not repla
 ## Codex
 
 ```text
-Read AGENTS.md and FIRST_TIME_INIT.md. Use the vibekit-init skill if available. Initialize backbone.yml, keep AGENTS.md concise, and wait for approval before writing.
+Read AGENTS.md and FIRST_TIME_INIT.md. Use the vibekit-init skill if available. Initialize backbone.yml, include inferred project conventions, keep AGENTS.md concise, and wait for approval before writing.
 ```
 
 ## Autoresearch improvement loop for this kit

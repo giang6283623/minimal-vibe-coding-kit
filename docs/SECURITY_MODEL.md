@@ -15,7 +15,7 @@ Review these before merging changes:
 Read-only probe:
 
 ```bash
-python skills/agentshield-security-review/scripts/agentshield_repo_probe.py .
+node scripts/agentshield-probe.mjs .
 ```
 
 Full scanner when available:

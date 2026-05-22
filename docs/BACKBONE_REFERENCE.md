@@ -7,6 +7,7 @@
 - `meta`: init status and schema version.
 - `project`: name, description, repo type, primary language, package manager.
 - `paths`: code, tests, docs, and generated output.
+- `conventions`: user-reviewed project rules inferred from existing code.
 - `commands`: install, test, lint, typecheck, build, validate.
 - `policy`: branch, commit, editable paths, protected paths.
 - `agent_surfaces`: Claude, Cursor, Codex, shared skills, shared commands.
@@ -34,6 +35,20 @@ Examples:
 - Java: `mvn test`, `gradle test`.
 
 If no command is known, leave `validate` as a safe echo and ask the user to fill it.
+
+## Conventions
+
+The `conventions` section is created during first-time init and must be reviewed before writing. It should capture repo-specific rules with evidence, not a fixed framework template.
+
+Include:
+
+- Naming style for files, directories, and symbols.
+- Architecture or folder patterns, scoped per app/package when evidence differs.
+- Resource access rules for assets, images, routes, API paths, config keys, design tokens, or generated definitions.
+- Localization/message access rules when catalogs or generated accessors exist.
+- Custom team rules confirmed by the user.
+
+If the repo has an accessor such as `AppImages.logo`, an asset registry, generated routes, `.arb` localization, or a message helper, future work should use that pattern instead of hardcoded literals. If no convention exists and adding one would affect many files, ask before adding the abstraction.
 
 ## Protected paths
 

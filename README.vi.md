@@ -75,11 +75,13 @@ Luồng hoạt động:
 
 1. Cài kit vào project. `backbone.yml` mặc định có `meta.template_status: uninitialized` và các giá trị `<<PLACEHOLDER>>`.
 2. Dán [prompt đầu tiên](#prompt-đầu-tiên) vào Claude Code, Cursor, hoặc Codex.
-3. Agent quét fingerprint stack, suy ra giá trị, và **đề xuất một diff thống nhất**.
-4. Bạn xem và phê duyệt (`yes` / `edit` / `abort`). Agent chỉ ghi sau khi được duyệt và đổi status sang `initialized`.
+3. Agent quét fingerprint stack và các quy ước hiện có, rồi **đề xuất một diff thống nhất**.
+4. Bạn review backbone và project rules được suy ra (`yes` / `edit` / `abort`). Agent chỉ ghi sau khi được duyệt và đổi status sang `initialized`.
 5. Mọi phiên sau đó đọc `backbone.yml` đã điền và bỏ qua bước init.
 
 Phù hợp với single-repo, monorepo và multi-repo. Không ghi đè ngầm. Không có code đặc thù dự án trong kit gốc.
+
+Trong lần init đầu tiên, proposal cũng ghi lại rules riêng của repo trong `backbone.yml` dưới mục `conventions`: naming style, kiến trúc thư mục, cách truy cập asset/resource dùng chung, localization/message accessor, generated definitions, và khác biệt theo app/package khi evidence không giống nhau.
 
 ## Bắt đầu nhanh
 
@@ -114,14 +116,15 @@ npx github:giang6283623/minimal-vibe-coding-kit install /path/to/your-project
 ```bash
 cd /path/to/your-project
 node scripts/init-backbone.mjs . --propose      # xem trước đề xuất
-node scripts/init-backbone.mjs . --write --yes  # ghi sau khi bạn đã review
+node scripts/init-backbone.mjs . --write --yes  # ghi sau khi bạn đã review backbone + rules
 ```
 
 ### 3. Validate
 
 ```bash
-node scripts/validate-kit.mjs .
-python skills/agentshield-security-review/scripts/agentshield_repo_probe.py .
+npm test
+npm run security:probe
+node scripts/mvck.mjs doctor .
 ```
 
 ### 4. Mở project và dán [prompt đầu tiên](#prompt-đầu-tiên).
@@ -134,6 +137,8 @@ Dán đoạn này vào Claude Code, Cursor, hoặc Codex sau khi cài kit:
 Read FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit.
 First print the requirements you will check. Then run detection, propose one diff
 for backbone.yml and managed instruction blocks, and wait for my yes before writing.
+Include inferred project conventions for naming, architecture, resources,
+localization, generated definitions, and per-app/package differences.
 After approval, write the files, run validation, and summarize what changed.
 ```
 
@@ -254,7 +259,7 @@ Initialize backbone.yml, keep AGENTS.md concise, and wait for approval before wr
 | `/autoresearch-coding` | `autoresearch-coding` | Cải tiến repo qua các thử nghiệm có thể đo, kèm baseline + budget. |
 | `/council` | (đa agent) | Phối hợp research-coordinator, security-reviewer, code-reviewer, results-analyst. |
 
-### Skills (`skills/` là canonical; `.claude/skills` và `.agents/skills` mirror lại)
+### Skills (`skills/` là canonical; `.claude/skills`, `.agents/skills`, và `.cursor/skills` mirror lại)
 
 | Skill | Mục đích |
 | --- | --- |
@@ -262,6 +267,11 @@ Initialize backbone.yml, keep AGENTS.md concise, and wait for approval before wr
 | [`autoresearch-coding`](skills/autoresearch-coding/SKILL.md) | Vòng lặp nghiên cứu theo metric, có baseline, experiment và log kết quả. |
 | [`agentshield-security-review`](skills/agentshield-security-review/SKILL.md) | Probe chỉ đọc + scanner tùy chọn cho bảo mật bề mặt agent. |
 | [`daily-workflow-curator`](skills/daily-workflow-curator/SKILL.md) | Báo cáo daily + đề xuất diff. Không bao giờ ghi ngầm. |
+| [`clearthought`](skills/clearthought/SKILL.md) | Lý luận có cấu trúc cho task mơ hồ, debug, thiết kế, và lập kế hoạch triển khai. |
+| [`sequential-thinking`](skills/sequential-thinking/SKILL.md) | Chia nhỏ công việc phức tạp theo từng bước, có revision và branch. |
+| [`reviewing-4p-priorities`](skills/reviewing-4p-priorities/SKILL.md) | Triage P0-P4 cho bug, review finding, rủi ro, và thứ tự fix. |
+
+Ba skill reasoning này có kèm examples/references trong thư mục skill và chỉ load khi cần thêm chi tiết.
 
 ### Agents (`.claude/agents/`)
 
@@ -297,7 +307,7 @@ Hợp đồng vòng lặp:
 Probe chỉ đọc, nhanh (chỉ cần Python):
 
 ```bash
-python skills/agentshield-security-review/scripts/agentshield_repo_probe.py .
+node scripts/agentshield-probe.mjs .
 ```
 
 Scanner đầy đủ (tùy chọn, khi có npm):
@@ -334,10 +344,10 @@ Cải tiến hằng ngày mặc định **chỉ đề xuất**. Không tự comm
 
 ```bash
 npm run validate        # validate cấu trúc
-npm run validate:all    # validate + AgentShield probe + npm pack --dry-run
+npm run validate:all    # validate + AgentShield probe + package dry-run
 ```
 
-Kết quả mong đợi: validation pass, AgentShield probe không báo lỗi cấu trúc nghiêm trọng, và `npm pack --dry-run` liệt kê đúng các file trong package.
+Kết quả mong đợi: validation pass, AgentShield probe không báo lỗi cấu trúc nghiêm trọng, và `npm run pack:dry-run` liệt kê đúng các file trong package.
 
 Checklist publish nằm trong [PUSH_TO_GITHUB.md](PUSH_TO_GITHUB.md).
 

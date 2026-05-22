@@ -12,16 +12,23 @@ Initialize the kit safely.
 ## Required behavior
 
 1. Print the requirements checklist from `FIRST_TIME_INIT.md`.
-2. Run or emulate detection:
+2. Run or emulate detection, including repo-specific conventions:
 
 ```bash
 node scripts/init-backbone.mjs . --propose
 ```
 
-3. Propose a unified diff for `backbone.yml` and managed blocks.
-4. Ask: `Apply this proposed backbone? Reply yes, edit, or abort.`
+3. Propose a unified diff for `backbone.yml`, its `conventions` rules, and managed blocks.
+4. Ask: `Apply this proposed backbone and convention rules? Reply yes, edit, or abort.`
 5. Write only after explicit `yes`.
 6. Validate after writing.
+
+## Convention detection
+
+- Infer naming, directory layout, architecture, shared resource access, localization/message access, generated definitions, and per-app/package differences from existing files.
+- Prefer existing constants, registries, generated APIs, and helper modules over hardcoded literals when the repo already has them.
+- If no convention is clear, mark it as not detected and ask before introducing a broad new pattern.
+- Store confirmed project rules in `backbone.yml` under `conventions`; later work must follow those rules unless the user edits them.
 
 ## Merge policy
 
