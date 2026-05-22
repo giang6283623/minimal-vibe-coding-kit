@@ -1,0 +1,36 @@
+name: vibekit-validate
+
+on:
+  pull_request:
+    paths:
+      - "AGENTS.md"
+      - "CLAUDE-template.md"
+      - "FIRST_TIME_INIT.md"
+      - "backbone.yml"
+      - ".claude/**"
+      - ".cursor/**"
+      - ".agents/**"
+      - ".codex-plugin/**"
+      - "skills/**"
+      - "commands/**"
+      - "scripts/**"
+      - ".github/workflows/vibekit-validate.yml"
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Validate kit structure
+        run: node scripts/validate-kit.mjs .
+      - name: AgentShield read-only probe
+        run: python skills/agentshield-security-review/scripts/agentshield_repo_probe.py .

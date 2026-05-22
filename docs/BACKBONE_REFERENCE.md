@@ -1,0 +1,44 @@
+# Backbone reference
+
+`backbone.yml` is the project map. Keep it short enough that agents can read it every session.
+
+## Required sections
+
+- `meta`: init status and schema version.
+- `project`: name, description, repo type, primary language, package manager.
+- `paths`: code, tests, docs, and generated output.
+- `commands`: install, test, lint, typecheck, build, validate.
+- `policy`: branch, commit, editable paths, protected paths.
+- `agent_surfaces`: Claude, Cursor, Codex, shared skills, shared commands.
+- `automation`: autoresearch, daily enhance, security.
+
+## Init status
+
+`meta.template_status` is the durable init flag.
+
+- `uninitialized`: agent must run `FIRST_TIME_INIT.md`.
+- `initialized`: agent skips init and proceeds.
+
+`.vibekit/INIT_DONE` is a local cache only. It helps prevent same-machine repeat init, but does not need to be committed.
+
+## Command selection
+
+Use the most specific command the repo already supports.
+
+Examples:
+
+- Node: `pnpm test`, `npm test`, `npm run build`.
+- Python: `pytest -q`, `ruff check .`, `pyright`.
+- Go: `go test ./...`, `go build ./...`.
+- Rust: `cargo test`, `cargo clippy --all-targets`.
+- Java: `mvn test`, `gradle test`.
+
+If no command is known, leave `validate` as a safe echo and ask the user to fill it.
+
+## Protected paths
+
+Protect secrets, generated output, dependency folders, lockfiles, migrations, and infra by default. The user can explicitly approve a narrow exception.
+
+## Editable paths
+
+For normal tasks, editable paths should be narrow. For an initial kit install, `.` is acceptable only until project-specific paths are detected.

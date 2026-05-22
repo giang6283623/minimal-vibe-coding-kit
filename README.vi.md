@@ -1,280 +1,382 @@
 <div align="center">
 
-**Ngôn ngữ:** [English](README.md) · **Tiếng Việt**
+**Đọc bằng:** [English](README.md) · **Tiếng Việt**
 
 # Minimal Vibe Coding Kit
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-![Claude](https://img.shields.io/badge/Claude-Command%20%26%20Skills-111111)
-![Cursor](https://img.shields.io/badge/Cursor-Command%20%26%20Skills-1f6feb)
-![Markdown](https://img.shields.io/badge/Format-Markdown-000000?logo=markdown&logoColor=white)
-![Focus](https://img.shields.io/badge/Focus-Minimal%20%26%20Reusable-2ea44f)
+[![Version](https://img.shields.io/badge/version-0.2.0-2ea44f.svg)](CHANGELOG.md)
+![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
+![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
+![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
+![AgentShield](https://img.shields.io/badge/Security-AgentShield-d62828)
+![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)
 
-**Bộ kit tối giản, không phụ thuộc dự án, cho workflow AI-coding tái sử dụng — chạy trên mọi repo, mọi ngôn ngữ.**
+**Một bộ kit AI-coding gọn nhẹ cho Claude Code, Cursor và Codex — chạy được trên mọi repo, mọi ngôn ngữ.**
 
-Copy vào → để AI tự detect stack → duyệt đề xuất → bắt tay ship code.
+Cài đặt, để agent tự dò stack, duyệt diff đề xuất, rồi bắt đầu code.
 
 </div>
 
 ---
 
-## Mục Lục
+## Mục lục
 
-- [Repo Này Là Gì](#repo-này-là-gì)
-- [Cách Hoạt Động (Template + Auto-Init)](#cách-hoạt-động-template--auto-init)
-- [Bắt Đầu Nhanh](#bắt-đầu-nhanh)
-- [Prompt Init Lần Đầu](#prompt-init-lần-đầu)
-- [Cấu Trúc Repo](#cấu-trúc-repo)
-- [Tham Chiếu Thành Phần](#tham-chiếu-thành-phần)
-- [Best Practice](#best-practice)
-- [Khắc Phục Sự Cố](#khắc-phục-sự-cố)
-- [Giấy Phép MIT](#giấy-phép-mit)
+- [Có gì mới ở 0.2.0](#có-gì-mới-ở-020)
+- [Bộ kit này là gì](#bộ-kit-này-là-gì)
+- [Bắt đầu nhanh](#bắt-đầu-nhanh)
+- [Prompt đầu tiên](#prompt-đầu-tiên)
+- [Profile cài đặt](#profile-cài-đặt)
+- [Cấu trúc repo](#cấu-trúc-repo)
+- [Workflow theo từng tool](#workflow-theo-từng-tool)
+- [Tham chiếu Commands & Skills](#tham-chiếu-commands--skills)
+- [Vòng lặp Autoresearch](#vòng-lặp-autoresearch)
+- [AgentShield - rà soát bảo mật](#agentshield---rà-soát-bảo-mật)
+- [Cải tiến hằng ngày](#cải-tiến-hằng-ngày)
+- [Validate trước khi release](#validate-trước-khi-release)
+- [Mục tiêu thiết kế](#mục-tiêu-thiết-kế)
+- [Khắc phục sự cố](#khắc-phục-sự-cố)
+- [Đóng góp](#đóng-góp)
+- [Giấy phép](#giấy-phép)
 
-> 🇬🇧 Want to read in English? See [README.md](README.md).
+> 🇺🇸 Want to read in English? See [README.md](README.md).
 
 ---
 
-## Repo Này Là Gì
+## Có gì mới ở 0.2.0
 
-Bộ kit nhẹ, không phụ thuộc dự án, gồm **rules**, **skills**, **commands** dùng chung và một **backbone manifest** giúp các AI coding (Claude Code, Cursor…) hiểu mọi dự án theo cùng một cách.
+| Mảng | Thay đổi |
+| --- | --- |
+| Trình cài đặt | CLI một lệnh: `mvck install <project>` (kèm `install.sh` / `install.ps1`). |
+| Hỗ trợ Codex | Thêm các bề mặt `.agents/`, `.codex/`, và `.codex-plugin/plugin.json`. |
+| Hướng dẫn chung | File `AGENTS.md` mới được `CLAUDE.md` import để tránh trùng lặp. |
+| Backbone | `backbone.yml` template gọn + helper tự dò cấu hình. |
+| Skills | Thêm `vibekit-init`, `agentshield-security-review`, `daily-workflow-curator`. |
+| Bảo mật | Probe AgentShield chỉ đọc + tích hợp scanner. |
+| Vòng lặp daily | `daily-enhance` chỉ đề xuất - không tự viết đè rules. |
+| Validation | `validate-kit.mjs` + GitHub Actions workflow. |
 
-Tối giản có chủ đích:
+Chi tiết đầy đủ trong [CHANGELOG.md](CHANGELOG.md).
 
-- Không framework nặng
-- Không ép cấu trúc
-- Ba file template lo phần lớn:
-  - [backbone.yml](backbone.yml) — nguồn sự thật duy nhất về cấu trúc, đường dẫn và convention của dự án.
-  - [CLAUDE-template.md](CLAUDE-template.md) — khung `CLAUDE.md` có sẵn **trigger tự khởi tạo lần đầu**.
-  - [FIRST_TIME_INIT.md](FIRST_TIME_INIT.md) — prompt + quy trình từng bước cùng guardrails để bootstrap bất kỳ repo nào.
+## Bộ kit này là gì
 
-## Cách Hoạt Động (Template + Auto-Init)
+Một bộ kit gọn nhẹ, không phụ thuộc dự án, gồm **rules**, **skills**, **commands** dùng chung, cộng với một **backbone manifest** giúp các AI coding assistant hiểu mọi project theo cùng một cách.
 
-Luồng:
+Triết lý là tối giản:
 
-1. Bạn copy kit vào dự án. `backbone.yml` mặc định `meta.template_status: uninitialized` và còn nhiều giá trị `<<PLACEHOLDER>>`.
-2. Bạn để AI tự nhận diện trạng thái chưa init, hoặc paste prompt từ [FIRST_TIME_INIT.md](FIRST_TIME_INIT.md).
-3. AI quét repo theo **stack fingerprint** khai báo ở `backbone.yml → detection` (go.mod, package.json, pyproject.toml, Cargo.toml, file config framework, marker monorepo…).
-4. AI suy luận giá trị (tên dự án, ngôn ngữ chính, port, package manager, lệnh kiểm tra, đường dẫn) và **đề xuất một diff duy nhất** cho `backbone.yml`. Nếu dự án đã có sẵn `CLAUDE.md`, AI sẽ **append** khối trigger vào cuối thay vì ghi đè.
-5. Bạn duyệt (`yes` / `edit` / `abort`). Khi duyệt, AI ghi file và đổi trạng thái thành `initialized`.
-6. Các phiên sau sẽ đọc `backbone.yml` đã điền như bản đồ chính thức và **bỏ qua** init flow.
+- Không framework nặng, không ép cấu trúc.
+- `CLAUDE.md` / `AGENTS.md` hiện có **không bao giờ bị ghi đè** - kit chỉ thêm managed block.
+- Ba file template làm phần lớn việc:
+  - [backbone.yml](backbone.yml) - nguồn sự thật duy nhất về cấu trúc, đường dẫn, quy ước.
+  - [CLAUDE-template.md](CLAUDE-template.md) - khung `CLAUDE.md` ngắn, import `AGENTS.md`.
+  - [FIRST_TIME_INIT.md](FIRST_TIME_INIT.md) - runbook khởi tạo với guardrails.
 
-Không ghi file thầm lặng. Bộ base không chứa mã đặc thù dự án. Hỗ trợ single-repo, mono-repo, multi-repo.
+Luồng hoạt động:
 
-## Bắt Đầu Nhanh
+1. Cài kit vào project. `backbone.yml` mặc định có `meta.template_status: uninitialized` và các giá trị `<<PLACEHOLDER>>`.
+2. Dán [prompt đầu tiên](#prompt-đầu-tiên) vào Claude Code, Cursor, hoặc Codex.
+3. Agent quét fingerprint stack, suy ra giá trị, và **đề xuất một diff thống nhất**.
+4. Bạn xem và phê duyệt (`yes` / `edit` / `abort`). Agent chỉ ghi sau khi được duyệt và đổi status sang `initialized`.
+5. Mọi phiên sau đó đọc `backbone.yml` đã điền và bỏ qua bước init.
+
+Phù hợp với single-repo, monorepo và multi-repo. Không ghi đè ngầm. Không có code đặc thù dự án trong kit gốc.
+
+## Bắt đầu nhanh
+
+### 1. Cài kit vào project bất kỳ
+
+Từ thư mục kit này:
 
 ```bash
-# 1. Tại thư mục gốc của kit này, copy 4 artifact vào dự án đích
-cp -R .claude /path/to/your-project/
-cp -R .cursor /path/to/your-project/             # chỉ khi bạn dùng cả Cursor
-cp backbone.yml /path/to/your-project/
-cp FIRST_TIME_INIT.md /path/to/your-project/
-
-# 2. Xử lý CLAUDE.md tuỳ trạng thái dự án:
-#    - Nếu dự án CHƯA có CLAUDE.md:
-cp CLAUDE-template.md /path/to/your-project/CLAUDE.md
-#    - Nếu dự án ĐÃ có CLAUDE.md:
-#      Giữ nguyên. AI sẽ append khối trigger trong lúc init.
-
-# 3. Mở dự án bằng Claude Code (hoặc Cursor)
-cd /path/to/your-project
-claude                                            # hoặc: cursor .
-
-# 4. Paste prompt trong FIRST_TIME_INIT.md (hoặc yêu cầu agent chạy nó).
-#    Agent sẽ đưa diff đề xuất, đợi "yes", rồi đánh dấu init hoàn tất.
+./install.sh /path/to/your-project
 ```
 
-## Prompt Init Lần Đầu
+PowerShell trên Windows:
 
-Prompt chuẩn, danh sách guardrails và logic merge-vs-replace đều ở [FIRST_TIME_INIT.md](FIRST_TIME_INIT.md).
+```powershell
+./install.ps1 -Target C:\path\to\your-project
+```
 
-Bản rút gọn để paste:
+Hoặc dùng trực tiếp Node CLI:
+
+```bash
+node scripts/mvck.mjs install /path/to/your-project --profile all
+```
+
+Sau khi repo này được publish lên GitHub, người dùng cuối cài từ bất cứ đâu bằng:
+
+```bash
+npx github:giang6283623/minimal-vibe-coding-kit install /path/to/your-project
+```
+
+### 2. Khởi tạo backbone
+
+```bash
+cd /path/to/your-project
+node scripts/init-backbone.mjs . --propose      # xem trước đề xuất
+node scripts/init-backbone.mjs . --write --yes  # ghi sau khi bạn đã review
+```
+
+### 3. Validate
+
+```bash
+node scripts/validate-kit.mjs .
+python skills/agentshield-security-review/scripts/agentshield_repo_probe.py .
+```
+
+### 4. Mở project và dán [prompt đầu tiên](#prompt-đầu-tiên).
+
+## Prompt đầu tiên
+
+Dán đoạn này vào Claude Code, Cursor, hoặc Codex sau khi cài kit:
 
 ```text
-Read FIRST_TIME_INIT.md and run the init flow. Detect my stack from the working tree,
-propose a filled backbone.yml as a diff, and append (do not overwrite) the trigger
-block to my existing CLAUDE.md if I already have one. Wait for my approval before writing.
+Read FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit.
+First print the requirements you will check. Then run detection, propose one diff
+for backbone.yml and managed instruction blocks, and wait for my yes before writing.
+After approval, write the files, run validation, and summarize what changed.
 ```
 
-## Cấu Trúc Repo
+Các biến thể prompt riêng cho từng tool có trong [FIRST_PROMPT.md](FIRST_PROMPT.md).
+
+## Profile cài đặt
+
+Cài tất cả (mặc định):
+
+```bash
+node scripts/mvck.mjs install . --profile all
+```
+
+Chỉ cài phần bạn dùng:
+
+```bash
+node scripts/mvck.mjs install . --profile claude          # chỉ Claude Code
+node scripts/mvck.mjs install . --profile claude,cursor   # Claude + Cursor
+node scripts/mvck.mjs install . --profile codex           # Codex (và bất kỳ agent dùng AGENTS.md)
+```
+
+Cờ hữu ích: `--force` (ghi đè file đã tồn tại), `--dry-run` (xem trước, không ghi).
+
+## Cấu trúc repo
 
 ```text
 .
-├── .claude/
-│   ├── Init CLaude.md                       ← hướng dẫn bootstrap (tuỳ chọn)
-│   ├── agent/                               ← sub-agent chuyên trách
-│   │   ├── code-reviewer.md
-│   │   ├── debug-fixer.md
-│   │   ├── hypothesis-planner.md
-│   │   ├── implementation-hacker.md
-│   │   ├── research-coordinator.md
-│   │   ├── results-analyst.md
-│   │   └── test-runner.md
-│   ├── command/
-│   │   └── council.md                       ← prompt điều phối đa-agent
-│   └── skills/
-│       ├── autoresearch-coding/             ← vòng research theo metric
-│       ├── clearthought/                    ← 37 phép suy luận có cấu trúc
-│       ├── reviewing-4p-priorities/         ← phân loại P0–P4 (mô hình Fibery)
-│       └── sequential-thinking/             ← suy luận tuần tự theo bước
-├── .cursor/                                 ← bản mirror của .claude/ cho Cursor
-│   ├── Init CLaude.md
-│   ├── agent/                               (cùng 7 agent)
-│   ├── command/council.md
-│   └── skills/                              (cùng 4 skill)
-├── backbone.yml                ← template manifest dự án
-├── CLAUDE-template.md          ← khung CLAUDE.md có trigger init
-├── FIRST_TIME_INIT.md          ← prompt init + guardrails
-├── LICENSE
-├── README.md                   ← bản English
-└── README.vi.md                ← bạn đang ở đây
+├── backbone.yml                  ← bản đồ project + cấu hình workflow (template)
+├── AGENTS.md                     ← hướng dẫn chung cho Claude, Cursor, Codex
+├── CLAUDE-template.md            ← starter Claude ngắn gọn (import AGENTS.md)
+├── FIRST_PROMPT.md               ← prompt copy/paste cho từng tool
+├── FIRST_TIME_INIT.md            ← runbook khởi tạo an toàn kèm guardrails
+│
+├── .claude/                      ← bề mặt Claude Code
+│   ├── agents/                   (10 role agent: code-reviewer, debug-fixer, …)
+│   ├── commands/                 (/init-vibe, /security-scan, /daily-enhance, /autoresearch-coding, /council)
+│   ├── rules/                    (vibe-core, security, autoresearch, tooling)
+│   ├── skills/                   (bản sao của shared skills)
+│   └── settings.json
+│
+├── .cursor/                      ← bề mặt Cursor (rules/, commands/)
+├── .agents/skills/               ← skills cho Codex / portable
+├── .codex/                       ← config mẫu cho Codex
+├── .codex-plugin/plugin.json     ← manifest plugin Codex
+│
+├── skills/                       ← shared skills (canonical)
+│   ├── vibekit-init/
+│   ├── autoresearch-coding/
+│   ├── agentshield-security-review/
+│   └── daily-workflow-curator/
+├── commands/                     ← prompt command dùng chung
+│
+├── scripts/                      ← CLI mvck, init-backbone, daily-enhance, validate-kit
+├── bin/                          ← entrypoint npm bin (mvck, vibe-kit)
+├── docs/                         ← tài liệu sâu hơn (giữ ngoài root)
+└── .github/workflows/            ← workflow validation cho repo
 ```
 
-## Tham Chiếu Thành Phần
+## Workflow theo từng tool
 
-### Templates
+### Claude Code
 
-| File                                     | Vai trò                                                                                                                    | Khi nào sửa                                                                                          |
-| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| [backbone.yml](backbone.yml)             | Khai báo tên dự án, repo, cấu trúc, convention, lệnh kiểm tra, đường dẫn được/không được sửa. AI đọc mỗi phiên.            | Được điền tự động ở lần init đầu. Sau đó sửa tay khi đổi thư mục, đổi port, hoặc thêm rule/workflow. |
-| [CLAUDE-template.md](CLAUDE-template.md) | Trở thành `CLAUDE.md` của dự án. Chứa trigger init lần đầu, rule autoresearch, rule dùng `trash` thay `rm`.                | Chỉ sửa phần _"Project-specific notes"_ ở cuối. Giữ nguyên khối trigger để có thể init lại.          |
-| [FIRST_TIME_INIT.md](FIRST_TIME_INIT.md) | Runbook init độc lập: prompt sẵn để paste, quy trình từng bước, guardrails (merge CLAUDE.md, done-marker, chống chạy lại). | Chỉ siết guardrail hoặc thêm phép detection khi thực sự cần.                                         |
+Claude đọc `CLAUDE.md`, `AGENTS.md`, `.claude/rules`, `.claude/commands`, `.claude/agents`, và `.claude/skills`.
+
+Các slash command hữu ích:
+
+```text
+/init-vibe              khởi tạo hoặc sửa setup của kit
+/security-scan          AgentShield probe + scan
+/daily-enhance          sinh báo cáo cải tiến chỉ đề xuất
+/autoresearch-coding    chạy vòng lặp thử nghiệm có metric
+/council                phối hợp nhiều agent chuyên biệt
+```
+
+`CLAUDE.md` sinh ra cố tình giữ ngắn và import nội dung chung qua `@AGENTS.md`.
+
+### Cursor
+
+Cursor nhận project rules từ:
+
+```text
+.cursor/rules/*.mdc      001-vibe-core, 010-init, 020-security-agentshield, 030-autoresearch-loop
+.cursor/commands/*.md    cùng 5 command như Claude
+AGENTS.md
+backbone.yml
+```
+
+Rules được tách theo chủ đề để context luôn nhỏ.
+
+### Codex
+
+Codex nhận hướng dẫn từ:
+
+```text
+AGENTS.md
+.agents/skills/*/SKILL.md
+.codex/config.example.toml
+.codex-plugin/plugin.json
+backbone.yml
+```
+
+Prompt khuyến nghị:
+
+```text
+Read AGENTS.md and FIRST_TIME_INIT.md. Use the vibekit-init skill if available.
+Initialize backbone.yml, keep AGENTS.md concise, and wait for approval before writing.
+```
+
+## Tham chiếu Commands & Skills
 
 ### Commands
 
-| Thành phần                                               | Mô tả ngắn                 | Khi nào dùng                                                                 |
-| -------------------------------------------------------- | -------------------------- | ---------------------------------------------------------------------------- |
-| [.claude/command/council.md](.claude/command/council.md) | Prompt điều phối đa-agent. | Phân tích cấp cao, lập kế hoạch, thay đổi nhiều file. `use /council n=15, …` |
+| Command | Skill phía sau | Dùng khi |
+| --- | --- | --- |
+| `/init-vibe` | `vibekit-init` | Init lần đầu hoặc sửa chữa. In requirements, đề xuất diff, chờ duyệt. |
+| `/security-scan` | `agentshield-security-review` | Review bề mặt agent, hooks, MCP, skills, commands, installer. |
+| `/daily-enhance` | `daily-workflow-curator` | Đề xuất cải tiến rules, skills, workflows, `backbone.yml`. Chỉ propose. |
+| `/autoresearch-coding` | `autoresearch-coding` | Cải tiến repo qua các thử nghiệm có thể đo, kèm baseline + budget. |
+| `/council` | (đa agent) | Phối hợp research-coordinator, security-reviewer, code-reviewer, results-analyst. |
 
-### Skills (`.claude/skills/`)
+### Skills (`skills/` là canonical; `.claude/skills` và `.agents/skills` mirror lại)
 
-| Skill                                                               | Vai trò                                                                                     | Khi nào dùng                                                                     |
-| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| [autoresearch-coding/](.claude/skills/autoresearch-coding/)         | Vòng research theo metric: baseline, thử nghiệm, log kết quả.                               | Tinh chỉnh hiệu năng, tìm prompt/model tốt nhất, bất cứ task nào chấm điểm được. |
-| [clearthought/](.claude/skills/clearthought/)                       | 37 phép suy luận có cấu trúc (mental model, decision framework, simulation, optimisation…). | Debug phức tạp, trade-off kiến trúc, ra quyết định khi đã rõ option.             |
-| [reviewing-4p-priorities/](.claude/skills/reviewing-4p-priorities/) | Phân loại issue/task theo P0–P4 theo mô hình Fibery.                                        | Triage bug, dọn backlog, cần thước đo ưu tiên nhất quán.                         |
-| [sequential-thinking/](.claude/skills/sequential-thinking/)         | Suy luận tuần tự có revision và rẽ nhánh.                                                   | Tác vụ dài, logic theo giai đoạn, khám phá khi scope chưa rõ.                    |
+| Skill | Mục đích |
+| --- | --- |
+| [`vibekit-init`](skills/vibekit-init/SKILL.md) | Init lần đầu: dò stack, đề xuất diff, chờ `yes`, rồi mới ghi. |
+| [`autoresearch-coding`](skills/autoresearch-coding/SKILL.md) | Vòng lặp nghiên cứu theo metric, có baseline, experiment và log kết quả. |
+| [`agentshield-security-review`](skills/agentshield-security-review/SKILL.md) | Probe chỉ đọc + scanner tùy chọn cho bảo mật bề mặt agent. |
+| [`daily-workflow-curator`](skills/daily-workflow-curator/SKILL.md) | Báo cáo daily + đề xuất diff. Không bao giờ ghi ngầm. |
 
-### Agents (`.claude/agent/`)
+### Agents (`.claude/agents/`)
 
-Prompt vai trò sẵn dùng cho công việc được uỷ thác. Gọi bằng `claude --agent <name>` hoặc để council spawn.
+Role prompt sẵn sàng dùng: `code-reviewer`, `debug-fixer`, `hypothesis-planner`, `implementation-hacker`, `research-coordinator`, `results-analyst`, `test-runner`, `security-reviewer`, `context-architect`, `workflow-curator`.
 
-| Agent                                                              | Vai trò                                                     |
-| ------------------------------------------------------------------ | ----------------------------------------------------------- |
-| [code-reviewer.md](.claude/agent/code-reviewer.md)                 | Reviewer độc lập cho diff và PR.                            |
-| [debug-fixer.md](.claude/agent/debug-fixer.md)                     | Tái hiện, cô lập, và fix một defect cụ thể.                 |
-| [hypothesis-planner.md](.claude/agent/hypothesis-planner.md)       | Sinh hypothesis kiểm chứng được và kế hoạch thí nghiệm.     |
-| [implementation-hacker.md](.claude/agent/implementation-hacker.md) | Implementer nhanh-gọn cho spike/prototype.                  |
-| [research-coordinator.md](.claude/agent/research-coordinator.md)   | Điều phối toàn bộ vòng autoresearch.                        |
-| [results-analyst.md](.claude/agent/results-analyst.md)             | Đọc `results.tsv`, so sánh các lần chạy, đề xuất bước tiếp. |
-| [test-runner.md](.claude/agent/test-runner.md)                     | Chạy và triage output test/lint/typecheck.                  |
+## Vòng lặp Autoresearch
 
-### Bản mirror cho Cursor
-
-[.cursor/](.cursor/) là bản gương đầy đủ của `.claude/` (`agent/`, `command/`, `skills/`) để người dùng Cursor có hành vi giống hệt. Mọi thay đổi phải đồng bộ giữa hai cây thư mục.
-
-### Prompt Mẫu
-
-#### Tác vụ hằng ngày — chuỗi bước, bước sau dùng kết quả bước trước
-
-Dùng làm prompt mở đầu mặc định. Nó ghim AI vào `CLAUDE.md` + `backbone.yml` (để luôn theo protected paths, command checks, reasoning policy của bạn) và bắt AI lập kế hoạch từng bước, bước sau dùng kết quả của bước trước nhằm nhất quán giữ án.
-
-**Template:**
+Dùng khi bạn muốn agent cải tiến repo qua các thử nghiệm đo được:
 
 ```text
-follow CLAUDE.md and backbone.yml to help me step by step:
-- Step 1: Analyze ...
-- Step 2: Using Step 1's findings, ...
-- Step 3: Using Step 2's findings, ...
+Use the autoresearch-coding skill.
+Goal: improve this repo for maintainability and coding-agent usefulness.
+Metric command: node scripts/validate-kit.mjs .
+Direction: higher.
+Editable paths: README.md docs scripts skills commands .claude .cursor .agents
+                .codex-plugin backbone.yml AGENTS.md CLAUDE-template.md
+                FIRST_TIME_INIT.md package.json install.sh install.ps1.
+Protected paths: .git .env* node_modules vendor secrets lockfiles.
+Budget: 3.
 ```
 
-**Ví dụ — debug một endpoint chậm:**
+Hợp đồng vòng lặp:
+
+1. Chạy metric baseline.
+2. Thực hiện một thử nghiệm nhỏ.
+3. Chạy lại metric.
+4. Chỉ giữ lại cải tiến hoặc đơn giản hóa an toàn.
+5. Ghi log kết quả.
+6. Lặp cho đến hết budget.
+
+## AgentShield - rà soát bảo mật
+
+Probe chỉ đọc, nhanh (chỉ cần Python):
+
+```bash
+python skills/agentshield-security-review/scripts/agentshield_repo_probe.py .
+```
+
+Scanner đầy đủ (tùy chọn, khi có npm):
+
+```bash
+npx ecc-agentshield scan --path . --format text --min-severity medium
+```
+
+Nguyên tắc bảo mật:
+
+- Không chạy hooks, MCP server, package lifecycle scripts, deploy scripts, migrations, hoặc lệnh phá hủy nào chỉ để kiểm tra một repo lạ.
+- Không bao giờ in secrets đầy đủ.
+- Mọi thay đổi tới `CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.codex-plugin/**`, `skills/**`, `commands/**`, hooks, hoặc MCP config đều phải kích hoạt review kiểu AgentShield.
+
+## Cải tiến hằng ngày
+
+Sinh báo cáo local:
+
+```bash
+node scripts/daily-enhance.mjs . --write-report
+```
+
+Prompt cho agent:
 
 ```text
-follow CLAUDE.md and backbone.yml to help me step by step:
-- Step 1: Phân tích đường đi của request GET /api/v1/orders và liệt kê mọi layer nó đi qua
-  (router → middleware → service → repository → DB query).
-- Step 2: Dùng kết quả Step 1, chỉ ra 2 chỗ nhiều khả năng gây latency p95 1.2s
-  mà production log đang ghi nhận.
-- Step 3: Dùng kết quả Step 2, đề xuất fix với diff nhỏ nhất trước, liệt kê rủi ro,
-  và viết đúng command_checks mình nên chạy trước khi merge.
+Use the daily-workflow-curator skill. Run the daily report, AgentShield probe,
+and kit validation. Propose improvements to rules, skills, workflows, and
+backbone.yml. Do not write until I approve the diff.
 ```
 
-**Ví dụ — thêm tính năng:**
+Cải tiến hằng ngày mặc định **chỉ đề xuất**. Không tự commit hay viết đè rules.
 
-```text
-follow CLAUDE.md and backbone.yml to help me step by step:
-- Step 1: Phân tích chỗ đang sinh notification hiện tại và đường dẫn nào đang được protect
-  (không được sửa thầm).
-- Step 2: Dùng kết quả Step 1, thiết kế tính năng opt-in email digest tối giản, tái sử dụng
-  bảng notification hiện có — không thêm migration trừ khi bắt buộc.
-- Step 3: Dùng kết quả Step 2, implement end-to-end và báo cáo file đã đổi, rủi ro, follow-up.
+## Validate trước khi release
+
+```bash
+npm run validate        # validate cấu trúc
+npm run validate:all    # validate + AgentShield probe + npm pack --dry-run
 ```
 
-#### Biến thể nhiều skill — khi task khó nhằn
+Kết quả mong đợi: validation pass, AgentShield probe không báo lỗi cấu trúc nghiêm trọng, và `npm pack --dry-run` liệt kê đúng các file trong package.
 
-Lồng thêm reasoning skill khi scope chưa rõ hoặc trade-off không hiển nhiên:
+Checklist publish nằm trong [PUSH_TO_GITHUB.md](PUSH_TO_GITHUB.md).
 
-```text
-use /sequential-thinking, /clearthought, and /council with n=20, follow CLAUDE.md and
-backbone.yml to help me step by step:
-- Step 1: Phân tích ...
-- Step 2: Dùng kết quả Step 1 để ...
-- Step 3: Dùng kết quả Step 2 để ...
-```
+## Mục tiêu thiết kế
 
-| Thành phần                  | Tip                                                     | Ví dụ                                                                           |
-| --------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| Command `council`           | `n=` để chỉnh số agent.                                 | `use /council n=15, how does authentication work?`                              |
-| Skill `sequential-thinking` | Yêu cầu rõ từng bước + checkpoint với tác vụ dài.       | `use /sequential-thinking to debug login timeout step by step with checkpoints` |
-| Skill `clearthought`        | Yêu cầu so sánh trade-off và rủi ro khi chọn phương án. | `use /clearthought to compare JWT vs session auth for this codebase`            |
+- Dùng được với mọi ngôn ngữ và framework.
+- Hỗ trợ project đang có sẵn mà không ghi đè hướng dẫn riêng của bạn.
+- Giữ file root ngắn - thủ tục dài đẩy vào skills và `docs/`.
+- Cải tiến AI workflow phải đo được qua autoresearch.
+- Đưa security review bề mặt agent thành một phần của workflow bình thường.
 
-## Best Practice
+## Khắc phục sự cố
 
-**Cài đặt ban đầu**
+| Triệu chứng | Nguyên nhân thường gặp | Cách xử lý |
+| --- | --- | --- |
+| Agent bỏ qua luồng init | Thiếu `CLAUDE.md` hoặc managed block bị xóa. | Chạy lại installer, hoặc copy [CLAUDE-template.md](CLAUDE-template.md) thành `CLAUDE.md`. |
+| Agent hỏi init lại mỗi phiên | `meta.template_status` vẫn `uninitialized`. | Chạy init, duyệt diff, đảm bảo `template_status` thành `initialized` và `initialized_at` đã được set. |
+| Dò sai stack | Lockfile của ngôn ngữ cũ còn sót, hoặc pattern dò chưa cập nhật. | Xóa file cũ, hoặc mở rộng phần detection trong [backbone.yml](backbone.yml). |
+| Agent chạm vào path không nên | Path chưa có trong `policy.protected_paths`. | Thêm vào (hỗ trợ glob). |
+| `CLAUDE.md` cũ bị ghi đè | Guardrail merge bị bypass. | Khôi phục từ git. Chạy lại installer - kit chỉ append managed block. |
+| Validation cảnh báo AgentShield probe | Thiếu Python hoặc script probe. | Cài Python 3, hoặc bỏ qua - đây là warning, không phải failure. |
+| Sau khi install không thấy `node scripts/...` | Installer bỏ qua file đã có. | Chạy lại với `--force`, hoặc copy thủ công thư mục `scripts/`. |
 
-- Commit `backbone.yml` và `CLAUDE.md` vào repo. Đây là config cấp dự án, không phải cấp cá nhân.
-- Không để secret trong `backbone.yml`. File chỉ chứa _đường dẫn_ và _lệnh_, không bao giờ giá trị.
-- Sau init, đọc lại `backbone.yml` được sinh ra và siết `conventions.editable_paths` / `protected_paths` cho phù hợp đội.
+## Đóng góp
 
-**Hằng ngày**
+Issue và PR luôn welcome tại [`giang6283623/minimal-vibe-coding-kit`](https://github.com/giang6283623/minimal-vibe-coding-kit).
 
-- Coi `backbone.yml` là nguồn sự thật. Khi đổi tên thư mục hay thêm workflow thì cập nhật manifest trước — AI sẽ tự theo.
-- Dùng `sequential-thinking` khi _khám phá_ (scope chưa rõ), dùng `clearthought` khi _ra quyết định_ (đã có option, cần chọn).
-- Ưu tiên `council` khi thay đổi đụng quá hai file.
+Khi sửa kit:
 
-**Khi sửa chính kit này**
+- Mirror thay đổi giữa `.claude/`, `.cursor/`, và `.agents/` để cả ba tool đồng bộ.
+- Giữ template trung lập - không tên công ty, không port hardcode.
+- Mỗi command/skill mới phải có một dòng mô tả mục đích và một ví dụ.
+- Chạy `npm run validate:all` trước khi mở PR.
 
-- Giữ template gốc trung lập với dự án. Không nhúng tên công ty, port cố định, framework nội bộ.
-- Mọi thay đổi phải đồng bộ giữa `.claude/` và `.cursor/`.
-- Mỗi command/skill mới phải có một dòng mục đích và một ví dụ.
-- Prompt nhỏ, ghép được luôn tốt hơn prompt to một cục.
+**Tác giả:** [GiangBV](https://www.linkedin.com/in/buivangiang1992), [AuPMH](https://www.linkedin.com/in/pham-au-2a1bb1162)
+**Powered by:** Caffeine, Determination, AI Collaboration, và những đêm code cuối tuần.
 
-**An toàn**
+## Giấy phép
 
-- Không phá rule `trash` thay `rm`. Xoá có thể phục hồi sẽ cứu bạn vào cuối tuần.
-- Không để AI tự ý sửa lockfile, `.env*`, migration, hay infra. Đưa chúng vào `conventions.protected_paths`.
-- Branch thí nghiệm dạng `autoresearch/<YYYY-MM-DD>-<slug>`; chỉ commit khi metric cải thiện.
+MIT. Xem [LICENSE](LICENSE).
 
-## Khắc Phục Sự Cố
-
-| Hiện tượng                      | Nguyên nhân thường gặp                                               | Cách xử lý                                                                                                                                            |
-| ------------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| AI bỏ qua bước init             | Thiếu `CLAUDE.md` hoặc khối trigger đã bị xoá.                       | Copy lại [CLAUDE-template.md](CLAUDE-template.md) hoặc append khối trigger từ [FIRST_TIME_INIT.md](FIRST_TIME_INIT.md) vào `CLAUDE.md` hiện có.       |
-| AI hỏi init lại mỗi phiên       | `meta.template_status` vẫn `uninitialized` vì lần trước bị abort.    | Chạy init một lần, duyệt diff, xác nhận `template_status` đã đổi sang `initialized` và `initialized_at` đã được set.                                  |
-| AI chạy init 2 lần trong 1 phút | Race giữa hai phiên, hoặc có người revert trạng thái.                | Logic done-marker trong [FIRST_TIME_INIT.md](FIRST_TIME_INIT.md) sẽ chặn — kiểm tra `meta.initialized_at` đã có chưa; nếu chưa thì hoàn tất lần chạy. |
-| Phát hiện sai stack             | Lockfile cũ của ngôn ngữ khác còn lại, hoặc detection chưa cập nhật. | Xoá file rác, hoặc bổ sung `detection.stack_fingerprints` / `framework_hints` trong [backbone.yml](backbone.yml).                                     |
-| AI sửa đường dẫn nhạy cảm       | Đường dẫn chưa nằm trong `conventions.protected_paths`.              | Thêm vào. Hỗ trợ glob.                                                                                                                                |
-| `CLAUDE.md` đã có bị ghi đè     | AI đã bỏ qua guardrail merge.                                        | Restore từ git. Chạy lại init theo [FIRST_TIME_INIT.md § Guardrails](FIRST_TIME_INIT.md#guardrails).                                                  |
-
----
-
-## Giấy Phép MIT
-
-Dự án này được cấp phép theo MIT License. Xem [LICENSE](LICENSE).
-
-> 🇻🇳 _Nếu bạn yêu mến Việt Nam và con người nơi đây, bạn được toàn quyền sử dụng mọi thứ trong này một cách miễn phí._
-
-### Đóng Góp
-
-**Tác giả**: [GiangBV](https://www.linkedin.com/in/buivangiang1992), [AuPMH](https://www.linkedin.com/in/pham-au-2a1bb1162)
-**Powered by**: Caffeine, Determination, AI Collaboration, và những buổi code cuối tuần
+> 🇻🇳 *Nếu bạn yêu Việt Nam và con người Việt Nam, bạn hoàn toàn được dùng miễn phí mọi thứ trong đây.*

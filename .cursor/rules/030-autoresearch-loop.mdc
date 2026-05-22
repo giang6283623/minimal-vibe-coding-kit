@@ -1,0 +1,7 @@
+---
+description: Metric-driven autoresearch loop rules for repeated repo improvement.
+globs: ["src/**", "app/**", "lib/**", "docs/**", "skills/**", "scripts/**", ".claude/**", ".cursor/**", ".agents/**"]
+alwaysApply: false
+---
+
+Before repeated experiments, define goal, metric command, direction, editable paths, protected paths, budget, and timeout. Run a baseline before edits. Keep only improvements or safe simplifications.
