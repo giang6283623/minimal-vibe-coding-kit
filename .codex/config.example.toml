@@ -1,0 +1,8 @@
+# Example only. Copy to ~/.codex/config.toml if you want these defaults.
+project_doc_max_bytes = 65536
+project_doc_fallback_filenames = ["AGENTS.md", "CLAUDE.md"]
+
+# Skills can be disabled by path if needed:
+# [[skills.config]]
+# path = "/absolute/path/to/.agents/skills/autoresearch-coding/SKILL.md"
+# enabled = false

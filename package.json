@@ -1,0 +1,65 @@
+{
+  "name": "minimal-vibe-coding-kit",
+  "version": "0.2.0",
+  "description": "Project-agnostic AI coding workflow kit for Claude Code, Cursor, and Codex with AgentShield security review.",
+  "type": "module",
+  "bin": {
+    "minimal-vibe-coding-kit": "./bin/mvck.js",
+    "mvck": "./bin/mvck.js",
+    "vibe-kit": "./bin/vibe-kit.js"
+  },
+  "scripts": {
+    "install:repo": "node scripts/mvck.mjs install",
+    "init:backbone": "node scripts/init-backbone.mjs . --propose",
+    "daily": "node scripts/daily-enhance.mjs . --write-report",
+    "validate": "node scripts/validate-kit.mjs .",
+    "security:probe": "python skills/agentshield-security-review/scripts/agentshield_repo_probe.py .",
+    "validate:all": "node scripts/validate-kit.mjs . && python skills/agentshield-security-review/scripts/agentshield_repo_probe.py . && npm pack --dry-run",
+    "pack:repo": "node scripts/validate-kit.mjs . && npm pack"
+  },
+  "keywords": [
+    "vibe-coding",
+    "claude-code",
+    "cursor",
+    "codex",
+    "agents",
+    "skills",
+    "agentshield"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin/",
+    "scripts/",
+    "skills/",
+    "commands/",
+    ".claude/",
+    ".cursor/",
+    ".agents/",
+    ".codex/",
+    ".codex-plugin/",
+    "docs/",
+    "AGENTS.md",
+    "CLAUDE-template.md",
+    "FIRST_TIME_INIT.md",
+    "FIRST_PROMPT.md",
+    "backbone.yml",
+    "install.sh",
+    "install.ps1",
+    "README.md",
+    "README.vi.md",
+    "LICENSE",
+    "PUSH_TO_GITHUB.md",
+    "CHANGELOG.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/giang6283623/minimal-vibe-coding-kit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/giang6283623/minimal-vibe-coding-kit/issues"
+  },
+  "homepage": "https://github.com/giang6283623/minimal-vibe-coding-kit#readme"
+}

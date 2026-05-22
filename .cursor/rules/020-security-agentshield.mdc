@@ -1,0 +1,7 @@
+---
+description: AgentShield security review for agent surfaces, skills, commands, hooks, MCP, and installer changes.
+globs: ["CLAUDE.md", "AGENTS.md", ".claude/**", ".cursor/**", ".agents/**", ".codex-plugin/**", "skills/**", "commands/**", "hooks/**", ".mcp.json", "mcp.json", "scripts/**"]
+alwaysApply: false
+---
+
+Run or ask to run `python skills/agentshield-security-review/scripts/agentshield_repo_probe.py .` before merging agent-surface changes. Do not run untrusted hooks, MCP servers, deploys, migrations, or remote installers during review.

@@ -1,0 +1,7 @@
+---
+description: First-time init rules for Minimal Vibe Coding Kit.
+globs: ["backbone.yml", "FIRST_TIME_INIT.md", "CLAUDE.md", "AGENTS.md", ".cursor/rules/**"]
+alwaysApply: false
+---
+
+For init, print requirements first, detect stack from files, propose one diff, and wait for `yes`, `edit`, or `abort`. Do not overwrite existing `CLAUDE.md` or `AGENTS.md`.
