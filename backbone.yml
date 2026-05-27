@@ -1,70 +1,67 @@
-# Minimal Vibe Coding Kit backbone template.
-# Keep this file short. See docs/BACKBONE_REFERENCE.md for field details.
+# Minimal Vibe Coding Kit backbone. See docs/BACKBONE_REFERENCE.md for details.
 version: 2
 meta:
-  template_status: uninitialized
-  initialized_at: null
+  template_status: initialized
+  initialized_at: 2026-05-27T01:36:21.898Z
   template_source: minimal-vibe-coding-kit
   schema_version: 3
   init_runbook: FIRST_TIME_INIT.md
   init_done_marker: .vibekit/INIT_DONE
 
 project:
-  name: <<PROJECT_NAME>>
-  description: <<ONE_LINE_DESCRIPTION>>
-  type: <<single-repo|monorepo|multi-repo>>
-  primary_language: <<ts|js|py|go|rs|java|dotnet|php|ruby|mixed|unknown>>
-  package_manager: <<npm|pnpm|yarn|bun|pip|poetry|uv|go|cargo|maven|gradle|dotnet|composer|bundler|none|unknown>>
+  name: minimal-vibe-coding-kit
+  description: "Project-agnostic AI coding workflow kit for Claude Code, Cursor, and Codex with AgentShield security review."
+  type: single-repo
+  primary_language: js
+  package_manager: npm
 
 paths:
   root: .
-  apps: []
+  apps:
+    - .
   source: []
   tests: []
-  docs:
-    - README.md
-    - docs/
-  generated:
-    - node_modules/
-    - dist/
-    - build/
-    - coverage/
+  docs: [README.md, docs/]
+  generated: [node_modules/, dist/, build/, coverage/]
 
 conventions:
   review_required_before_write: true
-  scope: <<repo|per-app|per-package|mixed>>
+  scope: repo
   naming:
-    files: <<detected|not-detected>>
-    directories: <<detected|not-detected>>
-    symbols: <<detected|not-detected>>
-    evidence: []
+    files: lowercase
+    directories: lowercase
+    symbols: not-detected
+    evidence:
+      - files lowercase: 1
+      - files kebab-case: 1
+      - dirs lowercase: 9
   architecture:
     detected: []
-    rule: detect existing layers, modules, screens, services, packages, or apps before adding new structure
+    rule: "No dominant architecture was detected; ask before adding new top-level layers or broad structural patterns."
   resources:
     detected_asset_roots: []
     detected_registries: []
-    rule: use existing resource accessors or generated APIs before hardcoding asset/resource paths
+    rule: "No asset/resource convention was detected; ask before adding a project-wide resource abstraction."
   localization:
     detected_catalogs: []
     detected_accessors: []
-    rule: use existing message/localization accessors before hardcoding user-facing text
-  custom_rules: []
+    rule: "No localization convention was detected; follow nearby copy patterns and ask before introducing a project-wide i18n layer."
+  custom_rules:
+    - Add team-specific rules here during init review; future agents must follow them.
 
 commands:
-  install: null
-  test: null
+  install: npm install
+  test: npm test
   lint: null
   typecheck: null
   build: null
-  validate: node scripts/validate-kit.mjs .
+  validate: npm test
 
 policy:
   default_branch: main
   branch_naming: "feat/<short-topic>"
   commit_style: conventional
-  editable_paths:
-    - .
+  editable_paths: [.]
   protected_paths:
     - .git/
     - .env*

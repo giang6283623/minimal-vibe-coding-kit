@@ -12,6 +12,8 @@
 - Added release safety docs and Dependabot config.
 - Promoted `clearthought`, `sequential-thinking`, and `reviewing-4p-priorities` as native custom reasoning skills across shared, Claude, Codex, and Cursor surfaces.
 - Added first-time convention discovery so init proposals include repo-specific naming, architecture, resource, localization, and generated-definition rules before approval.
+- Added validation checks for mirrored skill-surface parity across shared, Claude, Cursor, and Codex paths.
+- Hardened autoresearch guidance so experiment loops honor first-time init, logged baselines, metric extraction, and AgentShield review for agent-surface changes.
 
 ## 0.2.0
 

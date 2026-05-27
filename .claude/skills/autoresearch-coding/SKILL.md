@@ -22,6 +22,7 @@ Extract or infer:
 - Timeout, default 10 minutes.
 
 If the metric command or editable scope is missing, infer conservative defaults and show the contract before editing. If no safe metric exists, ask for one.
+Always print the resolved contract before the baseline run, and label inferred fields.
 
 For this kit itself, use:
 
@@ -36,14 +37,15 @@ budget: 3
 
 ## Setup
 
-1. Inspect `git status --short`.
-2. If user changes exist, stop unless the user permits dirty-state experimentation.
-3. Create or switch to an experiment branch named `autoresearch/<date>-<slug>` when a git repo is available.
-4. Create local-only paths if missing:
+1. Read `backbone.yml`. If `meta.template_status` is `uninitialized`, follow `FIRST_TIME_INIT.md` and wait for explicit approval before experiment edits.
+2. Inspect `git status --short`.
+3. If user changes exist, stop unless the user permits dirty-state experimentation.
+4. Create or switch to an experiment branch named `autoresearch/<date>-<slug>` when a git repo is available. If branch creation is blocked by permissions, ask for approval once and record any approved fallback.
+5. Create local-only paths if missing:
    - `.autoresearch/logs/`
    - `.autoresearch/notes/`
    - `results.tsv`
-5. Initialize `results.tsv` with:
+6. Initialize `results.tsv` with:
 
 ```text
 commit	metric_value	direction	status	seconds	log_path	description
@@ -57,7 +59,7 @@ Before edits:
 
 1. Run the metric command once.
 2. Save output to `.autoresearch/logs/baseline.log`.
-3. Extract a metric value. If ambiguous, use pass/fail plus warning count and explain.
+3. Extract a metric value using `references/metric-extraction.md`. If ambiguous, use pass/fail plus warning count and explain.
 4. Append a baseline row with status `keep`.
 
 ## Experiment loop
@@ -75,6 +77,8 @@ For each experiment:
 6. Append a row to `results.tsv`.
 7. Keep good changes; revert discarded or crashed changes.
 8. If a crash is from a trivial patch mistake, fix once and rerun.
+
+If a kept change touches agent surfaces such as `AGENTS.md`, `CLAUDE.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.codex-plugin/**`, `skills/**`, `commands/**`, hooks, or MCP config, run the AgentShield probe before final reporting.
 
 ## Delegation
 
@@ -94,4 +98,4 @@ Stop when budget is reached, metric is missing, protected paths are needed, thre
 
 ## Final report
 
-Report baseline, best metric, kept/discarded/crashed counts, changed files, validation output, risks, and log locations.
+Report baseline, best metric, kept/discarded/crashed counts, changed files, validation output, security probe result when relevant, risks, and log locations.
