@@ -15,6 +15,19 @@ function read(rel) { return fs.readFileSync(path.join(root, rel), 'utf8'); }
 function readJson(rel) {
   try { return JSON.parse(read(rel)); } catch { return null; }
 }
+function listFiles(rel) {
+  const base = path.join(root, rel);
+  const out = [];
+  function inner(current) {
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      const child = path.join(current, entry.name);
+      if (entry.isDirectory()) inner(child);
+      else out.push(path.relative(base, child).replaceAll(path.sep, '/'));
+    }
+  }
+  try { inner(base); } catch {}
+  return out.sort();
+}
 
 const required = [
   'AGENTS.md', 'CLAUDE-template.md', 'FIRST_TIME_INIT.md', 'FIRST_PROMPT.md', 'backbone.yml',
@@ -23,9 +36,12 @@ const required = [
   'skills/autoresearch-coding/SKILL.md', 'skills/agentshield-security-review/SKILL.md', 'skills/daily-workflow-curator/SKILL.md', 'skills/vibekit-init/SKILL.md',
   'skills/clearthought/SKILL.md', 'skills/sequential-thinking/SKILL.md', 'skills/reviewing-4p-priorities/SKILL.md',
   '.claude/skills/autoresearch-coding/SKILL.md', '.claude/skills/agentshield-security-review/SKILL.md',
+  '.claude/skills/daily-workflow-curator/SKILL.md', '.claude/skills/vibekit-init/SKILL.md',
   '.claude/skills/clearthought/SKILL.md', '.claude/skills/sequential-thinking/SKILL.md', '.claude/skills/reviewing-4p-priorities/SKILL.md',
   '.cursor/rules/001-vibe-core.mdc', '.cursor/skills/clearthought/SKILL.md', '.cursor/skills/sequential-thinking/SKILL.md', '.cursor/skills/reviewing-4p-priorities/SKILL.md',
-  '.agents/skills/autoresearch-coding/SKILL.md', '.agents/skills/clearthought/SKILL.md', '.agents/skills/sequential-thinking/SKILL.md', '.agents/skills/reviewing-4p-priorities/SKILL.md',
+  '.agents/skills/autoresearch-coding/SKILL.md', '.agents/skills/agentshield-security-review/SKILL.md',
+  '.agents/skills/daily-workflow-curator/SKILL.md', '.agents/skills/vibekit-init/SKILL.md',
+  '.agents/skills/clearthought/SKILL.md', '.agents/skills/sequential-thinking/SKILL.md', '.agents/skills/reviewing-4p-priorities/SKILL.md',
   '.codex-plugin/plugin.json'
 ];
 
@@ -61,9 +77,102 @@ for (const rel of required) exists(rel) ? ok(`required file ${rel}`) : fail(`mis
 if (exists('README.md')) ok('optional README.md present');
 else console.log('INFO optional README.md not present in target project');
 
+const skillMirrors = {
+  'autoresearch-coding': ['.claude/skills/autoresearch-coding', '.agents/skills/autoresearch-coding'],
+  'agentshield-security-review': ['.claude/skills/agentshield-security-review', '.agents/skills/agentshield-security-review'],
+  'daily-workflow-curator': ['.claude/skills/daily-workflow-curator', '.agents/skills/daily-workflow-curator'],
+  'vibekit-init': ['.claude/skills/vibekit-init', '.agents/skills/vibekit-init'],
+  'clearthought': ['.claude/skills/clearthought', '.cursor/skills/clearthought', '.agents/skills/clearthought'],
+  'sequential-thinking': ['.claude/skills/sequential-thinking', '.cursor/skills/sequential-thinking', '.agents/skills/sequential-thinking'],
+  'reviewing-4p-priorities': ['.claude/skills/reviewing-4p-priorities', '.cursor/skills/reviewing-4p-priorities', '.agents/skills/reviewing-4p-priorities']
+};
+
+function validateSkillMirror(sourceRel, mirrorRel) {
+  if (!exists(sourceRel)) { fail(`missing canonical skill dir ${sourceRel}`); return; }
+  if (!exists(mirrorRel)) { fail(`missing skill mirror dir ${mirrorRel}`); return; }
+
+  const sourceFiles = listFiles(sourceRel);
+  const mirrorFiles = listFiles(mirrorRel);
+  const sourceSet = new Set(sourceFiles);
+  const mirrorSet = new Set(mirrorFiles);
+  let mismatches = 0;
+
+  for (const file of sourceFiles) {
+    if (!mirrorSet.has(file)) {
+      mismatches += 1;
+      fail(`skill mirror ${mirrorRel} missing ${file}`);
+      continue;
+    }
+    const sourceText = fs.readFileSync(path.join(root, sourceRel, file), 'utf8');
+    const mirrorText = fs.readFileSync(path.join(root, mirrorRel, file), 'utf8');
+    if (sourceText !== mirrorText) {
+      mismatches += 1;
+      fail(`skill mirror ${mirrorRel}/${file} differs from ${sourceRel}/${file}`);
+    }
+  }
+
+  for (const file of mirrorFiles) {
+    if (!sourceSet.has(file)) {
+      mismatches += 1;
+      fail(`skill mirror ${mirrorRel} has extra file ${file}`);
+    }
+  }
+
+  if (mismatches === 0) ok(`skill mirror ${mirrorRel} matches ${sourceRel} (${sourceFiles.length} files)`);
+}
+
+for (const [skill, mirrors] of Object.entries(skillMirrors)) {
+  for (const mirror of mirrors) validateSkillMirror(`skills/${skill}`, mirror);
+}
+
+function stripFrontmatter(text) {
+  return text.replace(/^---\n[\s\S]*?\n---\n?/, '').trim();
+}
+
+if (exists('commands')) {
+  const canonicalCmds = listFiles('commands').filter((f) => f.endsWith('.md'));
+  const cmdMirrors = { '.claude/commands': true, '.cursor/commands': true };
+  for (const [mirrorDir, stripFm] of Object.entries(cmdMirrors)) {
+    if (!exists(mirrorDir)) { warn(`command mirror dir missing: ${mirrorDir}`); continue; }
+    for (const file of canonicalCmds) {
+      const srcRel = `commands/${file}`;
+      const mirRel = `${mirrorDir}/${file}`;
+      if (!exists(mirRel)) { fail(`command mirror ${mirRel} missing`); continue; }
+      const srcText = read(srcRel).trim();
+      const mirText = stripFm ? stripFrontmatter(read(mirRel)) : read(mirRel).trim();
+      if (srcText === mirText) ok(`command mirror ${mirRel} matches`);
+      else fail(`command mirror ${mirRel} differs from ${srcRel}`);
+    }
+  }
+}
+
 for (const rel of ['package.json', '.claude/settings.json', '.cursor/settings.json', '.codex-plugin/plugin.json']) {
   if (!exists(rel)) continue;
   try { JSON.parse(read(rel)); ok(`valid JSON ${rel}`); } catch (error) { fail(`invalid JSON ${rel}: ${error.message}`); }
+}
+
+function extractDenyCategories(denyList) {
+  const cats = new Set();
+  for (const rule of denyList) {
+    const match = rule.match(/^Bash\(([a-z][a-z -]*)/);
+    if (match) cats.add(match[1].trim());
+  }
+  return cats;
+}
+
+const claudeSettings = readJson('.claude/settings.json');
+const cursorSettings = readJson('.cursor/settings.json');
+if (claudeSettings?.permissions?.deny && cursorSettings?.permissions?.deny) {
+  const claudeCats = extractDenyCategories(claudeSettings.permissions.deny);
+  const cursorCats = extractDenyCategories(cursorSettings.permissions.deny);
+  let parity = true;
+  for (const cat of claudeCats) {
+    if (!cursorCats.has(cat)) { warn(`deny list parity: .claude blocks "${cat}" but .cursor does not`); parity = false; }
+  }
+  for (const cat of cursorCats) {
+    if (!claudeCats.has(cat)) { warn(`deny list parity: .cursor blocks "${cat}" but .claude does not`); parity = false; }
+  }
+  if (parity) ok(`deny list category parity across .claude and .cursor (${claudeCats.size} categories)`);
 }
 
 const pkg = exists('package.json') ? readJson('package.json') : null;
@@ -168,6 +277,14 @@ function validateBackboneSchema(text) {
   else fail('backbone commands.validate is empty');
 
   hasListItems(text, 'policy.protected_paths') ? ok('backbone protected_paths is non-empty') : fail('backbone protected_paths must be non-empty');
+
+  for (const key of [...keys].filter((k) => k.startsWith('agent_surfaces.') && !k.includes('.', 'agent_surfaces.'.length))) {
+    const surfacePath = values.get(key);
+    if (!surfacePath || surfacePath === 'null') continue;
+    const cleanPath = surfacePath.replace(/^["']|["']$/g, '');
+    if (exists(cleanPath)) ok(`agent_surfaces path exists: ${cleanPath}`);
+    else fail(`agent_surfaces path missing: ${cleanPath}`);
+  }
 }
 
 for (const rel of ['AGENTS.md', 'CLAUDE.md', '.gitignore']) {

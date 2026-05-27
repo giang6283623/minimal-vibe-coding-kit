@@ -4,4 +4,4 @@ globs: ["src/**", "app/**", "lib/**", "docs/**", "skills/**", "scripts/**", ".cl
 alwaysApply: false
 ---
 
-Before repeated experiments, define goal, metric command, direction, editable paths, protected paths, budget, and timeout. Run a baseline before edits. Keep only improvements or safe simplifications.
+Before repeated experiments, read `backbone.yml`; if it is uninitialized, complete the first-time init approval flow before experiment edits. Define goal, metric command, direction, editable paths, protected paths, budget, and timeout. Run a logged baseline before edits. Keep only improvements or safe simplifications. Run the AgentShield probe before the final report when kept changes touch agent surfaces.

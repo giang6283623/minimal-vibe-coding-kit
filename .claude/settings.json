@@ -2,8 +2,10 @@
   "permissions": {
     "deny": [
       "Bash(rm -rf:*)",
+      "Bash(rm:*)",
       "Bash(git push:*)",
       "Bash(git push --force:*)",
+      "Bash(git reset --hard:*)",
       "Bash(curl *|*sh:*)",
       "Bash(wget *|*sh:*)",
       "Bash(npm publish:*)",
