@@ -4,11 +4,13 @@
     "deny": [
       "Bash(rm -rf *)",
       "Bash(rm:*)",
+      "Bash(git push *)",
       "Bash(git push --force*)",
       "Bash(git reset --hard*)",
       "Bash(curl *|*sh*)",
       "Bash(wget *|*sh*)",
       "Bash(npm publish*)",
+      "Bash(npx * --yes*)",
       "Bash(migrate *)",
       "Bash(docker compose up*)",
       "Bash(docker-compose up*)"

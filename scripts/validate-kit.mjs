@@ -125,9 +125,54 @@ for (const [skill, mirrors] of Object.entries(skillMirrors)) {
   for (const mirror of mirrors) validateSkillMirror(`skills/${skill}`, mirror);
 }
 
+function stripFrontmatter(text) {
+  return text.replace(/^---\n[\s\S]*?\n---\n?/, '').trim();
+}
+
+if (exists('commands')) {
+  const canonicalCmds = listFiles('commands').filter((f) => f.endsWith('.md'));
+  const cmdMirrors = { '.claude/commands': true, '.cursor/commands': true };
+  for (const [mirrorDir, stripFm] of Object.entries(cmdMirrors)) {
+    if (!exists(mirrorDir)) { warn(`command mirror dir missing: ${mirrorDir}`); continue; }
+    for (const file of canonicalCmds) {
+      const srcRel = `commands/${file}`;
+      const mirRel = `${mirrorDir}/${file}`;
+      if (!exists(mirRel)) { fail(`command mirror ${mirRel} missing`); continue; }
+      const srcText = read(srcRel).trim();
+      const mirText = stripFm ? stripFrontmatter(read(mirRel)) : read(mirRel).trim();
+      if (srcText === mirText) ok(`command mirror ${mirRel} matches`);
+      else fail(`command mirror ${mirRel} differs from ${srcRel}`);
+    }
+  }
+}
+
 for (const rel of ['package.json', '.claude/settings.json', '.cursor/settings.json', '.codex-plugin/plugin.json']) {
   if (!exists(rel)) continue;
   try { JSON.parse(read(rel)); ok(`valid JSON ${rel}`); } catch (error) { fail(`invalid JSON ${rel}: ${error.message}`); }
+}
+
+function extractDenyCategories(denyList) {
+  const cats = new Set();
+  for (const rule of denyList) {
+    const match = rule.match(/^Bash\(([a-z][a-z -]*)/);
+    if (match) cats.add(match[1].trim());
+  }
+  return cats;
+}
+
+const claudeSettings = readJson('.claude/settings.json');
+const cursorSettings = readJson('.cursor/settings.json');
+if (claudeSettings?.permissions?.deny && cursorSettings?.permissions?.deny) {
+  const claudeCats = extractDenyCategories(claudeSettings.permissions.deny);
+  const cursorCats = extractDenyCategories(cursorSettings.permissions.deny);
+  let parity = true;
+  for (const cat of claudeCats) {
+    if (!cursorCats.has(cat)) { warn(`deny list parity: .claude blocks "${cat}" but .cursor does not`); parity = false; }
+  }
+  for (const cat of cursorCats) {
+    if (!claudeCats.has(cat)) { warn(`deny list parity: .cursor blocks "${cat}" but .claude does not`); parity = false; }
+  }
+  if (parity) ok(`deny list category parity across .claude and .cursor (${claudeCats.size} categories)`);
 }
 
 const pkg = exists('package.json') ? readJson('package.json') : null;
@@ -232,6 +277,14 @@ function validateBackboneSchema(text) {
   else fail('backbone commands.validate is empty');
 
   hasListItems(text, 'policy.protected_paths') ? ok('backbone protected_paths is non-empty') : fail('backbone protected_paths must be non-empty');
+
+  for (const key of [...keys].filter((k) => k.startsWith('agent_surfaces.') && !k.includes('.', 'agent_surfaces.'.length))) {
+    const surfacePath = values.get(key);
+    if (!surfacePath || surfacePath === 'null') continue;
+    const cleanPath = surfacePath.replace(/^["']|["']$/g, '');
+    if (exists(cleanPath)) ok(`agent_surfaces path exists: ${cleanPath}`);
+    else fail(`agent_surfaces path missing: ${cleanPath}`);
+  }
 }
 
 for (const rel of ['AGENTS.md', 'CLAUDE.md', '.gitignore']) {
