@@ -1,0 +1,28 @@
+# dependencies and build output
+node_modules/
+dist/
+build/
+coverage/
+.cache/
+.tmp/
+
+# local environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Minimal Vibe Coding Kit local state
+.autoresearch/
+results.tsv
+.vibekit/INIT_DONE
+.vibekit/reports/
+CLAUDE.local.md
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/

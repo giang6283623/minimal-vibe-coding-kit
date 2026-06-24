@@ -1,0 +1,7 @@
+---
+description: Metric-driven autoresearch loop rules for repeated repo improvement.
+globs: ["src/**", "app/**", "lib/**", ".vbkit-docs/**", "skills/**", ".vbkit-scripts/**", ".vbkit-commands/**", ".claude/**", ".cursor/**", ".agents/**"]
+alwaysApply: false
+---
+
+Before repeated experiments, read `backbone.yml`; if it is uninitialized, complete the first-time init approval flow before experiment edits. Define goal, metric command, direction, editable paths, protected paths, budget, and timeout. Run a logged baseline before edits. Keep only improvements or safe simplifications. Run the AgentShield probe before the final report when kept changes touch agent surfaces.

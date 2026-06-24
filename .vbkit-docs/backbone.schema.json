@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/giang6283623/minimal-vibe-coding-kit/backbone.schema.json",
+  "title": "Minimal Vibe Coding Kit backbone.yml",
+  "type": "object",
+  "required": [
+    "version",
+    "meta",
+    "project",
+    "conventions",
+    "commands",
+    "policy",
+    "agent_surfaces",
+    "automation"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "meta": {
+      "type": "object",
+      "required": ["template_status", "schema_version"],
+      "properties": {
+        "template_status": {
+          "type": "string",
+          "enum": ["uninitialized", "initialized"]
+        },
+        "schema_version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "project": {
+      "type": "object",
+      "required": ["name", "primary_language", "mode"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "primary_language": { "type": "string", "minLength": 1 },
+        "mode": { "type": "string", "enum": ["greenfield", "brownfield"] },
+        "prd": { "type": "string" },
+        "context": { "type": "string" }
+      }
+    },
+    "conventions": {
+      "type": "object",
+      "required": ["review_required_before_write"],
+      "properties": {
+        "review_required_before_write": { "type": "boolean" },
+        "scope": { "type": "string" },
+        "naming": { "type": "object" },
+        "architecture": { "type": "object" },
+        "resources": { "type": "object" },
+        "localization": { "type": "object" },
+        "custom_rules": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "commands": {
+      "type": "object",
+      "required": ["validate"],
+      "properties": {
+        "validate": { "type": ["string", "null"] }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "required": ["protected_paths"],
+      "properties": {
+        "protected_paths": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      }
+    },
+    "agent_surfaces": {
+      "type": "object",
+      "minProperties": 1
+    },
+    "automation": {
+      "type": "object",
+      "required": ["finalize", "security"],
+      "properties": {
+        "finalize": {
+          "type": "object",
+          "required": ["cleanup_dir"],
+          "properties": {
+            "cleanup_dir": { "type": "string", "minLength": 1 },
+            "marker": { "type": "string" },
+            "one_time_files": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "security": {
+          "type": "object",
+          "required": ["probe"],
+          "properties": {
+            "probe": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  }
+}

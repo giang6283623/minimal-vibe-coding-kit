@@ -1,0 +1,103 @@
+# Minimal Vibe Coding Kit backbone. See .vbkit-docs/BACKBONE_REFERENCE.md for details.
+version: 2
+meta:
+  template_status: initialized
+  initialized_at: 2026-05-27T01:36:21.898Z
+  template_source: minimal-vibe-coding-kit
+  schema_version: 3
+  init_runbook: FIRST_TIME_INIT.md
+  init_done_marker: .vibekit/INIT_DONE
+
+project:
+  name: minimal-vibe-coding-kit
+  description: "Project-agnostic AI coding workflow kit for Claude Code, Cursor, and Codex with AgentShield security review."
+  type: single-repo
+  primary_language: js
+  package_manager: npm
+  mode: brownfield
+  prd: none
+  context: none
+
+paths:
+  root: .
+  apps:
+    - .
+  source: []
+  tests: []
+  docs: [README.md, .vbkit-docs/]
+  generated: [node_modules/, dist/, build/, coverage/]
+
+conventions:
+  review_required_before_write: true
+  scope: repo
+  naming:
+    files: lowercase
+    directories: lowercase
+    symbols: not-detected
+    evidence:
+      - files lowercase: 1
+      - files kebab-case: 1
+      - dirs lowercase: 9
+  architecture:
+    detected: []
+    rule: "No dominant architecture was detected; ask before adding new top-level layers or broad structural patterns."
+  resources:
+    detected_asset_roots: []
+    detected_registries: []
+    rule: "No asset/resource convention was detected; ask before adding a project-wide resource abstraction."
+  localization:
+    detected_catalogs: []
+    detected_accessors: []
+    rule: "No localization convention was detected; follow nearby copy patterns and ask before introducing a project-wide i18n layer."
+  custom_rules:
+    - Add team-specific rules here during init review; future agents must follow them.
+
+commands:
+  install: npm install
+  test: npm test
+  lint: null
+  typecheck: null
+  build: null
+  validate: npm test
+
+policy:
+  default_branch: main
+  branch_naming: "feat/<short-topic>"
+  commit_style: conventional
+  editable_paths: [.]
+  protected_paths:
+    - .git/
+    - .env*
+    - "**/*secret*"
+    - "**/*token*"
+    - "**/migrations/**"
+    - "**/node_modules/**"
+    - "**/dist/**"
+    - "**/build/**"
+    - "**/coverage/**"
+    - "**/*lock*"
+
+agent_surfaces:
+  claude: .claude/
+  cursor: .cursor/
+  codex: .agents/
+  codex_plugin: .codex-plugin/plugin.json
+  shared_skills: skills/
+  shared_commands: .vbkit-commands/
+
+automation:
+  autoresearch:
+    results_file: results.tsv
+    logs_dir: .autoresearch/logs
+    default_budget: 3
+    default_timeout_seconds: 600
+  daily_enhance:
+    report_dir: .vibekit/reports
+    write_mode: propose_only
+  finalize:
+    cleanup_dir: _vibekit-cleanup
+    marker: .vibekit/FINALIZE_DONE
+    one_time_files: [FIRST_TIME_INIT.md, FIRST_PROMPT.md, PUSH_TO_GITHUB.md, CLAUDE-template.md]
+  security:
+    probe: node .vbkit-scripts/agentshield-probe.mjs .
+    scan: npx ecc-agentshield scan --path . --format text --min-severity medium

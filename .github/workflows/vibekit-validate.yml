@@ -1,0 +1,44 @@
+name: vibekit-validate
+
+on:
+  pull_request:
+    paths:
+      - "AGENTS.md"
+      - "CLAUDE-template.md"
+      - "FIRST_TIME_INIT.md"
+      - "backbone.yml"
+      - ".claude/**"
+      - ".cursor/**"
+      - ".agents/**"
+      - ".codex-plugin/**"
+      - "skills/**"
+      - ".vbkit-commands/**"
+      - ".vbkit-scripts/**"
+      - ".vbkit-docs/backbone.schema.json"
+      - "package.json"
+      - ".github/workflows/vibekit-validate.yml"
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ["18", "20", "22"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+      - name: Syntax, install behavior, and structure tests
+        run: npm test
+      - name: AgentShield read-only probe
+        run: npm run security:probe
+      - name: Verify npm package contents
+        run: npm run pack:dry-run

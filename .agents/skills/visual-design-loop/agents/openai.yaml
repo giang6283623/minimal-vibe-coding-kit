@@ -1,0 +1,4 @@
+interface:
+  display_name: "Visual Design Loop"
+  short_description: "Iterative screenshot-based UI polish loop"
+  default_prompt: "Use $visual-design-loop to render, screenshot, review, and improve this UI until it is polished but not overworked."

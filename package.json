@@ -1,0 +1,88 @@
+{
+  "name": "minimal-vibe-coding-kit",
+  "version": "0.2.0",
+  "description": "Project-agnostic AI coding workflow kit for Claude Code, Cursor, and Codex with AgentShield security review.",
+  "type": "module",
+  "bin": {
+    "minimal-vibe-coding-kit": "./bin/mvck.js",
+    "mvck": "./bin/mvck.js",
+    "vibe-kit": "./bin/vibe-kit.js"
+  },
+  "scripts": {
+    "install:repo": "node .vbkit-scripts/mvck.mjs install",
+    "init:backbone": "node .vbkit-scripts/init-backbone.mjs . --propose",
+    "doctor": "node .vbkit-scripts/doctor.mjs .",
+    "daily": "node .vbkit-scripts/daily-enhance.mjs . --write-report",
+    "check:syntax": "node --check .vbkit-scripts/mvck.mjs && node --check .vbkit-scripts/init-backbone.mjs && node --check .vbkit-scripts/daily-enhance.mjs && node --check .vbkit-scripts/validate-kit.mjs && node --check .vbkit-scripts/doctor.mjs && node --check .vbkit-scripts/test-install.mjs && node --check .vbkit-scripts/agentshield-probe.mjs && node --check .vbkit-scripts/pack-dry-run.mjs && node --check .vbkit-scripts/vibekit-finalize.mjs && node --check bin/mvck.js && node --check bin/vibe-kit.js",
+    "test:install": "node .vbkit-scripts/test-install.mjs",
+    "test": "npm run check:syntax && npm run test:install && npm run validate",
+    "validate": "node .vbkit-scripts/validate-kit.mjs .",
+    "security:probe": "node .vbkit-scripts/agentshield-probe.mjs .",
+    "pack:dry-run": "node .vbkit-scripts/pack-dry-run.mjs",
+    "validate:all": "npm test && npm run security:probe && npm run pack:dry-run",
+    "pack:repo": "node .vbkit-scripts/validate-kit.mjs . && npm pack"
+  },
+  "keywords": [
+    "vibe-coding",
+    "claude-code",
+    "cursor",
+    "codex",
+    "agents",
+    "skills",
+    "agentshield"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin/",
+    ".vbkit-scripts/",
+    "skills/",
+    ".vbkit-commands/",
+    ".claude/agents/",
+    ".claude/commands/",
+    ".claude/rules/",
+    ".claude/settings.json",
+    ".claude/skills/autoresearch-coding/",
+    ".claude/skills/agentshield-security-review/",
+    ".claude/skills/daily-workflow-curator/",
+    ".claude/skills/vibekit-init/",
+    ".claude/skills/clearthought/",
+    ".claude/skills/sequential-thinking/",
+    ".claude/skills/reviewing-4p-priorities/",
+    ".claude/skills/visual-design-loop/",
+    ".cursor/rules/",
+    ".cursor/commands/",
+    ".cursor/settings.json",
+    ".cursor/skills/clearthought/",
+    ".cursor/skills/sequential-thinking/",
+    ".cursor/skills/reviewing-4p-priorities/",
+    ".agents/",
+    ".codex/",
+    ".codex-plugin/",
+    ".vbkit-docs/",
+    "AGENTS.md",
+    "CLAUDE-template.md",
+    "FIRST_TIME_INIT.md",
+    "FIRST_PROMPT.md",
+    "backbone.yml",
+    "install.sh",
+    "install.ps1",
+    "README.md",
+    "README.vi.md",
+    "SECURITY.md",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/giang6283623/minimal-vibe-coding-kit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/giang6283623/minimal-vibe-coding-kit/issues"
+  },
+  "homepage": "https://github.com/giang6283623/minimal-vibe-coding-kit#readme"
+}
