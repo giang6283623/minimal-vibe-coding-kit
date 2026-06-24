@@ -146,6 +146,30 @@ for (const [skill, mirrors] of Object.entries(skillMirrors)) {
   for (const mirror of mirrors) validateSkillMirror(`skills/${skill}`, mirror);
 }
 
+function parseFrontmatter(text) {
+  const match = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (!match) return null;
+  const fields = {};
+  for (const line of match[1].split(/\r?\n/)) {
+    const kv = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
+    if (kv) fields[kv[1]] = kv[2].trim();
+  }
+  return fields;
+}
+
+for (const surface of ['skills', '.claude/skills', '.cursor/skills', '.agents/skills']) {
+  if (!exists(surface)) continue;
+  for (const file of listFiles(surface).filter((f) => f.endsWith('SKILL.md'))) {
+    const rel = `${surface}/${file}`;
+    const fm = parseFrontmatter(read(rel));
+    if (fm && fm.name && fm.description) ok(`skill frontmatter has name + description: ${rel}`);
+    else fail(`skill frontmatter missing name/description: ${rel}`);
+    const skillDir = path.dirname(file);
+    if (fm && fm.name === skillDir) ok(`skill name matches directory: ${rel}`);
+    else fail(`skill name "${fm?.name ?? ''}" does not match directory "${skillDir}": ${rel}`);
+  }
+}
+
 function stripFrontmatter(text) {
   return text.replace(/^---\n[\s\S]*?\n---\n?/, '').trim();
 }
@@ -185,6 +209,19 @@ if (Array.isArray(pkg?.files)) {
     if (typeof entry !== 'string') { fail('package files entry must be a string'); continue; }
     const cleanEntry = entry.replace(/\/+$/, '');
     exists(cleanEntry) ? ok(`package files entry exists: ${entry}`) : fail(`package files entry missing: ${entry}`);
+  }
+}
+
+if (pkg?.scripts && typeof pkg.scripts === 'object') {
+  const scriptTargetRe = /node\s+(?:--check\s+)?((?:\.\/)?(?:\.vbkit-scripts|bin)\/[A-Za-z0-9._-]+\.(?:mjs|js))/g;
+  const targets = new Set();
+  for (const command of Object.values(pkg.scripts)) {
+    if (typeof command !== 'string') continue;
+    let match;
+    while ((match = scriptTargetRe.exec(command))) targets.add(match[1].replace(/^\.\//, ''));
+  }
+  for (const target of [...targets].sort()) {
+    exists(target) ? ok(`package script target exists: ${target}`) : fail(`package script references missing file: ${target}`);
   }
 }
 
