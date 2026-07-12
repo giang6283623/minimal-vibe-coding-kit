@@ -14,6 +14,7 @@ function usage() {
 
 Usage:
   mvck install [target] [--profile all|claude,cursor,codex] [--force] [--dry-run] [--json]
+  mvck update [target] [--profile all|claude,cursor,codex] [--dry-run] [--json] [--no-backup]
   mvck init [target] [--propose|--write --yes] [--preset nextjs|wordpress|python|laravel|docker]
   mvck validate [target]
   mvck doctor [target] [--write-report] [--json]
@@ -22,10 +23,16 @@ Usage:
 
 Examples:
   node .vbkit-scripts/mvck.mjs install ~/work/my-repo --profile all
+  npx --yes minimal-vibe-coding-kit@latest update .
   node .vbkit-scripts/mvck.mjs init . --propose
   node .vbkit-scripts/mvck.mjs doctor .
   node .vbkit-scripts/mvck.mjs validate .
   node .vbkit-scripts/mvck.mjs finalize .
+
+update refreshes kit-owned files (skills, commands, rules, scripts, docs, agent
+mirrors) to the running kit version. It never overwrites user-owned files
+(backbone.yml, CLAUDE.md, AGENTS.md content, settings.json) and backs up any
+changed kit file under .vibekit/update-backup/ before replacing it.
 `);
 }
 
@@ -142,63 +149,39 @@ function managedBlockFromTemplate(block, begin, end) {
   return `${begin}\n${block.trim()}\n${end}`;
 }
 
-function install() {
-  const force = hasFlag('--force');
-  const dryRun = hasFlag('--dry-run');
-  const json = hasFlag('--json');
-  const target = parseTargetAndFlags('install', { valueFlags: ['--profile'] }).target;
-  const profileRaw = optionValue('--profile', 'all');
-  const profiles = new Set(profileRaw === 'all' ? ['claude', 'cursor', 'codex'] : profileRaw.split(',').map((x) => x.trim()).filter(Boolean));
+const KIT_SEED_FILES = ['FIRST_TIME_INIT.md', 'FIRST_PROMPT.md', 'CLAUDE-template.md', 'backbone.yml'];
+const KIT_SHARED_DIRS = ['skills', '.vbkit-commands', '.vbkit-docs'];
+const KIT_SCRIPTS = [
+  '.vbkit-scripts/mvck.mjs', '.vbkit-scripts/init-backbone.mjs', '.vbkit-scripts/daily-enhance.mjs', '.vbkit-scripts/validate-kit.mjs',
+  '.vbkit-scripts/doctor.mjs', '.vbkit-scripts/test-install.mjs', '.vbkit-scripts/agentshield-probe.mjs', '.vbkit-scripts/pack-dry-run.mjs', '.vbkit-scripts/vibekit-finalize.mjs'
+];
+const CLAUDE_DIRS = ['.claude/agents', '.claude/commands', '.claude/rules'];
+const CLAUDE_SKILLS = [
+  'autoresearch-coding', 'agentshield-security-review', 'daily-workflow-curator', 'vibekit-init', 'visual-design-loop',
+  'clearthought', 'sequential-thinking', 'reviewing-4p-priorities', 'memento', 'coding-level'
+];
+const CURSOR_DIRS = ['.cursor/rules', '.cursor/commands'];
+const CURSOR_SKILLS = ['clearthought', 'sequential-thinking', 'reviewing-4p-priorities', 'memento', 'coding-level'];
+const CODEX_DIRS = ['.agents', '.codex', '.codex-plugin'];
+const GITIGNORE_BLOCK = `# BEGIN: minimal-vibe-coding-kit\n.autoresearch/\nresults.tsv\n.vibekit/INIT_DONE\n.vibekit/FINALIZE_DONE\n.vibekit/reports/\n.vibekit/update-backup/\n_vibekit-cleanup/\nCLAUDE.local.md\n# END: minimal-vibe-coding-kit`;
 
-  if (!fs.existsSync(target)) throw new Error(`Target does not exist: ${target}`);
-  const actions = [];
-  const opts = { force, dryRun };
+function kitVersion() {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(kitRoot, 'package.json'), 'utf8')).version || 'unknown';
+  } catch {
+    return 'unknown';
+  }
+}
 
-  for (const file of ['FIRST_TIME_INIT.md', 'FIRST_PROMPT.md', 'CLAUDE-template.md', 'backbone.yml']) {
-    actions.push(copyFileSafe(file, file, target, opts));
-  }
-  for (const dir of ['skills', '.vbkit-commands', '.vbkit-docs']) {
-    actions.push(copyDirSafe(dir, dir, target, opts));
-  }
-  for (const file of ['.vbkit-scripts/mvck.mjs', '.vbkit-scripts/init-backbone.mjs', '.vbkit-scripts/daily-enhance.mjs', '.vbkit-scripts/validate-kit.mjs', '.vbkit-scripts/doctor.mjs', '.vbkit-scripts/test-install.mjs', '.vbkit-scripts/agentshield-probe.mjs', '.vbkit-scripts/pack-dry-run.mjs', '.vbkit-scripts/vibekit-finalize.mjs']) {
-    actions.push(copyFileSafe(file, file, target, opts));
-  }
+function writeKitVersion(target, dryRun) {
+  if (dryRun) return;
+  const markerDir = path.join(target, '.vibekit');
+  fs.mkdirSync(markerDir, { recursive: true });
+  fs.writeFileSync(path.join(markerDir, 'KIT_VERSION'), `${kitVersion()}\n`);
+}
 
-  if (profiles.has('claude')) {
-    for (const dir of [
-      '.claude/agents',
-      '.claude/commands',
-      '.claude/rules',
-      '.claude/skills/autoresearch-coding',
-      '.claude/skills/agentshield-security-review',
-      '.claude/skills/daily-workflow-curator',
-      '.claude/skills/vibekit-init',
-      '.claude/skills/visual-design-loop'
-    ]) {
-      actions.push(copyDirSafe(dir, dir, target, opts));
-    }
-    for (const skill of ['clearthought', 'sequential-thinking', 'reviewing-4p-priorities']) {
-      actions.push(copyDirSafe(`.claude/skills/${skill}`, `.claude/skills/${skill}`, target, opts));
-    }
-    actions.push(copyFileSafe('.claude/settings.json', '.claude/settings.json', target, opts));
-  }
-  if (profiles.has('cursor')) {
-    for (const dir of ['.cursor/rules', '.cursor/commands']) {
-      actions.push(copyDirSafe(dir, dir, target, opts));
-    }
-    for (const skill of ['clearthought', 'sequential-thinking', 'reviewing-4p-priorities']) {
-      actions.push(copyDirSafe(`.cursor/skills/${skill}`, `.cursor/skills/${skill}`, target, opts));
-    }
-    actions.push(copyFileSafe('.cursor/settings.json', '.cursor/settings.json', target, opts));
-  }
-  if (profiles.has('codex')) {
-    actions.push(copyDirSafe('.agents', '.agents', target, opts));
-    actions.push(copyDirSafe('.codex', '.codex', target, opts));
-    actions.push(copyDirSafe('.codex-plugin', '.codex-plugin', target, opts));
-  }
-
-  const gitignoreBlock = `# BEGIN: minimal-vibe-coding-kit\n.autoresearch/\nresults.tsv\n.vibekit/INIT_DONE\n.vibekit/FINALIZE_DONE\n.vibekit/reports/\n_vibekit-cleanup/\nCLAUDE.local.md\n# END: minimal-vibe-coding-kit`;
-  appendManagedBlock(path.join(target, '.gitignore'), gitignoreBlock, '# BEGIN: minimal-vibe-coding-kit', '# END: minimal-vibe-coding-kit', { dryRun });
+function applyManagedBlocks(target, profiles, actions, { dryRun = false } = {}) {
+  appendManagedBlock(path.join(target, '.gitignore'), GITIGNORE_BLOCK, '# BEGIN: minimal-vibe-coding-kit', '# END: minimal-vibe-coding-kit', { dryRun });
   actions.push({ action: 'managed-block', path: '.gitignore' });
 
   if (profiles.has('claude')) {
@@ -223,6 +206,57 @@ function install() {
     appendManagedBlock(agentsTarget, managed, begin, end, { dryRun });
     actions.push({ action: 'managed-block', path: 'AGENTS.md' });
   }
+}
+
+function install() {
+  const force = hasFlag('--force');
+  const dryRun = hasFlag('--dry-run');
+  const json = hasFlag('--json');
+  const target = parseTargetAndFlags('install', { valueFlags: ['--profile'] }).target;
+  const profileRaw = optionValue('--profile', 'all');
+  const profiles = new Set(profileRaw === 'all' ? ['claude', 'cursor', 'codex'] : profileRaw.split(',').map((x) => x.trim()).filter(Boolean));
+
+  if (!fs.existsSync(target)) throw new Error(`Target does not exist: ${target}`);
+  const actions = [];
+  const opts = { force, dryRun };
+
+  for (const file of KIT_SEED_FILES) {
+    actions.push(copyFileSafe(file, file, target, opts));
+  }
+  for (const dir of KIT_SHARED_DIRS) {
+    actions.push(copyDirSafe(dir, dir, target, opts));
+  }
+  for (const file of KIT_SCRIPTS) {
+    actions.push(copyFileSafe(file, file, target, opts));
+  }
+
+  if (profiles.has('claude')) {
+    for (const dir of CLAUDE_DIRS) {
+      actions.push(copyDirSafe(dir, dir, target, opts));
+    }
+    for (const skill of CLAUDE_SKILLS) {
+      actions.push(copyDirSafe(`.claude/skills/${skill}`, `.claude/skills/${skill}`, target, opts));
+    }
+    actions.push(copyFileSafe('.claude/settings.json', '.claude/settings.json', target, opts));
+  }
+  if (profiles.has('cursor')) {
+    for (const dir of CURSOR_DIRS) {
+      actions.push(copyDirSafe(dir, dir, target, opts));
+    }
+    for (const skill of CURSOR_SKILLS) {
+      actions.push(copyDirSafe(`.cursor/skills/${skill}`, `.cursor/skills/${skill}`, target, opts));
+    }
+    actions.push(copyFileSafe('.cursor/settings.json', '.cursor/settings.json', target, opts));
+  }
+  if (profiles.has('codex')) {
+    for (const dir of CODEX_DIRS) {
+      actions.push(copyDirSafe(dir, dir, target, opts));
+    }
+  }
+
+  applyManagedBlocks(target, profiles, actions, { dryRun });
+  writeKitVersion(target, dryRun);
+  actions.push({ action: 'version-marker', path: '.vibekit/KIT_VERSION' });
 
   const nextPrompt = 'Read FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit. Print requirements first, infer project conventions, propose a diff, and wait for my yes before writing.';
   if (json) {
@@ -244,6 +278,135 @@ function install() {
   console.log(nextPrompt);
 }
 
+function updateFileSafe(srcRel, destRel, target, { dryRun = false, backup = null } = {}) {
+  const src = path.join(kitRoot, srcRel);
+  const dest = path.join(target, destRel ?? srcRel);
+  if (!fs.existsSync(src)) throw new Error(`Missing source file: ${srcRel}`);
+
+  if (!fs.existsSync(dest)) {
+    if (!dryRun) {
+      fs.mkdirSync(path.dirname(dest), { recursive: true });
+      fs.copyFileSync(src, dest);
+      fs.chmodSync(dest, fs.statSync(src).mode);
+    }
+    return { action: 'add', path: destRel ?? srcRel };
+  }
+
+  if (fs.readFileSync(src).equals(fs.readFileSync(dest))) {
+    return { action: 'unchanged', path: destRel ?? srcRel };
+  }
+
+  if (!dryRun) {
+    if (backup) {
+      const backupPath = path.join(backup.dir, destRel ?? srcRel);
+      fs.mkdirSync(path.dirname(backupPath), { recursive: true });
+      fs.copyFileSync(dest, backupPath);
+      backup.count += 1;
+    }
+    fs.copyFileSync(src, dest);
+    fs.chmodSync(dest, fs.statSync(src).mode);
+  }
+  return { action: 'update', path: destRel ?? srcRel };
+}
+
+function updateDirSafe(srcRel, target, opts) {
+  const src = path.join(kitRoot, srcRel);
+  if (!fs.existsSync(src)) throw new Error(`Missing source dir: ${srcRel}`);
+  const results = [];
+  function walk(current) {
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      const child = path.join(current, entry.name);
+      if (entry.isDirectory()) walk(child);
+      else {
+        const rel = path.join(srcRel, path.relative(src, child)).replaceAll(path.sep, '/');
+        results.push(updateFileSafe(rel, rel, target, opts));
+      }
+    }
+  }
+  walk(src);
+  return results;
+}
+
+function update() {
+  const dryRun = hasFlag('--dry-run');
+  const json = hasFlag('--json');
+  const noBackup = hasFlag('--no-backup');
+  const target = parseTargetAndFlags('update', { valueFlags: ['--profile'] }).target;
+  const profileRaw = optionValue('--profile', 'all');
+  const profiles = new Set(profileRaw === 'all' ? ['claude', 'cursor', 'codex'] : profileRaw.split(',').map((x) => x.trim()).filter(Boolean));
+
+  if (!fs.existsSync(target)) throw new Error(`Target does not exist: ${target}`);
+  if (fs.realpathSync(kitRoot) === fs.realpathSync(target)) {
+    throw new Error('Update source and target are the same directory. Run the update from a newer kit, e.g.: npx --yes minimal-vibe-coding-kit@latest update .');
+  }
+  if (!fs.existsSync(path.join(target, 'backbone.yml')) && !fs.existsSync(path.join(target, '.vbkit-scripts'))) {
+    throw new Error('Kit not detected in target (no backbone.yml or .vbkit-scripts). Run mvck install first.');
+  }
+
+  const previousVersionFile = path.join(target, '.vibekit', 'KIT_VERSION');
+  const previousVersion = fs.existsSync(previousVersionFile) ? fs.readFileSync(previousVersionFile, 'utf8').trim() : 'unknown';
+  const finalized = fs.existsSync(path.join(target, '.vibekit', 'FINALIZE_DONE'));
+  const stamp = new Date().toISOString().replaceAll(':', '-').slice(0, 19);
+  const backup = noBackup || dryRun ? null : { dir: path.join(target, '.vibekit', 'update-backup', stamp), count: 0 };
+  const opts = { dryRun, backup };
+  const actions = [];
+
+  // Kit-owned surfaces: refresh to the running kit version, never delete extras.
+  for (const dir of KIT_SHARED_DIRS) actions.push(...updateDirSafe(dir, target, opts));
+  for (const file of KIT_SCRIPTS) actions.push(updateFileSafe(file, file, target, opts));
+  if (profiles.has('claude')) {
+    for (const dir of CLAUDE_DIRS) actions.push(...updateDirSafe(dir, target, opts));
+    for (const skill of CLAUDE_SKILLS) actions.push(...updateDirSafe(`.claude/skills/${skill}`, target, opts));
+  }
+  if (profiles.has('cursor')) {
+    for (const dir of CURSOR_DIRS) actions.push(...updateDirSafe(dir, target, opts));
+    for (const skill of CURSOR_SKILLS) actions.push(...updateDirSafe(`.cursor/skills/${skill}`, target, opts));
+  }
+  if (profiles.has('codex')) {
+    for (const dir of CODEX_DIRS) actions.push(...updateDirSafe(dir, target, opts));
+  }
+
+  // User-owned files: seed only when missing, never overwrite. Finalized
+  // projects removed the one-time files on purpose, so skip re-seeding them.
+  const seedFiles = finalized ? ['backbone.yml'] : KIT_SEED_FILES;
+  for (const file of seedFiles) actions.push(copyFileSafe(file, file, target, { force: false, dryRun }));
+  if (profiles.has('claude')) actions.push(copyFileSafe('.claude/settings.json', '.claude/settings.json', target, { force: false, dryRun }));
+  if (profiles.has('cursor')) actions.push(copyFileSafe('.cursor/settings.json', '.cursor/settings.json', target, { force: false, dryRun }));
+
+  applyManagedBlocks(target, profiles, actions, { dryRun });
+  writeKitVersion(target, dryRun);
+
+  const summary = { add: 0, update: 0, unchanged: 0, skip: 0, 'managed-block': 0 };
+  for (const a of actions) summary[a.action] = (summary[a.action] || 0) + 1;
+  const backupInfo = backup && backup.count > 0 ? path.relative(target, backup.dir) : null;
+  const preserved = ['backbone.yml', 'CLAUDE.md', 'AGENTS.md content outside the managed block', '.claude/settings.json', '.cursor/settings.json'];
+
+  if (json) {
+    console.log(JSON.stringify({
+      status: dryRun ? 'dry-run' : 'updated',
+      target,
+      profiles: [...profiles].sort(),
+      fromVersion: previousVersion,
+      toVersion: kitVersion(),
+      summary,
+      backupDir: backupInfo,
+      preserved,
+      actions: actions.filter((a) => a.action !== 'unchanged')
+    }, null, 2));
+    return;
+  }
+
+  console.log(dryRun ? 'Dry-run update plan:' : 'Update complete:');
+  console.log(`- kit version: ${previousVersion} -> ${kitVersion()}`);
+  for (const a of actions) {
+    if (a.action === 'unchanged') continue;
+    console.log(`- ${a.action}: ${a.path}`);
+  }
+  console.log(`\nSummary: ${summary.add} added, ${summary.update} updated, ${summary.unchanged} unchanged.`);
+  if (backupInfo) console.log(`Backups of replaced files: ${backupInfo}/`);
+  console.log(`Preserved (never overwritten by update): ${preserved.join(', ')}.`);
+}
+
 function delegate(scriptName, { valueFlags = [] } = {}) {
   const { target, flags } = parseTargetAndFlags(args[0], { valueFlags });
   const script = path.join(kitRoot, '.vbkit-scripts', scriptName);
@@ -258,6 +421,8 @@ try {
     usage();
   } else if (command === 'install') {
     install();
+  } else if (command === 'update') {
+    update();
   } else if (command === 'init') {
     delegate('init-backbone.mjs', { valueFlags: ['--preset'] });
   } else if (command === 'validate') {

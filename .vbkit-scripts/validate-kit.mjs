@@ -39,15 +39,19 @@ const required = [
   '.vbkit-scripts/doctor.mjs', '.vbkit-scripts/test-install.mjs', '.vbkit-scripts/agentshield-probe.mjs', '.vbkit-scripts/pack-dry-run.mjs', '.vbkit-scripts/vibekit-finalize.mjs',
   'skills/autoresearch-coding/SKILL.md', 'skills/agentshield-security-review/SKILL.md', 'skills/daily-workflow-curator/SKILL.md', 'skills/vibekit-init/SKILL.md',
   'skills/clearthought/SKILL.md', 'skills/sequential-thinking/SKILL.md', 'skills/reviewing-4p-priorities/SKILL.md', 'skills/visual-design-loop/SKILL.md',
+  'skills/memento/SKILL.md', 'skills/coding-level/SKILL.md',
   '.vbkit-docs/templates/PRD_TEMPLATE.md', '.vbkit-docs/templates/CONTEXT_TEMPLATE.md',
   '.codex/README.md', '.codex/config.example.toml',
   '.claude/skills/autoresearch-coding/SKILL.md', '.claude/skills/agentshield-security-review/SKILL.md',
   '.claude/skills/daily-workflow-curator/SKILL.md', '.claude/skills/vibekit-init/SKILL.md',
   '.claude/skills/clearthought/SKILL.md', '.claude/skills/sequential-thinking/SKILL.md', '.claude/skills/reviewing-4p-priorities/SKILL.md', '.claude/skills/visual-design-loop/SKILL.md',
+  '.claude/skills/memento/SKILL.md', '.claude/skills/coding-level/SKILL.md',
   '.cursor/rules/001-vibe-core.mdc', '.cursor/skills/clearthought/SKILL.md', '.cursor/skills/sequential-thinking/SKILL.md', '.cursor/skills/reviewing-4p-priorities/SKILL.md',
+  '.cursor/skills/memento/SKILL.md', '.cursor/skills/coding-level/SKILL.md',
   '.agents/skills/autoresearch-coding/SKILL.md', '.agents/skills/agentshield-security-review/SKILL.md',
   '.agents/skills/daily-workflow-curator/SKILL.md', '.agents/skills/vibekit-init/SKILL.md',
   '.agents/skills/clearthought/SKILL.md', '.agents/skills/sequential-thinking/SKILL.md', '.agents/skills/reviewing-4p-priorities/SKILL.md', '.agents/skills/visual-design-loop/SKILL.md',
+  '.agents/skills/memento/SKILL.md', '.agents/skills/coding-level/SKILL.md',
   '.codex-plugin/plugin.json'
 ];
 
@@ -105,7 +109,9 @@ const skillMirrors = {
   'clearthought': ['.claude/skills/clearthought', '.cursor/skills/clearthought', '.agents/skills/clearthought'],
   'sequential-thinking': ['.claude/skills/sequential-thinking', '.cursor/skills/sequential-thinking', '.agents/skills/sequential-thinking'],
   'reviewing-4p-priorities': ['.claude/skills/reviewing-4p-priorities', '.cursor/skills/reviewing-4p-priorities', '.agents/skills/reviewing-4p-priorities'],
-  'visual-design-loop': ['.claude/skills/visual-design-loop', '.agents/skills/visual-design-loop']
+  'visual-design-loop': ['.claude/skills/visual-design-loop', '.agents/skills/visual-design-loop'],
+  'memento': ['.claude/skills/memento', '.cursor/skills/memento', '.agents/skills/memento'],
+  'coding-level': ['.claude/skills/coding-level', '.cursor/skills/coding-level', '.agents/skills/coding-level']
 };
 
 function validateSkillMirror(sourceRel, mirrorRel) {

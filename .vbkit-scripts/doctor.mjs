@@ -156,6 +156,9 @@ function statusLine(ok, label, detail) {
 const backbone = parseBackbone();
 const packageJson = readJson('package.json');
 const isKitTemplate = packageJson?.name === 'minimal-vibe-coding-kit';
+const kitVersion = isKitTemplate
+  ? packageJson?.version || 'unknown'
+  : exists('.vibekit/KIT_VERSION') ? read('.vibekit/KIT_VERSION').trim() : 'unknown';
 const surfaces = {
   agents: exists('AGENTS.md'),
   claude: exists('CLAUDE.md') || exists('CLAUDE-template.md') || exists('.claude'),
@@ -213,7 +216,8 @@ const report = {
     name: packageJson?.name || path.basename(target),
     stack: detectStack(),
     backboneStatus: backbone?.templateStatus || 'missing',
-    kitTemplate: isKitTemplate
+    kitTemplate: isKitTemplate,
+    kitVersion
   },
   safeCommands: commands,
   editablePaths: backbone?.editablePaths || [],
@@ -265,6 +269,7 @@ Generated: ${data.generatedAt}
 - Detected stack: ${data.projectSummary.stack.join(', ')}
 - Backbone status: ${data.projectSummary.backboneStatus}
 - Kit template source: ${data.projectSummary.kitTemplate ? 'yes' : 'no'}
+- Kit version: ${data.projectSummary.kitVersion} (update with: npx --yes minimal-vibe-coding-kit@latest update .)
 
 ## Doctor checks
 

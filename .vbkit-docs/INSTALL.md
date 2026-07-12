@@ -35,6 +35,33 @@ node .vbkit-scripts/mvck.mjs install /path/to/project --profile all --dry-run
 node .vbkit-scripts/mvck.mjs install /path/to/project --profile all --dry-run --json
 ```
 
+## Update an existing project
+
+When a newer kit version ships, refresh kit-owned files without touching user-owned ones:
+
+```bash
+npx --yes minimal-vibe-coding-kit@latest update .
+# or from a local kit clone:
+node /path/to/kit/.vbkit-scripts/mvck.mjs update /path/to/project
+```
+
+The updater:
+
+- refreshes kit-owned surfaces (`skills/`, `.vbkit-commands/`, `.vbkit-scripts/`, `.vbkit-docs/`, and the `.claude/`, `.cursor/`, `.agents/`, `.codex*` mirrors) and adds any new kit skills;
+- never overwrites `backbone.yml`, `CLAUDE.md`, `AGENTS.md` content outside the managed block, or `settings.json` files — those are seeded only if missing;
+- backs up every replaced kit file to `.vibekit/update-backup/<timestamp>/` (disable with `--no-backup`);
+- never deletes files you added, and skips re-seeding one-time files after `mvck finalize`;
+- records the kit version in `.vibekit/KIT_VERSION` (shown by `mvck doctor`).
+
+Preview without writing:
+
+```bash
+npx --yes minimal-vibe-coding-kit@latest update . --dry-run
+npx --yes minimal-vibe-coding-kit@latest update . --dry-run --json
+```
+
+Note: run the updater from a newer kit (npx or a local clone), not via the project's own `.vbkit-scripts/mvck.mjs` copy — source and target would be the same files.
+
 ## After install
 
 Paste the universal prompt from `FIRST_PROMPT.md`, or run:
@@ -84,3 +111,10 @@ The installer includes three flexible custom reasoning skills across Claude, Cod
 ## Visual design loop skill
 
 The installer also includes `visual-design-loop` for Claude and Codex surfaces. Use it when a loop goal touches UI polish, screenshots, rendering, visual QA, or visible frontend behavior.
+
+## User-invoked utility skills
+
+Two user-invoked skills install across Claude, Codex, and Cursor surfaces:
+
+- `memento`: write a `MEMENTO.md` working note before closing a multi-day task (`/memento`), then resume from it in the next session (`/memento resume`).
+- `coding-level`: set the explanation register from 0 (ELI5) to 5 (expert peer) with `/coding-level N`; stays active until reinvoked.
