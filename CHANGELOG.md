@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added `memento` skill (cross-session `MEMENTO.md` working memory) across shared, Claude, Codex, and Cursor surfaces.
+- Added `coding-level` skill (explanation register 0=ELI5 … 5=expert peer, with per-level reference personas) across shared, Claude, Codex, and Cursor surfaces.
+- Added safe updater: `mvck update` refreshes kit-owned files (skills, commands, rules, scripts, docs, agent mirrors), seeds user-owned files only when missing, refreshes managed blocks in place, backs up replaced files to `.vibekit/update-backup/<timestamp>/`, and supports `--dry-run`, `--json`, `--no-backup`, and `--profile`.
+- Stamped installed kit version in `.vibekit/KIT_VERSION` on install/update; `mvck doctor` now reports it with the update command.
+- Added update-behavior tests (stale-file refresh, new-skill backfill, user-file preservation, backup creation, non-kit target rejection).
 - Hardened installer managed-block fallback when template markers are missing.
 - Fixed `mvck init|validate|daily` delegation so flags are preserved when target is omitted.
 - Added install/idempotency tests with temporary clean and existing repos.

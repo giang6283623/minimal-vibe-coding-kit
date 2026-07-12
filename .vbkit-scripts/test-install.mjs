@@ -80,6 +80,32 @@ try {
   const parsed = JSON.parse(jsonPlan.stdout);
   assert(parsed.status === 'dry-run' && parsed.dryRun === true, 'install --dry-run --json returns machine-readable plan');
 
+  const upd = tempDir('update');
+  run(['.vbkit-scripts/mvck.mjs', 'install', upd, '--profile', 'all']);
+  assert(fs.existsSync(path.join(upd, '.vibekit/KIT_VERSION')), 'install stamps .vibekit/KIT_VERSION');
+  fs.appendFileSync(path.join(upd, 'backbone.yml'), '# user-custom-line\n');
+  fs.writeFileSync(path.join(upd, 'skills/memento/SKILL.md'), '# stale kit file\n');
+  fs.rmSync(path.join(upd, '.claude/skills/coding-level'), { recursive: true, force: true });
+
+  run(['.vbkit-scripts/mvck.mjs', 'update', upd]);
+  assert(fs.readFileSync(path.join(upd, 'skills/memento/SKILL.md'), 'utf8').includes('name: memento'), 'update refreshes stale kit files');
+  assert(fs.existsSync(path.join(upd, '.claude/skills/coding-level/SKILL.md')), 'update re-adds missing kit skill mirrors');
+  assert(fs.readFileSync(path.join(upd, 'backbone.yml'), 'utf8').includes('# user-custom-line'), 'update preserves user-modified backbone.yml');
+  const backupRoot = path.join(upd, '.vibekit', 'update-backup');
+  assert(fs.existsSync(backupRoot) && fs.readdirSync(backupRoot).length >= 1, 'update backs up replaced kit files');
+  run(['.vbkit-scripts/validate-kit.mjs', upd]);
+
+  const updAgents = fs.readFileSync(path.join(upd, 'AGENTS.md'), 'utf8');
+  assert(count(updAgents, 'BEGIN: minimal-vibe-coding-kit') === 1, 'update keeps one managed begin marker in AGENTS.md');
+
+  const emptyTarget = tempDir('update-empty');
+  run(['.vbkit-scripts/mvck.mjs', 'update', emptyTarget], { expect: 1 });
+  assert(true, 'update refuses a target without the kit installed');
+
+  const updPlan = run(['.vbkit-scripts/mvck.mjs', 'update', upd, '--dry-run', '--json']);
+  const updParsed = JSON.parse(updPlan.stdout);
+  assert(updParsed.status === 'dry-run' && typeof updParsed.toVersion === 'string', 'update --dry-run --json returns machine-readable plan');
+
   console.log('\nInstall behavior tests passed.');
 } finally {
   if (!keep) {

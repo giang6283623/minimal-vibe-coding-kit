@@ -27,6 +27,7 @@ Drop it in, let the agent auto-detect your stack, approve the proposal, ship.
 - [Quick Start](#quick-start)
 - [First Prompt](#first-prompt)
 - [Install Profiles](#install-profiles)
+- [Updating an Installed Project](#updating-an-installed-project)
 - [Repository Layout](#repository-layout)
 - [Workflow per Tool](#workflow-per-tool)
 - [Commands & Skills Reference](#commands--skills-reference)
@@ -174,6 +175,38 @@ node .vbkit-scripts/mvck.mjs install . --profile codex           # Codex (and an
 
 Useful flags: `--force` (overwrite existing files), `--dry-run` (preview without writing), `--json` (machine-readable install plan).
 
+## Updating an Installed Project
+
+When the kit ships new skills, rules, or scripts, refresh any project that already uses it with one command (run inside that project):
+
+```bash
+npx --yes minimal-vibe-coding-kit@latest update .
+```
+
+Or from a local clone of the newer kit:
+
+```bash
+node /path/to/minimal-vibe-coding-kit/.vbkit-scripts/mvck.mjs update /path/to/your-project
+```
+
+`update` is designed to be safe by default:
+
+- **Refreshes kit-owned files only**: `skills/`, `.vbkit-commands/`, `.vbkit-scripts/`, `.vbkit-docs/`, and the Claude/Cursor/Codex skill, command, rule, and agent mirrors. New kit skills are added automatically.
+- **Never overwrites user-owned files**: `backbone.yml`, `CLAUDE.md`, `AGENTS.md` content outside the managed block, `.claude/settings.json`, and `.cursor/settings.json` are seeded only if missing.
+- **Managed blocks, not rewrites**: `AGENTS.md`, `CLAUDE.md`, and `.gitignore` are updated only inside the `BEGIN/END: minimal-vibe-coding-kit` markers.
+- **Backs up before replacing**: any kit file that changed locally is copied to `.vibekit/update-backup/<timestamp>/` before being replaced (skip with `--no-backup`).
+- **Never deletes** files you added, and skips re-seeding one-time files on finalized projects.
+- **Version-stamped**: the installed kit version is recorded in `.vibekit/KIT_VERSION`; `mvck doctor` reports it.
+
+Preview first if you want:
+
+```bash
+npx --yes minimal-vibe-coding-kit@latest update . --dry-run
+npx --yes minimal-vibe-coding-kit@latest update . --dry-run --json
+```
+
+Recommended flow: `update . --dry-run` → `update .` → `npm run validate` (or `node .vbkit-scripts/validate-kit.mjs .`) → review the diff in git before committing.
+
 ## Repository Layout
 
 ```text
@@ -288,6 +321,8 @@ Initialize backbone.yml, keep AGENTS.md concise, and wait for approval before wr
 | [`sequential-thinking`](skills/sequential-thinking/SKILL.md) | Step progression, revisions, branches, and task splitting for complex work. |
 | [`reviewing-4p-priorities`](skills/reviewing-4p-priorities/SKILL.md) | P0-P4 triage for bugs, review findings, risks, and fix order. |
 | [`visual-design-loop`](skills/visual-design-loop/SKILL.md) | Screenshot-driven UI polish loop for render-review-fix design improvement. |
+| [`memento`](skills/memento/SKILL.md) | Cross-session working memory: write `MEMENTO.md` before closing a multi-day task, resume from it next session. User-invoked (`/memento`). |
+| [`coding-level`](skills/coding-level/SKILL.md) | Set the explanation register from 0 (ELI5) to 5 (expert peer); active until reinvoked. User-invoked (`/coding-level N`). |
 
 ### Agents (`.claude/agents/`)
 
