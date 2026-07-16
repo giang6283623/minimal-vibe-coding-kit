@@ -14,19 +14,19 @@ Run a daily improvement pass that proposes changes, not silent edits.
 2. Run:
 
 ```bash
-node .vbkit-scripts/daily-enhance.mjs . --write-report
+node .vibekit/scripts/daily-enhance.mjs . --write-report
 ```
 
 3. Run validation:
 
 ```bash
-node .vbkit-scripts/validate-kit.mjs .
+node .vibekit/scripts/validate-kit.mjs .
 ```
 
 4. Run AgentShield read-only probe if present:
 
 ```bash
-node .vbkit-scripts/agentshield-probe.mjs .
+node .vibekit/scripts/agentshield-probe.mjs .
 ```
 
 5. Identify stale, duplicated, or overly broad rules.

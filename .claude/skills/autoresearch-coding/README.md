@@ -11,5 +11,5 @@ Example:
 For this kit:
 
 ```text
-/autoresearch-coding goal: improve the kit; metric command: node .vbkit-scripts/validate-kit.mjs .; direction: higher; editable paths: .vbkit-docs .vbkit-scripts skills .vbkit-commands .claude .cursor .agents .codex-plugin; budget: 3
+/autoresearch-coding goal: improve the kit; metric command: node .vibekit/scripts/validate-kit.mjs .; direction: higher; editable paths: .vibekit/docs .vibekit/scripts .vibekit/skills .vibekit/commands .claude .cursor .agents .codex-plugin; budget: 3
 ```

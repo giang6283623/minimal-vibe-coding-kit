@@ -1,6 +1,6 @@
 ---
 description: Metric-driven autoresearch loop rules for repeated repo improvement.
-globs: ["src/**", "app/**", "lib/**", ".vbkit-docs/**", "skills/**", ".vbkit-scripts/**", ".vbkit-commands/**", ".claude/**", ".cursor/**", ".agents/**"]
+globs: ["src/**", "app/**", "lib/**", ".vibekit/docs/**", ".vibekit/skills/**", ".vibekit/scripts/**", ".vibekit/commands/**", ".claude/**", ".cursor/**", ".agents/**"]
 alwaysApply: false
 ---
 

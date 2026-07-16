@@ -1,11 +1,11 @@
-# Minimal Vibe Coding Kit backbone. See .vbkit-docs/BACKBONE_REFERENCE.md for details.
+# Minimal Vibe Coding Kit backbone. See .vibekit/docs/BACKBONE_REFERENCE.md for details.
 version: 2
 meta:
   template_status: initialized
   initialized_at: 2026-05-27T01:36:21.898Z
   template_source: minimal-vibe-coding-kit
   schema_version: 3
-  init_runbook: FIRST_TIME_INIT.md
+  init_runbook: .vibekit/init/FIRST_TIME_INIT.md
   init_done_marker: .vibekit/INIT_DONE
 
 project:
@@ -24,7 +24,7 @@ paths:
     - .
   source: []
   tests: []
-  docs: [README.md, .vbkit-docs/]
+  docs: [README.md, .vibekit/docs/]
   generated: [node_modules/, dist/, build/, coverage/]
 
 conventions:
@@ -51,6 +51,7 @@ conventions:
     rule: "No localization convention was detected; follow nearby copy patterns and ask before introducing a project-wide i18n layer."
   custom_rules:
     - Add team-specific rules here during init review; future agents must follow them.
+    - Use path-sensitive-shell-safety before editing shell/deploy/installer/repair logic that joins remote base paths, repo folders, checkout paths, or destructive commands such as rm/mv/cp/rsync/find/git cleanup.
 
 commands:
   install: npm install
@@ -82,8 +83,8 @@ agent_surfaces:
   cursor: .cursor/
   codex: .agents/
   codex_plugin: .codex-plugin/plugin.json
-  shared_skills: skills/
-  shared_commands: .vbkit-commands/
+  shared_skills: .vibekit/skills/
+  shared_commands: .vibekit/commands/
 
 automation:
   autoresearch:
@@ -97,7 +98,7 @@ automation:
   finalize:
     cleanup_dir: _vibekit-cleanup
     marker: .vibekit/FINALIZE_DONE
-    one_time_files: [FIRST_TIME_INIT.md, FIRST_PROMPT.md, PUSH_TO_GITHUB.md, CLAUDE-template.md]
+    one_time_files: [.vibekit/init/FIRST_TIME_INIT.md, .vibekit/init/FIRST_PROMPT.md, .vibekit/init/PUSH_TO_GITHUB.md, .vibekit/init/CLAUDE-template.md]
   security:
-    probe: node .vbkit-scripts/agentshield-probe.mjs .
+    probe: node .vibekit/scripts/agentshield-probe.mjs .
     scan: npx ecc-agentshield scan --path . --format text --min-severity medium

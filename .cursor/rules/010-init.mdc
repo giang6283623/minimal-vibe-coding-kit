@@ -1,6 +1,6 @@
 ---
 description: First-time init rules for Minimal Vibe Coding Kit.
-globs: ["backbone.yml", "FIRST_TIME_INIT.md", "CLAUDE.md", "AGENTS.md", ".cursor/rules/**"]
+globs: ["backbone.yml", ".vibekit/init/FIRST_TIME_INIT.md", "CLAUDE.md", "AGENTS.md", ".cursor/rules/**"]
 alwaysApply: false
 ---
 
