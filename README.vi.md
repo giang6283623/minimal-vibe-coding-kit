@@ -5,421 +5,222 @@
 # Minimal Vibe Coding Kit
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.2.0-2ea44f.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.4.0-2ea44f.svg)](CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
 ![AgentShield](https://img.shields.io/badge/Security-AgentShield-d62828)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)
 
-**Một bộ kit AI-coding gọn nhẹ cho Claude Code, Cursor và Codex — chạy được trên mọi repo, mọi ngôn ngữ.**
+**Một bộ kit AI-coding cài một lần cho Claude Code, Cursor và Codex — mọi repo, mọi ngôn ngữ.**
 
-Cài đặt, để agent tự dò stack, duyệt diff đề xuất, rồi bắt đầu code.
+Cài đặt → dán một prompt → duyệt đề xuất → code với guardrails.
 
 </div>
 
 ---
 
-## Mục lục
+## Bộ kit này là gì?
 
-- [Có gì mới ở 0.2.0](#có-gì-mới-ở-020)
-- [Bộ kit này là gì](#bộ-kit-này-là-gì)
-- [Bắt đầu nhanh](#bắt-đầu-nhanh)
-- [Prompt đầu tiên](#prompt-đầu-tiên)
-- [Profile cài đặt](#profile-cài-đặt)
-- [Cập nhật project đã cài kit](#cập-nhật-project-đã-cài-kit)
-- [Cấu trúc repo](#cấu-trúc-repo)
-- [Workflow theo từng tool](#workflow-theo-từng-tool)
-- [Tham chiếu Commands & Skills](#tham-chiếu-commands--skills)
-- [Vòng lặp Autoresearch](#vòng-lặp-autoresearch)
-- [AgentShield - rà soát bảo mật](#agentshield---rà-soát-bảo-mật)
-- [Cải tiến hằng ngày](#cải-tiến-hằng-ngày)
-- [Validate trước khi release](#validate-trước-khi-release)
-- [Mục tiêu thiết kế](#mục-tiêu-thiết-kế)
-- [Khắc phục sự cố](#khắc-phục-sự-cố)
-- [Đóng góp](#đóng-góp)
-- [Giấy phép](#giấy-phép)
+Một bộ kit nhỏ gồm **rules**, **skills**, **commands** dùng chung, cộng một manifest **`backbone.yml`**, giúp Claude Code, Cursor và Codex hiểu project của bạn theo cùng một cách.
 
-> 🇺🇸 Want to read in English? See [README.md](README.md).
-
----
-
-## Có gì mới ở 0.2.0
-
-| Mảng | Thay đổi |
-| --- | --- |
-| Trình cài đặt | CLI một lệnh: `mvck install <project>` (kèm `install.sh` / `install.ps1`). |
-| Hỗ trợ Codex | Thêm các bề mặt `.agents/`, `.codex/`, và `.codex-plugin/plugin.json`. |
-| Hướng dẫn chung | File `AGENTS.md` mới được `CLAUDE.md` import để tránh trùng lặp. |
-| Backbone | `backbone.yml` template gọn + helper tự dò cấu hình. |
-| Skills | Thêm `vibekit-init`, `agentshield-security-review`, `daily-workflow-curator`. |
-| Bảo mật | Probe AgentShield chỉ đọc + tích hợp scanner. |
-| Vòng lặp daily | `daily-enhance` chỉ đề xuất - không tự viết đè rules. |
-| Validation | `validate-kit.mjs` + GitHub Actions workflow. |
-
-Chi tiết đầy đủ trong [CHANGELOG.md](CHANGELOG.md).
-
-## Bộ kit này là gì
-
-Một bộ kit gọn nhẹ, không phụ thuộc dự án, gồm **rules**, **skills**, **commands** dùng chung, cộng với một **backbone manifest** giúp các AI coding assistant hiểu mọi project theo cùng một cách.
-
-Triết lý là tối giản:
-
-- Không framework nặng, không ép cấu trúc.
-- `CLAUDE.md` / `AGENTS.md` hiện có **không bao giờ bị ghi đè** - kit chỉ thêm managed block.
-- Ba file template làm phần lớn việc:
-  - [backbone.yml](backbone.yml) - nguồn sự thật duy nhất về cấu trúc, đường dẫn, quy ước.
-  - [CLAUDE-template.md](CLAUDE-template.md) - khung `CLAUDE.md` ngắn, import `AGENTS.md`.
-  - [FIRST_TIME_INIT.md](FIRST_TIME_INIT.md) - runbook khởi tạo với guardrails.
-
-Luồng hoạt động:
-
-1. Cài kit vào project. `backbone.yml` mặc định có `meta.template_status: uninitialized` và các giá trị `<<PLACEHOLDER>>`.
-2. Dán [prompt đầu tiên](#prompt-đầu-tiên) vào Claude Code, Cursor, hoặc Codex.
-3. Agent quét fingerprint stack và các quy ước hiện có, rồi **đề xuất một diff thống nhất**.
-4. Bạn review backbone và project rules được suy ra (`yes` / `edit` / `abort`). Agent chỉ ghi sau khi được duyệt và đổi status sang `initialized`.
-5. Mọi phiên sau đó đọc `backbone.yml` đã điền và bỏ qua bước init.
-
-Phù hợp với single-repo, monorepo và multi-repo. Không ghi đè ngầm. Không có code đặc thù dự án trong kit gốc.
-
-Trong lần init đầu tiên, proposal cũng ghi lại rules riêng của repo trong `backbone.yml` dưới mục `conventions`: naming style, kiến trúc thư mục, cách truy cập asset/resource dùng chung, localization/message accessor, generated definitions, và khác biệt theo app/package khi evidence không giống nhau.
+- Không bao giờ ghi đè `CLAUDE.md` / `AGENTS.md` sẵn có — chỉ thêm managed block.
+- Mọi thao tác ghi khi setup đều chờ bạn duyệt.
+- Rà soát bảo mật bề mặt agent (AgentShield) là một phần của workflow bình thường.
 
 ## Bắt đầu nhanh
 
-### 1. Cài kit vào project bất kỳ
+Ba bước, khoảng hai phút.
 
-Từ thư mục kit này:
-
-```bash
-./install.sh /path/to/your-project
-```
-
-PowerShell trên Windows:
-
-```powershell
-./install.ps1 -Target C:\path\to\your-project
-```
-
-Hoặc dùng trực tiếp Node CLI:
-
-```bash
-node .vbkit-scripts/mvck.mjs install /path/to/your-project --profile all
-```
-
-Sau khi repo này được publish lên GitHub, người dùng cuối cài từ bất cứ đâu bằng:
+**1. Cài vào project của bạn** (không cần clone):
 
 ```bash
 npx github:giang6283623/minimal-vibe-coding-kit install /path/to/your-project
 ```
 
-### 2. Khởi tạo backbone
+Hoặc từ bản clone của repo này: `./install.sh /path/to/your-project` (Windows: `./install.ps1 -Target C:\path\to\your-project`).
 
-```bash
-cd /path/to/your-project
-node .vbkit-scripts/init-backbone.mjs . --propose      # xem trước đề xuất
-node .vbkit-scripts/init-backbone.mjs . --write --yes  # ghi sau khi bạn đã review backbone + rules
-```
-
-### 3. Validate
-
-```bash
-npm test
-npm run security:probe
-node .vbkit-scripts/mvck.mjs doctor .
-```
-
-### 4. Mở project và dán [prompt đầu tiên](#prompt-đầu-tiên).
-
-## Prompt đầu tiên
-
-Dán đoạn này vào Claude Code, Cursor, hoặc Codex sau khi cài kit:
+**2. Mở project trong Claude Code, Cursor hoặc Codex và dán:**
 
 ```text
-Read FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit.
+Read .vibekit/init/FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit.
 First print the requirements you will check. Then run detection, propose one diff
 for backbone.yml and managed instruction blocks, and wait for my yes before writing.
-Include inferred project conventions for naming, architecture, resources,
-localization, generated definitions, and per-app/package differences.
-After approval, write the files, run validation, and summarize what changed.
 ```
 
-Các biến thể prompt riêng cho từng tool có trong [FIRST_PROMPT.md](FIRST_PROMPT.md).
+**3. Review diff được đề xuất và trả lời `yes`.**
 
-## Profile cài đặt
+Agent điền `backbone.yml` với stack và quy ước đã dò được, rồi chuyển sang `initialized`. Xong — mọi phiên sau tự động đọc file này và bỏ qua bước init.
 
-Cài tất cả (mặc định):
+Kiểm tra sức khỏe bất cứ lúc nào:
 
 ```bash
-node .vbkit-scripts/mvck.mjs install . --profile all
+node .vibekit/scripts/mvck.mjs doctor .
 ```
 
-Chỉ cài phần bạn dùng:
+## Những gì được cài vào repo của bạn
 
-```bash
-node .vbkit-scripts/mvck.mjs install . --profile claude          # chỉ Claude Code
-node .vbkit-scripts/mvck.mjs install . --profile claude,cursor   # Claude + Cursor
-node .vbkit-scripts/mvck.mjs install . --profile codex           # Codex (và bất kỳ agent dùng AGENTS.md)
-```
-
-Cờ hữu ích: `--force` (ghi đè file đã tồn tại), `--dry-run` (xem trước, không ghi).
-
-## Cập nhật project đã cài kit
-
-Khi kit có skill, rule, hoặc script mới, chạy một lệnh trong project để cập nhật an toàn:
-
-```bash
-npx --yes minimal-vibe-coding-kit@latest update .
-```
-
-Hoặc từ bản clone kit mới hơn:
-
-```bash
-node /path/to/minimal-vibe-coding-kit/.vbkit-scripts/mvck.mjs update /path/to/your-project
-```
-
-`update` an toàn theo mặc định:
-
-- **Chỉ làm mới file thuộc kit**: `skills/`, `.vbkit-commands/`, `.vbkit-scripts/`, `.vbkit-docs/`, và các mirror skill/command/rule/agent của Claude, Cursor, Codex. Skill mới của kit được thêm tự động.
-- **Không bao giờ ghi đè file của bạn**: `backbone.yml`, `CLAUDE.md`, nội dung `AGENTS.md` ngoài managed block, `.claude/settings.json`, `.cursor/settings.json` chỉ được tạo khi chưa tồn tại.
-- **Chỉ cập nhật trong managed block** (`BEGIN/END: minimal-vibe-coding-kit`) của `AGENTS.md`, `CLAUDE.md`, `.gitignore`.
-- **Backup trước khi thay**: file kit bị thay đổi sẽ được sao lưu vào `.vibekit/update-backup/<timestamp>/` (tắt bằng `--no-backup`).
-- **Không xóa** file bạn tự thêm, và không tạo lại các file one-time trên project đã finalize.
-- **Có version**: phiên bản kit được ghi vào `.vibekit/KIT_VERSION`; `mvck doctor` sẽ hiển thị.
-
-Xem trước khi ghi:
-
-```bash
-npx --yes minimal-vibe-coding-kit@latest update . --dry-run
-```
-
-Quy trình khuyến nghị: `update . --dry-run` → `update .` → chạy validate → review diff trong git trước khi commit.
-
-## Cấu trúc repo
+Cài đặt chỉ thêm đúng những mục sau — không đụng vào bất cứ thứ gì khác:
 
 ```text
-.
-├── backbone.yml                  ← bản đồ project + cấu hình workflow (template)
-├── AGENTS.md                     ← hướng dẫn chung cho Claude, Cursor, Codex
-├── CLAUDE-template.md            ← starter Claude ngắn gọn (import AGENTS.md)
-├── FIRST_PROMPT.md               ← prompt copy/paste cho từng tool
-├── FIRST_TIME_INIT.md            ← runbook khởi tạo an toàn kèm guardrails
-│
-├── .claude/                      ← bề mặt Claude Code
-│   ├── agents/                   (10 role agent: code-reviewer, debug-fixer, …)
-│   ├── commands/                 (/init-vibe, /security-scan, /daily-enhance, /autoresearch-coding, /council)
-│   ├── rules/                    (vibe-core, security, autoresearch, tooling)
-│   ├── skills/                   (bản sao của shared skills)
-│   └── settings.json
-│
-├── .cursor/                      ← bề mặt Cursor (rules/, commands/)
-├── .agents/skills/               ← skills cho Codex / portable
-├── .codex/                       ← config mẫu cho Codex
-├── .codex-plugin/plugin.json     ← manifest plugin Codex
-│
-├── skills/                       ← shared skills (canonical)
-│   ├── vibekit-init/
-│   ├── autoresearch-coding/
-│   ├── agentshield-security-review/
-│   ├── daily-workflow-curator/
-│   ├── clearthought/
-│   ├── sequential-thinking/
-│   ├── reviewing-4p-priorities/
-│   └── visual-design-loop/
-├── .vbkit-commands/                     ← prompt command dùng chung
-│
-├── .vbkit-scripts/                      ← CLI mvck, init-backbone, daily-enhance, validate-kit
-├── bin/                          ← entrypoint npm bin (mvck, vibe-kit)
-├── .vbkit-docs/                         ← tài liệu sâu hơn (giữ ngoài root)
-└── .github/workflows/            ← workflow validation cho repo
+your-project/
+├── backbone.yml              ← bản đồ project mà agent đọc đầu tiên (nguồn sự thật duy nhất)
+├── AGENTS.md                 ← hướng dẫn chung cho agent (managed block)
+├── CLAUDE.md                 ← ngắn gọn; import AGENTS.md (chỉ tạo khi chưa có)
+├── .gitignore                ← các entry của kit thêm trong managed block
+├── .claude/                  ← Claude Code: rules, commands, agents, skills
+├── .cursor/                  ← Cursor: rules, commands, skills
+├── .agents/                  ← skills cho Codex / portable
+├── .codex/  .codex-plugin/   ← config mẫu Codex + plugin manifest
+└── .vibekit/                 ← mọi thứ thuộc kit, trong MỘT thư mục
+    ├── skills/               ← shared skills canonical (mirror sang các harness)
+    ├── commands/             ← prompt command dùng chung
+    ├── scripts/              ← CLI mvck, init, validate, doctor, security probe
+    ├── docs/                 ← tài liệu tham khảo sâu hơn
+    └── init/                 ← file onboarding một lần (xóa được bằng /vibe-finalize)
 ```
 
-## Workflow theo từng tool
+File sẵn có không bao giờ bị thay thế — kit chỉ merge managed block (`BEGIN/END: minimal-vibe-coding-kit`) và bỏ qua những gì thuộc về bạn.
 
-### Claude Code
-
-Claude đọc `CLAUDE.md`, `AGENTS.md`, `.claude/rules`, `.claude/commands`, `.claude/agents`, và `.claude/skills`.
-
-Các slash command hữu ích:
+## Các mảnh ghép kết nối thế nào
 
 ```text
-/init-vibe              khởi tạo hoặc sửa setup của kit
-/security-scan          AgentShield probe + scan
-/daily-enhance          sinh báo cáo cải tiến chỉ đề xuất
-/autoresearch-coding    chạy vòng lặp thử nghiệm có metric
-/council                phối hợp nhiều agent chuyên biệt
+Bạn (prompt) ──▶ Claude Code / Cursor / Codex
+                      │  đọc đầu tiên
+                      ▼
+        backbone.yml  +  AGENTS.md / CLAUDE.md  +  rules
+                      │  load khi cần
+                      ▼
+        skills (quy trình)  +  commands (phím tắt)
+                      │  được bảo vệ bởi
+                      ▼
+        protected paths · đề xuất-trước-khi-ghi · AgentShield probe
 ```
 
-`CLAUDE.md` sinh ra cố tình giữ ngắn và import nội dung chung qua `@AGENTS.md`.
+- **`backbone.yml`** — đường dẫn, quy ước, protected paths, và lệnh validate của repo bạn.
+- **Rules** — guardrails ngắn, luôn được load (đọc backbone trước, diff nhỏ, security review khi sửa bề mặt agent).
+- **Skills** — quy trình lặp lại được, chỉ load khi task cần.
+- **Commands** — phím tắt một từ cho các skill hay dùng nhất.
 
-### Cursor
+## Hướng dẫn — sử dụng hằng ngày
 
-Cursor nhận project rules từ:
+1. **Cứ code bình thường.** Yêu cầu feature/fix như thường lệ; agent theo quy ước trong `backbone.yml` và giữ diff nhỏ.
+2. **Task lớn hoặc mơ hồ?** Bắt đầu với skill `clearthought` hoặc `sequential-thinking` để có kế hoạch trước.
+3. **Câu hỏi toàn repo hoặc review lớn?** Dùng `parallel-analysis` — chia các lane phân tích chỉ-đọc chạy song song rồi xác minh kết quả gộp.
+4. **Đã sửa `.claude/`, skills, hooks, hoặc script installer?** Chạy `/security-scan` trước khi merge.
+5. **Muốn cải tiến đo được?** Chạy `/autoresearch-coding` với metric và budget.
+6. **Giữ setup luôn sắc bén:** `/daily-enhance` đề xuất cải tiến — không bao giờ tự áp dụng.
+7. **Onboarding xong hẳn?** `/vibe-finalize` dọn các file bootstrap một lần.
 
-```text
-.cursor/rules/*.mdc      001-vibe-core, 010-init, 020-security-agentshield, 030-autoresearch-loop
-.cursor/commands/*.md    cùng 5 command như Claude
-AGENTS.md
-backbone.yml
-```
+## Commands
 
-Rules được tách theo chủ đề để context luôn nhỏ.
-
-### Codex
-
-Codex nhận hướng dẫn từ:
-
-```text
-AGENTS.md
-.agents/skills/*/SKILL.md
-.codex/config.example.toml
-.codex-plugin/plugin.json
-backbone.yml
-```
-
-Prompt khuyến nghị:
-
-```text
-Read AGENTS.md and FIRST_TIME_INIT.md. Use the vibekit-init skill if available.
-Initialize backbone.yml, keep AGENTS.md concise, and wait for approval before writing.
-```
-
-## Tham chiếu Commands & Skills
-
-### Commands
-
-| Command | Skill phía sau | Dùng khi |
+| Command | Chức năng | Ví dụ |
 | --- | --- | --- |
-| `/init-vibe` | `vibekit-init` | Init lần đầu hoặc sửa chữa. In requirements, đề xuất diff, chờ duyệt. |
-| `/security-scan` | `agentshield-security-review` | Review bề mặt agent, hooks, MCP, skills, commands, installer. |
-| `/daily-enhance` | `daily-workflow-curator` | Đề xuất cải tiến rules, skills, workflows, `backbone.yml`. Chỉ propose. |
-| `/autoresearch-coding` | `autoresearch-coding` | Cải tiến repo qua các thử nghiệm có thể đo, kèm baseline + budget. |
-| `/council` | (đa agent) | Phối hợp research-coordinator, security-reviewer, code-reviewer, results-analyst. |
+| `/init-vibe` | Init lần đầu hoặc sửa chữa: đề xuất một diff, chờ duyệt. | `/init-vibe` — review diff rồi trả lời `yes`. |
+| `/security-scan` | AgentShield probe chỉ-đọc + scanner tùy chọn cho bề mặt agent. | `/security-scan` trước khi merge thay đổi `.claude/**` hoặc skills. |
+| `/daily-enhance` | Báo cáo chỉ-đề-xuất để cải tiến rules, skills, workflows. | `/daily-enhance` — review diff đề xuất rồi duyệt. |
+| `/autoresearch-coding` | Vòng lặp thử nghiệm theo metric với baseline và budget. | `/autoresearch-coding` Goal: giảm lỗi lint. Budget: 3. |
+| `/council` | Phối hợp các agent reviewer/researcher/analyst thành một kế hoạch gộp. | `/council` trên diff của branch này. |
+| `/vibe-finalize` | Tốt nghiệp project: chuyển file bootstrap một lần vào `_vibekit-cleanup/`. | `/vibe-finalize` — xem trước, áp dụng sau khi duyệt. |
 
-### Skills (`skills/` là canonical; thư mục skill theo từng tool mirror lại khi phù hợp)
+## Skills
 
-| Skill | Mục đích |
-| --- | --- |
-| [`vibekit-init`](skills/vibekit-init/SKILL.md) | Init lần đầu: dò stack, đề xuất diff, chờ `yes`, rồi mới ghi. |
-| [`autoresearch-coding`](skills/autoresearch-coding/SKILL.md) | Vòng lặp nghiên cứu theo metric, có baseline, experiment và log kết quả. |
-| [`agentshield-security-review`](skills/agentshield-security-review/SKILL.md) | Probe chỉ đọc + scanner tùy chọn cho bảo mật bề mặt agent. |
-| [`daily-workflow-curator`](skills/daily-workflow-curator/SKILL.md) | Báo cáo daily + đề xuất diff. Không bao giờ ghi ngầm. |
-| [`clearthought`](skills/clearthought/SKILL.md) | Lý luận có cấu trúc cho task mơ hồ, debug, thiết kế, và lập kế hoạch triển khai. |
-| [`sequential-thinking`](skills/sequential-thinking/SKILL.md) | Chia nhỏ công việc phức tạp theo từng bước, có revision và branch. |
-| [`reviewing-4p-priorities`](skills/reviewing-4p-priorities/SKILL.md) | Triage P0-P4 cho bug, review finding, rủi ro, và thứ tự fix. |
-| [`visual-design-loop`](skills/visual-design-loop/SKILL.md) | Vòng lặp polish UI bằng screenshot: render, review, sửa mục tiêu, rồi so sánh. |
-| [`memento`](skills/memento/SKILL.md) | Bộ nhớ xuyên session: ghi `MEMENTO.md` trước khi đóng task nhiều ngày, session sau đọc lại để resume. Gọi bằng `/memento`. |
-| [`coding-level`](skills/coding-level/SKILL.md) | Chỉnh mức độ giải thích từ 0 (ELI5) đến 5 (chuyên gia); giữ nguyên đến khi gọi lại. Gọi bằng `/coding-level N`. |
+Cả 12 skill nằm trong `.vibekit/skills/` và được mirror cho từng tool. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
 
-Ba skill reasoning này có kèm examples/references trong thư mục skill và chỉ load khi cần thêm chi tiết.
+| Skill | Dùng khi | Prompt ví dụ |
+| --- | --- | --- |
+| `vibekit-init` | Setup lần đầu, hoặc `backbone.yml` / managed blocks cần sửa. | "Use the vibekit-init skill. Propose one diff and wait for my yes." |
+| `parallel-analysis` | Câu hỏi toàn repo, review diff lớn, audit tính nhất quán. | "Use parallel-analysis: where is auth handled and what depends on it?" |
+| `agentshield-security-review` | Audit config agent, skills, hooks, MCP, commands trước khi merge. | "Use agentshield-security-review on .claude/** and .vibekit/skills/**." |
+| `autoresearch-coding` | Cải tiến repo qua các thử nghiệm đo được. | "Use autoresearch-coding. Metric: `npm test`. Direction: higher. Budget: 3." |
+| `daily-workflow-curator` | Tune-up định kỳ cho rules, skills, workflows (chỉ đề xuất). | "Use daily-workflow-curator and propose today's improvements." |
+| `path-sensitive-shell-safety` | Trước khi sửa logic shell/installer/deploy có biến path hoặc `rm`/`mv`/`rsync`. | "Use path-sensitive-shell-safety before changing this cleanup script." |
+| `visual-design-loop` | Polish UI: render → screenshot → review → fix, theo vòng lặp. | "Use visual-design-loop on /dashboard. Budget 3 loops." |
+| `clearthought` | Yêu cầu mơ hồ, tradeoff thiết kế, quyết định rủi ro. | "Use clearthought. Operation: implementation_plan. Split this feature into safe tasks." |
+| `sequential-thinking` | Chia nhỏ công việc phức tạp theo từng bước. | "Use sequential-thinking. Break this refactor into ordered steps with tests." |
+| `reviewing-4p-priorities` | Triage bug/finding theo thứ tự fix P0–P4. | "Use reviewing-4p-priorities. Classify these findings and give a fix sequence." |
+| `memento` | Task nhiều ngày: lưu ngữ cảnh trước khi dừng, resume phiên sau. | "/memento — write MEMENTO.md with Goal, Done, Stuck, Next." |
+| `coding-level` | Chỉnh độ chi tiết khi giải thích (0 = ELI5 … 5 = chuyên gia). | "/coding-level 2" |
 
-### Agents (`.claude/agents/`)
+## Nâng cao
 
-Role prompt sẵn sàng dùng: `code-reviewer`, `debug-fixer`, `hypothesis-planner`, `implementation-hacker`, `research-coordinator`, `results-analyst`, `test-runner`, `security-reviewer`, `context-architect`, `workflow-curator`.
+### Profile cài đặt
 
-## Vòng lặp Autoresearch
+Chỉ cài các bề mặt bạn dùng (mặc định là `all`):
 
-Dùng khi bạn muốn agent cải tiến repo qua các thử nghiệm đo được:
+```bash
+npx github:giang6283623/minimal-vibe-coding-kit install . --profile claude          # chỉ Claude Code
+npx github:giang6283623/minimal-vibe-coding-kit install . --profile claude,cursor   # Claude + Cursor
+npx github:giang6283623/minimal-vibe-coding-kit install . --profile codex           # Codex / agent dùng AGENTS.md
+```
+
+Cờ: `--force` (ghi đè file kit sẵn có), `--dry-run` (xem trước), `--json` (kế hoạch dạng máy đọc).
+
+### Cập nhật project đã cài
+
+Chạy trong project của bạn khi kit có skill hoặc script mới:
+
+```bash
+npx github:giang6283623/minimal-vibe-coding-kit update . --dry-run   # xem trước
+npx github:giang6283623/minimal-vibe-coding-kit update .             # áp dụng
+```
+
+`update` chỉ làm mới **file thuộc kit**, không bao giờ đụng `backbone.yml` hay nội dung của bạn, cập nhật managed block tại chỗ, và backup file bị thay vào `.vibekit/update-backup/<timestamp>/`. Chi tiết: [.vibekit/docs/INSTALL.md](.vibekit/docs/INSTALL.md).
+
+### Vòng lặp Autoresearch
 
 ```text
 Use the autoresearch-coding skill.
-Goal: improve this repo for maintainability and coding-agent usefulness.
-Metric command: node .vbkit-scripts/validate-kit.mjs .
-Direction: higher.
-Editable paths: README.md .vbkit-docs .vbkit-scripts skills .vbkit-commands .claude .cursor .agents
-                .codex-plugin backbone.yml AGENTS.md CLAUDE-template.md
-                FIRST_TIME_INIT.md package.json install.sh install.ps1.
-Protected paths: .git .env* node_modules vendor secrets lockfiles.
+Goal: improve maintainability. Metric command: <lệnh validate của bạn>. Direction: higher.
+Editable paths: src/ docs/. Protected paths: .git .env* node_modules lockfiles.
 Budget: 3.
 ```
 
-Hợp đồng vòng lặp:
+Hợp đồng: baseline trước → mỗi lần một thử nghiệm nhỏ → chỉ giữ thay đổi cải thiện metric → log tất cả.
 
-1. Chạy metric baseline.
-2. Thực hiện một thử nghiệm nhỏ.
-3. Chạy lại metric.
-4. Chỉ giữ lại cải tiến hoặc đơn giản hóa an toàn.
-5. Ghi log kết quả.
-6. Lặp cho đến hết budget.
-
-## AgentShield - rà soát bảo mật
-
-Probe chỉ đọc, nhanh (chỉ cần Python):
+### Rà soát bảo mật (AgentShield)
 
 ```bash
-node .vbkit-scripts/agentshield-probe.mjs .
+node .vibekit/scripts/agentshield-probe.mjs .                          # probe chỉ-đọc, nhanh
+npx ecc-agentshield scan --path . --format text --min-severity medium  # scan đầy đủ, tùy chọn
 ```
 
-Scanner đầy đủ (tùy chọn, khi có npm):
+Mọi thay đổi tới `CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.codex-plugin/**`, hoặc `.vibekit/skills|commands|scripts/**` đều nên kích hoạt review. Mô hình: [.vibekit/docs/SECURITY_MODEL.md](.vibekit/docs/SECURITY_MODEL.md).
+
+### Doctor và báo cáo
 
 ```bash
-npx ecc-agentshield scan --path . --format text --min-severity medium
+node .vibekit/scripts/mvck.mjs doctor .                 # health check chỉ-đọc
+node .vibekit/scripts/mvck.mjs doctor . --write-report  # ghi VIBE_REPORT.md
+node .vibekit/scripts/daily-enhance.mjs . --write-report
 ```
 
-Nguyên tắc bảo mật:
-
-- Không chạy hooks, MCP server, package lifecycle scripts, deploy scripts, migrations, hoặc lệnh phá hủy nào chỉ để kiểm tra một repo lạ.
-- Không bao giờ in secrets đầy đủ.
-- Mọi thay đổi tới `CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.codex-plugin/**`, `skills/**`, `.vbkit-commands/**`, `.vbkit-scripts/**`, hooks, hoặc MCP config đều phải kích hoạt review kiểu AgentShield.
-
-## Cải tiến hằng ngày
-
-Sinh báo cáo local:
+### Cho người phát triển kit
 
 ```bash
-node .vbkit-scripts/daily-enhance.mjs . --write-report
+npm test                # syntax + test cài đặt thật vào thư mục tạm + validate cấu trúc
+npm run validate:all    # npm test + AgentShield probe + npm pack dry-run
 ```
 
-Prompt cho agent:
+Checklist publish: [.vibekit/init/PUSH_TO_GITHUB.md](.vibekit/init/PUSH_TO_GITHUB.md). Tài liệu sâu hơn: [.vibekit/docs/](.vibekit/docs/).
 
-```text
-Use the daily-workflow-curator skill. Run the daily report, AgentShield probe,
-and kit validation. Propose improvements to rules, skills, workflows, and
-backbone.yml. Do not write until I approve the diff.
-```
+<details>
+<summary><strong>Khắc phục sự cố</strong></summary>
 
-Cải tiến hằng ngày mặc định **chỉ đề xuất**. Không tự commit hay viết đè rules.
+| Triệu chứng | Cách xử lý |
+| --- | --- |
+| Agent bỏ qua luồng init | Chạy lại installer, hoặc copy [.vibekit/init/CLAUDE-template.md](.vibekit/init/CLAUDE-template.md) thành `CLAUDE.md`. |
+| Agent hỏi init lại mỗi phiên | Chạy init và duyệt; xác nhận `meta.template_status: initialized` trong `backbone.yml`. |
+| Dò sai stack | Xóa lockfile cũ, hoặc sửa `backbone.yml` trực tiếp. |
+| Agent chạm path không nên | Thêm path vào `policy.protected_paths` trong `backbone.yml` (hỗ trợ glob). |
+| AgentShield probe cảnh báo | Cài Python 3, hoặc bỏ qua — là warning, không phải failure. |
+| Thiếu script sau khi cài | Chạy lại install với `--force`, hoặc copy thủ công `.vibekit/scripts/`. |
 
-## Validate trước khi release
-
-```bash
-npm run validate        # validate cấu trúc
-npm run validate:all    # validate + AgentShield probe + package dry-run
-```
-
-Kết quả mong đợi: validation pass, AgentShield probe không báo lỗi cấu trúc nghiêm trọng, và `npm run pack:dry-run` liệt kê đúng các file trong package.
-
-Checklist publish nằm trong [PUSH_TO_GITHUB.md](PUSH_TO_GITHUB.md).
-
-## Mục tiêu thiết kế
-
-- Dùng được với mọi ngôn ngữ và framework.
-- Hỗ trợ project đang có sẵn mà không ghi đè hướng dẫn riêng của bạn.
-- Giữ file root ngắn - thủ tục dài đẩy vào skills và `.vbkit-docs/`.
-- Cải tiến AI workflow phải đo được qua autoresearch.
-- Đưa security review bề mặt agent thành một phần của workflow bình thường.
-
-## Khắc phục sự cố
-
-| Triệu chứng | Nguyên nhân thường gặp | Cách xử lý |
-| --- | --- | --- |
-| Agent bỏ qua luồng init | Thiếu `CLAUDE.md` hoặc managed block bị xóa. | Chạy lại installer, hoặc copy [CLAUDE-template.md](CLAUDE-template.md) thành `CLAUDE.md`. |
-| Agent hỏi init lại mỗi phiên | `meta.template_status` vẫn `uninitialized`. | Chạy init, duyệt diff, đảm bảo `template_status` thành `initialized` và `initialized_at` đã được set. |
-| Dò sai stack | Lockfile của ngôn ngữ cũ còn sót, hoặc pattern dò chưa cập nhật. | Xóa file cũ, hoặc mở rộng phần detection trong [backbone.yml](backbone.yml). |
-| Agent chạm vào path không nên | Path chưa có trong `policy.protected_paths`. | Thêm vào (hỗ trợ glob). |
-| `CLAUDE.md` cũ bị ghi đè | Guardrail merge bị bypass. | Khôi phục từ git. Chạy lại installer - kit chỉ append managed block. |
-| Validation cảnh báo AgentShield probe | Thiếu Python hoặc script probe. | Cài Python 3, hoặc bỏ qua - đây là warning, không phải failure. |
-| Sau khi install không thấy `node .vbkit-scripts/...` | Installer bỏ qua file đã có. | Chạy lại với `--force`, hoặc copy thủ công thư mục `.vbkit-scripts/`. |
+</details>
 
 ## Đóng góp
 
-Issue và PR luôn welcome tại [`giang6283623/minimal-vibe-coding-kit`](https://github.com/giang6283623/minimal-vibe-coding-kit).
-
-Khi sửa kit:
-
-- Mirror thay đổi giữa `.claude/`, `.cursor/`, và `.agents/` để cả ba tool đồng bộ.
-- Giữ template trung lập - không tên công ty, không port hardcode.
-- Mỗi command/skill mới phải có một dòng mô tả mục đích và một ví dụ.
-- Chạy `npm run validate:all` trước khi mở PR.
+Issue và PR luôn welcome tại [`giang6283623/minimal-vibe-coding-kit`](https://github.com/giang6283623/minimal-vibe-coding-kit). Trước khi mở PR: mirror thay đổi skill giữa `.claude/`, `.cursor/`, `.agents/`, giữ template trung lập, và chạy `npm run validate:all`. Xem [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 **Tác giả:** [GiangBV](https://www.linkedin.com/in/buivangiang1992), [AuPMH](https://www.linkedin.com/in/pham-au-2a1bb1162)
 **Powered by:** Caffeine, Determination, AI Collaboration, và những đêm code cuối tuần.

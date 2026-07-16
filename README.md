@@ -5,483 +5,222 @@
 # Minimal Vibe Coding Kit
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.2.0-2ea44f.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.4.0-2ea44f.svg)](CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
 ![AgentShield](https://img.shields.io/badge/Security-AgentShield-d62828)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)
 
-**One installable AI-coding workflow kit for Claude Code, Cursor, and Codex — works on any repo, in any language.**
+**One installable AI-coding workflow kit for Claude Code, Cursor, and Codex — any repo, any language.**
 
-Drop it in, let the agent auto-detect your stack, approve the proposal, ship.
+Install → paste one prompt → approve the proposal → code with guardrails.
 
 </div>
 
 ---
 
-## Table of Contents
+## What is this?
 
-- [What's New in 0.2.0](#whats-new-in-020)
-- [What This Kit Is](#what-this-kit-is)
-- [Quick Start](#quick-start)
-- [First Prompt](#first-prompt)
-- [Install Profiles](#install-profiles)
-- [Updating an Installed Project](#updating-an-installed-project)
-- [Repository Layout](#repository-layout)
-- [Workflow per Tool](#workflow-per-tool)
-- [Commands & Skills Reference](#commands--skills-reference)
-- [Flexible Reasoning Skills](#flexible-reasoning-skills)
-- [Autoresearch Loop](#autoresearch-loop)
-- [AgentShield Security Review](#agentshield-security-review)
-- [Daily Enhancement](#daily-enhancement)
-- [Doctor Report](#doctor-report)
-- [Validate Before Release](#validate-before-release)
-- [Design Goals](#design-goals)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [License](#license)
+A small kit of shared **rules**, **skills**, and **commands**, plus one **`backbone.yml`** manifest, so Claude Code, Cursor, and Codex all understand your project the same way.
 
-> 🇻🇳 Bạn muốn đọc tiếng Việt? Xem [README.vi.md](README.vi.md).
-
----
-
-## What's New in 0.2.0
-
-| Area | Change |
-| --- | --- |
-| Installer | One-command CLI: `mvck install <project>` (plus `install.sh` / `install.ps1`). |
-| Codex support | Adds `.agents/`, `.codex/`, and `.codex-plugin/plugin.json` surfaces. |
-| Shared instructions | New `AGENTS.md` is imported by `CLAUDE.md` to avoid duplication. |
-| Backbone | Compact `backbone.yml` template + auto-detection helper. |
-| Skills | Adds `vibekit-init`, `agentshield-security-review`, `daily-workflow-curator`. |
-| Security | Read-only AgentShield repo probe + scanner integration. |
-| Daily loop | Propose-only `daily-enhance` report — never silently rewrites rules. |
-| Validation | Syntax checks, install idempotency tests, `mvck doctor`, schema checks, and GitHub Actions workflow. |
-
-Full notes in [CHANGELOG.md](CHANGELOG.md).
-
-## What This Kit Is
-
-A lightweight, project-agnostic kit of shared **rules**, **skills**, **commands**, and a **backbone manifest** that lets AI coding assistants understand any project consistently.
-
-It is intentionally minimal:
-
-- No heavy framework, no forced structure.
-- Existing `CLAUDE.md` / `AGENTS.md` are never overwritten — only managed blocks are added.
-- Three template files do the heavy lifting:
-  - [backbone.yml](backbone.yml) — single source of truth for project structure, paths, and conventions.
-  - [CLAUDE-template.md](CLAUDE-template.md) — a short `CLAUDE.md` skeleton that imports `AGENTS.md`.
-  - [FIRST_TIME_INIT.md](FIRST_TIME_INIT.md) — the init runbook with guardrails for any repo.
-
-The flow:
-
-1. Install the kit into a project. `backbone.yml` ships with `meta.template_status: uninitialized` and `<<PLACEHOLDER>>` values.
-2. Paste the [first prompt](#first-prompt) into Claude Code, Cursor, or Codex.
-3. The agent scans your repo for stack fingerprints and existing conventions, then **proposes one unified diff**.
-4. You review the inferred backbone and project rules (`yes` / `edit` / `abort`). The agent writes only after approval and flips status to `initialized`.
-5. Every later session reads the filled `backbone.yml` and skips the init flow.
-
-Works for single-repo, monorepo, and multi-repo layouts. No silent edits. No project-specific code in the base kit.
-
-During first-time init, the proposal also captures repo-specific rules in `backbone.yml` under `conventions`: naming style, folder architecture, shared asset/resource access, localization/message access, generated definitions, and per-app/package differences when evidence differs.
+- Never overwrites your existing `CLAUDE.md` / `AGENTS.md` — it only adds managed blocks.
+- Every setup write waits for your explicit approval.
+- Security review of agent surfaces (AgentShield) is part of the normal workflow.
 
 ## Quick Start
 
-### 1. Install the kit into any project
+Three steps, about two minutes.
 
-From this kit folder:
-
-```bash
-./install.sh /path/to/your-project
-```
-
-PowerShell on Windows:
-
-```powershell
-./install.ps1 -Target C:\path\to\your-project
-```
-
-Or with the Node CLI directly:
-
-```bash
-node .vbkit-scripts/mvck.mjs install /path/to/your-project --profile all
-```
-
-Once this repo is published on GitHub, end users can install from anywhere with:
+**1. Install into your project** (no clone needed):
 
 ```bash
 npx github:giang6283623/minimal-vibe-coding-kit install /path/to/your-project
 ```
 
-### 2. Initialize the backbone
+From a local clone instead: `./install.sh /path/to/your-project` (Windows: `./install.ps1 -Target C:\path\to\your-project`).
 
-```bash
-cd /path/to/your-project
-node .vbkit-scripts/init-backbone.mjs . --propose      # preview the proposal
-node .vbkit-scripts/init-backbone.mjs . --write --yes  # write after you reviewed backbone + rules
-```
-
-Optional stack presets:
-
-```bash
-node .vbkit-scripts/mvck.mjs init . --preset nextjs --propose
-node .vbkit-scripts/mvck.mjs init . --preset wordpress --propose
-node .vbkit-scripts/mvck.mjs init . --preset python --propose
-node .vbkit-scripts/mvck.mjs init . --preset laravel --propose
-node .vbkit-scripts/mvck.mjs init . --preset docker --propose
-```
-
-### 3. Validate
-
-```bash
-npm test
-npm run security:probe
-node .vbkit-scripts/mvck.mjs doctor .
-```
-
-### 4. Open the project and paste the [first prompt](#first-prompt).
-
-## First Prompt
-
-Paste this into Claude Code, Cursor, or Codex after installing the kit:
+**2. Open the project in Claude Code, Cursor, or Codex and paste:**
 
 ```text
-Read FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit.
+Read .vibekit/init/FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit.
 First print the requirements you will check. Then run detection, propose one diff
 for backbone.yml and managed instruction blocks, and wait for my yes before writing.
-Include inferred project conventions for naming, architecture, resources,
-localization, generated definitions, and per-app/package differences.
-After approval, write the files, run validation, and summarize what changed.
 ```
 
-Tool-specific variants live in [FIRST_PROMPT.md](FIRST_PROMPT.md).
+**3. Review the proposed diff and answer `yes`.**
 
-## Install Profiles
+The agent fills `backbone.yml` with your detected stack and conventions and flips it to `initialized`. Done — every later session reads it automatically and skips init.
 
-Install everything (default):
+Optional health check any time:
 
 ```bash
-node .vbkit-scripts/mvck.mjs install . --profile all
+node .vibekit/scripts/mvck.mjs doctor .
 ```
 
-Install only what you use:
+## What lands in your repo
 
-```bash
-node .vbkit-scripts/mvck.mjs install . --profile claude          # Claude Code only
-node .vbkit-scripts/mvck.mjs install . --profile claude,cursor   # Claude + Cursor
-node .vbkit-scripts/mvck.mjs install . --profile codex           # Codex (and any AGENTS.md agent)
-```
-
-Useful flags: `--force` (overwrite existing files), `--dry-run` (preview without writing), `--json` (machine-readable install plan).
-
-## Updating an Installed Project
-
-When the kit ships new skills, rules, or scripts, refresh any project that already uses it with one command (run inside that project):
-
-```bash
-npx --yes minimal-vibe-coding-kit@latest update .
-```
-
-Or from a local clone of the newer kit:
-
-```bash
-node /path/to/minimal-vibe-coding-kit/.vbkit-scripts/mvck.mjs update /path/to/your-project
-```
-
-`update` is designed to be safe by default:
-
-- **Refreshes kit-owned files only**: `skills/`, `.vbkit-commands/`, `.vbkit-scripts/`, `.vbkit-docs/`, and the Claude/Cursor/Codex skill, command, rule, and agent mirrors. New kit skills are added automatically.
-- **Never overwrites user-owned files**: `backbone.yml`, `CLAUDE.md`, `AGENTS.md` content outside the managed block, `.claude/settings.json`, and `.cursor/settings.json` are seeded only if missing.
-- **Managed blocks, not rewrites**: `AGENTS.md`, `CLAUDE.md`, and `.gitignore` are updated only inside the `BEGIN/END: minimal-vibe-coding-kit` markers.
-- **Backs up before replacing**: any kit file that changed locally is copied to `.vibekit/update-backup/<timestamp>/` before being replaced (skip with `--no-backup`).
-- **Never deletes** files you added, and skips re-seeding one-time files on finalized projects.
-- **Version-stamped**: the installed kit version is recorded in `.vibekit/KIT_VERSION`; `mvck doctor` reports it.
-
-Preview first if you want:
-
-```bash
-npx --yes minimal-vibe-coding-kit@latest update . --dry-run
-npx --yes minimal-vibe-coding-kit@latest update . --dry-run --json
-```
-
-Recommended flow: `update . --dry-run` → `update .` → `npm run validate` (or `node .vbkit-scripts/validate-kit.mjs .`) → review the diff in git before committing.
-
-## Repository Layout
+Install adds exactly this — nothing else in your project is touched:
 
 ```text
-.
-├── backbone.yml                  ← project map + workflow config (template)
-├── AGENTS.md                     ← shared instructions for Claude, Cursor, Codex
-├── CLAUDE-template.md            ← short Claude starter (imports AGENTS.md)
-├── FIRST_PROMPT.md               ← copy/paste prompts per tool
-├── FIRST_TIME_INIT.md            ← safe init runbook with guardrails
-│
-├── .claude/                      ← Claude Code surface
-│   ├── agents/                   (10 role agents: code-reviewer, debug-fixer, …)
-│   ├── commands/                 (/init-vibe, /security-scan, /daily-enhance, /autoresearch-coding, /council)
-│   ├── rules/                    (vibe-core, security, autoresearch, tooling)
-│   ├── skills/                   (mirrors of shared skills)
-│   └── settings.json
-│
-├── .cursor/                      ← Cursor surface (rules/, commands/, skills/)
-├── .agents/skills/               ← portable / Codex skills
-├── .codex/                       ← Codex config example
-├── .codex-plugin/plugin.json     ← Codex plugin manifest
-│
-├── skills/                       ← canonical shared skills
-│   ├── vibekit-init/
-│   ├── autoresearch-coding/
-│   ├── agentshield-security-review/
-│   ├── daily-workflow-curator/
-│   ├── clearthought/
-│   ├── sequential-thinking/
-│   ├── reviewing-4p-priorities/
-│   └── visual-design-loop/
-├── .vbkit-commands/                     ← shared command prompts
-│
-├── .vbkit-scripts/                      ← mvck CLI, init-backbone, daily-enhance, validate-kit, doctor, install tests
-├── bin/                          ← npm bin entries (mvck, vibe-kit)
-├── .vbkit-docs/                         ← deeper references (kept out of root)
-└── .github/workflows/            ← repo validation workflow
+your-project/
+├── backbone.yml              ← project map agents read first (single source of truth)
+├── AGENTS.md                 ← shared agent instructions (managed block)
+├── CLAUDE.md                 ← short; imports AGENTS.md (created only if missing)
+├── .gitignore                ← kit entries appended inside a managed block
+├── .claude/                  ← Claude Code: rules, commands, agents, skills
+├── .cursor/                  ← Cursor: rules, commands, skills
+├── .agents/                  ← Codex / portable skills
+├── .codex/  .codex-plugin/   ← Codex config example + plugin manifest
+└── .vibekit/                 ← everything kit-owned, in ONE folder
+    ├── skills/               ← canonical shared skills (mirrored to the harness dirs)
+    ├── commands/             ← shared command prompts
+    ├── scripts/              ← mvck CLI, init, validate, doctor, security probe
+    ├── docs/                 ← deeper references
+    └── init/                 ← one-time onboarding files (removable via /vibe-finalize)
 ```
 
-## Workflow per Tool
+Existing files are never replaced — the kit merges managed blocks (`BEGIN/END: minimal-vibe-coding-kit`) and skips anything you already own.
 
-### Claude Code
-
-Claude reads `CLAUDE.md`, `AGENTS.md`, `.claude/rules`, `.claude/commands`, `.claude/agents`, and `.claude/skills`.
-
-Useful slash commands:
+## How the pieces connect
 
 ```text
-/init-vibe              initialize or repair the kit setup
-/security-scan          AgentShield probe + scan
-/daily-enhance          generate a propose-only improvement report
-/autoresearch-coding    run the metric-driven experiment loop
-/council                coordinate multiple specialized agents
+You (prompt) ──▶ Claude Code / Cursor / Codex
+                      │  reads first
+                      ▼
+        backbone.yml  +  AGENTS.md / CLAUDE.md  +  rules
+                      │  loads on demand
+                      ▼
+        skills (procedures)  +  commands (shortcuts)
+                      │  guarded by
+                      ▼
+        protected paths · propose-before-write · AgentShield probe
 ```
 
-The generated `CLAUDE.md` stays short and imports shared guidance via `@AGENTS.md`.
+- **`backbone.yml`** — paths, conventions, protected paths, and the validate command for your repo.
+- **Rules** — short, always-loaded guardrails (read backbone first, small diffs, security review on agent surfaces).
+- **Skills** — repeatable procedures, loaded only when a task needs them.
+- **Commands** — one-word shortcuts to the most common skills.
 
-### Cursor
+## Guide — day-to-day usage
 
-Cursor receives project rules from:
+1. **Just code.** Ask for features and fixes normally; the agent follows `backbone.yml` conventions and keeps diffs small.
+2. **Big or vague task?** Start with the `clearthought` or `sequential-thinking` skill to get a plan first.
+3. **Repo-wide question or big review?** Use `parallel-analysis` — it fans out read-only analysis lanes and verifies the merged result.
+4. **Changed `.claude/`, skills, hooks, or installer scripts?** Run `/security-scan` before merging.
+5. **Want measurable improvements?** Run `/autoresearch-coding` with a metric and budget.
+6. **Keep the setup sharp:** `/daily-enhance` proposes improvements — it never applies them silently.
+7. **Onboarding finished for good?** `/vibe-finalize` moves one-time bootstrap files out.
 
-```text
-.cursor/rules/*.mdc      001-vibe-core, 010-init, 020-security-agentshield, 030-autoresearch-loop
-.cursor/commands/*.md    same five commands as Claude
-.cursor/skills/*         custom native reasoning skills
-AGENTS.md
-backbone.yml
-```
+## Commands
 
-Rules are split by topic so context stays small.
-
-### Codex
-
-Codex receives guidance from:
-
-```text
-AGENTS.md
-.agents/skills/*/SKILL.md
-.codex/config.example.toml
-.codex-plugin/plugin.json
-backbone.yml
-```
-
-Recommended prompt:
-
-```text
-Read AGENTS.md and FIRST_TIME_INIT.md. Use the vibekit-init skill if available.
-Initialize backbone.yml, keep AGENTS.md concise, and wait for approval before writing.
-```
-
-## Commands & Skills Reference
-
-### Commands
-
-| Command | Backed by skill | Use when |
+| Command | What it does | Example |
 | --- | --- | --- |
-| `/init-vibe` | `vibekit-init` | First-time init or repair. Print requirements, propose diff, wait for approval. |
-| `/security-scan` | `agentshield-security-review` | Reviewing agent surfaces, hooks, MCP, skills, commands, installer scripts. |
-| `/daily-enhance` | `daily-workflow-curator` | Daily proposal to improve rules, skills, workflows, `backbone.yml`. Propose-only. |
-| `/autoresearch-coding` | `autoresearch-coding` | Improving a repo through measurable experiments with a baseline + budget. |
-| `/council` | (multi-agent) | Coordinate research-coordinator, security-reviewer, code-reviewer, results-analyst. |
+| `/init-vibe` | First-time init or repair: propose one diff, wait for approval. | `/init-vibe` — then review the diff and answer `yes`. |
+| `/security-scan` | Read-only AgentShield probe + optional scanner over agent surfaces. | `/security-scan` before merging changes to `.claude/**` or skills. |
+| `/daily-enhance` | Propose-only report to improve rules, skills, and workflows. | `/daily-enhance` — review the proposed diff, then approve. |
+| `/autoresearch-coding` | Metric-driven experiment loop with baseline and budget. | `/autoresearch-coding` Goal: fewer lint errors. Budget: 3. |
+| `/council` | Coordinates reviewer/researcher/analyst agents into one merged plan. | `/council` on this branch diff. |
+| `/vibe-finalize` | Graduate the project: move one-time bootstrap files to `_vibekit-cleanup/`. | `/vibe-finalize` — preview first, apply after approval. |
 
-### Skills (`skills/` is canonical; tool-specific skill folders mirror native entrypoints where applicable)
+## Skills
 
-| Skill | Purpose |
-| --- | --- |
-| [`vibekit-init`](skills/vibekit-init/SKILL.md) | First-time init flow: detect stack, propose diff, wait for `yes`, then write. |
-| [`autoresearch-coding`](skills/autoresearch-coding/SKILL.md) | Metric-driven research loop with baseline, experiments, and a results log. |
-| [`agentshield-security-review`](skills/agentshield-security-review/SKILL.md) | Read-only probe + optional scanner pass for agent-surface security. |
-| [`daily-workflow-curator`](skills/daily-workflow-curator/SKILL.md) | Daily report + diff proposal. Never writes silently. |
-| [`clearthought`](skills/clearthought/SKILL.md) | Flexible structured reasoning for ambiguous coding, debugging, design, and implementation planning. |
-| [`sequential-thinking`](skills/sequential-thinking/SKILL.md) | Step progression, revisions, branches, and task splitting for complex work. |
-| [`reviewing-4p-priorities`](skills/reviewing-4p-priorities/SKILL.md) | P0-P4 triage for bugs, review findings, risks, and fix order. |
-| [`visual-design-loop`](skills/visual-design-loop/SKILL.md) | Screenshot-driven UI polish loop for render-review-fix design improvement. |
-| [`memento`](skills/memento/SKILL.md) | Cross-session working memory: write `MEMENTO.md` before closing a multi-day task, resume from it next session. User-invoked (`/memento`). |
-| [`coding-level`](skills/coding-level/SKILL.md) | Set the explanation register from 0 (ELI5) to 5 (expert peer); active until reinvoked. User-invoked (`/coding-level N`). |
+All 12 skills live in `.vibekit/skills/` and are mirrored for each tool. Invoke them by name ("Use the X skill…") or via the commands above.
 
-### Agents (`.claude/agents/`)
+| Skill | Use it when | Example prompt |
+| --- | --- | --- |
+| `vibekit-init` | First-time setup, or `backbone.yml` / managed blocks need repair. | "Use the vibekit-init skill. Propose one diff and wait for my yes." |
+| `parallel-analysis` | Repo-wide questions, large diff reviews, consistency audits. | "Use parallel-analysis: where is auth handled and what depends on it?" |
+| `agentshield-security-review` | Auditing agent config, skills, hooks, MCP, commands before merge. | "Use agentshield-security-review on .claude/** and .vibekit/skills/**." |
+| `autoresearch-coding` | Improving the repo through measured experiments. | "Use autoresearch-coding. Metric: `npm test`. Direction: higher. Budget: 3." |
+| `daily-workflow-curator` | Periodic tune-up of rules, skills, and workflows (propose-only). | "Use daily-workflow-curator and propose today's improvements." |
+| `path-sensitive-shell-safety` | Before editing shell/installer/deploy logic with path variables or `rm`/`mv`/`rsync`. | "Use path-sensitive-shell-safety before changing this cleanup script." |
+| `visual-design-loop` | UI polish: render → screenshot → review → fix, in a loop. | "Use visual-design-loop on /dashboard. Budget 3 loops." |
+| `clearthought` | Ambiguous requirements, design tradeoffs, risky decisions. | "Use clearthought. Operation: implementation_plan. Split this feature into safe tasks." |
+| `sequential-thinking` | Step-by-step decomposition of complex work. | "Use sequential-thinking. Break this refactor into ordered steps with tests." |
+| `reviewing-4p-priorities` | Triaging bugs/findings into P0–P4 fix order. | "Use reviewing-4p-priorities. Classify these findings and give a fix sequence." |
+| `memento` | Multi-day tasks: save context before stopping, resume next session. | "/memento — write MEMENTO.md with Goal, Done, Stuck, Next." |
+| `coding-level` | Setting how detailed explanations should be (0 = ELI5 … 5 = expert). | "/coding-level 2" |
 
-Drop-in role prompts: `code-reviewer`, `debug-fixer`, `hypothesis-planner`, `implementation-hacker`, `research-coordinator`, `results-analyst`, `test-runner`, `security-reviewer`, `context-architect`, `workflow-curator`.
+## Advanced
 
-## Flexible Reasoning Skills
+### Install profiles
 
-These three custom skills are native kit skills. They are available in `skills/` and mirrored for Claude, Codex, and Cursor. Each one includes bundled examples and references that are loaded only when the task needs more detail.
+Install only the surfaces you use (default is `all`):
 
-Use `clearthought` when the request is broad or ambiguous:
-
-```text
-Use the clearthought skill.
-Operation: implementation_plan
-Problem: Split this feature into safe tasks, identify risks, and define validation.
+```bash
+npx github:giang6283623/minimal-vibe-coding-kit install . --profile claude          # Claude Code only
+npx github:giang6283623/minimal-vibe-coding-kit install . --profile claude,cursor   # Claude + Cursor
+npx github:giang6283623/minimal-vibe-coding-kit install . --profile codex           # Codex / AGENTS.md agents
 ```
 
-Use `sequential-thinking` when you need step-by-step decomposition:
+Flags: `--force` (overwrite existing kit files), `--dry-run` (preview), `--json` (machine-readable plan).
 
-```text
-Use the sequential-thinking skill.
-Break this complex requirement into small implementation steps with tests.
+### Updating an installed project
+
+Run inside your project when the kit ships new skills or scripts:
+
+```bash
+npx github:giang6283623/minimal-vibe-coding-kit update . --dry-run   # preview
+npx github:giang6283623/minimal-vibe-coding-kit update .             # apply
 ```
 
-Use `reviewing-4p-priorities` when review findings or bug reports need fix order:
+`update` refreshes **kit-owned files only**, never touches `backbone.yml` or your own content, updates managed blocks in place, and backs up changed files to `.vibekit/update-backup/<timestamp>/`. Details: [.vibekit/docs/INSTALL.md](.vibekit/docs/INSTALL.md).
 
-```text
-Use the reviewing-4p-priorities skill.
-Classify these issues as P0-P4 and give me the practical fix sequence.
-```
-
-Recommended flow for flexible vibe-coding tasks:
-
-1. Run `clearthought` to clarify the problem and select the reasoning mode.
-2. Run `sequential-thinking` to split the work into small tasks.
-3. Run `reviewing-4p-priorities` to decide what must be fixed first.
-4. Run the validation command from `backbone.yml`.
-
-## Autoresearch Loop
-
-Use this when you want the agent to improve a repo through measurable experiments:
+### Autoresearch loop
 
 ```text
 Use the autoresearch-coding skill.
-Goal: improve this repo for maintainability and coding-agent usefulness.
-Metric command: node .vbkit-scripts/validate-kit.mjs .
-Direction: higher.
-Editable paths: README.md .vbkit-docs .vbkit-scripts skills .vbkit-commands .claude .cursor .agents
-                .codex-plugin backbone.yml AGENTS.md CLAUDE-template.md
-                FIRST_TIME_INIT.md package.json install.sh install.ps1.
-Protected paths: .git .env* node_modules vendor secrets lockfiles.
+Goal: improve maintainability. Metric command: <your validate command>. Direction: higher.
+Editable paths: src/ docs/. Protected paths: .git .env* node_modules lockfiles.
 Budget: 3.
 ```
 
-Loop contract:
+Contract: baseline first → one small experiment at a time → keep only metric-positive changes → log everything.
 
-1. Run baseline metric.
-2. Make one small experiment.
-3. Run metric again.
-4. Keep only improvements or safe simplifications.
-5. Log result.
-6. Repeat until budget is done.
-
-## AgentShield Security Review
-
-Fast read-only probe (no install needed beyond Python):
+### Security review (AgentShield)
 
 ```bash
-node .vbkit-scripts/agentshield-probe.mjs .
+node .vibekit/scripts/agentshield-probe.mjs .                          # fast read-only probe
+npx ecc-agentshield scan --path . --format text --min-severity medium  # optional full scan
 ```
 
-Optional full scanner pass when npm is available:
+Any change to `CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.codex-plugin/**`, or `.vibekit/skills|commands|scripts/**` should trigger a review. Model: [.vibekit/docs/SECURITY_MODEL.md](.vibekit/docs/SECURITY_MODEL.md).
+
+### Doctor and reports
 
 ```bash
-npx ecc-agentshield scan --path . --format text --min-severity medium
+node .vibekit/scripts/mvck.mjs doctor .                 # read-only health check
+node .vibekit/scripts/mvck.mjs doctor . --write-report  # writes VIBE_REPORT.md
+node .vibekit/scripts/daily-enhance.mjs . --write-report
 ```
 
-Security rules:
-
-- Do not run untrusted hooks, MCP servers, package lifecycle scripts, deploy scripts, migrations, or destructive commands just to inspect a repo.
-- Never print full secrets.
-- Any change to `CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.codex-plugin/**`, `skills/**`, `.vbkit-commands/**`, `.vbkit-scripts/**`, hooks, or MCP config should trigger an AgentShield-style review.
-
-## Daily Enhancement
-
-Generate a local report:
+### For kit developers
 
 ```bash
-node .vbkit-scripts/daily-enhance.mjs . --write-report
+npm test                # syntax + real temp-dir install test + structure validation
+npm run validate:all    # npm test + AgentShield probe + npm pack dry-run
 ```
 
-Prompt for an agent:
+Publishing checklist: [.vibekit/init/PUSH_TO_GITHUB.md](.vibekit/init/PUSH_TO_GITHUB.md). Deeper docs: [.vibekit/docs/](.vibekit/docs/).
 
-```text
-Use the daily-workflow-curator skill. Run the daily report, AgentShield probe,
-and kit validation. Propose improvements to rules, skills, workflows, and
-backbone.yml. Do not write until I approve the diff.
-```
+<details>
+<summary><strong>Troubleshooting</strong></summary>
 
-Daily enhancement is **propose-only** by default. It does not silently commit or rewrite your rules.
+| Symptom | Fix |
+| --- | --- |
+| Agent ignores the init flow | Re-run the installer, or copy [.vibekit/init/CLAUDE-template.md](.vibekit/init/CLAUDE-template.md) to `CLAUDE.md`. |
+| Agent re-asks to init every session | Run init and approve; confirm `meta.template_status: initialized` in `backbone.yml`. |
+| Wrong stack detected | Remove stale lockfiles, or edit `backbone.yml` directly. |
+| Agent touches a path it shouldn't | Add the path to `policy.protected_paths` in `backbone.yml` (globs supported). |
+| AgentShield probe warning | Install Python 3, or ignore — it is a warning, not a failure. |
+| Scripts missing after install | Re-run install with `--force`, or copy `.vibekit/scripts/` manually. |
 
-## Doctor Report
-
-Run a read-only repo health check:
-
-```bash
-node .vbkit-scripts/mvck.mjs doctor .
-```
-
-Generate `VIBE_REPORT.md` when you want a local handoff report:
-
-```bash
-node .vbkit-scripts/mvck.mjs doctor . --write-report
-```
-
-Doctor checks backbone initialization, detected commands, Claude/Cursor/Codex surfaces, managed block duplication, protected paths, validation, and the AgentShield probe.
-
-## Validate Before Release
-
-```bash
-npm test                # syntax + install idempotency + structure validation
-npm run validate:all    # npm test + AgentShield probe + package dry-run
-```
-
-Expected result: validation passes, AgentShield probe reports no critical structural issues, and `npm run pack:dry-run` shows the intended package files.
-
-Publishing checklist lives in [PUSH_TO_GITHUB.md](PUSH_TO_GITHUB.md).
-
-## Design Goals
-
-- Work with any language or framework.
-- Support existing projects without overwriting custom instructions.
-- Keep root files short — long procedures live in skills and `.vbkit-docs/`.
-- Make AI workflow improvements measurable through autoresearch.
-- Make agent-surface security review part of the normal workflow.
-
-## Troubleshooting
-
-| Symptom | Likely cause | Fix |
-| --- | --- | --- |
-| Agent ignores the init flow | `CLAUDE.md` missing or its managed block was removed. | Re-run the installer, or copy [CLAUDE-template.md](CLAUDE-template.md) to `CLAUDE.md`. |
-| Agent re-asks to init every session | `meta.template_status` is still `uninitialized`. | Run init, approve the diff, confirm `template_status` is `initialized` and `initialized_at` is set. |
-| Wrong stack detected | Stale lockfile from an old language, or detection patterns out of date. | Delete the stale files, or extend detection in [backbone.yml](backbone.yml). |
-| Agent touches a path it shouldn't | Path is not listed in `policy.protected_paths`. | Add it (globs supported). |
-| Existing `CLAUDE.md` was overwritten | Merge guardrail was bypassed. | Restore from git. Re-run install — the kit only appends managed blocks. |
-| Validation warns about AgentShield probe | Python or the probe script is unavailable. | Install Python 3, or skip — it is a warning, not a failure. |
-| `node .vbkit-scripts/...` not found after install | Installer skipped existing files. | Re-run with `--force`, or copy `.vbkit-scripts/` manually. |
+</details>
 
 ## Contributing
 
-Issues and PRs welcome at [`giang6283623/minimal-vibe-coding-kit`](https://github.com/giang6283623/minimal-vibe-coding-kit).
-
-When editing the kit:
-
-- Mirror changes between `.claude/`, `.cursor/`, and `.agents/` so all three tools stay aligned.
-- Keep templates project-neutral. No company names, no hardcoded ports.
-- Document each new command/skill with a one-line purpose and one example.
-- Run `npm run validate:all` before opening a PR.
-- Review [SECURITY.md](SECURITY.md), [CONTRIBUTING.md](CONTRIBUTING.md), and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+Issues and PRs welcome at [`giang6283623/minimal-vibe-coding-kit`](https://github.com/giang6283623/minimal-vibe-coding-kit). Before a PR: mirror skill changes across `.claude/`, `.cursor/`, `.agents/`, keep templates project-neutral, and run `npm run validate:all`. See [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 **Created by:** [GiangBV](https://www.linkedin.com/in/buivangiang1992), [AuPMH](https://www.linkedin.com/in/pham-au-2a1bb1162)
 **Powered by:** Caffeine, Determination, AI Collaboration, and Weekend Coding Sessions.

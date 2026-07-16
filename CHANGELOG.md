@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- Trimmed the end-user install payload: `mvck install`/`update` no longer copy kit-maintainer files (`test-install.mjs`, `pack-dry-run.mjs`, `.vibekit/docs/RESEARCH_NOTES.md`, `.vibekit/docs/AUTORESEARCH_LEDGER.md`); `validate-kit` requires them only in the kit source repo.
+- `mvck install`/`update` now reject unknown `--profile` values instead of silently installing shared files only.
+- `install.sh` no longer misreads a leading flag as the target directory.
+- Fixed stale pre-0.4 path references: `.codex-plugin/plugin.json` now points at `./.vibekit/skills/` (version synced to the kit), the AgentShield probe scans `.vibekit/skills`/`.claude/skills`/`.cursor/skills`, and autoresearch/agentshield skill docs use `.vibekit/skills` in editable-path examples.
+- Added `parallel-analysis` to the AGENTS.md "Skills to prefer" list.
+- Broadened CI PR path filters to cover `install.sh`, `install.ps1`, `.vibekit/init/**`, and `.vibekit/docs/**`.
+- Rewrote `README.md` and `README.vi.md`: short Quick Start, end-user install topology, day-to-day guide, full commands/skills tables (now including `/vibe-finalize` and `parallel-analysis`), and an Advanced section; version badge synced to the package version.
+
+- BREAKING: consolidated all kit-owned files into a single `.vibekit/` folder — `.vbkit-scripts/` -> `.vibekit/scripts/`, `.vbkit-commands/` -> `.vibekit/commands/`, `.vbkit-docs/` -> `.vibekit/docs/`, `skills/` -> `.vibekit/skills/`, and one-time onboarding files (`FIRST_TIME_INIT.md`, `FIRST_PROMPT.md`, `CLAUDE-template.md`, `PUSH_TO_GITHUB.md`) -> `.vibekit/init/`. User repos now get one kit folder plus the harness surfaces (`.claude/`, `.cursor/`, `.agents/`, `.codex/`, `.codex-plugin/`) and root entrypoints (`backbone.yml`, `AGENTS.md`, `CLAUDE.md`). `mvck install`/`update` print an advisory legacy-layout note (never auto-delete) when pre-0.4 paths are found.
+- Added `parallel-analysis` skill (shared + Claude/Cursor/Codex mirrors): fan out 2-5 read-only analysis lanes via Cursor CLI Composer (recommended), Claude subagents, or Codex CLI, then merge and verify findings; first use asks for the provider/model once and persists it to `.vibekit/parallel-analysis.json`.
+
 - Added `memento` skill (cross-session `MEMENTO.md` working memory) across shared, Claude, Codex, and Cursor surfaces.
 - Added `coding-level` skill (explanation register 0=ELI5 … 5=expert peer, with per-level reference personas) across shared, Claude, Codex, and Cursor surfaces.
 - Added safe updater: `mvck update` refreshes kit-owned files (skills, commands, rules, scripts, docs, agent mirrors), seeds user-owned files only when missing, refreshes managed blocks in place, backs up replaced files to `.vibekit/update-backup/<timestamp>/`, and supports `--dry-run`, `--json`, `--no-backup`, and `--profile`.
@@ -11,7 +22,7 @@
 - Fixed `mvck init|validate|daily` delegation so flags are preserved when target is omitted.
 - Added install/idempotency tests with temporary clean and existing repos.
 - Added `mvck doctor` with optional `VIBE_REPORT.md` generation.
-- Added dependency-free `backbone.yml` schema validation and `.vbkit-docs/backbone.schema.json`.
+- Added dependency-free `backbone.yml` schema validation and `.vibekit/docs/backbone.schema.json`.
 - Added a portable Node wrapper for the AgentShield probe.
 - Added syntax checks, `npm test`, CI Node 18/20/22 matrix, and package dry-run verification.
 - Added release safety docs and Dependabot config.

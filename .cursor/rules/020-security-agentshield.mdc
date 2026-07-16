@@ -1,7 +1,7 @@
 ---
 description: AgentShield security review for agent surfaces, skills, commands, hooks, MCP, and installer changes.
-globs: ["CLAUDE.md", "AGENTS.md", ".claude/**", ".cursor/**", ".agents/**", ".codex-plugin/**", "skills/**", ".vbkit-commands/**", ".vbkit-scripts/**", "hooks/**", ".mcp.json", "mcp.json"]
+globs: ["CLAUDE.md", "AGENTS.md", ".claude/**", ".cursor/**", ".agents/**", ".codex-plugin/**", ".vibekit/skills/**", ".vibekit/commands/**", ".vibekit/scripts/**", "hooks/**", ".mcp.json", "mcp.json"]
 alwaysApply: false
 ---
 
-Run or ask to run `node .vbkit-scripts/agentshield-probe.mjs .` before merging agent-surface changes. Do not run untrusted hooks, MCP servers, deploys, migrations, or remote installers during review.
+Run or ask to run `node .vibekit/scripts/agentshield-probe.mjs .` before merging agent-surface changes. Do not run untrusted hooks, MCP servers, deploys, migrations, or remote installers during review. Use `path-sensitive-shell-safety` before changing shell/deploy/installer/repair logic that builds paths from variables or can delete, move, copy, replace, clean, or reset files.

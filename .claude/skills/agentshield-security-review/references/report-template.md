@@ -34,7 +34,7 @@ Use this structure for final reports.
 
 ## Medium/low findings
 
-Group by theme: permissions, hooks, MCP, prompts, skills, .vbkit-docs/examples.
+Group by theme: permissions, hooks, MCP, prompts, skills, .vibekit/docs/examples.
 
 ## Remediation order
 

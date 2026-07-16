@@ -15,10 +15,10 @@ npm run pack:dry-run
 ## Change guidelines
 
 - Preserve existing project files during install; prefer managed blocks for shared instructions.
-- Keep root instructions concise and move long procedures into `skills/` or `.vbkit-docs/`.
+- Keep root instructions concise and move long procedures into `.vibekit/skills/` or `.vibekit/docs/`.
 - Do not add package lifecycle scripts, hooks, MCP servers, migrations, or deploy steps that run during install.
-- Update `.vbkit-docs/backbone.schema.json` and `.vbkit-scripts/validate-kit.mjs` together when `backbone.yml` changes.
-- Add an install/idempotency test when changing `.vbkit-scripts/mvck.mjs`.
+- Update `.vibekit/docs/backbone.schema.json` and `.vibekit/scripts/validate-kit.mjs` together when `backbone.yml` changes.
+- Add an install/idempotency test when changing `.vibekit/scripts/mvck.mjs`.
 
 ## Pull request checklist
 

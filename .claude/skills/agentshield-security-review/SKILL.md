@@ -1,6 +1,6 @@
 ---
 name: agentshield-security-review
-description: repository-native security review workflow for Claude Code and Codex projects using the AgentShield concept. Use when auditing or hardening agent configuration, skills, prompts, hooks, MCP servers, permissions, slash commands, Codex plugin files, Claude plugin files, AGENTS.md, CLAUDE.md, or repository-level AI coding-agent surfaces. Prefer this skill before merging changes to .claude, .codex, .codex-plugin, .claude-plugin, .agents, skills, .vbkit-commands, .vbkit-scripts, hooks, mcp configs, or generated code that touches agent execution.
+description: repository-native security review workflow for Claude Code and Codex projects using the AgentShield concept. Use when auditing or hardening agent configuration, skills, prompts, hooks, MCP servers, permissions, slash commands, Codex plugin files, Claude plugin files, AGENTS.md, CLAUDE.md, or repository-level AI coding-agent surfaces. Prefer this skill before merging changes to .claude, .codex, .codex-plugin, .claude-plugin, .agents, .vibekit/skills, .vibekit/commands, .vibekit/scripts, hooks, mcp configs, or generated code that touches agent execution.
 ---
 
 # AgentShield Security Review
@@ -14,7 +14,7 @@ Do not invent findings. Prefer deterministic scanner output when available, then
 ## Standard workflow
 
 1. Identify the repo root and active harness surfaces.
-2. Run `node .vbkit-scripts/agentshield-probe.mjs .` to inventory Claude, Codex, shared skills, hooks, MCP, commands, and repo instruction files.
+2. Run `node .vibekit/scripts/agentshield-probe.mjs .` to inventory Claude, Codex, shared skills, hooks, MCP, commands, and repo instruction files.
 3. If Node/npm is available, run AgentShield from the repo root:
    ```bash
    npx ecc-agentshield scan --path . --format text
@@ -34,9 +34,9 @@ Do not invent findings. Prefer deterministic scanner output when available, then
 
 Use a shared root skill where possible:
 
-- `skills/agentshield-security-review/SKILL.md` is the canonical workflow.
-- Claude Code may add a slash-command shim in `.vbkit-commands/security-scan.md` or `.claude/commands/security-scan.md`.
-- Codex should consume the same root `skills/` directory through `.codex-plugin/plugin.json` or the repo's native skill/plugin mechanism.
+- `.vibekit/skills/agentshield-security-review/SKILL.md` is the canonical workflow.
+- Claude Code may add a slash-command shim in `.vibekit/commands/security-scan.md` or `.claude/commands/security-scan.md`.
+- Codex should consume the same root `.vibekit/skills/` directory through `.codex-plugin/plugin.json` or the repo's native skill/plugin mechanism.
 - Do not duplicate divergent Claude and Codex skill bodies. Duplication causes drift.
 
 See `references/native-install.md` for copy-ready Claude and Codex snippets.
@@ -48,7 +48,7 @@ Prioritize runtime-active files over examples and docs:
 1. `CLAUDE.md`, `AGENTS.md`, `.github/copilot-instructions.md`
 2. `.claude/settings.json`, `.claude/settings.local.json`, `.claude/agents/*.md`, `.claude/commands/*.md`
 3. `.codex/config.toml`, `.codex/`, `.codex-plugin/plugin.json`
-4. `.agents/`, `agents/`, `skills/`, `.vbkit-commands/`, `.vbkit-scripts/`, `hooks/`
+4. `.agents/`, `agents/`, `.vibekit/skills/`, `.vibekit/commands/`, `.vibekit/scripts/`, `hooks/`
 5. `.mcp.json`, `mcp.json`, `mcp-configs/*.json`
 6. installer scripts, CI workflows, package scripts, and generated plugin manifests
 

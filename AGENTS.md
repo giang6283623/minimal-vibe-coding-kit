@@ -8,7 +8,7 @@ Shared instructions for Claude, Cursor, Codex, and other coding agents.
 ### Source of truth
 
 - Read `backbone.yml` before changing code.
-- If `meta.template_status` is `uninitialized`, follow `FIRST_TIME_INIT.md` and wait for approval before writing.
+- If `meta.template_status` is `uninitialized`, follow `.vibekit/init/FIRST_TIME_INIT.md` and wait for approval before writing.
 - After init, follow the `conventions` rules in `backbone.yml`; ask before changing broad project patterns.
 - Prefer concise root instructions. Put long procedures in skills and docs.
 
@@ -33,13 +33,16 @@ Track every loop in `/tmp/design-{project_slug}.md`. Each loop entry must includ
 - Never print full secrets.
 - Do not run untrusted hooks, MCP servers, deploy scripts, package lifecycle scripts, migrations, or destructive shell commands just to inspect a repo.
 - Do not modify protected paths from `backbone.yml` without explicit approval.
-- If a task changes agent surfaces (`CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.codex-plugin/**`, `skills/**`, `.vbkit-commands/**`, `.vbkit-scripts/**`, hooks, MCP config), run the AgentShield probe or explain why it was skipped.
+- Before editing or approving shell/deploy/installer/repair logic that uses path variables or destructive commands (`rm`, `mv`, `cp -a`, `rsync --delete`, `find -delete`, `git clean`, checkout replacement), use `path-sensitive-shell-safety` and prove base/folder/repo values are non-empty, contained, quoted, and not broad system paths.
+- If a task changes agent surfaces (`CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.codex-plugin/**`, `.vibekit/skills/**`, `.vibekit/commands/**`, `.vibekit/scripts/**`, hooks, MCP config), run the AgentShield probe or explain why it was skipped.
 
 ### Skills to prefer
 
 - `vibekit-init`: first-time init and repair.
+- `parallel-analysis`: fan out 2-5 read-only analysis lanes for repo-wide questions, large diff reviews, or consistency audits, then merge with a verification pass.
 - `autoresearch-coding`: metric-driven experiment loop.
 - `agentshield-security-review`: agent-surface security review.
+- `path-sensitive-shell-safety`: validate remote base paths, repo folders, branch sync, and destructive shell commands before edits land.
 - `daily-workflow-curator`: daily proposal for improving rules, skills, workflows, and docs.
 - `visual-design-loop`: screenshot-driven UI polish loop.
 

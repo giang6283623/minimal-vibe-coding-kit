@@ -28,16 +28,16 @@ For this kit itself, use:
 
 ```text
 goal: improve Minimal Vibe Coding Kit quality
-metric command: node .vbkit-scripts/validate-kit.mjs .
+metric command: node .vibekit/scripts/validate-kit.mjs .
 direction: higher
-editable paths: .vbkit-docs .vbkit-scripts skills .vbkit-commands .claude .cursor .agents .codex-plugin .github README.md AGENTS.md CLAUDE-template.md FIRST_TIME_INIT.md FIRST_PROMPT.md backbone.yml package.json install.sh install.ps1
+editable paths: .vibekit/docs .vibekit/scripts .vibekit/skills .vibekit/commands .claude .cursor .agents .codex-plugin .github README.md AGENTS.md .vibekit/init/CLAUDE-template.md .vibekit/init/FIRST_TIME_INIT.md .vibekit/init/FIRST_PROMPT.md backbone.yml package.json install.sh install.ps1
 protected paths: .git .env* node_modules vendor secrets lockfiles
 budget: 3
 ```
 
 ## Setup
 
-1. Read `backbone.yml`. If `meta.template_status` is `uninitialized`, follow `FIRST_TIME_INIT.md` and wait for explicit approval before experiment edits.
+1. Read `backbone.yml`. If `meta.template_status` is `uninitialized`, follow `.vibekit/init/FIRST_TIME_INIT.md` and wait for explicit approval before experiment edits.
 2. Inspect `git status --short`.
 3. If user changes exist, stop unless the user permits dirty-state experimentation.
 4. Create or switch to an experiment branch named `autoresearch/<date>-<slug>` when a git repo is available. If branch creation is blocked by permissions, ask for approval once and record any approved fallback.
@@ -78,7 +78,7 @@ For each experiment:
 7. Keep good changes; revert discarded or crashed changes.
 8. If a crash is from a trivial patch mistake, fix once and rerun.
 
-If a kept change touches agent surfaces such as `AGENTS.md`, `CLAUDE.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.codex-plugin/**`, `skills/**`, `.vbkit-commands/**`, `.vbkit-scripts/**`, hooks, or MCP config, run the AgentShield probe before final reporting.
+If a kept change touches agent surfaces such as `AGENTS.md`, `CLAUDE.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.codex-plugin/**`, `.vibekit/skills/**`, `.vibekit/commands/**`, `.vibekit/scripts/**`, hooks, or MCP config, run the AgentShield probe before final reporting.
 
 ## Delegation
 

@@ -11,15 +11,15 @@ Initialize the kit safely.
 
 ## Required behavior
 
-1. Print the requirements checklist from `FIRST_TIME_INIT.md`.
+1. Print the requirements checklist from `.vibekit/init/FIRST_TIME_INIT.md`.
 2. Run or emulate detection, including repo-specific conventions, project mode, and PRD presence:
 
 ```bash
-node .vbkit-scripts/init-backbone.mjs . --propose
+node .vibekit/scripts/init-backbone.mjs . --propose
 ```
 
 3. Run the project-understanding step below.
-4. Propose a unified diff for `backbone.yml`, its `conventions` rules, managed blocks, and any new `.vbkit-docs/PRD.md`.
+4. Propose a unified diff for `backbone.yml`, its `conventions` rules, managed blocks, and any new `.vibekit/docs/PRD.md`.
 5. Ask: `Apply this proposed backbone and convention rules? Reply yes, edit, or abort.`
 6. Write only after explicit `yes`.
 7. Validate after writing.
@@ -29,9 +29,9 @@ node .vbkit-scripts/init-backbone.mjs . --propose
 Detection reports `project.mode` (`greenfield` = no source yet, `brownfield` = existing code) and whether a PRD exists.
 
 - Always offer a short interview, regardless of whether docs already exist: what the project is and who it is for, the core problem and primary focus now, what success looks like, key constraints/non-goals, and (brownfield) which area to improve first.
-- If no PRD is found, propose creating `.vbkit-docs/PRD.md` from `.vbkit-docs/templates/PRD_TEMPLATE.md` using the answers, and set `project.prd` to that path.
+- If no PRD is found, propose creating `.vibekit/docs/PRD.md` from `.vibekit/docs/templates/PRD_TEMPLATE.md` using the answers, and set `project.prd` to that path.
 - If a PRD exists, read it, link it in `project.prd`, and offer to refresh it without overwriting unapproved content.
-- Keep the PRD short; it captures intent, not a full spec. Record domain terms in `.vbkit-docs/CONTEXT.md` (scaffold from `.vbkit-docs/templates/CONTEXT_TEMPLATE.md`) and link it in `project.context`.
+- Keep the PRD short; it captures intent, not a full spec. Record domain terms in `.vibekit/docs/CONTEXT.md` (scaffold from `.vibekit/docs/templates/CONTEXT_TEMPLATE.md`) and link it in `project.context`.
 
 ## Convention detection
 
@@ -49,4 +49,4 @@ Detection reports `project.mode` (`greenfield` = no source yet, `brownfield` = e
 
 ## Completion
 
-Report initialized status, validation command, validation result, PRD path, and next recommended skill. Once the user confirms setup is complete, offer graduation (`node .vbkit-scripts/vibekit-finalize.mjs . --propose`) to move one-time bootstrap files into the cleanup folder.
+Report initialized status, validation command, validation result, PRD path, and next recommended skill. Once the user confirms setup is complete, offer graduation (`node .vibekit/scripts/vibekit-finalize.mjs . --propose`) to move one-time bootstrap files into the cleanup folder.

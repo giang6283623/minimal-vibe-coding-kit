@@ -11,4 +11,4 @@ $ArgsList = @("install", $Target, "--profile", $Profile)
 if ($Force) { $ArgsList += "--force" }
 if ($DryRun) { $ArgsList += "--dry-run" }
 if ($Json) { $ArgsList += "--json" }
-node (Join-Path $ScriptDir ".vbkit-scripts/mvck.mjs") @ArgsList
+node (Join-Path $ScriptDir ".vibekit/scripts/mvck.mjs") @ArgsList

@@ -7,18 +7,18 @@ Keep one canonical skill and add thin harness adapters.
 Recommended repo layout:
 
 ```text
-skills/agentshield-security-review/SKILL.md
-skills/agentshield-security-review/references/review-checklist.md
-skills/agentshield-security-review/references/report-template.md
-skills/agentshield-security-review/scripts/agentshield_repo_probe.py
-.vbkit-commands/security-scan.md
+.vibekit/skills/agentshield-security-review/SKILL.md
+.vibekit/skills/agentshield-security-review/references/review-checklist.md
+.vibekit/skills/agentshield-security-review/references/report-template.md
+.vibekit/skills/agentshield-security-review/scripts/agentshield_repo_probe.py
+.vibekit/commands/security-scan.md
 .codex-plugin/plugin.json
 .claude-plugin/plugin.json
 ```
 
 ## Claude Code command shim
 
-Create `.vbkit-commands/security-scan.md` or `.claude/commands/security-scan.md`:
+Create `.vibekit/commands/security-scan.md` or `.claude/commands/security-scan.md`:
 
 ```markdown
 ---
@@ -48,7 +48,7 @@ Return grade, score, severity counts, active paths, critical/high findings, and 
 
 ## Codex plugin pointer
 
-Use the repo-level Codex plugin manifest to point Codex at the same `skills/` directory. Exact schema may vary by Codex plugin version, so preserve the existing repo schema and ensure it references root skills rather than a copied skill body.
+Use the repo-level Codex plugin manifest to point Codex at the same `.vibekit/skills/` directory. Exact schema may vary by Codex plugin version, so preserve the existing repo schema and ensure it references the canonical `.vibekit/skills/` directory rather than a copied skill body.
 
 Example intent:
 
@@ -56,7 +56,7 @@ Example intent:
 {
   "name": "your-repo",
   "version": "0.1.0",
-  "skills": "./skills",
+  "skills": "./.vibekit/skills",
   "mcp": "./.mcp.json"
 }
 ```
@@ -78,8 +78,8 @@ on:
       - ".claude-plugin/**"
       - ".agents/**"
       - "agents/**"
-      - "skills/**"
-      - ".vbkit-commands/**"
+      - ".vibekit/skills/**"
+      - ".vibekit/commands/**"
       - "hooks/**"
       - ".mcp.json"
       - "mcp-configs/**"
