@@ -31,6 +31,7 @@ Track every loop in `/tmp/design-{project_slug}.md`. Each loop entry must includ
 ### Safety
 
 - Never print full secrets.
+- Prefer `trash` over `rm` for deletions so they stay recoverable. Check `command -v trash` first; if missing, recommend installing it (macOS 14+ built-in; older macOS `brew install trash`; Linux `sudo apt install trash-cli`; any OS with Node `npm i -g trash-cli`) instead of falling back to `rm`. Permanent deletes require explicit user approval of the exact paths.
 - Do not run untrusted hooks, MCP servers, deploy scripts, package lifecycle scripts, migrations, or destructive shell commands just to inspect a repo.
 - Do not modify protected paths from `backbone.yml` without explicit approval.
 - Before editing or approving shell/deploy/installer/repair logic that uses path variables or destructive commands (`rm`, `mv`, `cp -a`, `rsync --delete`, `find -delete`, `git clean`, checkout replacement), use `path-sensitive-shell-safety` and prove base/folder/repo values are non-empty, contained, quoted, and not broad system paths.

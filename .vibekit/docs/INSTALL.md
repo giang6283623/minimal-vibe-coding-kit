@@ -1,5 +1,17 @@
 # Install guide
 
+## Install from npm
+
+```bash
+# one-shot (recommended) — adds nothing to the project's dependencies:
+npx --yes minimal-vibe-coding-kit@latest install /path/to/project
+
+# or, after `npm i -D minimal-vibe-coding-kit` inside the project:
+npx mvck install .
+```
+
+`npm i` alone only places the kit in `node_modules/` and nothing is active yet; `mvck install` (alias: `vibe-kit`) is the step that copies the kit files into the repo root.
+
 ## Local install
 
 ```bash

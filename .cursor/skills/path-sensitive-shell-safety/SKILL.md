@@ -48,6 +48,7 @@ No empty, unset, broad, symlinked, or unintended path may reach a destructive co
 
 ## Required outcomes
 
+- Prefer a recoverable delete (`trash`) over permanent `rm` for user files; permanent deletion requires explicit confirmation of the exact paths. If `trash` is missing, recommend installing it (macOS 14+ built-in; older macOS `brew install trash`; Linux `sudo apt install trash-cli`; any OS with Node `npm i -g trash-cli`).
 - A blank branch may follow the documented default-branch fallback policy.
 - An explicit branch must fail if missing; never silently deploy another branch.
 - A blank folder/base value must fail before any `rm`, `mv`, `cp`, `rsync`, `find`, Docker, or Git cleanup command runs.

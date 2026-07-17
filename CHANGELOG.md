@@ -1,6 +1,17 @@
 # Changelog
 
-## Unreleased
+## 0.4.1 — 2026-07-17
+
+- Added a safe-delete guardrail across all three surfaces: new `.claude/rules/safe-delete.md` and `.cursor/rules/040-safe-delete.mdc` (always-on), a `### Safety` bullet in the `AGENTS.md` managed block for Codex, and a trash-first outcome in the `path-sensitive-shell-safety` skill (all mirrors). Agents prefer the recoverable `trash` command over `rm`, check `command -v trash` first, and recommend an install when missing (macOS 14+ built-in; older macOS `brew install trash`; Linux `sudo apt install trash-cli`; any OS with Node `npm i -g trash-cli`). `rm` was already deny-listed for Claude Code and Cursor in the kit settings.
+- First-time init now asks two setup preferences and records them in `backbone.yml` `conventions.custom_rules`: use `trash` instead of `rm` (with availability detection and install hints), and a default coding level chosen from a 0–5 table with one-line descriptions. Mirrored in the `init-backbone.mjs --propose` interview output.
+- `coding-level` skill (all mirrors): sessions now start from the `Default coding level: N` entry in `backbone.yml` when present; `/coding-level N` still overrides per session and can save a new default with approval. `CLAUDE-template.md` now lists `/coding-level` and the safe-delete rule.
+- `mvck doctor` reports a new safe-delete check: whether the `trash` command is available, with the per-OS install hint when it is not.
+- Fixed the npm package page rendering the Vietnamese README: moved `README.vi.md` to `docs/README.vi.md` so npm's readme detection always picks `README.md`.
+- Added an "Install from npm" section to `README.md`, `docs/README.vi.md`, and `.vibekit/docs/INSTALL.md`: one-shot `npx --yes minimal-vibe-coding-kit@latest install <path>`, or `npm i -D minimal-vibe-coding-kit` followed by `npx mvck install .`, with a note that files in `node_modules/` stay inactive until `mvck install` copies them into the repo root.
+- Switched README install/update/profile examples to the published npm package; the `github:` form and local `install.sh` remain documented as alternatives.
+- Synced version to 0.4.1 in `package.json`, both README badges, and `.codex-plugin/plugin.json`; added an npm badge.
+
+## 0.4.0 — 2026-07-16
 
 - Trimmed the end-user install payload: `mvck install`/`update` no longer copy kit-maintainer files (`test-install.mjs`, `pack-dry-run.mjs`, `.vibekit/docs/RESEARCH_NOTES.md`, `.vibekit/docs/AUTORESEARCH_LEDGER.md`); `validate-kit` requires them only in the kit source repo.
 - `mvck install`/`update` now reject unknown `--profile` values instead of silently installing shared files only.

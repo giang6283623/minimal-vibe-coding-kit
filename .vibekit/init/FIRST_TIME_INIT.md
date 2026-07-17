@@ -69,6 +69,38 @@ Then:
 - Record domain terms and acronyms in `.vibekit/docs/CONTEXT.md` (scaffold from `.vibekit/docs/templates/CONTEXT_TEMPLATE.md`) and link it in `project.context`, so future agents stay concise.
 - Keep the PRD short: it captures intent and focus, not a full specification.
 
+## Setup preferences
+
+Ask these two questions right after the PRD interview. Persist both answers as `backbone.yml` `conventions.custom_rules` entries in the same proposed diff.
+
+### 1. Safe delete (trash instead of rm)
+
+1. Detect first: run `command -v trash` (read-only).
+2. If `trash` is available, ask: "Use `trash` instead of `rm` for deletions so they are recoverable? (recommended: yes)"
+3. If `trash` is missing, recommend installing it, then ask the same question:
+   - macOS 14 or newer: already built in at `/usr/bin/trash`, nothing to install.
+   - Older macOS: `brew install trash` (https://formulae.brew.sh/formula/trash)
+   - Linux: `sudo apt install trash-cli` or `pip install trash-cli` (https://github.com/andreafrancia/trash-cli)
+   - Any OS with Node.js: `npm install --global trash-cli` (https://github.com/sindresorhus/trash-cli)
+4. Record the answer as a custom rule:
+   - yes: `Deletion safety: use trash instead of rm; permanent deletes require explicit approval of the exact paths.`
+   - no: `Deletion safety: user declined trash; list the exact paths and wait for approval before any rm.`
+
+### 2. Default coding level
+
+Show this table exactly and ask: "Which explanation level should I use by default? Reply 0-5. You can change it anytime with `/coding-level N`."
+
+| N | Level | Short description |
+| --- | --- | --- |
+| 0 | ELI5 | New to code. Everything in plain words, no jargon. |
+| 1 | Junior | Knows the basics. Explains the why behind every step. |
+| 2 | Mid-level | Comfortable coder. Patterns, architecture, trade-offs. |
+| 3 | Senior | Concise. Trade-offs, edge cases, operational concerns. |
+| 4 | Tech Lead | Strategic. Risk, ROI, team and organizational impact. |
+| 5 | God | Expert peer. Minimal explanation, maximum signal. |
+
+Record the answer as a custom rule: `Default coding level: N (<Level>) - apply this explanation depth every session; change with /coding-level N.`
+
 ## FIRST_TIME_INIT_RULES
 
 Create project rules from evidence in the existing repo, not from a fixed language or framework template.

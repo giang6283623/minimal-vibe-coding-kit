@@ -153,6 +153,13 @@ function statusLine(ok, label, detail) {
   return `${ok ? 'PASS' : 'WARN'} ${label}${detail ? ` - ${detail}` : ''}`;
 }
 
+const TRASH_INSTALL_HINT = 'macOS 14+ has it built in; older macOS: brew install trash; Linux: sudo apt install trash-cli; any OS with Node: npm i -g trash-cli';
+
+function trashAvailable() {
+  const result = spawnSync('trash', ['--help'], { encoding: 'utf8' });
+  return !(result.error && result.error.code === 'ENOENT');
+}
+
 const backbone = parseBackbone();
 const packageJson = readJson('package.json');
 const isKitTemplate = packageJson?.name === 'minimal-vibe-coding-kit';
@@ -194,7 +201,10 @@ for (const [surface, dir] of Object.entries(nativeSkillSurfaces)) {
 const commands = commandMap();
 const validation = runNodeScript('.vibekit/scripts/validate-kit.mjs');
 const probe = runProbe();
+const hasTrash = trashAvailable();
 const risks = [];
+
+if (!hasTrash) risks.push(`trash command not found; agents fall back to asking before rm. Install it for recoverable deletes (${TRASH_INSTALL_HINT}).`);
 
 if (!backbone) risks.push('backbone.yml is missing.');
 else if (backbone.templateStatus !== 'initialized' && !isKitTemplate) risks.push(`backbone.yml is ${backbone.templateStatus || 'unknown'}; run init before relying on it.`);
@@ -238,6 +248,10 @@ const report = {
     command: probe.command,
     status: probe.status
   },
+  safeDelete: {
+    trashAvailable: hasTrash,
+    installHint: hasTrash ? null : TRASH_INSTALL_HINT
+  },
   aiRulesLoaded: {
     sharedSkills: listFiles('.vibekit/skills').filter((f) => f.endsWith('SKILL.md')).length,
     claudeSkills: listFiles('.claude/skills').filter((f) => f.endsWith('SKILL.md')).length,
@@ -256,7 +270,8 @@ function renderMarkdown(data) {
     statusLine(Boolean(commands.validate), 'validation command detected', commands.validate || 'missing'),
     statusLine(protectedSane, 'protected paths are sane', `${data.protectedPaths.length} entries`),
     statusLine(validation.found && validation.status === 0, 'validation runs', validation.found ? `exit ${validation.status}` : 'missing'),
-    statusLine(probe.found && probe.status === 0, 'AgentShield probe runs', probe.found ? `exit ${probe.status}` : 'missing')
+    statusLine(probe.found && probe.status === 0, 'AgentShield probe runs', probe.found ? `exit ${probe.status}` : 'missing'),
+    statusLine(hasTrash, 'trash command available for safe deletes', hasTrash ? 'deletions are recoverable' : TRASH_INSTALL_HINT)
   ];
 
   return `# Vibe Report

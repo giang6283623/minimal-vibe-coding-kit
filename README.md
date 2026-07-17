@@ -1,11 +1,12 @@
 <div align="center">
 
-**Read in:** **English** · [Tiếng Việt](README.vi.md)
+**Read in:** **English** · [Tiếng Việt](docs/README.vi.md)
 
 # Minimal Vibe Coding Kit
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.4.0-2ea44f.svg)](CHANGELOG.md)
+[![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
+[![Version](https://img.shields.io/badge/version-0.4.1-2ea44f.svg)](CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -27,6 +28,8 @@ A small kit of shared **rules**, **skills**, and **commands**, plus one **`backb
 - Never overwrites your existing `CLAUDE.md` / `AGENTS.md` — it only adds managed blocks.
 - Every setup write waits for your explicit approval.
 - Security review of agent surfaces (AgentShield) is part of the normal workflow.
+- Safe deletes by default: `rm` is deny-listed for Claude Code and Cursor, and all agents prefer the recoverable `trash` command (init checks it and recommends an install if missing).
+- First-time init asks two setup preferences — use `trash` instead of `rm`, and your default explanation level (0–5, changeable anytime with `/coding-level N`) — and records both in `backbone.yml`.
 
 ## Quick Start
 
@@ -35,10 +38,10 @@ Three steps, about two minutes.
 **1. Install into your project** (no clone needed):
 
 ```bash
-npx github:giang6283623/minimal-vibe-coding-kit install /path/to/your-project
+npx --yes minimal-vibe-coding-kit@latest install /path/to/your-project
 ```
 
-From a local clone instead: `./install.sh /path/to/your-project` (Windows: `./install.ps1 -Target C:\path\to\your-project`).
+Already ran `npm i minimal-vibe-coding-kit`, or prefer GitHub or a local clone? See [Install from npm](#install-from-npm).
 
 **2. Open the project in Claude Code, Cursor, or Codex and paste:**
 
@@ -57,6 +60,39 @@ Optional health check any time:
 ```bash
 node .vibekit/scripts/mvck.mjs doctor .
 ```
+
+## Install from npm
+
+The kit is published on npm as [`minimal-vibe-coding-kit`](https://www.npmjs.com/package/minimal-vibe-coding-kit). It is a **scaffolding CLI, not a library** — files sitting in `node_modules/` do nothing by themselves. Running `install` once copies the kit into your repo root, exactly like the GitHub installer does.
+
+**Option A — one-shot (recommended).** Nothing is added to your project's dependencies:
+
+```bash
+npx --yes minimal-vibe-coding-kit@latest install /path/to/your-project
+```
+
+**Option B — as a dependency.** If the package is (or will be) in your `package.json`, one more command is required:
+
+```bash
+npm i -D minimal-vibe-coding-kit
+npx mvck install .        # required — copies the kit out of node_modules into your repo
+```
+
+> **Important:** `npm i` alone only downloads the kit into `node_modules/` — nothing is active yet.
+> `mvck install` is the step that copies `.claude/`, `.cursor/`, `.agents/`, `.vibekit/`, and `backbone.yml` into your repo root.
+
+Either way, the short `mvck` command (alias: `vibe-kit`) is then available via `npx`:
+
+| Short command | What it does |
+| --- | --- |
+| `npx mvck install .` | Copy the kit into the repo (`--profile`, `--dry-run`, `--force`) |
+| `npx mvck update .` | Refresh kit-owned files after a new kit release |
+| `npx mvck doctor .` | Read-only health check |
+| `npx mvck validate .` | Structure validation |
+
+Then continue with **step 2** of the Quick Start (paste the init prompt).
+
+Other install paths: `npx github:giang6283623/minimal-vibe-coding-kit install /path/to/your-project`, or from a local clone `./install.sh /path/to/your-project` (Windows: `./install.ps1 -Target C:\path\to\your-project`).
 
 ## What lands in your repo
 
@@ -149,9 +185,9 @@ All 12 skills live in `.vibekit/skills/` and are mirrored for each tool. Invoke 
 Install only the surfaces you use (default is `all`):
 
 ```bash
-npx github:giang6283623/minimal-vibe-coding-kit install . --profile claude          # Claude Code only
-npx github:giang6283623/minimal-vibe-coding-kit install . --profile claude,cursor   # Claude + Cursor
-npx github:giang6283623/minimal-vibe-coding-kit install . --profile codex           # Codex / AGENTS.md agents
+npx --yes minimal-vibe-coding-kit@latest install . --profile claude          # Claude Code only
+npx --yes minimal-vibe-coding-kit@latest install . --profile claude,cursor   # Claude + Cursor
+npx --yes minimal-vibe-coding-kit@latest install . --profile codex           # Codex / AGENTS.md agents
 ```
 
 Flags: `--force` (overwrite existing kit files), `--dry-run` (preview), `--json` (machine-readable plan).
@@ -161,8 +197,8 @@ Flags: `--force` (overwrite existing kit files), `--dry-run` (preview), `--json`
 Run inside your project when the kit ships new skills or scripts:
 
 ```bash
-npx github:giang6283623/minimal-vibe-coding-kit update . --dry-run   # preview
-npx github:giang6283623/minimal-vibe-coding-kit update .             # apply
+npx --yes minimal-vibe-coding-kit@latest update . --dry-run   # preview
+npx --yes minimal-vibe-coding-kit@latest update .             # apply
 ```
 
 `update` refreshes **kit-owned files only**, never touches `backbone.yml` or your own content, updates managed blocks in place, and backs up changed files to `.vibekit/update-backup/<timestamp>/`. Details: [.vibekit/docs/INSTALL.md](.vibekit/docs/INSTALL.md).
