@@ -1,8 +1,14 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 
 const args = process.argv.slice(2);
+
+function trashAvailable() {
+  const result = spawnSync('trash', ['--help'], { encoding: 'utf8' });
+  return !(result.error && result.error.code === 'ENOENT');
+}
 const shouldWrite = args.includes('--write');
 const yes = args.includes('--yes');
 
@@ -619,6 +625,9 @@ if (shouldWrite) {
   console.log(inferred.context === 'none'
     ? '- Offer to create .vibekit/docs/CONTEXT.md (glossary) from .vibekit/docs/templates/CONTEXT_TEMPLATE.md.'
     : `- CONTEXT glossary found at ${inferred.context}; keep it current.`);
+  console.log('\nSetup preferences (record answers in conventions.custom_rules; see FIRST_TIME_INIT.md "Setup preferences"):');
+  console.log(`- Safe delete: trash command ${trashAvailable() ? 'available' : 'NOT found (recommend: macOS 14+ built-in; older macOS `brew install trash`; Linux `sudo apt install trash-cli`; any OS `npm i -g trash-cli`)'} - ask: use trash instead of rm? (recommended: yes)`);
+  console.log('- Default coding level: ask 0-5 (0 ELI5, 1 Junior, 2 Mid-level, 3 Senior, 4 Tech Lead, 5 God); changeable later with /coding-level N.');
   console.log('\nConvention review questions:');
   for (const question of inferred.conventions.reviewQuestions) console.log(`- ${question}`);
   console.log('\nProposed backbone.yml:\n');

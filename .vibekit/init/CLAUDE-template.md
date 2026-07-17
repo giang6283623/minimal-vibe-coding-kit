@@ -16,11 +16,13 @@ This file is intentionally small. Shared rules live in `AGENTS.md`, project fact
 - `/autoresearch-coding` - run a metric-driven improvement loop.
 - `/security-scan` - run AgentShield-style review.
 - `/daily-enhance` - propose rule, skill, and workflow improvements.
+- `/coding-level N` - set explanation depth 0-5; the project default lives in `backbone.yml` `conventions.custom_rules`.
 
 ## Hard rules
 
 - Show a diff and wait for explicit approval before changing root instruction files, `backbone.yml`, rules, skills, or workflows.
 - Do not deploy, rotate secrets, run migrations, delete data, or rewrite remote history without explicit approval.
+- Prefer `trash` over `rm` for deletions; permanent deletes need explicit approval of the exact paths (see `.claude/rules/safe-delete.md`).
 - Keep `.autoresearch/`, `results.tsv`, and `.vibekit/reports/` local unless the user asks to commit them.
 
 ## English Learning & Grammar Correction
