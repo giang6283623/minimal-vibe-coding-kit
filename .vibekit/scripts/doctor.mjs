@@ -170,7 +170,8 @@ const surfaces = {
   agents: exists('AGENTS.md'),
   claude: exists('CLAUDE.md') || exists('.vibekit/init/CLAUDE-template.md') || exists('.claude'),
   cursor: exists('.cursor/rules'),
-  codex: exists('.agents') || exists('.codex-plugin/plugin.json')
+  codex: exists('.agents') || exists('.codex-plugin/plugin.json'),
+  grok: exists('.grok')
 };
 const managedBlocks = {
   AGENTS: countManaged('AGENTS.md'),
@@ -190,7 +191,8 @@ const nativeSkillSurfaces = {
   shared: '.vibekit/skills',
   claude: '.claude/skills',
   codex: '.agents/skills',
-  cursor: '.cursor/skills'
+  cursor: '.cursor/skills',
+  grok: '.grok/skills'
 };
 const missingNativeSkills = [];
 for (const [surface, dir] of Object.entries(nativeSkillSurfaces)) {
@@ -257,7 +259,9 @@ const report = {
     claudeSkills: listFiles('.claude/skills').filter((f) => f.endsWith('SKILL.md')).length,
     codexSkills: listFiles('.agents/skills').filter((f) => f.endsWith('SKILL.md')).length,
     cursorSkills: listFiles('.cursor/skills').filter((f) => f.endsWith('SKILL.md')).length,
-    cursorRules: listFiles('.cursor/rules').filter((f) => f.endsWith('.mdc')).length
+    cursorRules: listFiles('.cursor/rules').filter((f) => f.endsWith('.mdc')).length,
+    grokSkills: listFiles('.grok/skills').filter((f) => f.endsWith('SKILL.md')).length,
+    grokRules: listFiles('.grok/rules').filter((f) => f.endsWith('.md')).length
   },
   recommendedFirstPrompt: 'Read AGENTS.md and backbone.yml, run mvck doctor ., then propose a small safe plan before editing.',
   knownRisks: risks
@@ -308,15 +312,18 @@ ${(data.protectedPaths.length ? data.protectedPaths : ['not declared']).map((ite
 - Claude surface: ${data.agentSurfaces.claude ? 'yes' : 'no'}
 - Cursor surface: ${data.agentSurfaces.cursor ? 'yes' : 'no'}
 - Codex surface: ${data.agentSurfaces.codex ? 'yes' : 'no'}
+- Grok surface: ${data.agentSurfaces.grok ? 'yes' : 'no'}
 - Shared skills: ${data.aiRulesLoaded.sharedSkills}
 - Claude skills: ${data.aiRulesLoaded.claudeSkills}
 - Codex skills: ${data.aiRulesLoaded.codexSkills}
 - Cursor skills: ${data.aiRulesLoaded.cursorSkills}
 - Cursor rules: ${data.aiRulesLoaded.cursorRules}
+- Grok skills: ${data.aiRulesLoaded.grokSkills}
+- Grok rules: ${data.aiRulesLoaded.grokRules}
 
 ## Native reasoning skills
 
-${data.nativeReasoningSkills.names.map((skill) => `- ${skill}: ${data.nativeReasoningSkills.missing.some((item) => item.endsWith(`:${skill}`)) ? 'missing on one or more surfaces' : 'available on shared, Claude, Codex, and Cursor'}`).join('\n')}
+${data.nativeReasoningSkills.names.map((skill) => `- ${skill}: ${data.nativeReasoningSkills.missing.some((item) => item.endsWith(`:${skill}`)) ? 'missing on one or more surfaces' : 'available on shared, Claude, Codex, Cursor, and Grok'}`).join('\n')}
 
 ## Recommended first prompt
 

@@ -12,11 +12,16 @@ Use `.cursor/rules/*.mdc`. The kit creates always-on core rules plus scoped rule
 
 Use `AGENTS.md` for repo instructions and `.agents/skills/*/SKILL.md` for skills. The kit also includes `.codex-plugin/plugin.json` so the shared skills can be packaged as a plugin.
 
+## Grok
+
+Grok Build reads `AGENTS.md` natively plus every `*.md` rule in `.grok/rules/`, and repository skills from `.grok/skills/*/SKILL.md` (user-invocable skills appear as `/<skill-name>` slash commands). Permission deny rules are user-level only: see `.grok/config.example.toml` for the `~/.grok/config.toml` setup.
+
 ## Shared skill strategy
 
 Canonical skill bodies live in `.vibekit/skills/<skill-name>/`. Harness-specific folders contain small shims:
 
 - `.claude/skills/<skill-name>/SKILL.md`
 - `.agents/skills/<skill-name>/SKILL.md`
+- `.grok/skills/<skill-name>/SKILL.md`
 
 This reduces drift while still giving each tool the path it expects.

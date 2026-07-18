@@ -1,0 +1,13 @@
+# Example user-level settings. Copy the relevant parts into ~/.grok/config.toml.
+# Project-scoped guardrails already ship in this repo's .grok/config.toml
+# ([permission] deny rules for dangerous commands); Grok merges both layers.
+
+# Keep the default ask-before-run permission mode; do not enable always-approve.
+# permission_mode is user-scoped and is ignored in project configs.
+[ui]
+permission_mode = "ask"
+
+# One-off deny on the CLI: grok --deny 'Bash(rm -rf *)'
+# Enterprise-managed policy belongs in /etc/grok/requirements.toml (fail-closed;
+# it cannot be overridden by user or project config).
+# References: https://docs.x.ai/build/settings and https://docs.x.ai/build/enterprise

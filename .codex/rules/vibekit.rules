@@ -1,0 +1,77 @@
+# Minimal Vibe Coding Kit guardrails for Codex.
+# Codex rules are experimental. Project-local rules load only when the
+# project .codex/ layer is trusted, and they govern commands that request
+# execution outside the sandbox. Verify a rule with:
+#   codex execpolicy check --pretty --rules .codex/rules/vibekit.rules -- git push origin main
+
+prefix_rule(
+    pattern = ["rm"],
+    decision = "forbidden",
+    justification = "Use `trash` instead of `rm` so deletions stay recoverable.",
+    match = ["rm -rf build", "rm notes.txt"],
+    not_match = ["trash notes.txt"],
+)
+
+prefix_rule(
+    pattern = ["git", "push"],
+    decision = "forbidden",
+    justification = "Pushing needs explicit user approval.",
+    match = ["git push", "git push --force origin main"],
+    not_match = ["git status"],
+)
+
+prefix_rule(
+    pattern = ["git", "reset", "--hard"],
+    decision = "forbidden",
+    justification = "Hard resets discard work; ask the user first.",
+    match = ["git reset --hard origin/main"],
+    not_match = ["git reset --soft HEAD~1"],
+)
+
+prefix_rule(
+    pattern = [["sh", "bash", "zsh"]],
+    decision = "forbidden",
+    justification = "Blocks `curl ... | sh` style remote installers; run vetted scripts by path instead.",
+    match = ["sh -c ls", "bash install.sh"],
+    not_match = ["shellcheck install.sh"],
+)
+
+prefix_rule(
+    pattern = ["npx", ["--yes", "-y"]],
+    decision = "forbidden",
+    justification = "Auto-confirmed npx executes arbitrary packages; drop the --yes/-y flag so the run is reviewed.",
+    match = ["npx --yes some-package", "npx -y some-package"],
+    not_match = ["npx vitest run"],
+)
+
+prefix_rule(
+    pattern = ["npm", "publish"],
+    decision = "forbidden",
+    justification = "Publishing needs explicit user approval.",
+    match = ["npm publish", "npm publish --access public"],
+    not_match = ["npm pack"],
+)
+
+prefix_rule(
+    pattern = ["migrate"],
+    decision = "forbidden",
+    justification = "Database migrations need explicit user approval.",
+    match = ["migrate up"],
+    not_match = ["npm run migrate"],
+)
+
+prefix_rule(
+    pattern = ["docker", "compose", "up"],
+    decision = "forbidden",
+    justification = "Starting service stacks needs explicit user approval.",
+    match = ["docker compose up -d"],
+    not_match = ["docker compose ps"],
+)
+
+prefix_rule(
+    pattern = ["docker-compose", "up"],
+    decision = "forbidden",
+    justification = "Starting service stacks needs explicit user approval.",
+    match = ["docker-compose up -d"],
+    not_match = ["docker-compose ps"],
+)

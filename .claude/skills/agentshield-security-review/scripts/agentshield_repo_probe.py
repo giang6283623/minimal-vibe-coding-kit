@@ -15,10 +15,11 @@ PATTERNS = {
     "repo_instructions": ["CLAUDE.md", "AGENTS.md", ".github/copilot-instructions.md"],
     "claude": [".claude", ".claude-plugin", "agents"],
     "codex": [".codex", ".codex-plugin"],
-    "shared_skills": [".vibekit/skills", ".claude/skills", ".cursor/skills", ".agents/skills", "skills"],
+    "grok": [".grok"],
+    "shared_skills": [".vibekit/skills", ".claude/skills", ".cursor/skills", ".agents/skills", ".grok/skills", "skills"],
     "shared_commands": [".vibekit/commands"],
     "kit_scripts": [".vibekit/scripts"],
-    "hooks": ["hooks", ".claude/hooks", ".agents/hooks"],
+    "hooks": ["hooks", ".claude/hooks", ".agents/hooks", ".grok/hooks"],
     "mcp": [".mcp.json", "mcp.json", "mcp-configs"],
     "ci": [".github/workflows"],
 }
@@ -55,6 +56,27 @@ def safe_read(path: Path, limit: int = 200_000) -> str:
         return ""
 
 
+def deny_block_lines(text: str) -> set[int]:
+    """Line indexes inside a permissions deny array (JSON `"deny": [` or TOML `deny = [`).
+
+    Deny rules quote dangerous patterns in order to block them, so a marker on
+    those lines is defensive, not suspicious. Allow/ask blocks are still scanned.
+    """
+    covered: set[int] = set()
+    inside = False
+    for idx, line in enumerate(text.splitlines()):
+        stripped = line.strip()
+        if not inside and "[" in stripped and ('"deny"' in stripped or stripped.startswith("deny =") or stripped.startswith("deny=")):
+            covered.add(idx)
+            inside = "]" not in stripped.split("[", 1)[1]
+            continue
+        if inside:
+            covered.add(idx)
+            if "]" in stripped:
+                inside = False
+    return covered
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Inventory Claude/Codex AgentShield surfaces")
     parser.add_argument("path", nargs="?", default=".", help="Repository root")
@@ -77,8 +99,11 @@ def main() -> int:
                     if file_path.suffix.lower() not in {".md", ".json", ".toml", ".yaml", ".yml", ".sh", ".js", ".ts"}:
                         continue
                     text = safe_read(file_path)
+                    skip_lines = deny_block_lines(text)
+                    lines = text.splitlines()
                     for marker in SUSPICIOUS_TEXT:
-                        if marker in text:
+                        hits = [idx for idx, line in enumerate(lines) if marker in line]
+                        if any(idx not in skip_lines for idx in hits):
                             suspicious.append({
                                 "path": str(file_path.relative_to(root)),
                                 "marker": marker,

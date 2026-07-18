@@ -1,0 +1,29 @@
+# Managed by Minimal Vibe Coding Kit. Project-scoped Grok Build settings.
+# Project configs support MCP servers, plugins, and permission rules; other
+# settings (such as [ui] permission_mode) are user-scoped and belong in
+# ~/.grok/config.toml. Reference: https://docs.x.ai/build/settings
+
+[permission]
+deny = [
+  "Bash(rm -rf *)",
+  "Bash(rm *)",
+  "Bash(git push)",
+  "Bash(git push *)",
+  "Bash(git reset --hard)",
+  "Bash(git reset --hard *)",
+  "Bash(sh)",
+  "Bash(sh -)",
+  "Bash(bash)",
+  "Bash(bash -)",
+  "Bash(zsh)",
+  "Bash(zsh -)",
+  "Bash(npx --yes *)",
+  "Bash(npx -y *)",
+  "Bash(npx * --yes *)",
+  "Bash(npx * -y *)",
+  "Bash(npm publish)",
+  "Bash(npm publish *)",
+  "Bash(migrate *)",
+  "Bash(docker compose up*)",
+  "Bash(docker-compose up*)"
+]

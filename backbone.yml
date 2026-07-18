@@ -10,7 +10,7 @@ meta:
 
 project:
   name: minimal-vibe-coding-kit
-  description: "Project-agnostic AI coding workflow kit for Claude Code, Cursor, and Codex with AgentShield security review."
+  description: "Project-agnostic AI coding workflow kit for Claude Code, Cursor, Codex, and Grok with AgentShield security review."
   type: single-repo
   primary_language: js
   package_manager: npm
@@ -83,6 +83,7 @@ agent_surfaces:
   cursor: .cursor/
   codex: .agents/
   codex_plugin: .codex-plugin/plugin.json
+  grok: .grok/
   shared_skills: .vibekit/skills/
   shared_commands: .vibekit/commands/
 

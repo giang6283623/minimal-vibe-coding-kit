@@ -10,10 +10,11 @@
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
+![Grok](https://img.shields.io/badge/Grok-Rules%20%26%20Skills-000000)
 ![AgentShield](https://img.shields.io/badge/Security-AgentShield-d62828)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)
 
-**One installable AI-coding workflow kit for Claude Code, Cursor, and Codex — any repo, any language.**
+**One installable AI-coding workflow kit for Claude Code, Cursor, Codex, and Grok — any repo, any language.**
 
 Install → paste one prompt → approve the proposal → code with guardrails.
 
@@ -23,12 +24,12 @@ Install → paste one prompt → approve the proposal → code with guardrails.
 
 ## What is this?
 
-A small kit of shared **rules**, **skills**, and **commands**, plus one **`backbone.yml`** manifest, so Claude Code, Cursor, and Codex all understand your project the same way.
+A small kit of shared **rules**, **skills**, and **commands**, plus one **`backbone.yml`** manifest, so Claude Code, Cursor, Codex, and Grok all understand your project the same way.
 
 - Never overwrites your existing `CLAUDE.md` / `AGENTS.md` — it only adds managed blocks.
 - Every setup write waits for your explicit approval.
 - Security review of agent surfaces (AgentShield) is part of the normal workflow.
-- Safe deletes by default: `rm` is deny-listed for Claude Code and Cursor, and all agents prefer the recoverable `trash` command (init checks it and recommends an install if missing).
+- Safe deletes by default: all agents prefer the recoverable `trash` command (init checks it and recommends an install if missing), backed by each tool's documented guardrail config — Claude Code deny rules (`.claude/settings.json`), Cursor CLI permissions (`.cursor/cli.json`), Codex execution-policy rules (`.codex/rules/`, experimental, active once the project is trusted), and Grok project permission rules (`.grok/config.toml`).
 - First-time init asks two setup preferences — use `trash` instead of `rm`, and your default explanation level (0–5, changeable anytime with `/coding-level N`) — and records both in `backbone.yml`.
 
 ## Quick Start
@@ -43,7 +44,7 @@ npx --yes minimal-vibe-coding-kit@latest install /path/to/your-project
 
 Already ran `npm i minimal-vibe-coding-kit`, or prefer GitHub or a local clone? See [Install from npm](#install-from-npm).
 
-**2. Open the project in Claude Code, Cursor, or Codex and paste:**
+**2. Open the project in Claude Code, Cursor, Codex, or Grok and paste:**
 
 ```text
 Read .vibekit/init/FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit.
@@ -108,6 +109,7 @@ your-project/
 ├── .cursor/                  ← Cursor: rules, commands, skills
 ├── .agents/                  ← Codex / portable skills
 ├── .codex/  .codex-plugin/   ← Codex config example + plugin manifest
+├── .grok/                    ← Grok Build: rules, skills, config example
 └── .vibekit/                 ← everything kit-owned, in ONE folder
     ├── skills/               ← canonical shared skills (mirrored to the harness dirs)
     ├── commands/             ← shared command prompts
@@ -121,7 +123,7 @@ Existing files are never replaced — the kit merges managed blocks (`BEGIN/END:
 ## How the pieces connect
 
 ```text
-You (prompt) ──▶ Claude Code / Cursor / Codex
+You (prompt) ──▶ Claude Code / Cursor / Codex / Grok
                       │  reads first
                       ▼
         backbone.yml  +  AGENTS.md / CLAUDE.md  +  rules
@@ -142,11 +144,12 @@ You (prompt) ──▶ Claude Code / Cursor / Codex
 
 1. **Just code.** Ask for features and fixes normally; the agent follows `backbone.yml` conventions and keeps diffs small.
 2. **Big or vague task?** Start with the `clearthought` or `sequential-thinking` skill to get a plan first.
-3. **Repo-wide question or big review?** Use `parallel-analysis` — it fans out read-only analysis lanes and verifies the merged result.
-4. **Changed `.claude/`, skills, hooks, or installer scripts?** Run `/security-scan` before merging.
-5. **Want measurable improvements?** Run `/autoresearch-coding` with a metric and budget.
-6. **Keep the setup sharp:** `/daily-enhance` proposes improvements — it never applies them silently.
-7. **Onboarding finished for good?** `/vibe-finalize` moves one-time bootstrap files out.
+3. **Complex task but only a rough prompt?** `/prompt-sharpener <rough prompt>` sharpens it into a precise prompt and executes it in the same turn.
+4. **Repo-wide question or big review?** Use `parallel-analysis` — it fans out read-only analysis lanes and verifies the merged result.
+5. **Changed `.claude/`, skills, hooks, or installer scripts?** Run `/security-scan` before merging.
+6. **Want measurable improvements?** Run `/autoresearch-coding` with a metric and budget.
+7. **Keep the setup sharp:** `/daily-enhance` proposes improvements — it never applies them silently.
+8. **Onboarding finished for good?** `/vibe-finalize` moves one-time bootstrap files out.
 
 ## Commands
 
@@ -161,7 +164,7 @@ You (prompt) ──▶ Claude Code / Cursor / Codex
 
 ## Skills
 
-All 12 skills live in `.vibekit/skills/` and are mirrored for each tool. Invoke them by name ("Use the X skill…") or via the commands above.
+All 13 skills live in `.vibekit/skills/` and are mirrored for each tool. Invoke them by name ("Use the X skill…") or via the commands above.
 
 | Skill | Use it when | Example prompt |
 | --- | --- | --- |
@@ -177,6 +180,7 @@ All 12 skills live in `.vibekit/skills/` and are mirrored for each tool. Invoke 
 | `reviewing-4p-priorities` | Triaging bugs/findings into P0–P4 fix order. | "Use reviewing-4p-priorities. Classify these findings and give a fix sequence." |
 | `memento` | Multi-day tasks: save context before stopping, resume next session. | "/memento — write MEMENTO.md with Goal, Done, Stuck, Next." |
 | `coding-level` | Setting how detailed explanations should be (0 = ELI5 … 5 = expert). | "/coding-level 2" |
+| `prompt-sharpener` | A complex task but only a rough prompt: sharpen it, then execute it in the same turn. | "/prompt-sharpener make the settings page load faster" |
 
 ## Advanced
 
@@ -188,6 +192,7 @@ Install only the surfaces you use (default is `all`):
 npx --yes minimal-vibe-coding-kit@latest install . --profile claude          # Claude Code only
 npx --yes minimal-vibe-coding-kit@latest install . --profile claude,cursor   # Claude + Cursor
 npx --yes minimal-vibe-coding-kit@latest install . --profile codex           # Codex / AGENTS.md agents
+npx --yes minimal-vibe-coding-kit@latest install . --profile grok            # Grok Build CLI
 ```
 
 Flags: `--force` (overwrite existing kit files), `--dry-run` (preview), `--json` (machine-readable plan).

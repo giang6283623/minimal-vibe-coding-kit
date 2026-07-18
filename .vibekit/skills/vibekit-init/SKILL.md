@@ -1,8 +1,8 @@
 ---
 name: vibekit-init
-description: Initialize or repair Minimal Vibe Coding Kit in an existing project. Use for first prompt, backbone.yml setup, CLAUDE.md merge, AGENTS.md merge, Cursor rules setup, or Codex skill setup. Always show requirements and a diff before writing.
+description: Initialize or repair Minimal Vibe Coding Kit in an existing project. Use for first prompt, backbone.yml setup, CLAUDE.md merge, AGENTS.md merge, Cursor rules setup, Codex skill setup, or Grok setup. Always show requirements and a diff before writing.
 disable-model-invocation: true
-argument-hint: target path; profiles claude,cursor,codex; write yes/no
+argument-hint: target path; profiles claude,cursor,codex,grok; write yes/no
 ---
 
 # Vibe Kit Init

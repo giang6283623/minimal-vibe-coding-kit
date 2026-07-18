@@ -10,7 +10,7 @@
 - `conventions`: user-reviewed project rules inferred from existing code.
 - `commands`: install, test, lint, typecheck, build, validate.
 - `policy`: branch, commit, editable paths, protected paths.
-- `agent_surfaces`: Claude, Cursor, Codex, shared skills, shared commands.
+- `agent_surfaces`: Claude, Cursor, Codex, Grok, shared skills, shared commands.
 - `automation`: autoresearch, daily enhance, finalize (graduation cleanup), security.
 
 ## Init status

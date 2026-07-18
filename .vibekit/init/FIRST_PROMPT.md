@@ -36,7 +36,7 @@ Use the autoresearch-coding skill.
 Goal: improve this Minimal Vibe Coding Kit for existing projects in any language.
 Metric command: node .vibekit/scripts/validate-kit.mjs .
 Direction: higher.
-Editable paths: README.md .vibekit/docs .vibekit/scripts skills .vibekit/commands .claude .cursor .agents .codex-plugin .github backbone.yml AGENTS.md .vibekit/init/CLAUDE-template.md .vibekit/init/FIRST_TIME_INIT.md package.json install.sh install.ps1.
+Editable paths: README.md .vibekit/docs .vibekit/scripts skills .vibekit/commands .claude .cursor .agents .grok .codex-plugin .github backbone.yml AGENTS.md .vibekit/init/CLAUDE-template.md .vibekit/init/FIRST_TIME_INIT.md package.json install.sh install.ps1.
 Protected paths: .git .env* node_modules vendor secrets lockfiles.
 Budget: 3.
 ```
