@@ -1,6 +1,6 @@
 # .vibekit/init/FIRST_TIME_INIT.md - bootstrap runbook
 
-Audience: Claude, Cursor, Codex, or any AI coding agent in a repo that just received Minimal Vibe Coding Kit.
+Audience: Claude, Cursor, Codex, Grok, or any AI coding agent in a repo that just received Minimal Vibe Coding Kit.
 
 Keep this flow short. Detailed schema notes live in `.vibekit/docs/BACKBONE_REFERENCE.md`.
 
@@ -11,7 +11,7 @@ Before writing anything, print this checklist and mark each item as found, missi
 1. `backbone.yml` exists.
 2. `AGENTS.md` exists or will be created/merged.
 3. `CLAUDE.md` exists or will be created from `.vibekit/init/CLAUDE-template.md` when Claude support is installed.
-4. At least one harness folder exists: `.claude/`, `.cursor/`, `.agents/`, or `.codex-plugin/`.
+4. At least one harness folder exists: `.claude/`, `.cursor/`, `.agents/`, `.grok/`, or `.codex-plugin/`.
 5. Git status is known. If user changes exist, do not overwrite them.
 6. A validation command is inferred or set to `node .vibekit/scripts/validate-kit.mjs .` for the kit itself.
 7. Protected paths include `.env*`, secrets, lockfiles, generated files, build output, migrations, and infra unless the user says otherwise.

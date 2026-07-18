@@ -1,7 +1,7 @@
 # Project context
 
 > Scaffolded by Minimal Vibe Coding Kit. A short, shared glossary and map so any
-> agent (Claude, Cursor, Codex) navigates this project with less back-and-forth.
+> agent (Claude, Cursor, Codex, Grok) navigates this project with less back-and-forth.
 > Keep it current and terse — definitions, not prose.
 
 ## Domain glossary

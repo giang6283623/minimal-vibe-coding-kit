@@ -33,30 +33,53 @@ function listFiles(rel) {
   return out.sort();
 }
 
+// Surface presence: end-user repos may install only some profiles, so
+// per-surface files are required only when that surface is installed.
+// The kit source repo always validates every surface.
+const isKitSourceRepo = readJson('package.json')?.name === 'minimal-vibe-coding-kit';
+const surfacePresent = {
+  claude: isKitSourceRepo || exists('.claude'),
+  cursor: isKitSourceRepo || exists('.cursor'),
+  codex: isKitSourceRepo || exists('.agents') || exists('.codex') || exists('.codex-plugin'),
+  grok: isKitSourceRepo || exists('.grok')
+};
+for (const [surface, present] of Object.entries(surfacePresent)) {
+  if (!present) console.log(`INFO surface ${surface} not installed; skipping its checks`);
+}
+
+const KIT_SKILLS = [
+  'autoresearch-coding', 'agentshield-security-review', 'daily-workflow-curator', 'vibekit-init',
+  'clearthought', 'sequential-thinking', 'reviewing-4p-priorities', 'visual-design-loop',
+  'path-sensitive-shell-safety', 'memento', 'coding-level', 'parallel-analysis', 'prompt-sharpener'
+];
+const CURSOR_KIT_SKILLS = [
+  'clearthought', 'sequential-thinking', 'reviewing-4p-priorities', 'path-sensitive-shell-safety',
+  'memento', 'coding-level', 'parallel-analysis', 'prompt-sharpener'
+];
+
 const required = [
   'AGENTS.md', '.vibekit/init/CLAUDE-template.md', '.vibekit/init/FIRST_TIME_INIT.md', '.vibekit/init/FIRST_PROMPT.md', 'backbone.yml',
   '.vibekit/scripts/mvck.mjs', '.vibekit/scripts/init-backbone.mjs', '.vibekit/scripts/daily-enhance.mjs', '.vibekit/scripts/validate-kit.mjs',
   '.vibekit/scripts/doctor.mjs', '.vibekit/scripts/agentshield-probe.mjs', '.vibekit/scripts/vibekit-finalize.mjs',
-  '.vibekit/skills/autoresearch-coding/SKILL.md', '.vibekit/skills/agentshield-security-review/SKILL.md', '.vibekit/skills/daily-workflow-curator/SKILL.md', '.vibekit/skills/vibekit-init/SKILL.md',
-  '.vibekit/skills/clearthought/SKILL.md', '.vibekit/skills/sequential-thinking/SKILL.md', '.vibekit/skills/reviewing-4p-priorities/SKILL.md', '.vibekit/skills/visual-design-loop/SKILL.md',
-  '.vibekit/skills/path-sensitive-shell-safety/SKILL.md', '.vibekit/skills/memento/SKILL.md', '.vibekit/skills/coding-level/SKILL.md', '.vibekit/skills/parallel-analysis/SKILL.md',
-  '.vibekit/docs/templates/PRD_TEMPLATE.md', '.vibekit/docs/templates/CONTEXT_TEMPLATE.md',
-  '.codex/README.md', '.codex/config.example.toml',
-  '.claude/skills/autoresearch-coding/SKILL.md', '.claude/skills/agentshield-security-review/SKILL.md',
-  '.claude/skills/daily-workflow-curator/SKILL.md', '.claude/skills/vibekit-init/SKILL.md',
-  '.claude/skills/clearthought/SKILL.md', '.claude/skills/sequential-thinking/SKILL.md', '.claude/skills/reviewing-4p-priorities/SKILL.md', '.claude/skills/visual-design-loop/SKILL.md',
-  '.claude/skills/path-sensitive-shell-safety/SKILL.md', '.claude/skills/memento/SKILL.md', '.claude/skills/coding-level/SKILL.md',
-  '.claude/skills/parallel-analysis/SKILL.md',
-  '.cursor/rules/001-vibe-core.mdc', '.cursor/skills/clearthought/SKILL.md', '.cursor/skills/sequential-thinking/SKILL.md', '.cursor/skills/reviewing-4p-priorities/SKILL.md',
-  '.cursor/skills/path-sensitive-shell-safety/SKILL.md',
-  '.cursor/skills/memento/SKILL.md', '.cursor/skills/coding-level/SKILL.md', '.cursor/skills/parallel-analysis/SKILL.md',
-  '.agents/skills/autoresearch-coding/SKILL.md', '.agents/skills/agentshield-security-review/SKILL.md',
-  '.agents/skills/daily-workflow-curator/SKILL.md', '.agents/skills/vibekit-init/SKILL.md',
-  '.agents/skills/clearthought/SKILL.md', '.agents/skills/sequential-thinking/SKILL.md', '.agents/skills/reviewing-4p-priorities/SKILL.md', '.agents/skills/visual-design-loop/SKILL.md',
-  '.agents/skills/path-sensitive-shell-safety/SKILL.md', '.agents/skills/memento/SKILL.md', '.agents/skills/coding-level/SKILL.md',
-  '.agents/skills/parallel-analysis/SKILL.md',
-  '.codex-plugin/plugin.json'
+  ...KIT_SKILLS.map((skill) => `.vibekit/skills/${skill}/SKILL.md`),
+  '.vibekit/docs/templates/PRD_TEMPLATE.md', '.vibekit/docs/templates/CONTEXT_TEMPLATE.md'
 ];
+if (surfacePresent.claude) {
+  required.push(...KIT_SKILLS.map((skill) => `.claude/skills/${skill}/SKILL.md`));
+}
+if (surfacePresent.cursor) {
+  required.push('.cursor/rules/001-vibe-core.mdc', '.cursor/cli.json',
+    ...CURSOR_KIT_SKILLS.map((skill) => `.cursor/skills/${skill}/SKILL.md`));
+}
+if (surfacePresent.codex) {
+  required.push('.codex/README.md', '.codex/config.example.toml', '.codex/rules/vibekit.rules', '.codex-plugin/plugin.json',
+    ...KIT_SKILLS.map((skill) => `.agents/skills/${skill}/SKILL.md`));
+}
+if (surfacePresent.grok) {
+  required.push('.grok/README.md', '.grok/config.example.toml', '.grok/config.toml',
+    '.grok/rules/vibe-core.md', '.grok/rules/security.md', '.grok/rules/safe-delete.md',
+    ...KIT_SKILLS.map((skill) => `.grok/skills/${skill}/SKILL.md`));
+}
 
 const reasoningSkillResources = {
   'clearthought': [
@@ -83,7 +106,12 @@ const reasoningSkillResources = {
   ]
 };
 
-for (const surface of ['.vibekit/skills', '.claude/skills', '.cursor/skills', '.agents/skills']) {
+const reasoningSurfaceDirs = ['.vibekit/skills'];
+if (surfacePresent.claude) reasoningSurfaceDirs.push('.claude/skills');
+if (surfacePresent.cursor) reasoningSurfaceDirs.push('.cursor/skills');
+if (surfacePresent.codex) reasoningSurfaceDirs.push('.agents/skills');
+if (surfacePresent.grok) reasoningSurfaceDirs.push('.grok/skills');
+for (const surface of reasoningSurfaceDirs) {
   for (const [skill, files] of Object.entries(reasoningSkillResources)) {
     for (const file of files) required.push(`${surface}/${skill}/${file}`);
   }
@@ -94,7 +122,6 @@ if (exists('README.md')) ok('optional README.md present');
 else console.log('INFO optional README.md not present in target project');
 
 // Kit-maintainer files: required in the kit source repo, intentionally absent in end-user installs.
-const isKitSourceRepo = readJson('package.json')?.name === 'minimal-vibe-coding-kit';
 if (isKitSourceRepo) {
   for (const rel of ['.vibekit/scripts/test-install.mjs', '.vibekit/scripts/pack-dry-run.mjs', '.vibekit/docs/RESEARCH_NOTES.md', '.vibekit/docs/AUTORESEARCH_LEDGER.md']) {
     exists(rel) ? ok(`kit-source file ${rel}`) : fail(`missing kit-source file ${rel}`);
@@ -116,18 +143,19 @@ if (exists('.vibekit/docs/AUTORESEARCH_LEDGER.md')) {
 }
 
 const skillMirrors = {
-  'autoresearch-coding': ['.claude/skills/autoresearch-coding', '.agents/skills/autoresearch-coding'],
-  'agentshield-security-review': ['.claude/skills/agentshield-security-review', '.agents/skills/agentshield-security-review'],
-  'daily-workflow-curator': ['.claude/skills/daily-workflow-curator', '.agents/skills/daily-workflow-curator'],
-  'vibekit-init': ['.claude/skills/vibekit-init', '.agents/skills/vibekit-init'],
-  'clearthought': ['.claude/skills/clearthought', '.cursor/skills/clearthought', '.agents/skills/clearthought'],
-  'sequential-thinking': ['.claude/skills/sequential-thinking', '.cursor/skills/sequential-thinking', '.agents/skills/sequential-thinking'],
-  'reviewing-4p-priorities': ['.claude/skills/reviewing-4p-priorities', '.cursor/skills/reviewing-4p-priorities', '.agents/skills/reviewing-4p-priorities'],
-  'path-sensitive-shell-safety': ['.claude/skills/path-sensitive-shell-safety', '.cursor/skills/path-sensitive-shell-safety', '.agents/skills/path-sensitive-shell-safety'],
-  'visual-design-loop': ['.claude/skills/visual-design-loop', '.agents/skills/visual-design-loop'],
-  'memento': ['.claude/skills/memento', '.cursor/skills/memento', '.agents/skills/memento'],
-  'coding-level': ['.claude/skills/coding-level', '.cursor/skills/coding-level', '.agents/skills/coding-level'],
-  'parallel-analysis': ['.claude/skills/parallel-analysis', '.cursor/skills/parallel-analysis', '.agents/skills/parallel-analysis']
+  'autoresearch-coding': ['.claude/skills/autoresearch-coding', '.agents/skills/autoresearch-coding', '.grok/skills/autoresearch-coding'],
+  'agentshield-security-review': ['.claude/skills/agentshield-security-review', '.agents/skills/agentshield-security-review', '.grok/skills/agentshield-security-review'],
+  'daily-workflow-curator': ['.claude/skills/daily-workflow-curator', '.agents/skills/daily-workflow-curator', '.grok/skills/daily-workflow-curator'],
+  'vibekit-init': ['.claude/skills/vibekit-init', '.agents/skills/vibekit-init', '.grok/skills/vibekit-init'],
+  'clearthought': ['.claude/skills/clearthought', '.cursor/skills/clearthought', '.agents/skills/clearthought', '.grok/skills/clearthought'],
+  'sequential-thinking': ['.claude/skills/sequential-thinking', '.cursor/skills/sequential-thinking', '.agents/skills/sequential-thinking', '.grok/skills/sequential-thinking'],
+  'reviewing-4p-priorities': ['.claude/skills/reviewing-4p-priorities', '.cursor/skills/reviewing-4p-priorities', '.agents/skills/reviewing-4p-priorities', '.grok/skills/reviewing-4p-priorities'],
+  'path-sensitive-shell-safety': ['.claude/skills/path-sensitive-shell-safety', '.cursor/skills/path-sensitive-shell-safety', '.agents/skills/path-sensitive-shell-safety', '.grok/skills/path-sensitive-shell-safety'],
+  'visual-design-loop': ['.claude/skills/visual-design-loop', '.agents/skills/visual-design-loop', '.grok/skills/visual-design-loop'],
+  'memento': ['.claude/skills/memento', '.cursor/skills/memento', '.agents/skills/memento', '.grok/skills/memento'],
+  'coding-level': ['.claude/skills/coding-level', '.cursor/skills/coding-level', '.agents/skills/coding-level', '.grok/skills/coding-level'],
+  'parallel-analysis': ['.claude/skills/parallel-analysis', '.cursor/skills/parallel-analysis', '.agents/skills/parallel-analysis', '.grok/skills/parallel-analysis'],
+  'prompt-sharpener': ['.claude/skills/prompt-sharpener', '.cursor/skills/prompt-sharpener', '.agents/skills/prompt-sharpener', '.grok/skills/prompt-sharpener']
 };
 
 function validateSkillMirror(sourceRel, mirrorRel) {
@@ -164,8 +192,15 @@ function validateSkillMirror(sourceRel, mirrorRel) {
   if (mismatches === 0) ok(`skill mirror ${mirrorRel} matches ${sourceRel} (${sourceFiles.length} files)`);
 }
 
+const mirrorSurface = (mirror) => mirror.startsWith('.claude/') ? 'claude'
+  : mirror.startsWith('.cursor/') ? 'cursor'
+  : mirror.startsWith('.agents/') ? 'codex'
+  : 'grok';
 for (const [skill, mirrors] of Object.entries(skillMirrors)) {
-  for (const mirror of mirrors) validateSkillMirror(`.vibekit/skills/${skill}`, mirror);
+  for (const mirror of mirrors) {
+    if (!surfacePresent[mirrorSurface(mirror)]) continue;
+    validateSkillMirror(`.vibekit/skills/${skill}`, mirror);
+  }
 }
 
 function parseFrontmatter(text) {
@@ -179,7 +214,7 @@ function parseFrontmatter(text) {
   return fields;
 }
 
-for (const surface of ['.vibekit/skills', '.claude/skills', '.cursor/skills', '.agents/skills']) {
+for (const surface of ['.vibekit/skills', '.claude/skills', '.cursor/skills', '.agents/skills', '.grok/skills']) {
   if (!exists(surface)) continue;
   for (const file of listFiles(surface).filter((f) => f.endsWith('SKILL.md'))) {
     const rel = `${surface}/${file}`;
@@ -198,7 +233,9 @@ function stripFrontmatter(text) {
 
 if (exists('.vibekit/commands')) {
   const canonicalCmds = listFiles('.vibekit/commands').filter((f) => f.endsWith('.md'));
-  const cmdMirrors = { '.claude/commands': true, '.cursor/commands': true };
+  const cmdMirrors = {};
+  if (surfacePresent.claude) cmdMirrors['.claude/commands'] = true;
+  if (surfacePresent.cursor) cmdMirrors['.cursor/commands'] = true;
   for (const [mirrorDir, stripFm] of Object.entries(cmdMirrors)) {
     if (!exists(mirrorDir)) { warn(`command mirror dir missing: ${mirrorDir}`); continue; }
     for (const file of canonicalCmds) {
@@ -213,7 +250,7 @@ if (exists('.vibekit/commands')) {
   }
 }
 
-for (const rel of ['package.json', '.claude/settings.json', '.cursor/settings.json', '.codex-plugin/plugin.json']) {
+for (const rel of ['package.json', '.claude/settings.json', '.cursor/settings.json', '.cursor/cli.json', '.codex-plugin/plugin.json']) {
   if (!exists(rel)) continue;
   try { JSON.parse(read(rel)); ok(`valid JSON ${rel}`); } catch (error) { fail(`invalid JSON ${rel}: ${error.message}`); }
 }
@@ -269,6 +306,33 @@ if (claudeSettings?.permissions?.deny && cursorSettings?.permissions?.deny) {
     if (!claudeCats.has(cat)) { warn(`deny list parity: .cursor blocks "${cat}" but .claude does not`); parity = false; }
   }
   if (parity) ok(`deny list category parity across .claude and .cursor (${claudeCats.size} categories)`);
+}
+
+// Guardrail lint: catches known-dead deny patterns at the syntax level. It does
+// not replace native checks — verify semantics with each tool's own validator
+// (e.g. `codex execpolicy check`, `grok inspect`).
+for (const [rel, settings] of [['.claude/settings.json', claudeSettings], ['.cursor/settings.json', cursorSettings]]) {
+  const deny = settings?.permissions?.deny;
+  if (!Array.isArray(deny)) continue;
+  const piped = deny.filter((rule) => rule.includes('|'));
+  piped.length === 0
+    ? ok(`${rel} deny rules avoid pipe-spanning patterns (subcommands are matched independently)`)
+    : fail(`${rel} deny rules span a pipe and never match: ${piped.join(', ')}`);
+  const yesFirst = deny.some((rule) => rule.startsWith('Bash(npx --yes') || rule.startsWith('Bash(npx -y'));
+  yesFirst
+    ? ok(`${rel} denies leading npx --yes/-y forms`)
+    : fail(`${rel} missing deny for leading npx --yes/-y forms`);
+}
+if (surfacePresent.cursor && exists('.cursor/cli.json')) {
+  const cursorCli = readJson('.cursor/cli.json');
+  Array.isArray(cursorCli?.permissions?.deny) && cursorCli.permissions.deny.includes('Shell(rm)')
+    ? ok('.cursor/cli.json denies Shell(rm)')
+    : fail('.cursor/cli.json missing permissions.deny entry Shell(rm)');
+}
+if (surfacePresent.codex) requireText('.codex/rules/vibekit.rules', 'decision = "forbidden"', 'Codex rules include forbidden decisions');
+if (surfacePresent.grok) {
+  requireText('.grok/config.toml', '[permission]', 'Grok project config declares [permission] rules');
+  requireText('.grok/config.toml', '"Bash(rm *)"', 'Grok project config denies rm');
 }
 
 if (pkg?.name === 'minimal-vibe-coding-kit') {
@@ -381,7 +445,8 @@ function validateBackboneSchema(text) {
     if (!surfacePath || surfacePath === 'null') continue;
     const cleanPath = surfacePath.replace(/^["']|["']$/g, '');
     if (exists(cleanPath)) ok(`agent_surfaces path exists: ${cleanPath}`);
-    else fail(`agent_surfaces path missing: ${cleanPath}`);
+    else if (isKitSourceRepo) fail(`agent_surfaces path missing: ${cleanPath}`);
+    else warn(`agent_surfaces path missing: ${cleanPath} (profile-scoped install?)`);
   }
 }
 
@@ -401,7 +466,7 @@ const riskyPatterns = [
   { pattern: 'ignore previous' + ' instructions', message: 'prompt injection phrase' }
 ];
 
-const scanDirs = ['.claude', '.cursor', '.agents', '.codex-plugin', '.vibekit/skills', '.vibekit/commands', '.vibekit/scripts', 'AGENTS.md', '.vibekit/init/CLAUDE-template.md'];
+const scanDirs = ['.claude', '.cursor', '.agents', '.grok', '.codex-plugin', '.vibekit/skills', '.vibekit/commands', '.vibekit/scripts', 'AGENTS.md', '.vibekit/init/CLAUDE-template.md'];
 function walk(item) {
   const p = path.join(root, item);
   if (!fs.existsSync(p)) return [];

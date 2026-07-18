@@ -76,6 +76,7 @@ AGENTS.md
 .agents/**
 .codex/**
 .codex-plugin/**
+.grok/**
 .vibekit/skills/**
 commands/**
 docs/**

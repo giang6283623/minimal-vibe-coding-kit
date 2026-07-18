@@ -17,6 +17,7 @@ This file is intentionally small. Shared rules live in `AGENTS.md`, project fact
 - `/security-scan` - run AgentShield-style review.
 - `/daily-enhance` - propose rule, skill, and workflow improvements.
 - `/coding-level N` - set explanation depth 0-5; the project default lives in `backbone.yml` `conventions.custom_rules`.
+- `/prompt-sharpener <rough prompt>` - sharpen a rough prompt into a precise one, then execute it in the same turn.
 
 ## Hard rules
 

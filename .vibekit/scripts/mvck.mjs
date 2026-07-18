@@ -13,8 +13,8 @@ function usage() {
   console.log(`Minimal Vibe Coding Kit
 
 Usage:
-  mvck install [target] [--profile all|claude,cursor,codex] [--force] [--dry-run] [--json]
-  mvck update [target] [--profile all|claude,cursor,codex] [--dry-run] [--json] [--no-backup]
+  mvck install [target] [--profile all|claude,cursor,codex,grok] [--force] [--dry-run] [--json]
+  mvck update [target] [--profile all|claude,cursor,codex,grok] [--dry-run] [--json] [--no-backup]
   mvck init [target] [--propose|--write --yes] [--preset nextjs|wordpress|python|laravel|docker]
   mvck validate [target]
   mvck doctor [target] [--write-report] [--json]
@@ -158,23 +158,24 @@ const KIT_SCRIPTS = [
   '.vibekit/scripts/mvck.mjs', '.vibekit/scripts/init-backbone.mjs', '.vibekit/scripts/daily-enhance.mjs', '.vibekit/scripts/validate-kit.mjs',
   '.vibekit/scripts/doctor.mjs', '.vibekit/scripts/agentshield-probe.mjs', '.vibekit/scripts/vibekit-finalize.mjs'
 ];
-const VALID_PROFILES = new Set(['claude', 'cursor', 'codex']);
+const VALID_PROFILES = new Set(['claude', 'cursor', 'codex', 'grok']);
 
 function parseProfiles(profileRaw) {
-  const profiles = new Set(profileRaw === 'all' ? ['claude', 'cursor', 'codex'] : profileRaw.split(',').map((x) => x.trim()).filter(Boolean));
+  const profiles = new Set(profileRaw === 'all' ? ['claude', 'cursor', 'codex', 'grok'] : profileRaw.split(',').map((x) => x.trim()).filter(Boolean));
   for (const p of profiles) {
-    if (!VALID_PROFILES.has(p)) throw new Error(`Unknown profile: ${p}. Valid values: all, claude, cursor, codex (comma-separated).`);
+    if (!VALID_PROFILES.has(p)) throw new Error(`Unknown profile: ${p}. Valid values: all, claude, cursor, codex, grok (comma-separated).`);
   }
   return profiles;
 }
 const CLAUDE_DIRS = ['.claude/agents', '.claude/commands', '.claude/rules'];
 const CLAUDE_SKILLS = [
   'autoresearch-coding', 'agentshield-security-review', 'daily-workflow-curator', 'vibekit-init', 'visual-design-loop',
-  'clearthought', 'sequential-thinking', 'reviewing-4p-priorities', 'path-sensitive-shell-safety', 'memento', 'coding-level', 'parallel-analysis'
+  'clearthought', 'sequential-thinking', 'reviewing-4p-priorities', 'path-sensitive-shell-safety', 'memento', 'coding-level', 'parallel-analysis', 'prompt-sharpener'
 ];
 const CURSOR_DIRS = ['.cursor/rules', '.cursor/commands'];
-const CURSOR_SKILLS = ['clearthought', 'sequential-thinking', 'reviewing-4p-priorities', 'path-sensitive-shell-safety', 'memento', 'coding-level', 'parallel-analysis'];
+const CURSOR_SKILLS = ['clearthought', 'sequential-thinking', 'reviewing-4p-priorities', 'path-sensitive-shell-safety', 'memento', 'coding-level', 'parallel-analysis', 'prompt-sharpener'];
 const CODEX_DIRS = ['.agents', '.codex', '.codex-plugin'];
+const GROK_DIRS = ['.grok'];
 const GITIGNORE_BLOCK = `# BEGIN: minimal-vibe-coding-kit\n.autoresearch/\nresults.tsv\n.vibekit/INIT_DONE\n.vibekit/FINALIZE_DONE\n.vibekit/reports/\n.vibekit/update-backup/\n_vibekit-cleanup/\nCLAUDE.local.md\n# END: minimal-vibe-coding-kit`;
 
 function kitVersion() {
@@ -258,9 +259,15 @@ function install() {
       actions.push(copyDirSafe(`.cursor/skills/${skill}`, `.cursor/skills/${skill}`, target, opts));
     }
     actions.push(copyFileSafe('.cursor/settings.json', '.cursor/settings.json', target, opts));
+    actions.push(copyFileSafe('.cursor/cli.json', '.cursor/cli.json', target, opts));
   }
   if (profiles.has('codex')) {
     for (const dir of CODEX_DIRS) {
+      actions.push(copyDirSafe(dir, dir, target, opts));
+    }
+  }
+  if (profiles.has('grok')) {
+    for (const dir of GROK_DIRS) {
       actions.push(copyDirSafe(dir, dir, target, opts));
     }
   }
@@ -398,13 +405,21 @@ function update() {
   if (profiles.has('codex')) {
     for (const dir of CODEX_DIRS) actions.push(...updateDirSafe(dir, target, opts));
   }
+  if (profiles.has('grok')) {
+    // .grok/config.toml holds user-editable permission rules; seed it below instead of overwriting.
+    for (const dir of GROK_DIRS) actions.push(...updateDirSafe(dir, target, dir === '.grok' ? { ...opts, exclude: ['config.toml'] } : opts));
+  }
 
   // User-owned files: seed only when missing, never overwrite. Finalized
   // projects removed the one-time files on purpose, so skip re-seeding them.
   const seedFiles = finalized ? ['backbone.yml'] : KIT_SEED_FILES;
   for (const file of seedFiles) actions.push(copyFileSafe(file, file, target, { force: false, dryRun }));
   if (profiles.has('claude')) actions.push(copyFileSafe('.claude/settings.json', '.claude/settings.json', target, { force: false, dryRun }));
-  if (profiles.has('cursor')) actions.push(copyFileSafe('.cursor/settings.json', '.cursor/settings.json', target, { force: false, dryRun }));
+  if (profiles.has('cursor')) {
+    actions.push(copyFileSafe('.cursor/settings.json', '.cursor/settings.json', target, { force: false, dryRun }));
+    actions.push(copyFileSafe('.cursor/cli.json', '.cursor/cli.json', target, { force: false, dryRun }));
+  }
+  if (profiles.has('grok')) actions.push(copyFileSafe('.grok/config.toml', '.grok/config.toml', target, { force: false, dryRun }));
 
   applyManagedBlocks(target, profiles, actions, { dryRun });
   writeKitVersion(target, dryRun);
@@ -412,7 +427,7 @@ function update() {
   const summary = { add: 0, update: 0, unchanged: 0, skip: 0, 'managed-block': 0 };
   for (const a of actions) summary[a.action] = (summary[a.action] || 0) + 1;
   const backupInfo = backup && backup.count > 0 ? path.relative(target, backup.dir) : null;
-  const preserved = ['backbone.yml', 'CLAUDE.md', 'AGENTS.md content outside the managed block', '.claude/settings.json', '.cursor/settings.json'];
+  const preserved = ['backbone.yml', 'CLAUDE.md', 'AGENTS.md content outside the managed block', '.claude/settings.json', '.cursor/settings.json', '.cursor/cli.json', '.grok/config.toml'];
 
   const legacyPaths = detectLegacyLayout(target);
   if (json) {

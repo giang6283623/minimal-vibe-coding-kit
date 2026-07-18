@@ -26,9 +26,10 @@ node .vibekit/scripts/mvck.mjs install /path/to/project --profile all
 
 Profiles:
 
-- `claude`: `CLAUDE.md`, `.claude/`, Claude skills, agents, commands, rules.
-- `cursor`: `.cursor/rules`, `.cursor/commands`, Cursor skill entrypoints.
-- `codex`: `AGENTS.md`, `.agents/skills`, `.codex-plugin`, `.codex` examples.
+- `claude`: `CLAUDE.md`, `.claude/`, Claude skills, agents, commands, rules, deny-list settings.
+- `cursor`: `.cursor/rules`, `.cursor/commands`, `.cursor/cli.json` CLI permissions, Cursor skill entrypoints.
+- `codex`: `AGENTS.md`, `.agents/skills`, `.codex/rules` execution-policy rules, `.codex-plugin`, `.codex` examples.
+- `grok`: `AGENTS.md`, `.grok/rules`, `.grok/skills`, `.grok/config.toml` permission rules, user config example.
 - `all`: every profile.
 
 ## Safe behavior
@@ -59,7 +60,7 @@ node /path/to/kit/.vibekit/scripts/mvck.mjs update /path/to/project
 
 The updater:
 
-- refreshes kit-owned surfaces (`.vibekit/skills/`, `.vibekit/commands/`, `.vibekit/scripts/`, `.vibekit/docs/`, and the `.claude/`, `.cursor/`, `.agents/`, `.codex*` mirrors) and adds any new kit skills;
+- refreshes kit-owned surfaces (`.vibekit/skills/`, `.vibekit/commands/`, `.vibekit/scripts/`, `.vibekit/docs/`, and the `.claude/`, `.cursor/`, `.agents/`, `.grok/`, `.codex*` mirrors) and adds any new kit skills;
 - never overwrites `backbone.yml`, `CLAUDE.md`, `AGENTS.md` content outside the managed block, or `settings.json` files — those are seeded only if missing;
 - backs up every replaced kit file to `.vibekit/update-backup/<timestamp>/` (disable with `--no-backup`);
 - never deletes files you added, and skips re-seeding one-time files after `mvck finalize`;
@@ -114,7 +115,7 @@ node .vibekit/scripts/mvck.mjs doctor . --write-report
 
 ## Native reasoning skills
 
-The installer includes three flexible custom reasoning skills across Claude, Codex, and Cursor. These install as full skill folders, including examples and references for progressive disclosure:
+The installer includes three flexible custom reasoning skills across Claude, Codex, Cursor, and Grok. These install as full skill folders, including examples and references for progressive disclosure:
 
 - `clearthought`: clarify ambiguous tasks and choose a reasoning mode.
 - `sequential-thinking`: split complex work into ordered implementation steps.
@@ -122,11 +123,12 @@ The installer includes three flexible custom reasoning skills across Claude, Cod
 
 ## Visual design loop skill
 
-The installer also includes `visual-design-loop` for Claude and Codex surfaces. Use it when a loop goal touches UI polish, screenshots, rendering, visual QA, or visible frontend behavior.
+The installer also includes `visual-design-loop` for Claude, Codex, and Grok surfaces. Use it when a loop goal touches UI polish, screenshots, rendering, visual QA, or visible frontend behavior.
 
 ## User-invoked utility skills
 
-Two user-invoked skills install across Claude, Codex, and Cursor surfaces:
+Three user-invoked skills install across Claude, Codex, Cursor, and Grok surfaces:
 
 - `memento`: write a `MEMENTO.md` working note before closing a multi-day task (`/memento`), then resume from it in the next session (`/memento resume`).
 - `coding-level`: set the explanation register from 0 (ELI5) to 5 (expert peer) with `/coding-level N`; stays active until reinvoked.
+- `prompt-sharpener`: sharpen a rough prompt into a precise one with `/prompt-sharpener <rough prompt>`, then execute the sharpened version immediately in the same turn.

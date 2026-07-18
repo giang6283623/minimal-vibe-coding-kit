@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "deny": [
+      "Shell(rm)",
+      "Shell(sh)",
+      "Shell(bash)",
+      "Shell(zsh)",
+      "Shell(git:push*)",
+      "Shell(git:reset --hard*)",
+      "Shell(npx:--yes*)",
+      "Shell(npx:-y*)",
+      "Shell(npm:publish*)",
+      "Shell(migrate)",
+      "Shell(docker:compose up*)",
+      "Shell(docker-compose:up*)"
+    ]
+  }
+}
