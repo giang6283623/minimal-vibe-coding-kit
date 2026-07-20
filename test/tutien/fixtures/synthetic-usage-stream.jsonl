@@ -1,0 +1,8 @@
+{"schema":"tutien-generic-v1"}
+{"type":"message","session":"s4","task":"t4","ts":"2026-07-04T12:00:00Z","role":"user","text":"Summarize the release notes."}
+{"type":"message","session":"s4","task":"t4","ts":"2026-07-04T12:00:05Z","role":"assistant","text":"(streaming update 1)","usage":{"total":100,"accuracy":"reported","requestId":"st1","cumulative":true}}
+{"type":"message","session":"s4","task":"t4","ts":"2026-07-04T12:00:06Z","role":"assistant","text":"(streaming update 2)","usage":{"total":200,"accuracy":"reported","requestId":"st1","cumulative":true}}
+{"type":"message","session":"s4","task":"t4","ts":"2026-07-04T12:00:07Z","role":"assistant","text":"(final streaming update)","usage":{"total":300,"accuracy":"reported","requestId":"st1","cumulative":true}}
+{"type":"message","session":"s4","task":"t4","ts":"2026-07-04T12:01:00Z","role":"user","text":"Translate the summary to Vietnamese."}
+{"type":"message","session":"s4","task":"t4","ts":"2026-07-04T12:01:20Z","role":"assistant","text":"(turn with locally estimated usage)","usage":{"total":50,"accuracy":"estimated"}}
+{"type":"message","session":"s4","task":"t4","ts":"2026-07-04T12:02:00Z","role":"assistant","text":"(turn with no usage recorded)"}

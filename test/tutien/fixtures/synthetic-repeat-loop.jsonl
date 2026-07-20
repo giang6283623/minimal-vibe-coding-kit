@@ -1,0 +1,12 @@
+{"schema":"tutien-generic-v1"}
+{"type":"message","session":"s2","task":"t2","ts":"2026-07-02T10:00:00Z","role":"user","text":"Fix the login redirect bug, docs at https://user:hunter2@intranet.example.com/wiki?token=SECRETVALUE#creds"}
+{"type":"message","session":"s2","task":"t2","ts":"2026-07-02T10:01:00Z","role":"assistant","text":"Adjusted the redirect handler.","usage":{"total":800,"accuracy":"reported","requestId":"r1"}}
+{"type":"test","session":"s2","task":"t2","ts":"2026-07-02T10:02:00Z","outcome":"fail","label":"login e2e"}
+{"type":"message","session":"s2","task":"t2","ts":"2026-07-02T10:05:00Z","role":"user","text":"Fix the login redirect bug, docs at https://user:hunter2@intranet.example.com/wiki?token=SECRETVALUE#creds  "}
+{"type":"message","session":"s2","task":"t2","ts":"2026-07-02T10:06:00Z","role":"assistant","text":"Tried a different redirect target.","usage":{"total":700,"accuracy":"reported","requestId":"r2"}}
+{"type":"test","session":"s2","task":"t2","ts":"2026-07-02T10:07:00Z","outcome":"fail","label":"login e2e"}
+{"type":"message","session":"s2","task":"t2","ts":"2026-07-02T10:10:00Z","role":"user","text":"Fix the login redirect bug, docs at https://user:hunter2@intranet.example.com/wiki?token=SECRETVALUE#creds\r\n"}
+{"type":"message","session":"s2","task":"t2","ts":"2026-07-02T10:11:00Z","role":"assistant","text":"Found the stale session cookie; fixed.","usage":{"total":600,"accuracy":"reported","requestId":"r3"}}
+{"type":"test","session":"s2","task":"t2","ts":"2026-07-02T10:12:00Z","outcome":"pass","label":"login e2e"}
+{"type":"message","session":"s2","task":"t2","ts":"2026-07-02T10:15:00Z","role":"user","text":"Fix the login redirect bug please, docs at https://user:hunter2@intranet.example.com/wiki?token=SECRETVALUE#creds"}
+{"type":"message","session":"s2","task":"t2","ts":"2026-07-02T10:16:00Z","role":"assistant","text":"Confirmed the fix also covers this case; no further change needed.","usage":{"total":500,"accuracy":"reported","requestId":"r4"}}

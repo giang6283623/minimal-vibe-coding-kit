@@ -1,6 +1,6 @@
 {
   "name": "minimal-vibe-coding-kit",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Project-agnostic AI coding workflow kit for Claude Code, Cursor, Codex, and Grok with AgentShield security review.",
   "type": "module",
   "bin": {
@@ -15,12 +15,13 @@
     "daily": "node .vibekit/scripts/daily-enhance.mjs . --write-report",
     "check:syntax": "node --check .vibekit/scripts/mvck.mjs && node --check .vibekit/scripts/init-backbone.mjs && node --check .vibekit/scripts/daily-enhance.mjs && node --check .vibekit/scripts/validate-kit.mjs && node --check .vibekit/scripts/doctor.mjs && node --check .vibekit/scripts/test-install.mjs && node --check .vibekit/scripts/agentshield-probe.mjs && node --check .vibekit/scripts/pack-dry-run.mjs && node --check .vibekit/scripts/vibekit-finalize.mjs && node --check bin/mvck.js && node --check bin/vibe-kit.js",
     "test:install": "node .vibekit/scripts/test-install.mjs",
-    "test": "npm run check:syntax && npm run test:install && npm run validate",
+    "test": "npm run check:syntax && npm run test:install && npm run validate && npm run test:tutien",
     "validate": "node .vibekit/scripts/validate-kit.mjs .",
     "security:probe": "node .vibekit/scripts/agentshield-probe.mjs .",
     "pack:dry-run": "node .vibekit/scripts/pack-dry-run.mjs",
     "validate:all": "npm test && npm run security:probe && npm run pack:dry-run",
-    "pack:repo": "node .vibekit/scripts/validate-kit.mjs . && npm pack"
+    "pack:repo": "node .vibekit/scripts/validate-kit.mjs . && npm pack",
+    "test:tutien": "node test/tutien/scripts/test-analyzer.mjs && node test/tutien/scripts/test-render.mjs && node test/tutien/scripts/test-villains.mjs && node test/tutien/scripts/test-snapshot.mjs && node test/tutien/scripts/test-classify.mjs && node test/tutien/scripts/test-adversarial.mjs && node test/tutien/scripts/test-e2e.mjs"
   },
   "keywords": [
     "vibe-coding",
@@ -58,6 +59,8 @@
     ".claude/skills/coding-level/",
     ".claude/skills/parallel-analysis/",
     ".claude/skills/prompt-sharpener/",
+    ".claude/skills/claim/",
+    ".claude/skills/tutien/",
     ".cursor/rules/",
     ".cursor/commands/",
     ".cursor/settings.json",
@@ -70,6 +73,8 @@
     ".cursor/skills/coding-level/",
     ".cursor/skills/parallel-analysis/",
     ".cursor/skills/prompt-sharpener/",
+    ".cursor/skills/claim/",
+    ".cursor/skills/tutien/",
     ".agents/",
     ".grok/",
     ".codex/",
@@ -84,6 +89,7 @@
     "install.ps1",
     "README.md",
     "docs/README.vi.md",
+    "docs/README.zh-CN.md",
     "SECURITY.md",
     "CONTRIBUTING.md",
     "CODE_OF_CONDUCT.md",

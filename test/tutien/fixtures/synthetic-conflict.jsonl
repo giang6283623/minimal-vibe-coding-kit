@@ -1,0 +1,4 @@
+{"schema":"tutien-generic-v1"}
+{"type":"message","session":"s3","task":"t3","ts":"2026-07-03T08:00:00Z","role":"user","text":"Do not rename the public API."}
+{"type":"message","session":"s3","task":"t3","ts":"2026-07-03T08:00:20Z","role":"assistant","text":"Understood, keeping the API names stable.","usage":{"total":200,"accuracy":"reported","requestId":"k1"}}
+{"type":"message","session":"s3","task":"t3","ts":"2026-07-03T08:05:00Z","role":"user","text":"Rename the public API endpoint to /v2 now."}

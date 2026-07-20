@@ -47,15 +47,31 @@ for (const [surface, present] of Object.entries(surfacePresent)) {
   if (!present) console.log(`INFO surface ${surface} not installed; skipping its checks`);
 }
 
-const KIT_SKILLS = [
-  'autoresearch-coding', 'agentshield-security-review', 'daily-workflow-curator', 'vibekit-init',
-  'clearthought', 'sequential-thinking', 'reviewing-4p-priorities', 'visual-design-loop',
-  'path-sensitive-shell-safety', 'memento', 'coding-level', 'parallel-analysis', 'prompt-sharpener'
-];
-const CURSOR_KIT_SKILLS = [
-  'clearthought', 'sequential-thinking', 'reviewing-4p-priorities', 'path-sensitive-shell-safety',
-  'memento', 'coding-level', 'parallel-analysis', 'prompt-sharpener'
-];
+// Skill registries come from the central distribution manifest shared with
+// the installer; validation fails closed when the manifest is missing.
+const MANIFEST_REL = '.vibekit/skills/skills-manifest.json';
+const skillsManifest = readJson(MANIFEST_REL);
+if (!skillsManifest || !Array.isArray(skillsManifest.skills)) {
+  fail(`missing or invalid ${MANIFEST_REL}; installer and validator registries derive from it`);
+}
+const manifestSkills = skillsManifest?.skills ?? [];
+const KIT_SKILLS = manifestSkills.map((s) => s.name);
+const CURSOR_KIT_SKILLS = manifestSkills.filter((s) => (s.surfaces || []).includes('cursor')).map((s) => s.name);
+
+// Fail closed: a canonical skill directory that is not in the manifest would
+// otherwise escape mirror, package, and install validation entirely.
+const canonicalSkillDirs = exists('.vibekit/skills')
+  ? fs.readdirSync(path.join(root, '.vibekit/skills'), { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name)
+  : [];
+for (const dir of canonicalSkillDirs) {
+  if (KIT_SKILLS.includes(dir)) continue;
+  const msg = `canonical skill dir .vibekit/skills/${dir} is not registered in ${MANIFEST_REL}`;
+  if (isKitSourceRepo) fail(msg);
+  else warn(`${msg}; register it to get mirror, package, and install validation`);
+}
+for (const skill of KIT_SKILLS) {
+  if (!canonicalSkillDirs.includes(skill)) fail(`manifest skill ${skill} has no canonical dir .vibekit/skills/${skill}`);
+}
 
 const required = [
   'AGENTS.md', '.vibekit/init/CLAUDE-template.md', '.vibekit/init/FIRST_TIME_INIT.md', '.vibekit/init/FIRST_PROMPT.md', 'backbone.yml',
@@ -142,21 +158,15 @@ if (exists('.vibekit/docs/AUTORESEARCH_LEDGER.md')) {
   stalePhrase ? fail(`.vibekit/docs/AUTORESEARCH_LEDGER.md contains stale phrase: ${stalePhrase}`) : ok('autoresearch ledger has no stale build placeholders');
 }
 
-const skillMirrors = {
-  'autoresearch-coding': ['.claude/skills/autoresearch-coding', '.agents/skills/autoresearch-coding', '.grok/skills/autoresearch-coding'],
-  'agentshield-security-review': ['.claude/skills/agentshield-security-review', '.agents/skills/agentshield-security-review', '.grok/skills/agentshield-security-review'],
-  'daily-workflow-curator': ['.claude/skills/daily-workflow-curator', '.agents/skills/daily-workflow-curator', '.grok/skills/daily-workflow-curator'],
-  'vibekit-init': ['.claude/skills/vibekit-init', '.agents/skills/vibekit-init', '.grok/skills/vibekit-init'],
-  'clearthought': ['.claude/skills/clearthought', '.cursor/skills/clearthought', '.agents/skills/clearthought', '.grok/skills/clearthought'],
-  'sequential-thinking': ['.claude/skills/sequential-thinking', '.cursor/skills/sequential-thinking', '.agents/skills/sequential-thinking', '.grok/skills/sequential-thinking'],
-  'reviewing-4p-priorities': ['.claude/skills/reviewing-4p-priorities', '.cursor/skills/reviewing-4p-priorities', '.agents/skills/reviewing-4p-priorities', '.grok/skills/reviewing-4p-priorities'],
-  'path-sensitive-shell-safety': ['.claude/skills/path-sensitive-shell-safety', '.cursor/skills/path-sensitive-shell-safety', '.agents/skills/path-sensitive-shell-safety', '.grok/skills/path-sensitive-shell-safety'],
-  'visual-design-loop': ['.claude/skills/visual-design-loop', '.agents/skills/visual-design-loop', '.grok/skills/visual-design-loop'],
-  'memento': ['.claude/skills/memento', '.cursor/skills/memento', '.agents/skills/memento', '.grok/skills/memento'],
-  'coding-level': ['.claude/skills/coding-level', '.cursor/skills/coding-level', '.agents/skills/coding-level', '.grok/skills/coding-level'],
-  'parallel-analysis': ['.claude/skills/parallel-analysis', '.cursor/skills/parallel-analysis', '.agents/skills/parallel-analysis', '.grok/skills/parallel-analysis'],
-  'prompt-sharpener': ['.claude/skills/prompt-sharpener', '.cursor/skills/prompt-sharpener', '.agents/skills/prompt-sharpener', '.grok/skills/prompt-sharpener']
-};
+// Mirror registry is derived from the manifest so a skill cannot be
+// registered for install yet skipped by parity validation.
+const MANIFEST_SURFACE_DIRS = { claude: '.claude/skills', cursor: '.cursor/skills', codex: '.agents/skills', grok: '.grok/skills' };
+const skillMirrors = {};
+for (const skill of manifestSkills) {
+  skillMirrors[skill.name] = (skill.surfaces || [])
+    .filter((surface) => MANIFEST_SURFACE_DIRS[surface])
+    .map((surface) => `${MANIFEST_SURFACE_DIRS[surface]}/${skill.name}`);
+}
 
 function validateSkillMirror(sourceRel, mirrorRel) {
   if (!exists(sourceRel)) { fail(`missing canonical skill dir ${sourceRel}`); return; }

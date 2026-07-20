@@ -1,0 +1,6 @@
+{"schema":"tutien-generic-v1"}
+{"type":"message","session":"s1","task":"t1","ts":"2026-07-01T09:00:00Z","role":"user","text":"Add a dark mode toggle to the settings page."}
+{"type":"message","session":"s1","task":"t1","ts":"2026-07-01T09:00:30Z","role":"assistant","text":"Implemented the toggle in settings.","usage":{"input":900,"output":300,"total":1200,"accuracy":"reported","requestId":"c1"}}
+{"type":"test","session":"s1","task":"t1","ts":"2026-07-01T09:05:00Z","outcome":"pass","label":"npm test"}
+{"type":"message","session":"s1","task":"t1","ts":"2026-07-01T09:10:00Z","role":"user","text":"Now write a changelog entry for it."}
+{"type":"message","session":"s1","task":"t1","ts":"2026-07-01T09:10:20Z","role":"assistant","text":"Changelog entry added.","usage":{"input":400,"output":100,"total":500,"accuracy":"reported","requestId":"c2"}}
