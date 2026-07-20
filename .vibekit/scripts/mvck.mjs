@@ -168,12 +168,12 @@ function parseProfiles(profileRaw) {
   return profiles;
 }
 const CLAUDE_DIRS = ['.claude/agents', '.claude/commands', '.claude/rules'];
-const CLAUDE_SKILLS = [
-  'autoresearch-coding', 'agentshield-security-review', 'daily-workflow-curator', 'vibekit-init', 'visual-design-loop',
-  'clearthought', 'sequential-thinking', 'reviewing-4p-priorities', 'path-sensitive-shell-safety', 'memento', 'coding-level', 'parallel-analysis', 'prompt-sharpener'
-];
+// Skill registries come from the central distribution manifest so the
+// installer and the validator cannot drift apart.
+const skillsManifest = JSON.parse(fs.readFileSync(path.join(kitRoot, '.vibekit/skills/skills-manifest.json'), 'utf8'));
+const CLAUDE_SKILLS = skillsManifest.skills.map((s) => s.name);
 const CURSOR_DIRS = ['.cursor/rules', '.cursor/commands'];
-const CURSOR_SKILLS = ['clearthought', 'sequential-thinking', 'reviewing-4p-priorities', 'path-sensitive-shell-safety', 'memento', 'coding-level', 'parallel-analysis', 'prompt-sharpener'];
+const CURSOR_SKILLS = skillsManifest.skills.filter((s) => (s.surfaces || []).includes('cursor')).map((s) => s.name);
 const CODEX_DIRS = ['.agents', '.codex', '.codex-plugin'];
 const GROK_DIRS = ['.grok'];
 const GITIGNORE_BLOCK = `# BEGIN: minimal-vibe-coding-kit\n.autoresearch/\nresults.tsv\n.vibekit/INIT_DONE\n.vibekit/FINALIZE_DONE\n.vibekit/reports/\n.vibekit/update-backup/\n_vibekit-cleanup/\nCLAUDE.local.md\n# END: minimal-vibe-coding-kit`;

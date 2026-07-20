@@ -1,12 +1,12 @@
 <div align="center">
 
-**Đọc bằng:** [English](../README.md) · **Tiếng Việt**
+**Đọc bằng:** [English](../README.md) · **Tiếng Việt** · [简体中文](README.zh-CN.md)
 
 # Minimal Vibe Coding Kit
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.4.2-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.0-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -145,11 +145,13 @@ Bạn (prompt) ──▶ Claude Code / Cursor / Codex / Grok
 1. **Cứ code bình thường.** Yêu cầu feature/fix như thường lệ; agent theo quy ước trong `backbone.yml` và giữ diff nhỏ.
 2. **Task lớn hoặc mơ hồ?** Bắt đầu với skill `clearthought` hoặc `sequential-thinking` để có kế hoạch trước.
 3. **Task phức tạp nhưng prompt mù mờ?** `/prompt-sharpener <prompt mù mờ>` cải thiện prompt thành bản rõ ràng rồi thực thi ngay trong cùng lượt.
-4. **Câu hỏi toàn repo hoặc review lớn?** Dùng `parallel-analysis` — chia các lane phân tích chỉ-đọc chạy song song rồi xác minh kết quả gộp.
-5. **Đã sửa `.claude/`, skills, hooks, hoặc script installer?** Chạy `/security-scan` trước khi merge.
-6. **Muốn cải tiến đo được?** Chạy `/autoresearch-coding` với metric và budget.
-7. **Giữ setup luôn sắc bén:** `/daily-enhance` đề xuất cải tiến — không bao giờ tự áp dụng.
-8. **Onboarding xong hẳn?** `/vibe-finalize` dọn các file bootstrap một lần.
+4. **Muốn đưa skill, rule, hoặc tool mới vào repo?** `/claim <yêu cầu + link>` kiểm chứng nguồn với tài liệu chính thức, kiểm tra độ khớp với repo, hỏi lại khi chưa rõ, rồi tích hợp và ghi tài liệu.
+5. **Muốn thả lỏng một chút khi nhìn lại tiến độ?** `/tutien` là trò chơi phân loại tu tiên lành mạnh, riêng tư dựa trên lịch sử Git + file export chat AI. Giọng văn huyền nhã bao quanh số liệu thật về cảnh giới, token và thói quen làm việc; `/tutien off` khôi phục văn phong bình thường của kit.
+6. **Câu hỏi toàn repo hoặc review lớn?** Dùng `parallel-analysis` — chia các lane phân tích chỉ-đọc chạy song song rồi xác minh kết quả gộp.
+7. **Đã sửa `.claude/`, skills, hooks, hoặc script installer?** Chạy `/security-scan` trước khi merge.
+8. **Muốn cải tiến đo được?** Chạy `/autoresearch-coding` với metric và budget.
+9. **Giữ setup luôn sắc bén:** `/daily-enhance` đề xuất cải tiến — không bao giờ tự áp dụng.
+10. **Onboarding xong hẳn?** `/vibe-finalize` dọn các file bootstrap một lần.
 
 ## Commands
 
@@ -164,7 +166,7 @@ Bạn (prompt) ──▶ Claude Code / Cursor / Codex / Grok
 
 ## Skills
 
-Cả 13 skill nằm trong `.vibekit/skills/` và được mirror cho từng tool. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
+Cả 15 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex và Grok mirror đủ 15; Cursor mirror 10 skill tương tác. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
 
 | Skill                         | Dùng khi                                                                              | Prompt ví dụ                                                                            |
 | ----------------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
@@ -181,6 +183,8 @@ Cả 13 skill nằm trong `.vibekit/skills/` và được mirror cho từng tool
 | `memento`                     | Task nhiều ngày: lưu ngữ cảnh trước khi dừng, resume phiên sau.                       | "/memento — write MEMENTO.md with Goal, Done, Stuck, Next."                             |
 | `coding-level`                | Chỉnh độ chi tiết khi giải thích (0 = ELI5 … 5 = chuyên gia).                         | "/coding-level 2"                                                                       |
 | `prompt-sharpener`            | Task phức tạp nhưng prompt mù mờ: cải thiện prompt rồi thực thi ngay trong cùng lượt. | "/prompt-sharpener make the settings page load faster"                                  |
+| `claim`                       | Đưa thứ mới vào repo (skill, rule, quy ước, tool): kiểm chứng nguồn chính thức, kiểm tra độ khớp, xác nhận, tích hợp, ghi tài liệu. | "/claim add the conventional-commits rule from https://www.conventionalcommits.org"     |
+| `tutien`                      | Trò chơi phân loại tu tiên riêng tư, giúp thư giãn khi nhìn lại tiến độ code; văn phong huyền nhã bao quanh bằng chứng Git/chat chính xác và tách biệt với các chế độ hội thoại khác. User-invoked; `/tutien off` khôi phục văn phong bình thường. | "/tutien preview sources=git,/path/to/export.jsonl"                                     |
 
 ## Nâng cao
 

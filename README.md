@@ -1,12 +1,12 @@
 <div align="center">
 
-**Read in:** **English** · [Tiếng Việt](docs/README.vi.md)
+**Read in:** **English** · [Tiếng Việt](docs/README.vi.md) · [简体中文](docs/README.zh-CN.md)
 
 # Minimal Vibe Coding Kit
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.4.2-2ea44f.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.0-2ea44f.svg)](CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -84,12 +84,12 @@ npx mvck install .        # required — copies the kit out of node_modules into
 
 Either way, the short `mvck` command (alias: `vibe-kit`) is then available via `npx`:
 
-| Short command | What it does |
-| --- | --- |
-| `npx mvck install .` | Copy the kit into the repo (`--profile`, `--dry-run`, `--force`) |
-| `npx mvck update .` | Refresh kit-owned files after a new kit release |
-| `npx mvck doctor .` | Read-only health check |
-| `npx mvck validate .` | Structure validation |
+| Short command         | What it does                                                     |
+| --------------------- | ---------------------------------------------------------------- |
+| `npx mvck install .`  | Copy the kit into the repo (`--profile`, `--dry-run`, `--force`) |
+| `npx mvck update .`   | Refresh kit-owned files after a new kit release                  |
+| `npx mvck doctor .`   | Read-only health check                                           |
+| `npx mvck validate .` | Structure validation                                             |
 
 Then continue with **step 2** of the Quick Start (paste the init prompt).
 
@@ -145,42 +145,46 @@ You (prompt) ──▶ Claude Code / Cursor / Codex / Grok
 1. **Just code.** Ask for features and fixes normally; the agent follows `backbone.yml` conventions and keeps diffs small.
 2. **Big or vague task?** Start with the `clearthought` or `sequential-thinking` skill to get a plan first.
 3. **Complex task but only a rough prompt?** `/prompt-sharpener <rough prompt>` sharpens it into a precise prompt and executes it in the same turn.
-4. **Repo-wide question or big review?** Use `parallel-analysis` — it fans out read-only analysis lanes and verifies the merged result.
-5. **Changed `.claude/`, skills, hooks, or installer scripts?** Run `/security-scan` before merging.
-6. **Want measurable improvements?** Run `/autoresearch-coding` with a metric and budget.
-7. **Keep the setup sharp:** `/daily-enhance` proposes improvements — it never applies them silently.
-8. **Onboarding finished for good?** `/vibe-finalize` moves one-time bootstrap files out.
+4. **Found a skill, rule, or tool you want to bring in?** `/claim <request + links>` validates the sources against official docs, checks fit with your repo, asks when unclear, then integrates and documents it.
+5. **Want a quiet reset while reviewing progress?** `/tutien` is a private, wholesome xianxia classification game over Git history + supplied AI-chat exports. It uses a refined mystical voice to reflect on realms, token use, and workflow habits without changing the evidence; `/tutien off` restores the kit's normal writing style.
+6. **Repo-wide question or big review?** Use `parallel-analysis` — it fans out read-only analysis lanes and verifies the merged result.
+7. **Changed `.claude/`, skills, hooks, or installer scripts?** Run `/security-scan` before merging.
+8. **Want measurable improvements?** Run `/autoresearch-coding` with a metric and budget.
+9. **Keep the setup sharp:** `/daily-enhance` proposes improvements — it never applies them silently.
+10. **Onboarding finished for good?** `/vibe-finalize` moves one-time bootstrap files out.
 
 ## Commands
 
-| Command | What it does | Example |
-| --- | --- | --- |
-| `/init-vibe` | First-time init or repair: propose one diff, wait for approval. | `/init-vibe` — then review the diff and answer `yes`. |
-| `/security-scan` | Read-only AgentShield probe + optional scanner over agent surfaces. | `/security-scan` before merging changes to `.claude/**` or skills. |
-| `/daily-enhance` | Propose-only report to improve rules, skills, and workflows. | `/daily-enhance` — review the proposed diff, then approve. |
-| `/autoresearch-coding` | Metric-driven experiment loop with baseline and budget. | `/autoresearch-coding` Goal: fewer lint errors. Budget: 3. |
-| `/council` | Coordinates reviewer/researcher/analyst agents into one merged plan. | `/council` on this branch diff. |
-| `/vibe-finalize` | Graduate the project: move one-time bootstrap files to `_vibekit-cleanup/`. | `/vibe-finalize` — preview first, apply after approval. |
+| Command                | What it does                                                                | Example                                                            |
+| ---------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `/init-vibe`           | First-time init or repair: propose one diff, wait for approval.             | `/init-vibe` — then review the diff and answer `yes`.              |
+| `/security-scan`       | Read-only AgentShield probe + optional scanner over agent surfaces.         | `/security-scan` before merging changes to `.claude/**` or skills. |
+| `/daily-enhance`       | Propose-only report to improve rules, skills, and workflows.                | `/daily-enhance` — review the proposed diff, then approve.         |
+| `/autoresearch-coding` | Metric-driven experiment loop with baseline and budget.                     | `/autoresearch-coding` Goal: fewer lint errors. Budget: 3.         |
+| `/council`             | Coordinates reviewer/researcher/analyst agents into one merged plan.        | `/council` on this branch diff.                                    |
+| `/vibe-finalize`       | Graduate the project: move one-time bootstrap files to `_vibekit-cleanup/`. | `/vibe-finalize` — preview first, apply after approval.            |
 
 ## Skills
 
-All 13 skills live in `.vibekit/skills/` and are mirrored for each tool. Invoke them by name ("Use the X skill…") or via the commands above.
+All 15 skills live canonically in `.vibekit/skills/`. Claude, Codex, and Grok mirror all 15; Cursor mirrors the 10 interactive ones. Invoke them by name ("Use the X skill…") or via the commands above.
 
-| Skill | Use it when | Example prompt |
-| --- | --- | --- |
-| `vibekit-init` | First-time setup, or `backbone.yml` / managed blocks need repair. | "Use the vibekit-init skill. Propose one diff and wait for my yes." |
-| `parallel-analysis` | Repo-wide questions, large diff reviews, consistency audits. | "Use parallel-analysis: where is auth handled and what depends on it?" |
-| `agentshield-security-review` | Auditing agent config, skills, hooks, MCP, commands before merge. | "Use agentshield-security-review on .claude/** and .vibekit/skills/**." |
-| `autoresearch-coding` | Improving the repo through measured experiments. | "Use autoresearch-coding. Metric: `npm test`. Direction: higher. Budget: 3." |
-| `daily-workflow-curator` | Periodic tune-up of rules, skills, and workflows (propose-only). | "Use daily-workflow-curator and propose today's improvements." |
-| `path-sensitive-shell-safety` | Before editing shell/installer/deploy logic with path variables or `rm`/`mv`/`rsync`. | "Use path-sensitive-shell-safety before changing this cleanup script." |
-| `visual-design-loop` | UI polish: render → screenshot → review → fix, in a loop. | "Use visual-design-loop on /dashboard. Budget 3 loops." |
-| `clearthought` | Ambiguous requirements, design tradeoffs, risky decisions. | "Use clearthought. Operation: implementation_plan. Split this feature into safe tasks." |
-| `sequential-thinking` | Step-by-step decomposition of complex work. | "Use sequential-thinking. Break this refactor into ordered steps with tests." |
-| `reviewing-4p-priorities` | Triaging bugs/findings into P0–P4 fix order. | "Use reviewing-4p-priorities. Classify these findings and give a fix sequence." |
-| `memento` | Multi-day tasks: save context before stopping, resume next session. | "/memento — write MEMENTO.md with Goal, Done, Stuck, Next." |
-| `coding-level` | Setting how detailed explanations should be (0 = ELI5 … 5 = expert). | "/coding-level 2" |
-| `prompt-sharpener` | A complex task but only a rough prompt: sharpen it, then execute it in the same turn. | "/prompt-sharpener make the settings page load faster" |
+| Skill                         | Use it when                                                                                                                                                                                                                              | Example prompt                                                                                        |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `vibekit-init`                | First-time setup, or `backbone.yml` / managed blocks need repair.                                                                                                                                                                        | "Use the vibekit-init skill. Propose one diff and wait for my yes."                                   |
+| `parallel-analysis`           | Repo-wide questions, large diff reviews, consistency audits.                                                                                                                                                                             | "Use parallel-analysis: where is auth handled and what depends on it?"                                |
+| `agentshield-security-review` | Auditing agent config, skills, hooks, MCP, commands before merge.                                                                                                                                                                        | "Use agentshield-security-review on .claude/** and .vibekit/skills/**."                               |
+| `autoresearch-coding`         | Improving the repo through measured experiments.                                                                                                                                                                                         | "Use autoresearch-coding. Metric: `npm test`. Direction: higher. Budget: 3."                          |
+| `daily-workflow-curator`      | Periodic tune-up of rules, skills, and workflows (propose-only).                                                                                                                                                                         | "Use daily-workflow-curator and propose today's improvements."                                        |
+| `path-sensitive-shell-safety` | Before editing shell/installer/deploy logic with path variables or `rm`/`mv`/`rsync`.                                                                                                                                                    | "Use path-sensitive-shell-safety before changing this cleanup script."                                |
+| `visual-design-loop`          | UI polish: render → screenshot → review → fix, in a loop.                                                                                                                                                                                | "Use visual-design-loop on /dashboard. Budget 3 loops."                                               |
+| `clearthought`                | Ambiguous requirements, design tradeoffs, risky decisions.                                                                                                                                                                               | "Use clearthought. Operation: implementation_plan. Split this feature into safe tasks."               |
+| `sequential-thinking`         | Step-by-step decomposition of complex work.                                                                                                                                                                                              | "Use sequential-thinking. Break this refactor into ordered steps with tests."                         |
+| `reviewing-4p-priorities`     | Triaging bugs/findings into P0–P4 fix order.                                                                                                                                                                                             | "Use reviewing-4p-priorities. Classify these findings and give a fix sequence."                       |
+| `memento`                     | Multi-day tasks: save context before stopping, resume next session.                                                                                                                                                                      | "/memento — write MEMENTO.md with Goal, Done, Stuck, Next."                                           |
+| `coding-level`                | Setting how detailed explanations should be (0 = ELI5 … 5 = expert).                                                                                                                                                                     | "/coding-level 2"                                                                                     |
+| `prompt-sharpener`            | A complex task but only a rough prompt: sharpen it, then execute it in the same turn.                                                                                                                                                    | "/prompt-sharpener make the settings page load faster"                                                |
+| `claim`                       | Bringing something new into the repo (skill, rule, convention, tool): vet sources against official docs, fit-check, confirm, integrate, document.                                                                                        | "/claim add the conventional-commits rule from https://www.npmjs.com/package/minimal-vibe-coding-kit" |
+| `tutien`                      | A private, stress-relieving xianxia classification game for coding progress: refined mystical prose around exact Git/chat evidence, isolated from unrelated conversational modes. User-invoked; `/tutien off` restores normal kit prose. | "/tutien preview sources=git,/path/to/export.jsonl"                                                   |
 
 ## Advanced
 
@@ -248,14 +252,14 @@ Publishing checklist: [.vibekit/init/PUSH_TO_GITHUB.md](.vibekit/init/PUSH_TO_GI
 <details>
 <summary><strong>Troubleshooting</strong></summary>
 
-| Symptom | Fix |
-| --- | --- |
-| Agent ignores the init flow | Re-run the installer, or copy [.vibekit/init/CLAUDE-template.md](.vibekit/init/CLAUDE-template.md) to `CLAUDE.md`. |
-| Agent re-asks to init every session | Run init and approve; confirm `meta.template_status: initialized` in `backbone.yml`. |
-| Wrong stack detected | Remove stale lockfiles, or edit `backbone.yml` directly. |
-| Agent touches a path it shouldn't | Add the path to `policy.protected_paths` in `backbone.yml` (globs supported). |
-| AgentShield probe warning | Install Python 3, or ignore — it is a warning, not a failure. |
-| Scripts missing after install | Re-run install with `--force`, or copy `.vibekit/scripts/` manually. |
+| Symptom                             | Fix                                                                                                                |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Agent ignores the init flow         | Re-run the installer, or copy [.vibekit/init/CLAUDE-template.md](.vibekit/init/CLAUDE-template.md) to `CLAUDE.md`. |
+| Agent re-asks to init every session | Run init and approve; confirm `meta.template_status: initialized` in `backbone.yml`.                               |
+| Wrong stack detected                | Remove stale lockfiles, or edit `backbone.yml` directly.                                                           |
+| Agent touches a path it shouldn't   | Add the path to `policy.protected_paths` in `backbone.yml` (globs supported).                                      |
+| AgentShield probe warning           | Install Python 3, or ignore — it is a warning, not a failure.                                                      |
+| Scripts missing after install       | Re-run install with `--force`, or copy `.vibekit/scripts/` manually.                                               |
 
 </details>
 
@@ -270,4 +274,4 @@ Issues and PRs welcome at [`giang6283623/minimal-vibe-coding-kit`](https://githu
 
 MIT. See [LICENSE](LICENSE).
 
-> 🇻🇳 *If you love Vietnam and its people, you are fully free to use everything in here at no cost.*
+> 🇻🇳 _If you love Vietnam and its people, you are fully free to use everything in here at no cost._

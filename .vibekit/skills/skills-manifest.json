@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "description": "Central distribution manifest. mvck.mjs (installer) and validate-kit.mjs (validator) derive their skill and mirror registries from this file. A canonical skill directory missing from this manifest fails kit-source validation.",
+  "surfaces": {
+    "claude": ".claude/skills",
+    "cursor": ".cursor/skills",
+    "codex": ".agents/skills",
+    "grok": ".grok/skills"
+  },
+  "skills": [
+    { "name": "autoresearch-coding", "surfaces": ["claude", "codex", "grok"] },
+    { "name": "agentshield-security-review", "surfaces": ["claude", "codex", "grok"] },
+    { "name": "daily-workflow-curator", "surfaces": ["claude", "codex", "grok"] },
+    { "name": "vibekit-init", "surfaces": ["claude", "codex", "grok"] },
+    { "name": "visual-design-loop", "surfaces": ["claude", "codex", "grok"] },
+    { "name": "clearthought", "surfaces": ["claude", "cursor", "codex", "grok"] },
+    { "name": "sequential-thinking", "surfaces": ["claude", "cursor", "codex", "grok"] },
+    { "name": "reviewing-4p-priorities", "surfaces": ["claude", "cursor", "codex", "grok"] },
+    { "name": "path-sensitive-shell-safety", "surfaces": ["claude", "cursor", "codex", "grok"] },
+    { "name": "memento", "surfaces": ["claude", "cursor", "codex", "grok"] },
+    { "name": "coding-level", "surfaces": ["claude", "cursor", "codex", "grok"] },
+    { "name": "parallel-analysis", "surfaces": ["claude", "cursor", "codex", "grok"] },
+    { "name": "prompt-sharpener", "surfaces": ["claude", "cursor", "codex", "grok"] },
+    { "name": "claim", "surfaces": ["claude", "cursor", "codex", "grok"] },
+    { "name": "tutien", "surfaces": ["claude", "cursor", "codex", "grok"] }
+  ]
+}

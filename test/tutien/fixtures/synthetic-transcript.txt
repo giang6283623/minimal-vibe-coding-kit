@@ -1,0 +1,4 @@
+User: How do I run the tests?
+Assistant: Use npm test from the repo root.
+User: And the security probe?
+Assistant: Run npm run security:probe.

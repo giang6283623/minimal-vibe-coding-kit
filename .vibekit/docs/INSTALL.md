@@ -127,8 +127,10 @@ The installer also includes `visual-design-loop` for Claude, Codex, and Grok sur
 
 ## User-invoked utility skills
 
-Three user-invoked skills install across Claude, Codex, Cursor, and Grok surfaces:
+Five user-invoked skills install across Claude, Codex, Cursor, and Grok surfaces:
 
 - `memento`: write a `MEMENTO.md` working note before closing a multi-day task (`/memento`), then resume from it in the next session (`/memento resume`).
 - `coding-level`: set the explanation register from 0 (ELI5) to 5 (expert peer) with `/coding-level N`; stays active until reinvoked.
 - `prompt-sharpener`: sharpen a rough prompt into a precise one with `/prompt-sharpener <rough prompt>`, then execute the sharpened version immediately in the same turn.
+- `claim`: vet a request to bring something new into the repo with `/claim <request>` — validate URLs and references against official sources, check fit with existing rules and skills, confirm anything unclear, then integrate and document it.
+- `tutien`: turn Git history and explicitly supplied AI-chat exports into a private, funny xianxia "cultivation" report with `/tutien` (realm, token use, workflow habits, evidence-bound suggestions); read-only, aggregate-only by default, and `/tutien off` disables the mode.

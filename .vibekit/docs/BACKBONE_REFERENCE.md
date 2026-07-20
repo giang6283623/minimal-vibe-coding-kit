@@ -40,6 +40,8 @@ If no command is known, leave `validate` as a safe echo and ask the user to fill
 
 The `conventions` section is created during first-time init and must be reviewed before writing. It should capture repo-specific rules with evidence, not a fixed framework template.
 
+`conventions.review_required_before_write: true` means: before writing to agent surfaces or instruction files — rules, skills, workflows, commands, root instruction files, and `backbone.yml` itself — the agent must show the proposed diff and wait for explicit approval. It does not gate ordinary code edits inside `policy.editable_paths`. Skills that offer a "clean, proceed in the same turn" path (for example `claim`) must downgrade to propose-and-wait for writes this flag covers.
+
 Include:
 
 - Naming style for files, directories, and symbols.

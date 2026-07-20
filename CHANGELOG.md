@@ -1,5 +1,35 @@
 # Changelog
 
+## Unreleased
+
+## 0.5.0 — 2026-07-20
+
+### Added
+
+- Added `/claim <request>` across Claude Code, Cursor, Codex, and Grok. It validates official sources, rejects unsafe or misleading URLs, checks new ideas against `backbone.yml` and existing repository conventions, stops for decisions when approval is required, and integrates only the smallest reviewed change with an evidence ledger.
+- Added `/tutien`, a private, user-invoked xianxia coding-classification game built from Git history and explicitly supplied conversation exports. It provides deterministic vi/en reports, ten cultivation realms, evidence-bound workflow coaching, optional aggregate snapshots, progress comparisons, and opt-in antagonists that challenge workflow patterns rather than the person.
+- Added `/tutien classify` with independent Dao faction, affiliation, and technical-path axes; a cultivation-knowledge taxonomy linked to real kit skills; and seven deterministic, token-independent progression metrics.
+- Added complete Simplified Chinese documentation (`docs/README.zh-CN.md`) alongside English and Vietnamese, with synchronized language navigation and npm package inclusion.
+
+### Changed
+
+- Refined `/tutien` with the cross-model namespace `tutien-coding-cultivation-v1`, calm `serene`/`spirited` narration, plain evidence beneath the lore, and reliable English/Vietnamese stop requests that restore the kit's normal writing style. Legacy `gentle`/`spicy` tone values remain compatible.
+- Centralized skill distribution in `.vibekit/skills/skills-manifest.json`, keeping canonical skills, tool mirrors, installer registries, validator registries, package contents, documentation, and per-profile tests synchronized.
+- Strengthened `/claim` with canonical redirect validation, HTTPS-only remote evidence, private-host and confusable-domain rejection, untrusted-content handling, explicit approval states, separate approval for integration-time execution, and a complete distribution checklist.
+- Strengthened `/tutien` with one fail-closed policy state shared by rendering and persistence, idempotent event progression, boundary-aware path matching, metadata-only classification scope, and explicit authorization handling for legitimate dual-use security work.
+
+### Security and privacy
+
+- `/tutien` remains offline and read-only during analysis. Raw prompts, secrets, author names, email addresses, and commit subjects do not enter reports or snapshots; stored history uses salted digests and aggregate evidence.
+- Ambiguous, unauthorized, or declared-stop classifications suppress scores, realms, villains, recommendations, and positive progression. The game evaluates workflow evidence—not a person's identity, worth, health, or wellbeing—and stays isolated from unrelated support or companion modes.
+- `/claim` treats fetched pages as untrusted data and never runs remote installers, lifecycle scripts, or source-provided commands during research.
+
+### Validation
+
+- Expanded `/tutien` coverage to **133 deterministic, offline checks**, including adversarial privacy, token-integrity, policy-state, replay-idempotency, namespace-isolation, natural stop-request, and end-to-end approval-boundary cases.
+- `pack-dry-run.mjs` now parses `npm pack --dry-run --json` and fails with the exact missing path when an on-disk skill file is absent from the package.
+- Synchronized the release version to `0.5.0` in `package.json`, `.codex-plugin/plugin.json`, and both README badges.
+
 ## 0.4.2 — 2026-07-18
 
 - Added a Grok Build (Grok CLI) surface across the kit: `.grok/rules/` (always-on, every `*.md` loaded), `.grok/skills/` (all 13 kit skills, user-invocable as `/<skill-name>`), `.grok/README.md`, and project-scoped `[permission]` deny rules in `.grok/config.toml` mirroring the kit's dangerous-command deny list; `config.example.toml` documents the user-level `~/.grok/config.toml` settings. Added a `grok` install/update profile to `mvck.mjs` (included in `all`) and registered Grok everywhere Claude/Cursor/Codex already were: `validate-kit.mjs`, npm package files, `backbone.yml` `agent_surfaces`, `AGENTS.md`, the AgentShield probe, both READMEs, `INSTALL.md`, `BACKBONE_REFERENCE.md`, `CONTEXT_TEMPLATE.md`, `FIRST_TIME_INIT.md`, and `vibekit-init`.
