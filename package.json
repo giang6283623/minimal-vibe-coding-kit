@@ -1,6 +1,6 @@
 {
   "name": "minimal-vibe-coding-kit",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Project-agnostic AI coding workflow kit for Claude Code, Cursor, Codex, and Grok with AgentShield security review.",
   "type": "module",
   "bin": {
@@ -21,7 +21,7 @@
     "pack:dry-run": "node .vibekit/scripts/pack-dry-run.mjs",
     "validate:all": "npm test && npm run security:probe && npm run pack:dry-run",
     "pack:repo": "node .vibekit/scripts/validate-kit.mjs . && npm pack",
-    "test:tutien": "node test/tutien/scripts/test-analyzer.mjs && node test/tutien/scripts/test-render.mjs && node test/tutien/scripts/test-villains.mjs && node test/tutien/scripts/test-snapshot.mjs && node test/tutien/scripts/test-classify.mjs && node test/tutien/scripts/test-adversarial.mjs && node test/tutien/scripts/test-e2e.mjs"
+    "test:tutien": "node test/tutien/scripts/test-analyzer.mjs && node test/tutien/scripts/test-profile.mjs && node test/tutien/scripts/test-render.mjs && node test/tutien/scripts/test-villains.mjs && node test/tutien/scripts/test-snapshot.mjs && node test/tutien/scripts/test-classify.mjs && node test/tutien/scripts/test-story.mjs && node test/tutien/scripts/test-adversarial.mjs && node test/tutien/scripts/test-e2e.mjs"
   },
   "keywords": [
     "vibe-coding",

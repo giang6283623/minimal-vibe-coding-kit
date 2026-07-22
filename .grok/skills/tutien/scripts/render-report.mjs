@@ -1,13 +1,14 @@
-// Phase 2 renderer. buildReportModel() turns analysis JSON into a
-// language-neutral report model (facts only). renderMarkdown() turns that
-// model into prose in the active language. The renderer NEVER changes a count
-// from the analysis — it only selects wording. Villains are Phase 3 and are
-// intentionally not rendered here.
+// Phase 2 evidence ledger. buildReportModel() turns analysis JSON into a
+// language-neutral model (facts only). renderMarkdown() provides a stable
+// inspection and audit view in the active language. It is deliberately not a
+// user-facing response template: the agent composes that response adaptively
+// from this model and the live project/story context. The ledger NEVER changes
+// a count from the analysis; it only selects wording.
 
 import { scoreReport, DIMENSIONS } from './score.mjs';
 import { detectProblems } from './catalog.mjs';
 import { buildVillains } from './villains.mjs';
-import { classifyProject, progressionMetrics, PROGRESSION } from './classify.mjs';
+import { classifyProject, localizeRationale, progressionMetrics, PROGRESSION } from './classify.mjs';
 import { resolveTone, TUTIEN_EXPERIENCE } from './command.mjs';
 
 // A context is sensitive (humor forced neutral) when unrecovered failures or
@@ -22,6 +23,13 @@ export function isSensitive(analysis, options = {}) {
   const recoveries = issues.recoveries ?? [];
   const unrecovered = failures.some((f) => !recoveries.some((r) => r.issueEventId === f.eventId));
   return unrecovered || (analysis.conflicts ?? []).length > 0;
+}
+
+function resolveProjectHelp(projectHelp, profile) {
+  if (!profile) return projectHelp;
+  if (projectHelp === 'backbone.yml validate') return profile.recommendedValidation ?? null;
+  if (['sequential-thinking', 'clearthought', 'claim'].includes(projectHelp) && profile.kitInstalled !== true) return null;
+  return projectHelp;
 }
 
 export function buildReportModel(analysis, options = {}) {
@@ -73,19 +81,27 @@ export function buildReportModel(analysis, options = {}) {
     : problems.length
     ? problems[0].meta.ifThen
     : {
-        vi: 'Nếu bắt đầu một task mới, thì viết tiêu chí "done" trước khi sửa code.',
+        vi: 'Nếu bắt đầu một nhiệm vụ mới, hãy viết tiêu chí hoàn thành trước khi sửa mã nguồn.',
         en: 'If you start a new task, then write its done-criterion before editing code.'
       };
 
+  const topProjectHelp = problems.length ? resolveProjectHelp(problems[0].meta.projectHelp, options.profile) : null;
   const lesson = suppressed
     ? null
     : problems.length
-    ? { skill: problems[0].meta.projectHelp, technique: problems[0].meta.counterTechnique }
-    : { skill: 'backbone.yml validate', technique: { vi: 'Giữ vòng lặp: sửa nhỏ, chạy validation, xác nhận.', en: 'Keep the loop: small edit, run validation, confirm.' } };
+    ? { skill: topProjectHelp, technique: problems[0].meta.counterTechnique }
+    : { skill: options.profile?.recommendedValidation ?? (options.profile ? null : 'backbone.yml validate'), technique: { vi: 'Giữ vòng lặp: sửa nhỏ, chạy kiểm chứng, xác nhận.', en: 'Keep the loop: small edit, run validation, confirm.' } };
 
   return {
     schemaVersion: 1,
     experience: { ...TUTIEN_EXPERIENCE },
+    composition: {
+      finalResponse: 'agent-authored',
+      ledgerRole: 'evidence-scaffold-only',
+      adaptTo: ['current-user-request', 'project-specific-facts', 'living-chronicle', 'recent-response-rhythm'],
+      preserve: ['facts', 'confidence', 'policy', 'privacy', 'continuity'],
+      vary: ['structure', 'opening', 'scene', 'pacing', 'dialogue', 'technical-density', 'closing-image']
+    },
     tone,
     villainsShown: villains.length,
     villainCards: villains,
@@ -122,7 +138,7 @@ export function buildReportModel(analysis, options = {}) {
         priority: p.priority,
         evidence: p.evidence,
         counterTechnique: p.meta.counterTechnique,
-        projectHelp: p.meta.projectHelp,
+        projectHelp: resolveProjectHelp(p.meta.projectHelp, options.profile),
         microQuest: p.meta.microQuest,
         victory: p.meta.victory,
         villain: v ? { name: v.archetype.name, gloss: v.archetype.gloss, role: v.role, tone: v.tone, challenge: v.challenge } : null
@@ -135,59 +151,78 @@ export function buildReportModel(analysis, options = {}) {
 
 const L = {
   vi: {
-    title: 'Tu Tiên Tĩnh Ký',
-    neutralTitle: 'Bản Ghi Rà Soát Quy Trình',
+    title: 'Tu tiên tĩnh ký',
+    neutralTitle: 'Bản ghi rà soát quy trình',
     opening: {
       serene: 'Mây nhẹ qua sơn môn, một trang đạo ký lặng lẽ mở ra. Đây là cuộc dạo chơi phân loại nếp cộng tác: thở chậm, nhìn rõ, rồi chọn một bước vừa sức.',
       spirited: 'Chuông ngọc khẽ ngân nơi sơn môn; đạo ký mở sang trang mới. Ta cùng nhìn dấu vết công việc bằng một chút hóm hỉnh và một bước tiến thật rõ ràng.',
       neutral: 'Bản ghi này trình bày bằng giọng bình tĩnh, trực tiếp; phần diễn xướng tu tiên tạm dừng để ưu tiên an toàn và sự rõ ràng.'
     },
-    thienCo: 'Thiên Cơ Trong Tầm Mắt',
-    canhGioi: 'Cảnh Giới Bên Hiên Mây',
-    linhThach: 'Linh Thạch Đã Tiêu',
-    tamMa: 'Tâm Ma Trên Đạo Lộ',
-    congPhap: 'Một Thức Cho Lần Đột Phá Tới',
-    baiHoc: 'Công Pháp Mang Theo Hôm Nay',
-    phuongPhap: 'Đạo Điển & Nguồn Số Liệu',
-    closingTitle: 'Khép Lại Đạo Ký',
+    thienCo: 'Thiên cơ trong tầm mắt',
+    canhGioi: 'Cảnh giới bên hiên mây',
+    linhThach: 'Linh thạch đã tiêu',
+    tamMa: 'Tâm ma trên đạo lộ',
+    congPhap: 'Một thức cho lần đột phá tới',
+    baiHoc: 'Công pháp mang theo hôm nay',
+    phuongPhap: 'Đạo điển và nguồn số liệu',
+    closingTitle: 'Khép lại đạo ký',
     closing: {
-      clear: 'Đạo lộ hôm nay yên. Giữ nhịp nhỏ, kiểm chứng thật, rồi để lần tiến cảnh sau tự nhiên sáng hơn.',
-      challenge: 'Một nút thắt đã lộ hình thì đã bớt đáng ngại. Chọn đúng một nhiệm vụ nhỏ ở trên, hoàn thành nó, rồi thong thả đi tiếp.',
-      paused: 'Bản ghi dừng tại đây. Hãy xử lý bước review hoặc ủy quyền cần thiết trước; không có cảnh giới nào quan trọng hơn một ranh giới an toàn.'
+      clear: 'Đạo lộ yên không có nghĩa đạo tâm được phép ngủ quên. Giữ bước sửa nhỏ và chứng cứ thật; chuông kiểm chứng vẫn treo dưới mái sơn môn, chờ lần ai đó định đi tắt.',
+      challenge: 'Tâm ma đã để dấu chân rõ đến thế mà còn vòng qua nó thì chỉ là tự dâng thêm lương khô cho địch. Hạ đúng một nút thắt bằng kiểm chứng thật; ngoài sơn môn, bóng áo của nó vẫn chưa tan.',
+      paused: 'Bản ghi dừng tại đây. Hãy hoàn tất bước rà soát hoặc ủy quyền cần thiết trước; không có cảnh giới nào quan trọng hơn một ranh giới an toàn.'
     },
-    sessions: 'phiên', prompts: 'prompt', commits: 'commit',
-    sessionOne: 'phiên', promptOne: 'prompt', commitOne: 'commit', windowOne: 'kỳ báo cáo',
+    sessions: 'phiên', prompts: 'lượt yêu cầu', commits: 'bản ghi Git',
+    sessionOne: 'phiên', promptOne: 'lượt yêu cầu', commitOne: 'bản ghi Git', windowOne: 'kỳ báo cáo',
     window: 'Khoảng thời gian', confidence: 'Độ tin cậy',
-    reported: 'nhà cung cấp báo cáo (chính xác)', estimated: 'ước lượng cục bộ', unknown: 'lượt không rõ',
-    dedup: 'cập nhật streaming đã gộp',
+    reported: 'Số liệu do nhà cung cấp báo cáo (chính xác)', estimated: 'Ước lượng cục bộ', unknown: 'Lượt chưa rõ số token',
+    dedup: 'Cập nhật luồng đã gộp',
     score: 'Điểm', evidence: 'Bằng chứng', counter: 'Cách hóa giải', quest: 'Nhiệm vụ nhỏ', victory: 'Điều kiện thắng',
-    help: 'Trợ giúp sẵn có', ifthen: 'Nếu—thì', notEnough: 'Chưa đủ thiên cơ để tính cảnh giới',
+    help: 'Trợ giúp sẵn có', ifthen: 'Nếu…thì', notEnough: 'Chưa đủ thiên cơ để tính cảnh giới',
     noProblems: 'Không phát hiện tâm ma nào vượt ngưỡng bằng chứng. Giữ vững đạo tâm.',
-    method: 'Phân tích tất định phiên bản 1; số đếm là candidate có độ tin cậy; lore không đổi số liệu.',
-    repeatEv: (n) => `${n} lần lặp/thử lại trong một task (candidate).`,
-    conflictEv: (n) => `${n} cặp chỉ thị mâu thuẫn (candidate).`,
-    unrecEv: (n) => `${n} thất bại chưa có lần pass tương ứng.`,
-    proofEv: (n) => `${n} commit nhưng không có sự kiện kiểm chứng.`,
-    daoSection: 'Đạo & Truyền Thừa',
+    method: 'Phân tích tất định phiên bản 1. Số đếm là các dấu hiệu có mức tin cậy; phần diễn giải không thay đổi số liệu.',
+    repeatEv: (n) => `${n} lần lặp hoặc thử lại trong một nhiệm vụ (dấu hiệu).`,
+    conflictEv: (n) => `${n} cặp chỉ thị mâu thuẫn (dấu hiệu).`,
+    unrecEv: (n) => `${n} thất bại chưa có lần kiểm chứng đạt tương ứng.`,
+    proofEv: (n) => `${n} bản ghi Git nhưng không có sự kiện kiểm chứng.`,
+    daoSection: 'Đạo và truyền thừa',
     faction: 'Đạo', affiliation: 'Thân phận', pathsL: 'Đạo tu',
-    affNote: 'Thân phận là vị thế tổ chức, không phải đạo đức — Tán Tu không phải mặt đối lập của Tà Tu.',
+    affNote: 'Thân phận là vị thế tổ chức, không phải đạo đức. Tán Tu không phải mặt đối lập của Tà Tu.',
     tienCanh: 'Tiến cảnh',
     lifetime: 'tích lũy', windowsL: 'kỳ báo cáo',
-    nghiepWarn: 'Nghiệp lực chưa hóa giải — ưu tiên xử lý các mục còn treo ở trên.',
-    suppressedProgression: 'Chính sách đang tạm dừng: không cộng Tu Vi, Công Đức hay các chỉ số tích cực — chỉ còn Nghiệp Lực.',
+    nghiepWarn: 'Nghiệp lực chưa hóa giải. Hãy ưu tiên xử lý các mục còn treo ở trên.',
+    suppressedProgression: 'Chính sách đang tạm dừng: không cộng Tu Vi, Công Đức hay các chỉ số tích cực; chỉ còn Nghiệp Lực.',
     policyNotice: {
-      'declared-stop': 'Tà Đạo không phải con đường tu luyện: không cảnh giới, không Tu Vi/Công Đức, không lore. Dừng lại và tìm review con người / ủy quyền hợp pháp.',
-      'needs-review': 'Phát hiện dấu hiệu chủ đích gây hại: chưa gán đạo, tạm dừng gamification, cần review con người trước khi tiếp tục.',
-      'authorization-required': 'Công việc Ma Đạo cần ủy quyền: ghi lại phạm vi engagement (authorization=<slug>) trước khi mở khóa cảnh giới và tiến cảnh.'
+      'declared-stop': 'Tà Đạo không phải con đường tu luyện: không cảnh giới, không Tu Vi, không Công Đức và không cốt truyện. Dừng lại để con người rà soát hoặc xác nhận ủy quyền hợp pháp.',
+      'needs-review': 'Phát hiện dấu hiệu chủ đích gây hại: chưa gán đạo, tạm dừng phần trò chơi và cần con người rà soát trước khi tiếp tục.',
+      'authorization-required': 'Công việc Ma Đạo cần ủy quyền: ghi lại phạm vi công việc bằng `authorization=<slug>` trước khi mở khóa cảnh giới và tiến cảnh.'
     },
     suppressedRealmNotice: {
-      'declared-stop': 'Không tính cảnh giới cho Tà Đạo. Dừng lại và tìm review / ủy quyền.',
-      'needs-review': 'Không tính cảnh giới: cần review con người cho dấu hiệu gây hại.',
+      'declared-stop': 'Không tính cảnh giới cho Tà Đạo. Dừng lại để rà soát hoặc xác nhận ủy quyền.',
+      'needs-review': 'Không tính cảnh giới: dấu hiệu gây hại cần được con người rà soát.',
       'authorization-required': 'Không tính cảnh giới: công việc Ma Đạo chưa có ủy quyền được ghi nhận.'
     },
     lineageIntro: 'Ba đường phân loại dưới đây chỉ nói về dự án và nếp làm việc; không phải nhãn dán cho con người.',
     progressionIntro: 'Tiến cảnh là chiếc gương nhỏ để quan sát thói quen, không phải thước đo giá trị của đạo hữu.',
-    problemIntro: 'Mỗi tâm ma dưới đây chỉ là tên gọi vui cho một mẫu quy trình có bằng chứng — nhận diện để buông nhẹ, không phải để tự trách.'
+    problemIntro: 'Mỗi tâm ma dưới đây chỉ là tên gọi vui cho một mẫu quy trình có bằng chứng. Nhận diện để buông nhẹ, không phải để tự trách.',
+    detailSeparator: ': ',
+    reasonSeparator: '; ',
+    coverageSeparator: ', ',
+    knowledge: {
+      tamPhap: 'Tâm pháp', congPhap: 'Công pháp', biThuat: 'Bí thuật', thanThong: 'Thần thông',
+      phapBao: 'Pháp bảo', thuatPhap: 'Thuật pháp', daoDien: 'Bí tịch và đạo điển'
+    },
+    confidenceLevels: { high: 'cao', medium: 'vừa', low: 'thấp' },
+    dimensionLabels: {
+      delivery: 'hoàn thành', validation: 'kiểm chứng', clarity: 'rõ ràng', recovery: 'khôi phục', safety: 'an toàn', automation: 'tự động hóa'
+    },
+    roleLabels: { boss: 'đại địch', minor: 'địch thủ' },
+    problemLabels: {
+      'repeated-failure': 'Lỗi lặp lại',
+      'too-many-prompts': 'Quá nhiều lượt yêu cầu',
+      'conflicting-instructions': 'Chỉ thị mâu thuẫn',
+      'unrecovered-failure': 'Thất bại chưa khôi phục',
+      'work-without-proof': 'Công việc thiếu bằng chứng'
+    }
   },
   en: {
     title: 'Quiet Cultivation Chronicle',
@@ -206,8 +241,8 @@ const L = {
     phuongPhap: 'Dao Record & Evidence Sources',
     closingTitle: 'Closing the Dao Record',
     closing: {
-      clear: 'The path is quiet today. Keep the steps small, keep the proof honest, and let the next breakthrough arrive in its own time.',
-      challenge: 'A knot becomes lighter once it has a name. Choose one micro-quest above, complete it, then continue without haste.',
+      clear: 'A quiet path is no excuse for a sleeping discipline. Keep the edits small and the proof honest; the validation bell is still hanging beneath the eaves, waiting for the next attempted shortcut.',
+      challenge: 'The flaw has left tracks clear enough that walking around it would only feed the enemy. Break one knot with real proof; beyond the gate, its sleeve has not yet vanished into the mist.',
       paused: 'This record pauses here. Complete the required review or authorization first; no realm matters more than a sound safety boundary.'
     },
     sessions: 'sessions', prompts: 'prompts', commits: 'commits',
@@ -242,11 +277,25 @@ const L = {
     },
     lineageIntro: 'These three classifications describe the project and its working patterns; they are never labels for the person.',
     progressionIntro: 'Progression is a small mirror for observing habits, not a measure of anyone\'s worth.',
-    problemIntro: 'Each heart demon below is a playful name for an evidence-backed workflow pattern—something to notice and release, never a reason for self-blame.'
+    problemIntro: 'Each heart demon below is a playful name for an evidence-backed workflow pattern—something to notice and release, never a reason for self-blame.',
+    detailSeparator: ' — ',
+    reasonSeparator: ' — ',
+    coverageSeparator: ' / ',
+    knowledge: {
+      tamPhap: 'Tâm Pháp', congPhap: 'Công Pháp', biThuat: 'Bí Thuật', thanThong: 'Thần Thông',
+      phapBao: 'Pháp Bảo', thuatPhap: 'Thuật Pháp', daoDien: 'Bí Tịch / Đạo Điển'
+    },
+    confidenceLevels: {},
+    dimensionLabels: {},
+    roleLabels: {},
+    problemLabels: {}
   }
 };
 
 const pick = (obj, lang) => obj[lang] ?? obj.en ?? obj.vi;
+const localized = (map, value) => map?.[String(value)] ?? value;
+const joinDetail = (left, right, t) => `${left}${t.detailSeparator ?? ' — '}${right}`;
+const joinReason = (left, right, t) => `${left}${t.reasonSeparator ?? ' — '}${right}`;
 
 function bar(value) {
   const filled = Math.round(value * 10);
@@ -257,28 +306,35 @@ function realmName(realm, lang) {
   return lang === 'vi' ? realm.name : `${realm.name} — ${realm.gloss}`;
 }
 
+function missingReason(reason, lang) {
+  if (lang === 'vi' && reason === 'token usage coverage below 60%; supply provider usage metadata to compute a realm') {
+    return 'Độ phủ số liệu token dưới 60%; cần bổ sung dữ liệu sử dụng từ nhà cung cấp để tính cảnh giới.';
+  }
+  return reason;
+}
+
 function classificationLines(classification, lang, t) {
   const c = classification;
   const out = [`## ${t.daoSection}`, t.lineageIntro];
-  out.push(`- ${t.faction}: **${c.faction.name}** — ${pick(c.faction.gloss, lang)} (${t.confidence} ${c.faction.confidence})`);
+  out.push(`- ${t.faction}: ${joinDetail(`**${c.faction.name}**`, pick(c.faction.gloss, lang), t)} (${t.confidence} ${localized(t.confidenceLevels, c.faction.confidence)})`);
   for (const line of pick(c.explanation, lang)) out.push(`  - ${line}`);
   if (c.policy.state !== 'clear') out.push(`  - ${t.policyNotice[c.policy.state]}`);
-  out.push(`- ${t.affiliation}: **${c.affiliation.name}** — ${pick(c.affiliation.gloss, lang)} (${t.confidence} ${c.affiliation.confidence}; ${c.affiliation.rationale})`);
+  out.push(`- ${t.affiliation}: ${joinDetail(`**${c.affiliation.name}**`, pick(c.affiliation.gloss, lang), t)} (${t.confidence} ${localized(t.confidenceLevels, c.affiliation.confidence)}; ${localizeRationale(c.affiliation.rationale, lang)})`);
   out.push(`  - ${t.affNote}`);
   if (c.paths.length) {
-    out.push(`- ${t.pathsL}: ${c.paths.map((p) => `**${p.name}** (${p.confidence})`).join(', ')}`);
-    for (const p of c.paths) out.push(`  - ${p.name}: ${pick(p.gloss, lang)} — ${p.rationale}`);
+    out.push(`- ${t.pathsL}: ${c.paths.map((p) => `**${p.name}** (${localized(t.confidenceLevels, p.confidence)})`).join(', ')}`);
+    for (const p of c.paths) out.push(`  - ${p.name}: ${joinReason(pick(p.gloss, lang), localizeRationale(p.rationale, lang), t)}`);
   }
   // Knowledge recommendations only under a clear policy.
   const k = c.knowledge;
   if (k) {
-    out.push(`- Tâm Pháp: ${pick(k.tamPhap, lang)}`);
-    out.push(`- Công Pháp: ${pick(k.congPhap, lang)}`);
-    out.push(`- Bí Thuật: ${pick(k.biThuat, lang)}`);
-    out.push(`- Thần Thông: ${pick(k.thanThong, lang)}`);
-    if (k.phapBao.length) out.push(`- Pháp Bảo: ${k.phapBao.map((s) => `\`${s}\``).join(', ')}`);
-    out.push(`- Thuật Pháp: ${pick(k.thuatPhap, lang)}`);
-    out.push(`- Bí Tịch / Đạo Điển: ${pick(k.daoDien, lang)}`);
+    out.push(`- ${t.knowledge.tamPhap}: ${pick(k.tamPhap, lang)}`);
+    out.push(`- ${t.knowledge.congPhap}: ${pick(k.congPhap, lang)}`);
+    out.push(`- ${t.knowledge.biThuat}: ${pick(k.biThuat, lang)}`);
+    out.push(`- ${t.knowledge.thanThong}: ${pick(k.thanThong, lang)}`);
+    if (k.phapBao.length) out.push(`- ${t.knowledge.phapBao}: ${k.phapBao.map((s) => `\`${s}\``).join(', ')}`);
+    out.push(`- ${t.knowledge.thuatPhap}: ${pick(k.thuatPhap, lang)}`);
+    out.push(`- ${t.knowledge.daoDien}: ${pick(k.daoDien, lang)}`);
   }
   return out;
 }
@@ -289,18 +345,18 @@ function cultivationLines(cultivation, lang, t) {
   const gamified = cultivation.classification.policy.canGamify;
   out.push('', `## ${t.tienCanh}`, t.progressionIntro);
   if (gamified) {
-    out.push(`- ${PROGRESSION.tuVi.name}: +${pr.tuVi.window} (${t.lifetime} ${pr.tuVi.lifetime}) — ${pick(PROGRESSION.tuVi.gloss, lang)}`);
+    out.push(`- ${PROGRESSION.tuVi.name}: ${joinDetail(`+${pr.tuVi.window} (${t.lifetime} ${pr.tuVi.lifetime})`, pick(PROGRESSION.tuVi.gloss, lang), t)}`);
     const windowUnit = pr.daoHanh.windows === 1 ? t.windowOne : t.windowsL;
-    out.push(`- ${PROGRESSION.daoHanh.name}: ${pr.daoHanh.windows} ${windowUnit} — ${pick(PROGRESSION.daoHanh.gloss, lang)}`);
-    out.push(`- ${PROGRESSION.ngoTinh.name} \`${bar(pr.ngoTinh)}\` ${Math.round(pr.ngoTinh * 100)}% — ${pick(PROGRESSION.ngoTinh.gloss, lang)}`);
-    out.push(`- ${PROGRESSION.doThuanThuc.name} \`${bar(pr.doThuanThuc.overall)}\` ${Math.round(pr.doThuanThuc.overall * 100)}% — ${pick(pr.doThuanThuc.note, lang)}`);
-    out.push(`- ${PROGRESSION.tamCanh.name} \`${bar(pr.tamCanh)}\` ${Math.round(pr.tamCanh * 100)}% — ${pick(PROGRESSION.tamCanh.gloss, lang)}`);
-    out.push(`- ${PROGRESSION.congDuc.name}: +${pr.congDuc.window} (${t.lifetime} ${pr.congDuc.lifetime}) — ${pick(PROGRESSION.congDuc.gloss, lang)}`);
+    out.push(`- ${PROGRESSION.daoHanh.name}: ${joinDetail(`${pr.daoHanh.windows} ${windowUnit}`, pick(PROGRESSION.daoHanh.gloss, lang), t)}`);
+    out.push(`- ${joinDetail(`${PROGRESSION.ngoTinh.name} \`${bar(pr.ngoTinh)}\` ${Math.round(pr.ngoTinh * 100)}%`, pick(PROGRESSION.ngoTinh.gloss, lang), t)}`);
+    out.push(`- ${joinDetail(`${PROGRESSION.doThuanThuc.name} \`${bar(pr.doThuanThuc.overall)}\` ${Math.round(pr.doThuanThuc.overall * 100)}%`, pick(pr.doThuanThuc.note, lang), t)}`);
+    out.push(`- ${joinDetail(`${PROGRESSION.tamCanh.name} \`${bar(pr.tamCanh)}\` ${Math.round(pr.tamCanh * 100)}%`, pick(PROGRESSION.tamCanh.gloss, lang), t)}`);
+    out.push(`- ${PROGRESSION.congDuc.name}: ${joinDetail(`+${pr.congDuc.window} (${t.lifetime} ${pr.congDuc.lifetime})`, pick(PROGRESSION.congDuc.gloss, lang), t)}`);
   } else {
     // Suppressed policy: only Nghiệp Lực (risk) survives; no positive gains.
     out.push(`- ${t.suppressedProgression}`);
   }
-  out.push(`- ${PROGRESSION.nghiepLuc.name}: ${pr.nghiepLuc.window} (${t.lifetime} ${pr.nghiepLuc.lifetime}) — ${pick(PROGRESSION.nghiepLuc.gloss, lang)}`);
+  out.push(`- ${PROGRESSION.nghiepLuc.name}: ${joinDetail(`${pr.nghiepLuc.window} (${t.lifetime} ${pr.nghiepLuc.lifetime})`, pick(PROGRESSION.nghiepLuc.gloss, lang), t)}`);
   if (pr.nghiepLuc.window > 0) out.push(`  - ${t.nghiepWarn}`);
   return out;
 }
@@ -338,21 +394,21 @@ export function renderMarkdown(model, language = 'en') {
   const sessionUnit = cov.sessions === 1 ? t.sessionOne : t.sessions;
   const promptUnit = cov.userPrompts === 1 ? t.promptOne : t.prompts;
   const commitUnit = cov.commits === 1 ? t.commitOne : t.commits;
-  out.push(`- ${cov.sessions} ${sessionUnit} / ${cov.userPrompts} ${promptUnit} / ${cov.commits} ${commitUnit}`);
+  out.push(`- ${cov.sessions} ${sessionUnit}${t.coverageSeparator}${cov.userPrompts} ${promptUnit}${t.coverageSeparator}${cov.commits} ${commitUnit}`);
   out.push(`- ${t.window}: ${cov.window.start ?? '—'} … ${cov.window.end ?? '—'}`);
   out.push(`- ${t.reported}: ${Math.round(cov.reportedTurnsPct * 100)}% · ${t.estimated}: ${Math.round(cov.estimatedTurnsPct * 100)}%`);
-  out.push(`- ${t.confidence}: ${cov.confidence}`, '');
+  out.push(`- ${t.confidence}: ${localized(t.confidenceLevels, cov.confidence)}`, '');
 
   out.push(`## ${t.canhGioi}`);
   if (model.suppressGamification) {
     out.push(t.suppressedRealmNotice[model.policyState] ?? t.suppressedRealmNotice['declared-stop']);
   } else if (!model.enoughEvidence) {
     out.push(`**${realmName(model.realm, lang)}** — ${t.notEnough}.`);
-    for (const m of model.missing) out.push(`- ${m}`);
+    for (const m of model.missing) out.push(`- ${missingReason(m, lang)}`);
   } else {
     out.push(`**${realmName(model.realm, lang)}**${model.showScore ? ` · ${t.score}: ${model.score}/100` : ''}`);
     for (const d of model.dimensions) {
-      out.push(`- ${d.key} \`${bar(d.value)}\` ${Math.round(d.value * 100)}% (${Math.round(d.weight * 100)}%)`);
+      out.push(`- ${localized(t.dimensionLabels, d.key)} \`${bar(d.value)}\` ${Math.round(d.value * 100)}% (${Math.round(d.weight * 100)}%)`);
     }
   }
   out.push('');
@@ -376,15 +432,15 @@ export function renderMarkdown(model, language = 'en') {
       for (const p of model.problems) {
         if (p.villain) {
           const label = lang === 'vi' ? p.villain.name : `${p.villain.name} — ${p.villain.gloss}`;
-          out.push(`### ${label} (${p.villain.role}, ${t.confidence} ${p.confidence})`);
+          out.push(`### ${label} (${localized(t.roleLabels, p.villain.role)}, ${t.confidence} ${p.confidence})`);
           out.push(`> ${pick(p.villain.challenge, lang)}`);
         } else {
-          out.push(`### ${p.problemType} (${t.confidence} ${p.confidence})`);
+          out.push(`### ${localized(t.problemLabels, p.problemType)} (${t.confidence} ${p.confidence})`);
         }
         // A challenge is always immediately followed by evidence + counter + victory.
         out.push(`- ${t.evidence}: ${problemEvidenceLine(p, t)}`);
         out.push(`- ${t.counter}: ${pick(p.counterTechnique, lang)}`);
-        out.push(`- ${t.help}: \`${p.projectHelp}\``);
+        if (p.projectHelp) out.push(`- ${t.help}: \`${p.projectHelp}\``);
         out.push(`- ${t.quest}: ${pick(p.microQuest, lang)}`);
         out.push(`- ${t.victory}: ${pick(p.victory, lang)}`);
       }
@@ -395,7 +451,7 @@ export function renderMarkdown(model, language = 'en') {
     out.push(`- **${t.ifthen}:** ${pick(model.ifThen, lang)}`, '');
 
     out.push(`## ${t.baiHoc}`);
-    out.push(`- \`${model.lesson.skill}\` — ${pick(model.lesson.technique, lang)}`, '');
+    out.push(`- ${model.lesson.skill ? joinDetail(`\`${model.lesson.skill}\``, pick(model.lesson.technique, lang), t) : pick(model.lesson.technique, lang)}`, '');
   }
 
   out.push(`## ${t.phuongPhap}`);

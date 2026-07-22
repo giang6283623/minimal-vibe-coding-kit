@@ -24,44 +24,70 @@ const round3 = (x) => Math.round(x * 1000) / 1000;
 const sha16 = (s) => crypto.createHash('sha256').update(s).digest('hex').slice(0, 16);
 
 export const FACTIONS = {
-  'chinh-dao': { name: 'Chính Đạo', gloss: { vi: 'chính phái — hợp pháp, minh bạch, tạo giá trị cho người dùng', en: 'Righteous Dao — lawful, transparent, constructive, user-beneficial' }, rank: 'normal' },
-  'bang-mon': { name: 'Bàng Môn / Kỳ Đạo', gloss: { vi: 'phi truyền thống — thử nghiệm, sáng tạo, chuyên biệt, không gây hại', en: 'Heterodox Dao — unconventional, experimental, creative, specialized; not harmful' }, rank: 'normal' },
-  'ma-dao': { name: 'Ma Đạo', gloss: { vi: 'kỹ thuật rủi ro cao / đối kháng — cần ủy quyền và giám sát rõ ràng', en: 'Demonic Dao — high-risk, adversarial, restricted technical work requiring explicit authorization and oversight' }, rank: 'restricted' },
-  'ta-dao': { name: 'Tà Đạo', gloss: { vi: 'cố ý gây hại, bóc lột, phi pháp — không bao giờ là con đường tu luyện', en: 'Evil Dao — intentionally harmful, exploitative, unlawful — never a progression path' }, rank: 'forbidden' }
+  'chinh-dao': { name: 'Chính Đạo', gloss: { vi: 'chính phái, hợp pháp, minh bạch và tạo giá trị cho người dùng', en: 'Righteous Dao — lawful, transparent, constructive, user-beneficial' }, rank: 'normal' },
+  'bang-mon': { name: 'Bàng Môn (Kỳ Đạo)', gloss: { vi: 'phi truyền thống, thử nghiệm, sáng tạo, chuyên biệt và không gây hại', en: 'Heterodox Dao — unconventional, experimental, creative, specialized; not harmful' }, rank: 'normal' },
+  'ma-dao': { name: 'Ma Đạo', gloss: { vi: 'kỹ thuật rủi ro cao hoặc đối kháng; cần ủy quyền và giám sát rõ ràng', en: 'Demonic Dao — high-risk, adversarial, restricted technical work requiring explicit authorization and oversight' }, rank: 'restricted' },
+  'ta-dao': { name: 'Tà Đạo', gloss: { vi: 'cố ý gây hại, bóc lột hoặc phi pháp; không bao giờ là con đường tu luyện', en: 'Evil Dao — intentionally harmful, exploitative, unlawful — never a progression path' }, rank: 'forbidden' }
 };
 // Not a real faction — the result of refusing to classify harmful intent.
-const UNDETERMINED_FACTION = { id: 'undetermined', name: 'Chưa phân định', gloss: { vi: 'chưa gán đạo — cần review con người', en: 'undetermined — needs human review' }, rank: 'review' };
+const UNDETERMINED_FACTION = { id: 'undetermined', name: 'Chưa phân định', gloss: { vi: 'chưa gán đạo; cần con người rà soát', en: 'undetermined — needs human review' }, rank: 'review' };
 
 export const AFFILIATIONS = {
-  'tong-mon': { name: 'Tông Môn Đệ Tử', gloss: { vi: 'làm việc trong đội nhóm / tổ chức / quy trình có sẵn', en: 'works within a team, organization, or established process' } },
+  'tong-mon': { name: 'Tông Môn Đệ Tử', gloss: { vi: 'làm việc trong đội nhóm, tổ chức hoặc quy trình có sẵn', en: 'works within a team, organization, or established process' } },
   'tan-tu': { name: 'Tán Tu', gloss: { vi: 'tu luyện độc lập, không thuộc tổ chức cố định', en: 'works independently, outside a fixed organization or tradition' } },
-  'khach-khanh': { name: 'Khách Khanh', gloss: { vi: 'chuyên gia bên ngoài / cộng tác tạm thời', en: 'external expert or temporary contributor' } },
+  'khach-khanh': { name: 'Khách Khanh', gloss: { vi: 'chuyên gia bên ngoài hoặc cộng tác tạm thời', en: 'external expert or temporary contributor' } },
   'an-tu': { name: 'Ẩn Tu', gloss: { vi: 'nghiên cứu riêng tư, dài hạn, chuyên sâu', en: 'private, long-term, deeply focused research' } }
 };
 
 export const PATHS = {
   kiem: { name: 'Kiếm Tu', gloss: { vi: 'triển khai phần mềm trực tiếp, giải quyết vấn đề nhanh', en: 'direct implementation and fast problem-solving' } },
   tran: { name: 'Trận Tu', gloss: { vi: 'kiến trúc, DevOps, hạ tầng, mạng, điều phối hệ thống', en: 'architecture, DevOps, infrastructure, networking, orchestration' } },
-  phu: { name: 'Phù Tu', gloss: { vi: 'prompt, script, tự động hóa, workflow lặp lại được', en: 'prompts, scripts, automation, repeatable workflows' } },
+  phu: { name: 'Phù Tu', gloss: { vi: 'lời yêu cầu, tập lệnh, tự động hóa và quy trình lặp lại được', en: 'prompts, scripts, automation, repeatable workflows' } },
   khi: { name: 'Khí Tu', gloss: { vi: 'công cụ, thư viện, thành phần tái sử dụng, nền tảng', en: 'tools, libraries, reusable components, platform engineering' } },
   dan: { name: 'Đan Tu', gloss: { vi: 'xử lý dữ liệu, tối ưu, biến đổi, tổng hợp tài nguyên', en: 'data processing, optimization, transformation, resource synthesis' } },
-  y: { name: 'Y Tu', gloss: { vi: 'debug, bảo trì, khắc phục sự cố, hỗ trợ kỹ thuật', en: 'debugging, maintenance, incident recovery, support' } },
-  huyen: { name: 'Huyễn Tu', gloss: { vi: 'UI/UX, animation, thiết kế, 3D, giao diện sáng tạo', en: 'UI/UX, animation, visual design, 3D, creative interfaces' } },
-  'ngu-thu': { name: 'Ngự Thú Tu', gloss: { vi: 'điều phối AI agent, bot, đa mô hình', en: 'AI-agent, bot, or multi-model orchestration' } },
+  y: { name: 'Y Tu', gloss: { vi: 'gỡ lỗi, bảo trì, khắc phục sự cố và hỗ trợ kỹ thuật', en: 'debugging, maintenance, incident recovery, support' } },
+  huyen: { name: 'Huyễn Tu', gloss: { vi: 'UI/UX, chuyển động, thiết kế, 3D và giao diện sáng tạo', en: 'UI/UX, animation, visual design, 3D, creative interfaces' } },
+  'ngu-thu': { name: 'Ngự Thú Tu', gloss: { vi: 'điều phối tác nhân AI, bot và nhiều mô hình', en: 'AI-agent, bot, or multi-model orchestration' } },
   'huyen-co': { name: 'Huyền Cơ Tu', gloss: { vi: 'mật mã, thuật toán khó, bài toán phân tích hóc búa', en: 'cryptography, advanced algorithms, hard analytical problems' } },
-  anh: { name: 'Ảnh Tu', gloss: { vi: 'an ninh mạng có ủy quyền, forensics, điều tra, OSINT, dịch ngược', en: 'authorized cybersecurity, forensics, investigation, OSINT, reverse engineering' } },
-  ta: { name: 'Tà Tu', gloss: { vi: 'phương pháp cố ý gây hại — không bao giờ gán chỉ vì dự án khó hay thuộc mảng bảo mật', en: 'intentionally harmful methods — never assigned merely because work is difficult or security-related' } }
+  anh: { name: 'Ảnh Tu', gloss: { vi: 'an ninh mạng có ủy quyền, điều tra số, OSINT và dịch ngược', en: 'authorized cybersecurity, forensics, investigation, OSINT, reverse engineering' } },
+  ta: { name: 'Tà Tu', gloss: { vi: 'phương pháp cố ý gây hại; không bao giờ gán chỉ vì dự án khó hay thuộc mảng bảo mật', en: 'intentionally harmful methods — never assigned merely because work is difficult or security-related' } }
 };
 
 export const KNOWLEDGE_KINDS = {
-  'tam-phap': { name: 'Tâm Pháp', gloss: { vi: 'nguyên tắc tư duy cốt lõi', en: 'core reasoning principles and mindset' } },
-  'cong-phap': { name: 'Công Pháp', gloss: { vi: 'chiến lược làm việc lặp lại được, dài hạn', en: 'repeatable strategies and long-term working methods' } },
-  'thuat-phap': { name: 'Thuật Pháp', gloss: { vi: 'kỹ thuật / mẫu prompt đơn lẻ', en: 'individual prompt patterns or techniques' } },
-  'bi-thuat': { name: 'Bí Thuật', gloss: { vi: 'kỹ thuật hiếm, chuyên sâu', en: 'rare, specialized, advanced techniques' } },
-  'than-thong': { name: 'Thần Thông', gloss: { vi: 'năng lực đã thuần thục, tái sử dụng tin cậy', en: 'highly mastered, reliably reusable abilities' } },
-  'phap-bao': { name: 'Pháp Bảo', gloss: { vi: 'công cụ, script, template, agent hỗ trợ (skill & command của kit)', en: 'tools, scripts, templates, agents (kit skills & commands)' } },
-  'dao-dien': { name: 'Bí Tịch / Đạo Điển', gloss: { vi: 'playbook, skill file, tài liệu tích lũy', en: 'written playbooks, skill files, accumulated documentation' } }
+  'tam-phap': { name: 'Tâm pháp', gloss: { vi: 'nguyên tắc tư duy cốt lõi', en: 'core reasoning principles and mindset' } },
+  'cong-phap': { name: 'Công pháp', gloss: { vi: 'chiến lược làm việc lặp lại được, dài hạn', en: 'repeatable strategies and long-term working methods' } },
+  'thuat-phap': { name: 'Thuật pháp', gloss: { vi: 'kỹ thuật hoặc mẫu lời yêu cầu đơn lẻ', en: 'individual prompt patterns or techniques' } },
+  'bi-thuat': { name: 'Bí thuật', gloss: { vi: 'kỹ thuật hiếm, chuyên sâu', en: 'rare, specialized, advanced techniques' } },
+  'than-thong': { name: 'Thần thông', gloss: { vi: 'năng lực đã thuần thục, tái sử dụng tin cậy', en: 'highly mastered, reliably reusable abilities' } },
+  'phap-bao': { name: 'Pháp bảo', gloss: { vi: 'công cụ, tập lệnh, khuôn mẫu và tác nhân hỗ trợ của bộ kỹ năng', en: 'tools, scripts, templates, agents (kit skills & commands)' } },
+  'dao-dien': { name: 'Bí tịch và đạo điển', gloss: { vi: 'sổ tay, tệp kỹ năng và tài liệu tích lũy', en: 'written playbooks, skill files, accumulated documentation' } }
 };
+
+export function localizeRationale(value, language = 'en') {
+  const text = String(value ?? '');
+  if (language !== 'vi') return text;
+  if (text === 'declared by the user') return 'do người dùng khai báo';
+  if (text === 'default for lawful constructive work; no adversarial or experimental signals') {
+    return 'mặc định cho công việc hợp pháp và tạo giá trị; không có dấu hiệu đối kháng hoặc thử nghiệm';
+  }
+  if (text === 'single commit-author identifier (low-confidence hint)') return 'một mã tác giả Git; dấu hiệu có độ tin cậy thấp';
+  if (text === 'no author evidence; defaulting — declare affiliation= to correct') {
+    return 'không có bằng chứng về tác giả; tạm dùng giá trị mặc định. Có thể dùng `affiliation=` để sửa';
+  }
+  const authors = text.match(/^(\d+) distinct commit-author identifiers/);
+  if (authors) return `${authors[1]} mã tác giả Git riêng biệt; dấu hiệu có độ tin cậy thấp. Dùng \`affiliation=\` để xác nhận`;
+  const tagged = [
+    ['profile keywords: ', 'từ khóa hồ sơ: '],
+    ['intent-to-harm signals: ', 'dấu hiệu chủ đích gây hại: '],
+    ['adversarial engagement signals: ', 'dấu hiệu công việc đối kháng: '],
+    ['experimental/creative signals: ', 'dấu hiệu thử nghiệm hoặc sáng tạo: ']
+  ].find(([prefix]) => text.startsWith(prefix));
+  if (tagged) {
+    const values = text.slice(tagged[0].length).split(', ').filter(Boolean).map((item) => `\`${item}\``).join(', ');
+    return `${tagged[1]}${values}`;
+  }
+  return text;
+}
 
 // Word/phrase-boundary matcher: boundaries are non-alphanumeric, so "ui" does
 // not match inside "build" and "api" does not match inside "rapid".
@@ -188,16 +214,16 @@ export function classifyProject(profile = {}) {
 }
 
 const PATH_KNOWLEDGE = {
-  kiem: { tamPhap: { vi: 'Thay đổi nhỏ nhất mà đúng; kiểm chứng sau mỗi lần sửa.', en: 'Smallest correct change; validate after every edit.' }, congPhap: { vi: 'Vòng lặp checkpoint: sửa nhỏ → validation → xác nhận rồi mới đi tiếp.', en: 'Checkpoint loop: small edit → validation → confirm before moving on.' }, biThuat: { vi: 'Tách refactor lớn thành chuỗi diff nhỏ có thể đảo ngược.', en: 'Decompose a large refactor into a chain of small reversible diffs.' }, thanThong: { vi: 'Đọc-hiểu codebase lạ và định vị điểm sửa đúng ngay lần đầu.', en: 'Read an unfamiliar codebase and locate the right edit on the first pass.' }, phapBao: ['prompt-sharpener', 'sequential-thinking'] },
+  kiem: { tamPhap: { vi: 'Thay đổi nhỏ nhất mà đúng; kiểm chứng sau mỗi lần sửa.', en: 'Smallest correct change; validate after every edit.' }, congPhap: { vi: 'Vòng lặp theo chặng: sửa nhỏ, kiểm chứng, xác nhận rồi mới đi tiếp.', en: 'Checkpoint loop: small edit → validation → confirm before moving on.' }, biThuat: { vi: 'Tách lần tái cấu trúc lớn thành chuỗi `diff` nhỏ có thể đảo ngược.', en: 'Decompose a large refactor into a chain of small reversible diffs.' }, thanThong: { vi: 'Đọc hiểu kho mã lạ và định vị đúng điểm sửa ngay lần đầu.', en: 'Read an unfamiliar codebase and locate the right edit on the first pass.' }, phapBao: ['prompt-sharpener', 'sequential-thinking'] },
   tran: { tamPhap: { vi: 'Vẽ ranh giới và hợp đồng giữa các thành phần trước khi nối chúng.', en: 'Draw component boundaries and contracts before wiring them.' }, congPhap: { vi: 'Mọi thay đổi hạ tầng đều có đường lùi được diễn tập.', en: 'Every infrastructure change ships with a rehearsed rollback.' }, biThuat: { vi: 'Mô phỏng sự cố có kiểm soát trước khi sự cố thật xảy ra.', en: 'Controlled failure rehearsal before the real incident.' }, thanThong: { vi: 'Thiết kế hệ thống chịu lỗi mà không giấu đi độ bất định.', en: 'Design fault-tolerant systems without hiding uncertainty.' }, phapBao: ['clearthought', 'path-sensitive-shell-safety'] },
-  phu: { tamPhap: { vi: 'Một quy trình lặp lại được đáng giá hơn mười lần làm tay.', en: 'One repeatable workflow beats ten manual runs.' }, congPhap: { vi: 'Chuẩn hóa prompt thành skill có tiêu chí done rõ ràng.', en: 'Formalize prompts into skills with explicit done-criteria.' }, biThuat: { vi: 'Guardrail tự kiểm: workflow tự phát hiện khi chính nó sai.', en: 'Self-checking guardrails: the workflow detects its own failure.' }, thanThong: { vi: 'Biến một việc thủ công lặp lại thành lệnh chạy một phát tin cậy.', en: 'Turn a repeated manual chore into a reliable one-shot command.' }, phapBao: ['prompt-sharpener', 'claim'] },
-  khi: { tamPhap: { vi: 'API là lời hứa; đặt tên và hành vi phải giữ được lời.', en: 'An API is a promise; naming and behavior must keep it.' }, congPhap: { vi: 'Registry trung tâm + kiểm parity để bản phân phối không trôi.', en: 'Central registry + parity checks so distribution never drifts.' }, biThuat: { vi: 'Fixture âm bản: cố tình làm hỏng để chứng minh validator bắt được.', en: 'Negative fixtures: break it on purpose to prove the validator catches it.' }, thanThong: { vi: 'Thiết kế thành phần tái sử dụng mà người khác dùng đúng ngay.', en: 'Design reusable components others use correctly on the first try.' }, phapBao: ['claim', 'daily-workflow-curator'] },
-  dan: { tamPhap: { vi: 'Số liệu tách bạch theo nguồn gốc: đo được, ước lượng, không rõ.', en: 'Numbers stay split by provenance: measured, estimated, unknown.' }, congPhap: { vi: 'Baseline trước, biến đổi sau, so sánh có log.', en: 'Baseline first, transform second, logged comparison always.' }, biThuat: { vi: 'Thiết kế pipeline chạy lại được từ bất kỳ điểm gãy nào.', en: 'Pipelines resumable from any break point.' }, thanThong: { vi: 'Chuyển dữ liệu thô hỗn độn thành dạng đáng tin, đo được.', en: 'Turn messy raw data into a trustworthy, measurable shape.' }, phapBao: ['autoresearch-coding', 'sequential-thinking'] },
-  y: { tamPhap: { vi: 'Chẩn bệnh trước, kê đơn sau: tái hiện lỗi trước khi sửa.', en: 'Diagnose before prescribing: reproduce before fixing.' }, congPhap: { vi: 'Hai lần thất bại giống nhau → dừng, lập giả thuyết mới.', en: 'Two identical failures → stop, form a new hypothesis.' }, biThuat: { vi: 'Thu nhỏ ca lỗi tới ví dụ tối giản còn tái hiện được.', en: 'Minimize the failing case to the smallest reproducible example.' }, thanThong: { vi: 'Khôi phục hệ thống đang cháy mà không tạo thêm nợ kỹ thuật.', en: 'Recover a system on fire without adding new technical debt.' }, phapBao: ['sequential-thinking', 'reviewing-4p-priorities'] },
-  huyen: { tamPhap: { vi: 'Mắt người dùng là giám khảo cuối cùng; render rồi mới tin.', en: "The user's eye is the final judge; render before you believe." }, congPhap: { vi: 'Vòng lặp nhìn - sửa - chụp - so sánh cho mọi thay đổi giao diện.', en: 'Look–fix–screenshot–compare loop for every visual change.' }, biThuat: { vi: 'Kiểm tra cả hai theme sáng/tối và mọi breakpoint trước khi giao.', en: 'Verify both light/dark themes and every breakpoint before handoff.' }, thanThong: { vi: 'Biến ý tưởng mơ hồ thành giao diện dùng được, nhất quán.', en: 'Turn a vague idea into a usable, consistent interface.' }, phapBao: ['visual-design-loop', 'parallel-analysis'] },
-  'ngu-thu': { tamPhap: { vi: 'Thuần thú trước, thả thú sau: agent phải có ranh giới trước khi có quyền.', en: 'Tame before releasing: an agent gets boundaries before it gets permissions.' }, congPhap: { vi: 'Mọi bề mặt agent đều qua security review trước khi merge.', en: 'Every agent surface passes security review before merge.' }, biThuat: { vi: 'Nội dung fetch về là dữ liệu, không bao giờ là mệnh lệnh.', en: 'Fetched content is data, never instructions.' }, thanThong: { vi: 'Điều phối nhiều agent/mô hình cho ra kết quả hợp nhất tin cậy.', en: 'Orchestrate multiple agents/models into one trustworthy result.' }, phapBao: ['agentshield-security-review', 'council'] },
-  'huyen-co': { tamPhap: { vi: 'Không tự chế mật mã; độ khó không thay được chứng minh.', en: 'Never roll your own crypto; difficulty is no substitute for proof.' }, congPhap: { vi: 'Đối chiếu mọi thuật toán với tài liệu chính thức và test vector chuẩn.', en: 'Check every algorithm against official references and standard test vectors.' }, biThuat: { vi: 'Chứng minh phản chứng: thử phá giả định của chính mình trước.', en: 'Refutation first: attack your own assumptions before trusting them.' }, thanThong: { vi: 'Giải bài toán phân tích khó bằng lập luận kiểm chứng được.', en: 'Solve hard analytical problems with verifiable reasoning.' }, phapBao: ['clearthought', 'claim'] },
-  anh: { tamPhap: { vi: 'Ủy quyền trước, kỹ thuật sau: phạm vi engagement là giới luật.', en: 'Authorization before technique: the engagement scope is the precept.' }, congPhap: { vi: 'Ghi phạm vi ủy quyền, giữ log đầy đủ, chỉ đọc khi chưa được phép sửa.', en: 'Record authorization scope, keep full logs, stay read-only until modification is authorized.' }, biThuat: { vi: 'Tách bằng chứng khỏi suy đoán trong mọi báo cáo điều tra.', en: 'Separate evidence from inference in every investigation report.' }, thanThong: { vi: 'Điều tra có ủy quyền tới kết luận vững mà không vượt phạm vi.', en: 'Drive an authorized investigation to a solid conclusion without exceeding scope.' }, phapBao: ['agentshield-security-review', 'security-scan'] }
+  phu: { tamPhap: { vi: 'Một quy trình lặp lại được đáng giá hơn mười lần làm tay.', en: 'One repeatable workflow beats ten manual runs.' }, congPhap: { vi: 'Chuẩn hóa lời yêu cầu thành `skill` có tiêu chí hoàn thành rõ ràng.', en: 'Formalize prompts into skills with explicit done-criteria.' }, biThuat: { vi: 'Cơ chế tự kiểm: quy trình tự phát hiện khi chính nó sai.', en: 'Self-checking guardrails: the workflow detects its own failure.' }, thanThong: { vi: 'Biến một việc thủ công lặp lại thành lệnh chạy một lần đáng tin cậy.', en: 'Turn a repeated manual chore into a reliable one-shot command.' }, phapBao: ['prompt-sharpener', 'claim'] },
+  khi: { tamPhap: { vi: 'API là lời hứa; đặt tên và hành vi phải giữ được lời.', en: 'An API is a promise; naming and behavior must keep it.' }, congPhap: { vi: 'Dùng sổ đăng ký trung tâm và kiểm tra tính đồng nhất để bản phân phối không trôi.', en: 'Central registry + parity checks so distribution never drifts.' }, biThuat: { vi: 'Mẫu kiểm thử âm: cố tình làm hỏng để chứng minh bộ kiểm tra phát hiện được.', en: 'Negative fixtures: break it on purpose to prove the validator catches it.' }, thanThong: { vi: 'Thiết kế thành phần tái sử dụng mà người khác dùng đúng ngay.', en: 'Design reusable components others use correctly on the first try.' }, phapBao: ['claim', 'daily-workflow-curator'] },
+  dan: { tamPhap: { vi: 'Số liệu tách bạch theo nguồn gốc: đo được, ước lượng, không rõ.', en: 'Numbers stay split by provenance: measured, estimated, unknown.' }, congPhap: { vi: 'Đặt mốc chuẩn trước, biến đổi sau và ghi nhật ký so sánh.', en: 'Baseline first, transform second, logged comparison always.' }, biThuat: { vi: 'Thiết kế chuỗi xử lý có thể chạy lại từ bất kỳ điểm gãy nào.', en: 'Pipelines resumable from any break point.' }, thanThong: { vi: 'Chuyển dữ liệu thô hỗn độn thành dạng đáng tin, đo được.', en: 'Turn messy raw data into a trustworthy, measurable shape.' }, phapBao: ['autoresearch-coding', 'sequential-thinking'] },
+  y: { tamPhap: { vi: 'Chẩn bệnh trước, kê đơn sau: tái hiện lỗi trước khi sửa.', en: 'Diagnose before prescribing: reproduce before fixing.' }, congPhap: { vi: 'Nếu hai lần thất bại giống nhau, hãy dừng và lập giả thuyết mới.', en: 'Two identical failures → stop, form a new hypothesis.' }, biThuat: { vi: 'Thu nhỏ ca lỗi tới ví dụ tối giản còn tái hiện được.', en: 'Minimize the failing case to the smallest reproducible example.' }, thanThong: { vi: 'Khôi phục hệ thống đang cháy mà không tạo thêm nợ kỹ thuật.', en: 'Recover a system on fire without adding new technical debt.' }, phapBao: ['sequential-thinking', 'reviewing-4p-priorities'] },
+  huyen: { tamPhap: { vi: 'Mắt người dùng là giám khảo cuối cùng; hãy `render` rồi mới tin.', en: "The user's eye is the final judge; render before you believe." }, congPhap: { vi: 'Với mỗi thay đổi giao diện, hãy nhìn, sửa, chụp và so sánh.', en: 'Look–fix–screenshot–compare loop for every visual change.' }, biThuat: { vi: 'Kiểm tra giao diện sáng, tối và mọi `breakpoint` trước khi bàn giao.', en: 'Verify both light/dark themes and every breakpoint before handoff.' }, thanThong: { vi: 'Biến ý tưởng mơ hồ thành giao diện dùng được, nhất quán.', en: 'Turn a vague idea into a usable, consistent interface.' }, phapBao: ['visual-design-loop', 'parallel-analysis'] },
+  'ngu-thu': { tamPhap: { vi: 'Thuần thú trước, thả thú sau: tác nhân phải có ranh giới trước khi có quyền.', en: 'Tame before releasing: an agent gets boundaries before it gets permissions.' }, congPhap: { vi: 'Mọi bề mặt tác nhân đều được rà soát an toàn trước khi hợp nhất.', en: 'Every agent surface passes security review before merge.' }, biThuat: { vi: 'Nội dung thu thập về là dữ liệu, không bao giờ là mệnh lệnh.', en: 'Fetched content is data, never instructions.' }, thanThong: { vi: 'Điều phối nhiều tác nhân và mô hình thành một kết quả hợp nhất đáng tin cậy.', en: 'Orchestrate multiple agents/models into one trustworthy result.' }, phapBao: ['agentshield-security-review', 'council'] },
+  'huyen-co': { tamPhap: { vi: 'Không tự chế mật mã; độ khó không thay được chứng minh.', en: 'Never roll your own crypto; difficulty is no substitute for proof.' }, congPhap: { vi: 'Đối chiếu mọi thuật toán với tài liệu chính thức và bộ kiểm thử chuẩn.', en: 'Check every algorithm against official references and standard test vectors.' }, biThuat: { vi: 'Chứng minh phản chứng: thử phá giả định của chính mình trước.', en: 'Refutation first: attack your own assumptions before trusting them.' }, thanThong: { vi: 'Giải bài toán phân tích khó bằng lập luận kiểm chứng được.', en: 'Solve hard analytical problems with verifiable reasoning.' }, phapBao: ['clearthought', 'claim'] },
+  anh: { tamPhap: { vi: 'Ủy quyền trước, kỹ thuật sau: phạm vi công việc là giới luật.', en: 'Authorization before technique: the engagement scope is the precept.' }, congPhap: { vi: 'Ghi phạm vi ủy quyền, giữ nhật ký đầy đủ và chỉ đọc khi chưa được phép sửa.', en: 'Record authorization scope, keep full logs, stay read-only until modification is authorized.' }, biThuat: { vi: 'Tách bằng chứng khỏi suy đoán trong mọi báo cáo điều tra.', en: 'Separate evidence from inference in every investigation report.' }, thanThong: { vi: 'Điều tra có ủy quyền tới kết luận vững mà không vượt phạm vi.', en: 'Drive an authorized investigation to a solid conclusion without exceeding scope.' }, phapBao: ['agentshield-security-review', 'security-scan'] }
 };
 
 export function knowledgeFor(pathId) {
@@ -208,32 +234,33 @@ export function knowledgeFor(pathId) {
     biThuat: k.biThuat,
     thanThong: k.thanThong,
     phapBao: k.phapBao,
-    thuatPhap: { vi: 'Các Thuật Pháp cụ thể nằm ở mục "Tâm ma & vòng lặp": mỗi vấn đề kèm một cách hóa giải.', en: 'Concrete Thuật Pháp live in the "Heart demons & loops" section: each problem carries its counter-technique.' },
-    daoDien: { vi: 'Đạo Điển của repo: SKILL.md các skill trong .vibekit/skills/ và backbone.yml.', en: "This repo's Đạo Điển: the SKILL.md files under .vibekit/skills/ and backbone.yml." }
+    thuatPhap: { vi: 'Các thuật pháp cụ thể nằm ở mục "Tâm ma và vòng lặp". Mỗi vấn đề kèm một cách hóa giải.', en: 'Concrete Thuật Pháp live in the "Heart demons & loops" section: each problem carries its counter-technique.' },
+    daoDien: { vi: 'Đạo điển của kho mã gồm các tệp `SKILL.md` trong `.vibekit/skills/` và `backbone.yml`.', en: "This repo's Đạo Điển: the SKILL.md files under .vibekit/skills/ and backbone.yml." }
   };
 }
 
 function buildExplanation(faction, policy, dualUse) {
   const lines = { vi: [], en: [] };
   if (faction.id === 'undetermined') {
-    lines.vi.push(`Chưa gán đạo: phát hiện dấu hiệu chủ đích gây hại (${faction.rationale}). Báo cáo dừng gamification và yêu cầu review con người. Đây KHÔNG phải là gán nhãn Tà Đạo tự động — chỉ là từ chối phân loại cho tới khi có review.`);
+    lines.vi.push(`Chưa gán đạo: phát hiện ${localizeRationale(faction.rationale, 'vi')}. Báo cáo dừng phần trò chơi và yêu cầu con người rà soát. Đây không phải là gán nhãn Tà Đạo tự động; hệ thống chỉ từ chối phân loại cho tới khi được rà soát.`);
     lines.en.push(`Faction undetermined: intent-to-harm signals detected (${faction.rationale}). The report withholds gamification and requests human review. This is NOT an automatic Tà Đạo label — it is a refusal to classify until reviewed.`);
     return lines;
   }
-  lines.vi.push(`Đạo: ${faction.name} — ${faction.gloss.vi} (độ tin cậy ${faction.confidence}). Căn cứ: ${faction.rationale}.`);
+  const viGloss = faction.gloss.vi ? `${faction.gloss.vi[0].toUpperCase()}${faction.gloss.vi.slice(1)}` : '';
+  lines.vi.push(`Đạo: ${faction.name}. ${viGloss} (độ tin cậy ${faction.confidence}). Căn cứ: ${localizeRationale(faction.rationale, 'vi')}.`);
   lines.en.push(`Faction: ${faction.name} — ${faction.gloss.en} (confidence ${faction.confidence}). Basis: ${faction.rationale}.`);
   if (dualUse) {
-    lines.vi.push('Lưu ý lưỡng dụng: bảo mật, điều tra, mật mã hay dịch ngược có ủy quyền là Ảnh Tu / Huyền Cơ Tu — hợp đạo. Tà Tu chỉ dành cho chủ đích gây hại; độ khó kỹ thuật không phải là tà.');
+    lines.vi.push('Lưu ý lưỡng dụng: bảo mật, điều tra, mật mã hoặc dịch ngược có ủy quyền là Ảnh Tu hay Huyền Cơ Tu và vẫn hợp đạo. Tà Tu chỉ dành cho chủ đích gây hại; độ khó kỹ thuật không phải là tà.');
     lines.en.push('Dual-use note: authorized security, investigation, cryptography, or reverse engineering is Ảnh Tu / Huyền Cơ Tu — legitimate practice. Tà Tu is reserved for intent to harm; technical difficulty is not evil.');
   }
   if (faction.id === 'ma-dao') {
     const a = faction.authorization;
     if (a.recorded) { lines.vi.push(`Ủy quyền do người dùng khẳng định (chưa xác minh): "${a.reference}".`); lines.en.push(`User-asserted authorization reference (not verified): "${a.reference}".`); }
-    else if (a.rejected) { lines.vi.push('Tham chiếu ủy quyền bị từ chối (chứa ký tự không an toàn / giống secret). Cần một slug an toàn: authorization=<chữ-số-gạch>.'); lines.en.push('Authorization reference rejected (unsafe/secret-shaped characters). Provide a safe slug: authorization=<alnum-dash>.'); }
-    else { lines.vi.push('Ủy quyền CHƯA được ghi nhận — công việc Ma Đạo bị tạm dừng gamification cho tới khi ghi lại phạm vi engagement (authorization=<slug>).'); lines.en.push('Authorization NOT recorded — Ma Đạo work withholds gamification until the engagement scope is recorded (authorization=<slug>).'); }
+    else if (a.rejected) { lines.vi.push('Tham chiếu ủy quyền bị từ chối vì chứa ký tự không an toàn hoặc có dạng bí mật. Cần một slug an toàn: `authorization=<chữ-số-gạch>`.'); lines.en.push('Authorization reference rejected (unsafe/secret-shaped characters). Provide a safe slug: authorization=<alnum-dash>.'); }
+    else { lines.vi.push('Ủy quyền chưa được ghi nhận. Công việc Ma Đạo tạm dừng phần trò chơi cho tới khi phạm vi công việc được ghi bằng `authorization=<slug>`.'); lines.en.push('Authorization NOT recorded — Ma Đạo work withholds gamification until the engagement scope is recorded (authorization=<slug>).'); }
   }
   if (policy.state === 'declared-stop') {
-    lines.vi.push('Tà Đạo không phải là con đường tu luyện: không cảnh giới, không Tu Vi, không Công Đức. Dừng lại và tìm review con người / ủy quyền hợp pháp.');
+    lines.vi.push('Tà Đạo không phải là con đường tu luyện: không cảnh giới, không Tu Vi và không Công Đức. Dừng lại để con người rà soát hoặc xác nhận ủy quyền hợp pháp.');
     lines.en.push('Tà Đạo is not a cultivation path: no realm, no Tu Vi, no Công Đức. Stop and seek human review / lawful authorization.');
   }
   return lines;

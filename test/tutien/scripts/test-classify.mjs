@@ -17,7 +17,7 @@ import {
   FACTIONS,
   PATHS
 } from '../../../.vibekit/skills/tutien/scripts/classify.mjs';
-import { buildReportModel, renderMarkdown } from '../../../.vibekit/skills/tutien/scripts/render-report.mjs';
+import { buildReportModel, renderClassificationMarkdown, renderMarkdown } from '../../../.vibekit/skills/tutien/scripts/render-report.mjs';
 
 const fixtures = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'fixtures');
 const fx = (n) => path.join(fixtures, n);
@@ -77,7 +77,7 @@ check('P1-02: declared Tà Đạo nulls score/realm/dimensions/knowledge (absenc
   const md = renderMarkdown(model, 'en');
   assert.ok(md.includes('not a cultivation path'));
   assert.ok(!/Score: \d/.test(md));
-  assert.ok(!md.includes('Tâm Pháp'), 'knowledge advice leaked into a stopped report');
+  assert.doesNotMatch(md, /tâm pháp/iu, 'knowledge advice leaked into a stopped report');
   assert.ok(!md.includes('Counter-technique:'), 'problem advice leaked into a stopped report');
 });
 check('P1-02: a stopped report grants no Tu Vi/Công Đức but still tracks Nghiệp Lực', () => {
@@ -193,6 +193,22 @@ check('invalid declarations are rejected', () => {
 check('every faction and path has a bilingual gloss', () => {
   for (const f of Object.values(FACTIONS)) assert.ok(f.gloss.vi && f.gloss.en);
   for (const p of Object.values(PATHS)) assert.ok(p.gloss.vi && p.gloss.en);
+});
+
+check('Vietnamese classification follows sentence case and clean punctuation', () => {
+  const classification = classifyProject({
+    description: 'creative agent security workflow',
+    primaryLanguage: 'js',
+    projectType: 'single-repo',
+    authorsCount: 2,
+    declared: { paths: [] }
+  });
+  const md = renderClassificationMarkdown(classification, 'vi');
+  const prose = md.replace(/`[^`]*`/g, '');
+  const proseWithoutListMarkers = prose.replace(/^\s*- /gm, '');
+  assert.match(md, /^## Đạo và truyền thừa/m);
+  assert.ok(!proseWithoutListMarkers.includes(' - '));
+  assert.doesNotMatch(prose, /\b(prompt|workflow|review|engagement|validation|commit|agent|skill)\b/iu);
 });
 check('progression is deterministic and token-independent', () => {
   const analysis = analyze({ jsonlFiles: [fx('synthetic-repeat-loop.jsonl')] });
