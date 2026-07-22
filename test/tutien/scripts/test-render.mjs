@@ -8,6 +8,7 @@ import { scoreReport } from '../../../.vibekit/skills/tutien/scripts/score.mjs';
 import { detectProblems } from '../../../.vibekit/skills/tutien/scripts/catalog.mjs';
 import { buildReportModel, renderMarkdown, resolveLanguage } from '../../../.vibekit/skills/tutien/scripts/render-report.mjs';
 import { parseInvocation, resolveTone } from '../../../.vibekit/skills/tutien/scripts/command.mjs';
+import { buildResponseBrief } from '../../../.vibekit/skills/tutien/scripts/response-brief.mjs';
 
 const fixtures = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'fixtures');
 const fx = (name) => path.join(fixtures, name);
@@ -39,13 +40,19 @@ check('command: /tutien off is a mode toggle', () => {
 });
 check('command: /tutien on is a mode toggle', () =>
   assert.equal(parseInvocation('on').isModeToggle, true));
-check('command: options parse (language, tone, villains, score)', () => {
-  const c = parseInvocation('analyze language=en tone=spirited villains=off score=show');
+check('command: options parse (language, tone, villains, score, living chronicle)', () => {
+  const c = parseInvocation('analyze language=en tone=spirited villains=off score=show story=on story-language=zh story-style=web-serial story-focus=sect-politics output=ledger');
   assert.equal(c.action, 'analyze');
   assert.equal(c.options.language, 'en');
   assert.equal(c.options.tone, 'spirited');
   assert.equal(c.options.villains, 'off');
   assert.equal(c.options.score, 'show');
+  assert.equal(c.options.story, 'on');
+  assert.equal(c.options.storyLanguage, 'zh');
+  assert.equal(c.options.storyStyle, 'web-serial');
+  assert.equal(c.options.storyFocus, 'sect-politics');
+  assert.equal(c.options.output, 'ledger');
+  assert.ok(c.providedOptions.includes('story-language'));
 });
 check('command: spirited is opt-in, legacy aliases normalize, and sensitive is neutral', () => {
   assert.equal(resolveTone('spirited'), 'spirited');
@@ -53,6 +60,12 @@ check('command: spirited is opt-in, legacy aliases normalize, and sensitive is n
   assert.equal(resolveTone('gentle'), 'serene');
   assert.equal(resolveTone('spirited', { sensitive: true }), 'neutral');
   assert.equal(resolveTone('bogus'), 'serene');
+});
+check('command: unknown story preferences normalize before persistence or display', () => {
+  const c = parseInvocation('preview story-language=<script> story-style=token=SECRET story-focus=../../outside');
+  assert.equal(c.options.storyLanguage, 'auto');
+  assert.equal(c.options.storyStyle, 'auto');
+  assert.equal(c.options.storyFocus, 'balanced');
 });
 check('command: explicit English and Vietnamese end requests turn the mode off', () => {
   for (const request of ['please stop', 'stop tutien mode', 'please end /tutien mode', 'could you please end /tutien mode now', 'hãy dừng nhé', 'tắt tu tiên', 'hãy dừng tu tiên nhé', 'kết thúc tu tiên chế độ']) {
@@ -114,14 +127,80 @@ check('render: model declares the wholesome, isolated Tu Tiên experience', () =
   assert.equal(modelLoop.experience.purpose, 'stress-relief-and-mindful-reflection');
   assert.equal(modelLoop.experience.narrativeStyle, 'refined-mystical-xianxia');
   assert.equal(modelLoop.experience.semanticNamespace, 'tutien-coding-cultivation-v1');
+  assert.equal(modelLoop.composition.finalResponse, 'agent-authored');
+  assert.equal(modelLoop.composition.ledgerRole, 'evidence-scaffold-only');
+  assert.ok(modelLoop.composition.adaptTo.includes('current-user-request'));
+  assert.ok(modelLoop.composition.adaptTo.includes('living-chronicle'));
   const isolated = renderMarkdown(buildReportModel(loop, { context: { companionPersona: 'UNRELATED_MODE_SENTINEL' } }), 'en');
   assert.ok(!isolated.includes('UNRELATED_MODE_SENTINEL'));
 });
-check('render: serene prose has a refined opening, plain evidence, and quiet close', () => {
+check('render: deterministic ledger keeps exact evidence without defining the final response shape', () => {
   assert.match(enMd, /Mist drifts past the mountain gate/);
   assert.match(enMd, /Evidence: 4 repeats\/retries/);
   assert.match(enMd, /## Closing the Dao Record/);
-  assert.match(enMd, /continue without haste/);
+  assert.match(enMd, /Break one knot with real proof/);
+});
+check('render: Vietnamese headings use sentence case and avoid decorative ASCII hyphens', () => {
+  for (const heading of [
+    '# Tu tiên tĩnh ký',
+    '## Thiên cơ trong tầm mắt',
+    '## Cảnh giới bên hiên mây',
+    '## Linh thạch đã tiêu',
+    '## Tâm ma trên đạo lộ',
+    '## Khép lại đạo ký'
+  ]) assert.ok(viMd.includes(heading), heading);
+  assert.ok(!viMd.includes(' - '));
+  assert.ok(!viMd.includes('Chương Thứ Nhất'));
+});
+check('render: Vietnamese report keeps avoidable workflow jargon out of prose', () => {
+  const prose = viMd.replace(/`[^`]*`/g, '');
+  assert.doesNotMatch(prose, /\b(task|prompt|checkpoint|done|validation|pass|commit|candidate|high|delivery|workflow|lore|review|engagement)\b/iu);
+  assert.match(viMd, /4 lượt yêu cầu/);
+  assert.match(viMd, /Độ tin cậy: cao/);
+  assert.match(viMd, /- kiểm chứng `/);
+});
+check('render: Vietnamese missing-evidence reasons are localized', () => {
+  const markdown = renderMarkdown(buildReportModel(transcript, {}), 'vi');
+  assert.match(markdown, /Độ phủ số liệu token dưới 60%/);
+  assert.doesNotMatch(markdown, /token usage coverage below/);
+});
+check('render: project help uses detected validation and omits unavailable kit skills', () => {
+  const external = {
+    projectId: 'material-kit-react',
+    projectType: 'web-app',
+    primaryLanguage: 'typescript',
+    domains: ['frontend', 'ui'],
+    stack: ['react', 'material-ui', 'vite'],
+    validationCommands: ['yarn lint', 'yarn build'],
+    recommendedValidation: 'yarn lint',
+    kitInstalled: false
+  };
+  const proof = JSON.parse(JSON.stringify(clean));
+  proof.coverage.commits = Math.max(1, proof.coverage.commits ?? 0);
+  proof.validation = { events: [] };
+  const model = buildReportModel(proof, { profile: external });
+  assert.ok(model.problems.every((problem) => problem.projectHelp !== 'backbone.yml validate'));
+  assert.ok(model.problems.every((problem) => !['sequential-thinking', 'clearthought', 'claim'].includes(problem.projectHelp)));
+});
+check('brief: preserves facts and project anchors without stock prose or raw event IDs', () => {
+  const profile = {
+    projectId: 'material-kit-react', projectType: 'web-app', primaryLanguage: 'typescript',
+    domains: ['frontend', 'ui'], stack: ['react', 'material-ui', 'vite'], packageManager: 'yarn',
+    validationCommands: ['yarn lint', 'yarn build'], recommendedValidation: 'yarn lint',
+    metadataSources: ['package.json', 'yarn.lock'], kitInstalled: false
+  };
+  const model = buildReportModel(loop, { profile });
+  const brief = buildResponseBrief(model, { language: 'vi', profile, ledgerPath: '.vibekit/reports/tutien/latest.md' });
+  assert.equal(brief.schema, 'tutien-response-brief-v1');
+  assert.deepEqual(brief.project.stack, ['react', 'material-ui', 'vite']);
+  assert.deepEqual(brief.project.validationCommands, ['yarn lint', 'yarn build']);
+  assert.equal(brief.composition.evidenceLedgerIsNotFinalResponse, true);
+  assert.equal(brief.composition.vietnameseEndingIntent, 'Kết cà khịa, luôn giáo huấn, không tâng bốc và kéo dài dư âm vai diễn.');
+  const serialized = JSON.stringify(brief);
+  assert.ok(!serialized.includes('Mist drifts past the mountain gate'));
+  assert.ok(!serialized.includes('Closing the Dao Record'));
+  assert.ok(!serialized.includes('eventIds'));
+  assert.ok(!serialized.includes('evt-'));
 });
 check('render: neutral context pauses theatrical prose', () => {
   const neutral = renderMarkdown(buildReportModel(conflict, { tone: 'spirited' }), 'en');
@@ -133,6 +212,20 @@ check('skill contract names namespace isolation and normal-style restoration', (
   assert.match(skill, /tutien-coding-cultivation-v1/);
   assert.match(skill, /unrelated support\/companion features/);
   assert.match(skill, /normal writing style/);
+  assert.match(skill, /vi-style-guide\.md/);
+  assert.match(skill, /adaptive-response\.md/);
+  assert.match(skill, /never paste its fixed section order or stock prose unchanged/i);
+});
+
+check('skill: adaptive response is project-specific and ending intent is not a fixed formula', () => {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../.vibekit/skills/tutien');
+  const adaptive = fs.readFileSync(path.join(root, 'references/adaptive-response.md'), 'utf8');
+  const viStyle = fs.readFileSync(path.join(root, 'references/vi-style-guide.md'), 'utf8');
+  assert.match(adaptive, /current user request/i);
+  assert.match(adaptive, /distinctive about this repository/i);
+  assert.match(adaptive, /not a response template/i);
+  assert.match(adaptive, /Kết cà khịa, luôn giáo huấn, không tâng bốc và kéo dài dư âm vai diễn\./);
+  assert.match(viStyle, /hiệu quả cần đạt, không phải câu mẫu/);
 });
 
 check('render: model is language-neutral (same facts feed both languages)', () => {

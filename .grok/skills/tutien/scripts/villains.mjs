@@ -60,22 +60,22 @@ export function sanitizeContext(ctx = {}) {
 const LINES = {
   'repeated-failure': {
     serene: [
-      { vi: 'Giữa làn sương mỏng, Luân Hồi Lỗi Ma hiện bóng khi lỗi cũ quay thêm một vòng.', en: 'In the thin mountain mist, the Error-Cycle Wraith appears as the old error completes another circle.' },
-      { vi: 'Một lần thử giống hệt khẽ lay chuông, gọi Luân Hồi Lỗi Ma trở lại đạo lộ.', en: 'One unchanged retry stirs the bell that calls the Error-Cycle Wraith back to the path.' }
+      { vi: 'Giữa làn sương mỏng, Luân Hồi Ma Ảnh hiện bóng khi lỗi cũ quay thêm một vòng.', en: 'In the thin mountain mist, the Error-Cycle Wraith appears as the old error completes another circle.' },
+      { vi: 'Một lần thử giống hệt khẽ lay chuông, gọi Luân Hồi Ma Ảnh trở lại đạo lộ.', en: 'One unchanged retry stirs the bell that calls the Error-Cycle Wraith back to the path.' }
     ],
     spirited: [
-      { vi: 'Luân Hồi Lỗi Ma lại gõ chuông: “Không đổi giả thuyết, sao đổi được kết cục?”', en: 'The Error-Cycle Wraith rings its bell again: “Without a new hypothesis, what new ending could appear?”' },
-      { vi: 'Vòng lặp cũ vừa khép, Luân Hồi Lỗi Ma đã bày sẵn bàn trà chờ vòng kế tiếp.', en: 'The old loop has barely closed, and the Error-Cycle Wraith has already set tea for the next.' }
+      { vi: 'Luân Hồi Ma Ảnh lại gõ chuông: “Không đổi giả thuyết, sao đổi được kết cục?”', en: 'The Error-Cycle Wraith rings its bell again: “Without a new hypothesis, what new ending could appear?”' },
+      { vi: 'Vòng lặp cũ vừa khép, Luân Hồi Ma Ảnh đã bày sẵn bàn trà chờ vòng kế tiếp.', en: 'The old loop has barely closed, and the Error-Cycle Wraith has already set tea for the next.' }
     ]
   },
   'too-many-prompts': {
     serene: [
-      { vi: 'Cửu Hoàn Tâm Ma dệt một task thành nhiều vòng sương khi cột mốc chưa hiện rõ.', en: 'The Ninefold Loop Heart-Shadow weaves one task into rings of mist when its checkpoints remain unclear.' },
-      { vi: 'Nơi ranh giới task nhạt dần, Cửu Hoàn Tâm Ma lặng lẽ nối thêm một vòng.', en: 'Where a task boundary fades, the Ninefold Loop Heart-Shadow quietly adds another circle.' }
+      { vi: 'Cửu Hoàn Tâm Ma dệt một nhiệm vụ thành nhiều vòng sương khi cột mốc chưa hiện rõ.', en: 'The Ninefold Loop Heart-Shadow weaves one task into rings of mist when its checkpoints remain unclear.' },
+      { vi: 'Nơi ranh giới nhiệm vụ nhạt dần, Cửu Hoàn Tâm Ma lặng lẽ nối thêm một vòng.', en: 'Where a task boundary fades, the Ninefold Loop Heart-Shadow quietly adds another circle.' }
     ],
     spirited: [
-      { vi: 'Cửu Hoàn Tâm Ma đếm prompt thay cột mốc; đã đến lúc đổi chiếc vòng kế tiếp thành một tiêu chí “xong”.', en: 'The Ninefold Loop Heart-Shadow is counting prompts instead of checkpoints; turn the next circle into a done-criterion.' },
-      { vi: 'Prompt càng tản như lá thu, Cửu Hoàn Tâm Ma càng dễ giấu mất lối ra.', en: 'The more prompts scatter like autumn leaves, the easier the Ninefold Loop Heart-Shadow hides the exit.' }
+      { vi: 'Cửu Hoàn Tâm Ma đếm lượt yêu cầu thay cột mốc; đã đến lúc đổi chiếc vòng kế tiếp thành một tiêu chí hoàn thành.', en: 'The Ninefold Loop Heart-Shadow is counting prompts instead of checkpoints; turn the next circle into a done-criterion.' },
+      { vi: 'Lượt yêu cầu càng tản như lá thu, Cửu Hoàn Tâm Ma càng dễ giấu mất lối ra.', en: 'The more prompts scatter like autumn leaves, the easier the Ninefold Loop Heart-Shadow hides the exit.' }
     ]
   },
   'conflicting-instructions': {
@@ -90,21 +90,21 @@ const LINES = {
   },
   'unrecovered-failure': {
     serene: [
-      { vi: 'Vô Kiểm Ảnh Quân ẩn sau một thất bại chưa được soi lại bằng lần kiểm chứng mới.', en: 'The Unverified Trial Wraith rests behind a failure that has not yet met a fresh validation.' },
-      { vi: 'Một lỗi bị bỏ lại làm bóng Vô Kiểm Ảnh Quân dài thêm trên bậc đá.', en: 'A failure left behind lengthens the Unverified Trial Wraith’s shadow across the stone steps.' }
+      { vi: 'Vô Nghiệm Ảnh Quân ẩn sau một thất bại chưa được soi lại bằng lần kiểm chứng mới.', en: 'The Unverified Trial Wraith rests behind a failure that has not yet met a fresh validation.' },
+      { vi: 'Một lỗi bị bỏ lại làm bóng Vô Nghiệm Ảnh Quân dài thêm trên bậc đá.', en: 'A failure left behind lengthens the Unverified Trial Wraith’s shadow across the stone steps.' }
     ],
     spirited: [
-      { vi: 'Vô Kiểm Ảnh Quân phủi bụi trên ghế đá: một lần kiểm chứng thành công là đủ để mời nó rời đi.', en: 'The Unverified Trial Wraith dusts its stone seat; one passing validation is enough to send it on its way.' },
-      { vi: 'Chưa có lần chạy lại, Vô Kiểm Ảnh Quân vẫn ung dung giữ chỗ bên cổng hoàn thành.', en: 'Without a rerun, the Unverified Trial Wraith calmly keeps its seat beside the completion gate.' }
+      { vi: 'Vô Nghiệm Ảnh Quân phủi bụi trên ghế đá: một lần kiểm chứng thành công là đủ để mời nó rời đi.', en: 'The Unverified Trial Wraith dusts its stone seat; one passing validation is enough to send it on its way.' },
+      { vi: 'Chưa có lần chạy lại, Vô Nghiệm Ảnh Quân vẫn ung dung giữ chỗ bên cổng hoàn thành.', en: 'Without a rerun, the Unverified Trial Wraith calmly keeps its seat beside the completion gate.' }
     ]
   },
   'work-without-proof': {
     serene: [
       { vi: 'Vô Chứng Đan Ảnh lảng vảng bên lò luyện khi lời tuyên bố hoàn thành chưa có bằng chứng đi cùng.', en: 'The Proofless Elixir Shade lingers by the furnace when a claim of completion carries no evidence.' },
-      { vi: 'Một commit thiếu kết quả kiểm chứng để lại làn khói mỏng cho Vô Chứng Đan Ảnh nương thân.', en: 'A commit without validation leaves a thread of smoke where the Proofless Elixir Shade can dwell.' }
+      { vi: 'Một bản ghi Git thiếu kết quả kiểm chứng để lại làn khói mỏng cho Vô Chứng Đan Ảnh nương thân.', en: 'A commit without validation leaves a thread of smoke where the Proofless Elixir Shade can dwell.' }
     ],
     spirited: [
-      { vi: 'Vô Chứng Đan Ảnh nâng chén trà bên viên đan chưa thử; một dòng validation sẽ làm màn khói tan ngay.', en: 'The Proofless Elixir Shade raises tea beside an untested pill; one validation line will clear the smoke.' },
+      { vi: 'Vô Chứng Đan Ảnh nâng chén trà bên viên đan chưa thử; một dòng kiểm chứng sẽ làm màn khói tan ngay.', en: 'The Proofless Elixir Shade raises tea beside an untested pill; one validation line will clear the smoke.' },
       { vi: 'Không có biên nhận kiểm chứng, Vô Chứng Đan Ảnh cứ ngỡ lò luyện thuộc về mình.', en: 'Without a validation receipt, the Proofless Elixir Shade starts to think the furnace is its own.' }
     ]
   }

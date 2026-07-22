@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.0-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.1-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -146,7 +146,7 @@ Bạn (prompt) ──▶ Claude Code / Cursor / Codex / Grok
 2. **Task lớn hoặc mơ hồ?** Bắt đầu với skill `clearthought` hoặc `sequential-thinking` để có kế hoạch trước.
 3. **Task phức tạp nhưng prompt mù mờ?** `/prompt-sharpener <prompt mù mờ>` cải thiện prompt thành bản rõ ràng rồi thực thi ngay trong cùng lượt.
 4. **Muốn đưa skill, rule, hoặc tool mới vào repo?** `/claim <yêu cầu + link>` kiểm chứng nguồn với tài liệu chính thức, kiểm tra độ khớp với repo, hỏi lại khi chưa rõ, rồi tích hợp và ghi tài liệu.
-5. **Muốn thả lỏng một chút khi nhìn lại tiến độ?** `/tutien` là trò chơi phân loại tu tiên lành mạnh, riêng tư dựa trên lịch sử Git + file export chat AI. Giọng văn huyền nhã bao quanh số liệu thật về cảnh giới, token và thói quen làm việc; `/tutien off` khôi phục văn phong bình thường của kit.
+5. **Muốn thả lỏng một chút khi nhìn lại tiến độ?** `/tutien` là chế độ tu tiên riêng tư dựa trên lịch sử Git + file export chat AI. Ngoài phân loại theo bằng chứng thật, trường thiên ký sự sẽ phát triển một thế giới, nhân vật, tông môn, hệ thống cảnh giới và các chương truyện riêng cho từng dự án bằng tiếng Việt, tiếng Anh hoặc tiếng Trung giản thể; `/tutien off` khôi phục văn phong bình thường của kit.
 6. **Câu hỏi toàn repo hoặc review lớn?** Dùng `parallel-analysis` — chia các lane phân tích chỉ-đọc chạy song song rồi xác minh kết quả gộp.
 7. **Đã sửa `.claude/`, skills, hooks, hoặc script installer?** Chạy `/security-scan` trước khi merge.
 8. **Muốn cải tiến đo được?** Chạy `/autoresearch-coding` với metric và budget.
@@ -184,7 +184,9 @@ Cả 15 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex và Grok m
 | `coding-level`                | Chỉnh độ chi tiết khi giải thích (0 = ELI5 … 5 = chuyên gia).                         | "/coding-level 2"                                                                       |
 | `prompt-sharpener`            | Task phức tạp nhưng prompt mù mờ: cải thiện prompt rồi thực thi ngay trong cùng lượt. | "/prompt-sharpener make the settings page load faster"                                  |
 | `claim`                       | Đưa thứ mới vào repo (skill, rule, quy ước, tool): kiểm chứng nguồn chính thức, kiểm tra độ khớp, xác nhận, tích hợp, ghi tài liệu. | "/claim add the conventional-commits rule from https://www.conventionalcommits.org"     |
-| `tutien`                      | Trò chơi phân loại tu tiên riêng tư, giúp thư giãn khi nhìn lại tiến độ code; văn phong huyền nhã bao quanh bằng chứng Git/chat chính xác và tách biệt với các chế độ hội thoại khác. User-invoked; `/tutien off` khôi phục văn phong bình thường. | "/tutien preview sources=git,/path/to/export.jsonl"                                     |
+| `tutien`                      | Chế độ tu tiên riêng tư với bằng chứng Git/chat chính xác và trường thiên ký sự mở theo từng repo. Có tổng cương cốt truyện và một chương tuần tự cho mỗi kỳ bằng chứng mới đã duyệt; chỉ chạy khi user gọi, `/tutien off` khôi phục văn phong thường. | "/tutien preview sources=git story-language=vi story-style=web-serial"                   |
+
+Với `story=on` (mặc định), sau khi phân tích được duyệt, chế độ chuẩn bị `.vibekit/reports/tutien/story/`: `plot.md` lưu tổng cương và thế giới quan đang phát triển, `story-state.json` giữ mạch truyện, còn `chapters/NNNN-<tên-chương-tu-tiên>.md` lưu mỗi lần đúng một chương. Văn truyện do agent sáng tác từ dữ liệu tổng hợp thay vì ghép câu cố định; tên nhân vật, xưng hô và đối thoại tự nhiên theo `story-language=vi|en|zh`.
 
 ## Nâng cao
 

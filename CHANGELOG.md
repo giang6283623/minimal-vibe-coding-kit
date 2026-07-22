@@ -1,6 +1,27 @@
 # Changelog
 
-## Unreleased
+## 0.5.1 — 2026-07-22
+
+### Added
+
+- Added a `/tutien` living chronicle that turns each repository's approved aggregate Git, token, classification, and progression evidence into an open-ended agent-authored xianxia serial. Each project keeps a local `plot.md`, continuity state, aggregate-only context, and one ordered chapter file per distinct evidence window under the git-ignored `.vibekit/reports/tutien/story/` directory.
+- Added equal chronicle support for Vietnamese, English, and Simplified Chinese, including language-native xianxia naming, honorifics, dialogue cadence, humor, chapter titles, and safely sarcastic antagonists whose malice targets workflow weaknesses rather than people.
+- Added `story-ledger.mjs` and deterministic tests for multilingual filenames, aggregate-only context, contiguous chapters, duplicate evidence rejection, and story transaction validation.
+
+### Changed
+
+- Reframed `/tutien` story writing as an evidence-plus-agent hybrid: deterministic scripts preserve facts and privacy, while agents create project-specific plots, characters, sects, realms, techniques, and dialogue without relying on fixed story sentences.
+- Replaced the fixed report-shaped default response with an aggregate-only `latest-brief.json` handoff. It detects safe project anchors from known manifests, recommends real repository validation commands, and leaves structure, pacing, scene, dialogue, and closing imagery to the agent; `output=ledger` preserves the deterministic audit view.
+- Expanded the cultural reference notes into a verified, genre-level writing palette covering path/learning metaphors, classical journey traditions, modern web-serial progression, daily-life cultivation, clan/sect epics, and cultivation-game procedural structure without imitating named living authors.
+
+### Security and privacy
+
+- Living-chronicle context persists only project slugs and aggregate metrics. Raw prompts, event IDs, commit subjects, contributor identities, URLs, secrets, and source-file contents remain excluded from context, state, plot, and chapters.
+
+### Validation
+
+- Expanded `/tutien` coverage to **158 deterministic, offline checks**, including project-profile privacy, response-brief composition, living-chronicle, preference sanitization, manifest-bound approval, optional ledger output, and on/off suppression.
+- Synchronized the release version to `0.5.1` in `package.json`, `.codex-plugin/plugin.json`, and all three README badges.
 
 ## 0.5.0 — 2026-07-20
 

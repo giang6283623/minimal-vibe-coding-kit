@@ -13,6 +13,14 @@ const TONE_ALIASES = new Map([
   ['gentle', 'serene'],
   ['spicy', 'spirited']
 ]);
+const STORY_LANGUAGES = new Set(['auto', 'vi', 'en', 'zh']);
+const STORY_STYLES = new Set(['auto', 'classic-quest', 'web-serial', 'daily-life', 'clan-epic', 'comic-adventure']);
+const STORY_FOCUSES = new Set(['balanced', 'project', 'characters', 'world', 'sect-politics']);
+
+const allowedOr = (value, allowed, fallback) => allowed.has(String(value).toLowerCase()) ? String(value).toLowerCase() : fallback;
+export const normalizeStoryLanguage = (value) => allowedOr(value, STORY_LANGUAGES, 'auto');
+export const normalizeStoryStyle = (value) => allowedOr(value, STORY_STYLES, 'auto');
+export const normalizeStoryFocus = (value) => allowedOr(value, STORY_FOCUSES, 'balanced');
 
 export const TUTIEN_EXPERIENCE = Object.freeze({
   kind: 'wholesome-coding-classification-game',
@@ -48,15 +56,21 @@ export function parseInvocation(argsString = '') {
     score: 'hidden',
     includeExcerpts: false,
     range: 'all',
-    sources: []
+    sources: [],
+    story: 'on',
+    storyLanguage: 'auto',
+    storyStyle: 'auto',
+    storyFocus: 'balanced',
+    output: 'brief'
   };
+  const providedOptions = new Set();
   let action = null;
 
   // A direct request to end the experience always wins over report parsing.
   // This keeps prose mode and approval state from lingering after the user
   // asks to return to the kit's normal voice.
   if (isStopRequest(argsString)) {
-    return { action: 'off', isModeToggle: true, explicitAction: true, options };
+    return { action: 'off', isModeToggle: true, explicitAction: true, options, providedOptions: [] };
   }
 
   for (const tok of tokens) {
@@ -68,24 +82,29 @@ export function parseInvocation(argsString = '') {
     const key = tok.slice(0, eq);
     const value = tok.slice(eq + 1);
     switch (key) {
-      case 'language': options.language = value; break;
-      case 'tone': options.tone = normalizeTone(value); break;
-      case 'villains': options.villains = value === 'off' ? 'off' : 'on'; break;
-      case 'score': options.score = value === 'show' ? 'show' : 'hidden'; break;
-      case 'scope': options.scope = value; break;
-      case 'privacy': options.privacy = value; break;
-      case 'range': options.range = value; break;
-      case 'include-excerpts': options.includeExcerpts = value === 'true'; break;
-      case 'sources': options.sources = value.split(',').filter(Boolean); break;
-      case 'previous': options.previous = value; break;
-      case 'metric': options.metric = value; break;
-      case 'approve': options.approve = value; break;
-      case 'snapshot': options.snapshot = value === 'true'; break;
-      case 'faction': options.faction = value; break;
-      case 'affiliation': options.affiliation = value; break;
-      case 'paths': options.paths = value.split(',').filter(Boolean); break;
-      case 'domains': options.domains = value.split(',').filter(Boolean); break;
-      case 'authorization': options.authorization = value; break;
+      case 'language': providedOptions.add(key); options.language = value; break;
+      case 'tone': providedOptions.add(key); options.tone = normalizeTone(value); break;
+      case 'villains': providedOptions.add(key); options.villains = value === 'off' ? 'off' : 'on'; break;
+      case 'score': providedOptions.add(key); options.score = value === 'show' ? 'show' : 'hidden'; break;
+      case 'scope': providedOptions.add(key); options.scope = value; break;
+      case 'privacy': providedOptions.add(key); options.privacy = value; break;
+      case 'range': providedOptions.add(key); options.range = value; break;
+      case 'include-excerpts': providedOptions.add(key); options.includeExcerpts = value === 'true'; break;
+      case 'sources': providedOptions.add(key); options.sources = value.split(',').filter(Boolean); break;
+      case 'previous': providedOptions.add(key); options.previous = value; break;
+      case 'metric': providedOptions.add(key); options.metric = value; break;
+      case 'approve': providedOptions.add(key); options.approve = value; break;
+      case 'snapshot': providedOptions.add(key); options.snapshot = value === 'true'; break;
+      case 'faction': providedOptions.add(key); options.faction = value; break;
+      case 'affiliation': providedOptions.add(key); options.affiliation = value; break;
+      case 'paths': providedOptions.add(key); options.paths = value.split(',').filter(Boolean); break;
+      case 'domains': providedOptions.add(key); options.domains = value.split(',').filter(Boolean); break;
+      case 'authorization': providedOptions.add(key); options.authorization = value; break;
+      case 'story': providedOptions.add(key); options.story = value === 'off' ? 'off' : 'on'; break;
+      case 'story-language': providedOptions.add(key); options.storyLanguage = normalizeStoryLanguage(value); break;
+      case 'story-style': providedOptions.add(key); options.storyStyle = normalizeStoryStyle(value); break;
+      case 'story-focus': providedOptions.add(key); options.storyFocus = normalizeStoryFocus(value); break;
+      case 'output': providedOptions.add(key); options.output = value === 'ledger' ? 'ledger' : 'brief'; break;
       default: break;
     }
   }
@@ -96,7 +115,7 @@ export function parseInvocation(argsString = '') {
   const explicitAction = action !== null;
   if (!action) action = 'preview';
   const isModeToggle = action === 'on' || action === 'off' || action === 'status';
-  return { action, isModeToggle, explicitAction, options };
+  return { action, isModeToggle, explicitAction, options, providedOptions: [...providedOptions] };
 }
 
 // The livelier `spirited` voice is explicit opt-in. Safety-sensitive contexts

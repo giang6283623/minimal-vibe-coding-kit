@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.0-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.1-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -146,7 +146,7 @@ your-project/
 2. **任务很大或不够明确？** 先使用 `clearthought` 或 `sequential-thinking` 技能生成计划。
 3. **任务复杂，但只有一个粗略提示词？** `/prompt-sharpener <rough prompt>` 会将它变得清晰准确，并在同一轮中执行。
 4. **想把新技能、规则或工具带入仓库？** `/claim <request + links>` 会根据官方文档验证来源、检查是否适合当前仓库、在不明确时询问，然后完成集成和文档记录。
-5. **想在回顾进度时安静地放松一下？** `/tutien` 是一款私密、健康的修仙风格分类游戏，分析 Git 历史和你明确提供的 AI 聊天导出。它以清雅玄妙的文风呈现境界、token 使用和工作流习惯，但绝不改变证据；`/tutien off` 会恢复工具包的正常文风。
+5. **想在回顾进度时安静地放松一下？** `/tutien` 是基于 Git 历史和你明确提供的 AI 聊天导出的私密修仙模式。除了严格依据证据进行分类，它还会为每个项目逐步发展独有的世界、人物、宗门、境界体系与连续章节，支持越南语、英语和简体中文；`/tutien off` 会恢复工具包的正常文风。
 6. **需要回答全仓库问题或进行大型审查？** 使用 `parallel-analysis`，它会并行执行多个只读分析通道，并验证合并后的结论。
 7. **修改了 `.claude/`、技能、hook 或安装脚本？** 合并前运行 `/security-scan`。
 8. **想进行可衡量的改进？** 使用带有 metric 和预算的 `/autoresearch-coding`。
@@ -184,7 +184,9 @@ your-project/
 | `coding-level`                  | 设置解释详细程度（0 = ELI5，5 = 专家同行）。                                                        | "/coding-level 2"                                                                                     |
 | `prompt-sharpener`              | 复杂任务只有粗略提示词时：优化提示词并在同一轮执行。                                                 | "/prompt-sharpener make the settings page load faster"                                                |
 | `claim`                         | 将新技能、规则、约定或工具带入仓库：验证官方来源、检查适配性、确认、集成并记录文档。                 | "/claim add the conventional-commits rule from https://www.conventionalcommits.org"                   |
-| `tutien`                        | 私密、舒缓压力的修仙编码进度分类游戏：以清雅玄妙的叙事包裹准确的 Git/聊天证据，并与其他对话模式隔离。仅由用户调用；`/tutien off` 恢复正常文风。 | "/tutien preview sources=git,/path/to/export.jsonl"                                                   |
+| `tutien`                        | 基于准确 Git/聊天证据的私密修仙模式，并为每个仓库维护开放式连载故事。每个新的已批准证据窗口对应一个有序章节；仅由用户调用，`/tutien off` 恢复正常文风。 | "/tutien preview sources=git story-language=zh story-style=web-serial"                                |
+
+`story=on`（默认）时，获批分析会准备 `.vibekit/reports/tutien/story/`：`plot.md` 保存持续演化的总纲与世界设定，`story-state.json` 保存连续性，`chapters/NNNN-<修仙章名>.md` 每次只保存一个章节。故事由 Agent 根据聚合证据原创，而不是拼接固定句子；人物姓名、称谓和对白会自然遵循 `story-language=vi|en|zh`。
 
 ## 高级用法
 

@@ -68,7 +68,38 @@ A usage record contributes to reported/estimated totals and coverage only when a
 
 ## Runner state
 
-`scripts/run-tutien.mjs` executes the actions end-to-end. It stores the session mode and the pending single-use approval token in the git-ignored `.vibekit/reports/tutien/state.json`, snapshots under `snapshots/`, and the last report as `latest.md`. Preview inspects file existence/size only; analysis runs only with the matching `approve=<token>` for the identical scope. The runner never deletes files — retention prints a `trash` command for the user.
+`scripts/run-tutien.mjs` executes the actions end-to-end. It stores the session mode and pending single-use approval token in `.vibekit/reports/tutien/state.json`, snapshots under `snapshots/`, the audit ledger as `latest.md`, and the agent handoff as `latest-brief.json`. Preview inspects existence, size, and modification time only; analysis runs only with the matching token for the identical evidence and manifest inventory. The runner never deletes files.
+
+`latest-brief.json` uses `tutien-response-brief-v1`. It carries policy state, safe project identity/stack/validation commands, aggregate evidence, classification/progression slugs, bounded findings without event IDs, an optional story pointer, and composition constraints. Its object shape is not a response layout.
+
+When `story=on`, runner state also stores the selected `storyLanguage`, `storyStyle`, and `storyFocus` for the current repository. A successful approved analysis writes `.vibekit/reports/tutien/story/latest-context.json`; it does not write creative prose.
+
+## Living chronicle schemas
+
+`latest-context.json` uses `tutien-story-context-v1` and contains:
+
+- a deterministic 16-hex `evidenceKey` derived from aggregate facts;
+- `language`, `style`, `focus`, `policyState`, and `canWriteChapter`;
+- safe project, stack, metadata-source, and generated validation-command slugs plus an aggregate author count;
+- coverage, reported/estimated/unknown token totals, realm/score, problem types, classification slugs, and progression aggregates.
+
+It never contains `text`, prompts, commit subjects, event IDs, author identities, file contents, URLs, or classification rationale.
+
+`story-state.json` uses `tutien-story-state-v1` with `language`, `style`, contiguous `lastChapter`, and unique `consumedEvidenceKeys`.
+
+Each `chapters/NNNN-<localized-xianxia-title>.md` uses YAML frontmatter:
+
+```yaml
+---
+schema: tutien-story-chapter-v1
+chapter: 1
+title: "Localized title"
+language: vi
+evidence_key: 0123456789abcdef
+---
+```
+
+Chapter numbers are contiguous and one evidence key may appear in at most one chapter. `scripts/story-ledger.mjs validate` checks these invariants plus the presence of `plot.md` and agreement with `story-state.json`.
 
 ## Determinism invariant
 
