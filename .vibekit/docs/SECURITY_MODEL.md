@@ -21,8 +21,11 @@ node .vibekit/scripts/agentshield-probe.mjs .
 Full scanner when available:
 
 ```bash
-npx ecc-agentshield scan --path . --format text --min-severity medium
+npx ecc-agentshield@1.4.0 scan --path . --format text --min-severity medium
 ```
+
+If the package is not already installed, request approval before fetching and executing this
+exact version. Otherwise use the repository probe plus the manual review checklist.
 
 ## Findings labels
 

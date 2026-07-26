@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.1-2ea44f.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.2-2ea44f.svg)](CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -35,6 +35,38 @@ A small kit of shared **rules**, **skills**, and **commands**, plus one **`backb
 ## Quick Start
 
 Three steps, about two minutes.
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+---
+flowchart LR
+    Start([Your project]) --> Install("1 — Install the kit")
+    Install --> Paste("2 — Paste init prompt")
+    Paste --> Review{"3 — Approve diff?"}
+    Review -->|yes| Ready("backbone.yml initialized")
+    Review -->|no| Revise("Agent revises proposal")
+    Revise --> Review
+    Ready --> Done([Code with guardrails])
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111
+    linkStyle default stroke:#444444,stroke-width:1.5px
+
+    class Start,Done terminal
+    class Install,Paste,Revise step
+    class Review decision
+    class Ready success
+```
 
 **1. Install into your project** (no clone needed):
 
@@ -122,17 +154,56 @@ Existing files are never replaced — the kit merges managed blocks (`BEGIN/END:
 
 ## How the pieces connect
 
-```text
-You (prompt) ──▶ Claude Code / Cursor / Codex / Grok
-                      │  reads first
-                      ▼
-        backbone.yml  +  AGENTS.md / CLAUDE.md  +  rules
-                      │  loads on demand
-                      ▼
-        skills (procedures)  +  commands (shortcuts)
-                      │  guarded by
-                      ▼
-        protected paths · propose-before-write · AgentShield probe
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+    clusterBkg: "#FFF9DB"
+    clusterBorder: "#444444"
+---
+flowchart TD
+    You([You — one prompt]) --> Agent("Claude / Cursor / Codex / Grok")
+
+    subgraph First["Read first"]
+        Backbone[("backbone.yml")]
+        Docs("AGENTS.md / CLAUDE.md")
+        Rules("Rules — short guardrails")
+    end
+
+    subgraph Demand["Loaded on demand"]
+        Skills("Skills — procedures")
+        Commands("Commands — shortcuts")
+    end
+
+    subgraph Guard["Guarded by"]
+        Protected("Protected paths")
+        Propose("Propose before write")
+        Shield("AgentShield probe")
+    end
+
+    Agent --> First
+    First --> Demand
+    Demand --> Guard
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef data fill:#63E6BE,stroke:#444444,stroke-width:2px,color:#111111
+    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111
+    linkStyle default stroke:#444444,stroke-width:1.5px
+
+    class You terminal
+    class Agent step
+    class Backbone data
+    class Docs,Rules step
+    class Skills,Commands accent
+    class Protected,Propose,Shield danger
 ```
 
 - **`backbone.yml`** — paths, conventions, protected paths, and the validate command for your repo.
@@ -141,6 +212,57 @@ You (prompt) ──▶ Claude Code / Cursor / Codex / Grok
 - **Commands** — one-word shortcuts to the most common skills.
 
 ## Guide — day-to-day usage
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+    clusterBkg: "#FFF9DB"
+    clusterBorder: "#444444"
+---
+flowchart TD
+    Task([New task]) --> Big{Big or vague?}
+    Big -->|no| Code("Just code")
+    Big -->|yes| Plan("clearthought /<br/>sequential-thinking")
+    Big -->|rough prompt| Sharp("/prompt-sharpener")
+    Plan --> Code
+    Sharp --> Code
+    Code --> Surface{Agent surfaces touched?}
+    Surface -->|yes| Scan("/security-scan")
+    Surface -->|no| Ship([Merge and continue])
+    Scan --> Ship
+
+    subgraph Anytime["Anytime"]
+        Wide("parallel-analysis<br/>repo-wide questions")
+        Auto("/autoresearch-coding<br/>measured improvements")
+        Daily("/daily-enhance<br/>propose-only tune-up")
+    end
+    Ship -.-> Anytime
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111
+    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111
+    linkStyle default stroke:#444444,stroke-width:1.5px
+
+    class Task,Ship terminal
+    class Plan,Sharp step
+    class Big,Surface decision
+    class Code success
+    class Scan danger
+    class Wide,Auto,Daily accent
+```
+
+<details>
+<summary><strong>Read more</strong></summary>
 
 1. **Just code.** Ask for features and fixes normally; the agent follows `backbone.yml` conventions and keeps diffs small.
 2. **Big or vague task?** Start with the `clearthought` or `sequential-thinking` skill to get a plan first.
@@ -153,7 +275,56 @@ You (prompt) ──▶ Claude Code / Cursor / Codex / Grok
 9. **Keep the setup sharp:** `/daily-enhance` proposes improvements — it never applies them silently.
 10. **Onboarding finished for good?** `/vibe-finalize` moves one-time bootstrap files out.
 
+</details>
+
 ## Commands
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+    clusterBkg: "#FFF9DB"
+    clusterBorder: "#444444"
+---
+flowchart LR
+    subgraph SetupPhase["Setup"]
+        Init("/init-vibe<br/>one diff, your yes")
+    end
+    subgraph DailyPhase["Every day"]
+        Scan("/security-scan<br/>agent surfaces")
+        Enhance("/daily-enhance<br/>propose-only")
+    end
+    subgraph ImprovePhase["Improve"]
+        Auto("/autoresearch-coding<br/>metric loop")
+        Council("/council<br/>merged plan")
+    end
+    subgraph GradPhase["Graduate"]
+        Final("/vibe-finalize<br/>cleanup bootstrap")
+    end
+    SetupPhase --> DailyPhase --> ImprovePhase --> GradPhase
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111
+    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111
+    linkStyle default stroke:#444444,stroke-width:1.5px
+
+    class Init step
+    class Scan danger
+    class Enhance,Council accent
+    class Auto success
+    class Final terminal
+```
+
+<details>
+<summary><strong>Read more</strong></summary>
 
 | Command                | What it does                                                                | Example                                                            |
 | ---------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------ |
@@ -164,9 +335,55 @@ You (prompt) ──▶ Claude Code / Cursor / Codex / Grok
 | `/council`             | Coordinates reviewer/researcher/analyst agents into one merged plan.        | `/council` on this branch diff.                                    |
 | `/vibe-finalize`       | Graduate the project: move one-time bootstrap files to `_vibekit-cleanup/`. | `/vibe-finalize` — preview first, apply after approval.            |
 
+</details>
+
 ## Skills
 
-All 15 skills live canonically in `.vibekit/skills/`. Claude, Codex, and Grok mirror all 15; Cursor mirrors the 10 interactive ones. Invoke them by name ("Use the X skill…") or via the commands above.
+All 16 skills live canonically in `.vibekit/skills/`. Claude, Codex, and Grok mirror all 16; Cursor mirrors the 11 interactive ones. Invoke them by name ("Use the X skill…") or via the commands above.
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    clusterBkg: "#FFF9DB"
+    clusterBorder: "#444444"
+---
+flowchart LR
+    subgraph SetupCat["Setup and safety"]
+        direction TB
+        S1("vibekit-init") ~~~ S2("agentshield-<br/>security-review") ~~~ S3("path-sensitive-<br/>shell-safety")
+    end
+    subgraph ThinkCat["Think and plan"]
+        direction TB
+        T1("clearthought") ~~~ T2("sequential-thinking") ~~~ T3("prompt-sharpener") ~~~ T4("reviewing-4p-priorities")
+    end
+    subgraph AnalyzeCat["Analyze and improve"]
+        direction TB
+        A1("parallel-analysis") ~~~ A2("autoresearch-coding") ~~~ A3("daily-workflow-curator") ~~~ A4("visual-design-loop")
+    end
+    subgraph HelperCat["Daily helpers"]
+        direction TB
+        H1("memento") ~~~ H2("coding-level") ~~~ H3("mermaid") ~~~ H4("claim") ~~~ H5("tutien")
+    end
+
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111
+    classDef data fill:#63E6BE,stroke:#444444,stroke-width:2px,color:#111111
+
+    class S1,S2,S3 step
+    class T1,T2,T3,T4 accent
+    class A1,A2,A3,A4 success
+    class H1,H2,H3,H4,H5 data
+```
+
+<details>
+<summary><strong>Read more</strong></summary>
 
 | Skill                         | Use it when                                                                                                                                                                                                                              | Example prompt                                                                                        |
 | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
@@ -185,8 +402,11 @@ All 15 skills live canonically in `.vibekit/skills/`. Claude, Codex, and Grok mi
 | `prompt-sharpener`            | A complex task but only a rough prompt: sharpen it, then execute it in the same turn.                                                                                                                                                    | "/prompt-sharpener make the settings page load faster"                                                |
 | `claim`                       | Bringing something new into the repo (skill, rule, convention, tool): vet sources against official docs, fit-check, confirm, integrate, document.                                                                                        | "/claim add the conventional-commits rule from https://www.npmjs.com/package/minimal-vibe-coding-kit" |
 | `tutien`                      | A private xianxia coding-reflection mode with exact Git/chat evidence and an open-ended, repository-specific living chronicle. It keeps a plot bible and one ordered chapter per new approved evidence window; user-invoked, and `/tutien off` restores normal prose. | "/tutien preview sources=git story-language=vi story-style=web-serial"                               |
+| `mermaid`                     | Generating styled Mermaid diagrams (31 types) with coding-level-aware density. Offers to illustrate generated docs, and draws debug workflow charts with the risky zones highlighted red.                                                                | "Use the mermaid skill. Draw this deploy pipeline as a flowchart."                                    |
 
 With `story=on` (default), approved analysis prepares `.vibekit/reports/tutien/story/`: `plot.md` is the evolving world/plot bible, `story-state.json` preserves continuity, and `chapters/NNNN-<xianxia-title>.md` stores one chapter per save. Story prose is agent-authored from aggregate evidence rather than a fixed sentence bank; character names and dialogue follow `story-language=vi|en|zh` naturally.
+
+</details>
 
 ## Advanced
 
@@ -224,6 +444,42 @@ Budget: 3.
 ```
 
 Contract: baseline first → one small experiment at a time → keep only metric-positive changes → log everything.
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+---
+flowchart TD
+    Start([Goal + metric + budget]) --> Base("Run logged baseline")
+    Base --> Exp("One small experiment")
+    Exp --> Check{"Metric improved?"}
+    Check -->|yes| Keep("Keep the change")
+    Check -->|no| Revert("Revert the change")
+    Keep --> Left{"Budget left?"}
+    Revert --> Left
+    Left -->|yes| Exp
+    Left -->|no| Report([Final report + log])
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111
+    linkStyle default stroke:#444444,stroke-width:1.5px
+
+    class Start,Report terminal
+    class Base,Exp step
+    class Check,Left decision
+    class Keep success
+    class Revert danger
+```
 
 ### Security review (AgentShield)
 

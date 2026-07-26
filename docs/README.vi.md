@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.1-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.2-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -35,6 +35,38 @@ Một bộ kit nhỏ gồm **rules**, **skills**, **commands** dùng chung, cộ
 ## Bắt đầu nhanh
 
 Ba bước, khoảng hai phút.
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+---
+flowchart LR
+    Start([Project của bạn]) --> Install("1 — Cài kit")
+    Install --> Paste("2 — Dán prompt init")
+    Paste --> Review{"3 — Duyệt diff?"}
+    Review -->|yes| Ready("backbone.yml sẵn sàng")
+    Review -->|no| Revise("Agent sửa đề xuất")
+    Revise --> Review
+    Ready --> Done([Code với guardrails])
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111
+    linkStyle default stroke:#444444,stroke-width:1.5px
+
+    class Start,Done terminal
+    class Install,Paste,Revise step
+    class Review decision
+    class Ready success
+```
 
 **1. Cài vào project của bạn** (không cần clone):
 
@@ -122,17 +154,56 @@ File sẵn có không bao giờ bị thay thế — kit chỉ merge managed bloc
 
 ## Các mảnh ghép kết nối thế nào
 
-```text
-Bạn (prompt) ──▶ Claude Code / Cursor / Codex / Grok
-                      │  đọc đầu tiên
-                      ▼
-        backbone.yml  +  AGENTS.md / CLAUDE.md  +  rules
-                      │  load khi cần
-                      ▼
-        skills (quy trình)  +  commands (phím tắt)
-                      │  được bảo vệ bởi
-                      ▼
-        protected paths · đề xuất-trước-khi-ghi · AgentShield probe
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+    clusterBkg: "#FFF9DB"
+    clusterBorder: "#444444"
+---
+flowchart TD
+    You([Bạn — một prompt]) --> Agent("Claude / Cursor / Codex / Grok")
+
+    subgraph First["Đọc đầu tiên"]
+        Backbone[("backbone.yml")]
+        Docs("AGENTS.md / CLAUDE.md")
+        Rules("Rules — guardrail ngắn")
+    end
+
+    subgraph Demand["Load khi cần"]
+        Skills("Skills — quy trình")
+        Commands("Commands — phím tắt")
+    end
+
+    subgraph Guard["Được bảo vệ bởi"]
+        Protected("Protected paths")
+        Propose("Đề xuất trước khi ghi")
+        Shield("AgentShield probe")
+    end
+
+    Agent --> First
+    First --> Demand
+    Demand --> Guard
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef data fill:#63E6BE,stroke:#444444,stroke-width:2px,color:#111111
+    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111
+    linkStyle default stroke:#444444,stroke-width:1.5px
+
+    class You terminal
+    class Agent step
+    class Backbone data
+    class Docs,Rules step
+    class Skills,Commands accent
+    class Protected,Propose,Shield danger
 ```
 
 - **`backbone.yml`** — đường dẫn, quy ước, protected paths, và lệnh validate của repo bạn.
@@ -141,6 +212,57 @@ Bạn (prompt) ──▶ Claude Code / Cursor / Codex / Grok
 - **Commands** — phím tắt một từ cho các skill hay dùng nhất.
 
 ## Hướng dẫn — sử dụng hằng ngày
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+    clusterBkg: "#FFF9DB"
+    clusterBorder: "#444444"
+---
+flowchart TD
+    Task([Task mới]) --> Big{Lớn hoặc mơ hồ?}
+    Big -->|không| Code("Cứ code bình thường")
+    Big -->|có| Plan("clearthought /<br/>sequential-thinking")
+    Big -->|prompt mù mờ| Sharp("/prompt-sharpener")
+    Plan --> Code
+    Sharp --> Code
+    Code --> Surface{Chỉnh sửa agent?}
+    Surface -->|có| Scan("/security-scan")
+    Surface -->|không| Ship([Merge và tiếp tục])
+    Scan --> Ship
+
+    subgraph Anytime["Bất cứ lúc nào"]
+        Wide("parallel-analysis<br/>câu hỏi toàn repo")
+        Auto("/autoresearch-coding<br/>cải tiến đo được")
+        Daily("/daily-enhance<br/>chỉ đề xuất")
+    end
+    Ship -.-> Anytime
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111
+    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111
+    linkStyle default stroke:#444444,stroke-width:1.5px
+
+    class Task,Ship terminal
+    class Plan,Sharp step
+    class Big,Surface decision
+    class Code success
+    class Scan danger
+    class Wide,Auto,Daily accent
+```
+
+<details>
+<summary><strong>Xem thêm</strong></summary>
 
 1. **Cứ code bình thường.** Yêu cầu feature/fix như thường lệ; agent theo quy ước trong `backbone.yml` và giữ diff nhỏ.
 2. **Task lớn hoặc mơ hồ?** Bắt đầu với skill `clearthought` hoặc `sequential-thinking` để có kế hoạch trước.
@@ -153,7 +275,56 @@ Bạn (prompt) ──▶ Claude Code / Cursor / Codex / Grok
 9. **Giữ setup luôn sắc bén:** `/daily-enhance` đề xuất cải tiến — không bao giờ tự áp dụng.
 10. **Onboarding xong hẳn?** `/vibe-finalize` dọn các file bootstrap một lần.
 
+</details>
+
 ## Commands
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+    clusterBkg: "#FFF9DB"
+    clusterBorder: "#444444"
+---
+flowchart LR
+    subgraph SetupPhase["Thiết lập"]
+        Init("/init-vibe<br/>một diff, chờ duyệt")
+    end
+    subgraph DailyPhase["Hằng ngày"]
+        Scan("/security-scan<br/>bề mặt agent")
+        Enhance("/daily-enhance<br/>chỉ đề xuất")
+    end
+    subgraph ImprovePhase["Cải tiến"]
+        Auto("/autoresearch-coding<br/>vòng lặp metric")
+        Council("/council<br/>kế hoạch gộp")
+    end
+    subgraph GradPhase["Tốt nghiệp"]
+        Final("/vibe-finalize<br/>dọn bootstrap")
+    end
+    SetupPhase --> DailyPhase --> ImprovePhase --> GradPhase
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111
+    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111
+    linkStyle default stroke:#444444,stroke-width:1.5px
+
+    class Init step
+    class Scan danger
+    class Enhance,Council accent
+    class Auto success
+    class Final terminal
+```
+
+<details>
+<summary><strong>Xem thêm</strong></summary>
 
 | Command                | Chức năng                                                                  | Ví dụ                                                               |
 | ---------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------- |
@@ -164,29 +335,78 @@ Bạn (prompt) ──▶ Claude Code / Cursor / Codex / Grok
 | `/council`             | Phối hợp các agent reviewer/researcher/analyst thành một kế hoạch gộp.     | `/council` trên diff của branch này.                                |
 | `/vibe-finalize`       | Tốt nghiệp project: chuyển file bootstrap một lần vào `_vibekit-cleanup/`. | `/vibe-finalize` — xem trước, áp dụng sau khi duyệt.                |
 
+</details>
+
 ## Skills
 
-Cả 15 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex và Grok mirror đủ 15; Cursor mirror 10 skill tương tác. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
+Cả 16 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex và Grok mirror đủ 16; Cursor mirror 11 skill tương tác. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
 
-| Skill                         | Dùng khi                                                                              | Prompt ví dụ                                                                            |
-| ----------------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `vibekit-init`                | Setup lần đầu, hoặc `backbone.yml` / managed blocks cần sửa.                          | "Use the vibekit-init skill. Propose one diff and wait for my yes."                     |
-| `parallel-analysis`           | Câu hỏi toàn repo, review diff lớn, audit tính nhất quán.                             | "Use parallel-analysis: where is auth handled and what depends on it?"                  |
-| `agentshield-security-review` | Audit config agent, skills, hooks, MCP, commands trước khi merge.                     | "Use agentshield-security-review on .claude/** and .vibekit/skills/**."                 |
-| `autoresearch-coding`         | Cải tiến repo qua các thử nghiệm đo được.                                             | "Use autoresearch-coding. Metric: `npm test`. Direction: higher. Budget: 3."            |
-| `daily-workflow-curator`      | Tune-up định kỳ cho rules, skills, workflows (chỉ đề xuất).                           | "Use daily-workflow-curator and propose today's improvements."                          |
-| `path-sensitive-shell-safety` | Trước khi sửa logic shell/installer/deploy có biến path hoặc `rm`/`mv`/`rsync`.       | "Use path-sensitive-shell-safety before changing this cleanup script."                  |
-| `visual-design-loop`          | Polish UI: render → screenshot → review → fix, theo vòng lặp.                         | "Use visual-design-loop on /dashboard. Budget 3 loops."                                 |
-| `clearthought`                | Yêu cầu mơ hồ, tradeoff thiết kế, quyết định rủi ro.                                  | "Use clearthought. Operation: implementation_plan. Split this feature into safe tasks." |
-| `sequential-thinking`         | Chia nhỏ công việc phức tạp theo từng bước.                                           | "Use sequential-thinking. Break this refactor into ordered steps with tests."           |
-| `reviewing-4p-priorities`     | Triage bug/finding theo thứ tự fix P0–P4.                                             | "Use reviewing-4p-priorities. Classify these findings and give a fix sequence."         |
-| `memento`                     | Task nhiều ngày: lưu ngữ cảnh trước khi dừng, resume phiên sau.                       | "/memento — write MEMENTO.md with Goal, Done, Stuck, Next."                             |
-| `coding-level`                | Chỉnh độ chi tiết khi giải thích (0 = ELI5 … 5 = chuyên gia).                         | "/coding-level 2"                                                                       |
-| `prompt-sharpener`            | Task phức tạp nhưng prompt mù mờ: cải thiện prompt rồi thực thi ngay trong cùng lượt. | "/prompt-sharpener make the settings page load faster"                                  |
-| `claim`                       | Đưa thứ mới vào repo (skill, rule, quy ước, tool): kiểm chứng nguồn chính thức, kiểm tra độ khớp, xác nhận, tích hợp, ghi tài liệu. | "/claim add the conventional-commits rule from https://www.conventionalcommits.org"     |
-| `tutien`                      | Chế độ tu tiên riêng tư với bằng chứng Git/chat chính xác và trường thiên ký sự mở theo từng repo. Có tổng cương cốt truyện và một chương tuần tự cho mỗi kỳ bằng chứng mới đã duyệt; chỉ chạy khi user gọi, `/tutien off` khôi phục văn phong thường. | "/tutien preview sources=git story-language=vi story-style=web-serial"                   |
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    clusterBkg: "#FFF9DB"
+    clusterBorder: "#444444"
+---
+flowchart LR
+    subgraph SetupCat["Thiết lập và an toàn"]
+        direction TB
+        S1("vibekit-init") ~~~ S2("agentshield-<br/>security-review") ~~~ S3("path-sensitive-<br/>shell-safety")
+    end
+    subgraph ThinkCat["Tư duy và kế hoạch"]
+        direction TB
+        T1("clearthought") ~~~ T2("sequential-thinking") ~~~ T3("prompt-sharpener") ~~~ T4("reviewing-4p-priorities")
+    end
+    subgraph AnalyzeCat["Phân tích và cải tiến"]
+        direction TB
+        A1("parallel-analysis") ~~~ A2("autoresearch-coding") ~~~ A3("daily-workflow-curator") ~~~ A4("visual-design-loop")
+    end
+    subgraph HelperCat["Trợ thủ hằng ngày"]
+        direction TB
+        H1("memento") ~~~ H2("coding-level") ~~~ H3("mermaid") ~~~ H4("claim") ~~~ H5("tutien")
+    end
+
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111
+    classDef data fill:#63E6BE,stroke:#444444,stroke-width:2px,color:#111111
+
+    class S1,S2,S3 step
+    class T1,T2,T3,T4 accent
+    class A1,A2,A3,A4 success
+    class H1,H2,H3,H4,H5 data
+```
+
+<details>
+<summary><strong>Xem thêm</strong></summary>
+
+| Skill                         | Dùng khi                                                                                                                                                                                                                                               | Prompt ví dụ                                                                            |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| `vibekit-init`                | Setup lần đầu, hoặc `backbone.yml` / managed blocks cần sửa.                                                                                                                                                                                           | "Use the vibekit-init skill. Propose one diff and wait for my yes."                     |
+| `parallel-analysis`           | Câu hỏi toàn repo, review diff lớn, audit tính nhất quán.                                                                                                                                                                                              | "Use parallel-analysis: where is auth handled and what depends on it?"                  |
+| `agentshield-security-review` | Audit config agent, skills, hooks, MCP, commands trước khi merge.                                                                                                                                                                                      | "Use agentshield-security-review on .claude/** and .vibekit/skills/**."                 |
+| `autoresearch-coding`         | Cải tiến repo qua các thử nghiệm đo được.                                                                                                                                                                                                              | "Use autoresearch-coding. Metric: `npm test`. Direction: higher. Budget: 3."            |
+| `daily-workflow-curator`      | Tune-up định kỳ cho rules, skills, workflows (chỉ đề xuất).                                                                                                                                                                                            | "Use daily-workflow-curator and propose today's improvements."                          |
+| `path-sensitive-shell-safety` | Trước khi sửa logic shell/installer/deploy có biến path hoặc `rm`/`mv`/`rsync`.                                                                                                                                                                        | "Use path-sensitive-shell-safety before changing this cleanup script."                  |
+| `visual-design-loop`          | Polish UI: render → screenshot → review → fix, theo vòng lặp.                                                                                                                                                                                          | "Use visual-design-loop on /dashboard. Budget 3 loops."                                 |
+| `clearthought`                | Yêu cầu mơ hồ, tradeoff thiết kế, quyết định rủi ro.                                                                                                                                                                                                   | "Use clearthought. Operation: implementation_plan. Split this feature into safe tasks." |
+| `sequential-thinking`         | Chia nhỏ công việc phức tạp theo từng bước.                                                                                                                                                                                                            | "Use sequential-thinking. Break this refactor into ordered steps with tests."           |
+| `reviewing-4p-priorities`     | Triage bug/finding theo thứ tự fix P0–P4.                                                                                                                                                                                                              | "Use reviewing-4p-priorities. Classify these findings and give a fix sequence."         |
+| `memento`                     | Task nhiều ngày: lưu ngữ cảnh trước khi dừng, resume phiên sau.                                                                                                                                                                                        | "/memento — write MEMENTO.md with Goal, Done, Stuck, Next."                             |
+| `coding-level`                | Chỉnh độ chi tiết khi giải thích (0 = ELI5 … 5 = chuyên gia).                                                                                                                                                                                          | "/coding-level 2"                                                                       |
+| `prompt-sharpener`            | Task phức tạp nhưng prompt mù mờ: cải thiện prompt rồi thực thi ngay trong cùng lượt.                                                                                                                                                                  | "/prompt-sharpener make the settings page load faster"                                  |
+| `claim`                       | Đưa thứ mới vào repo (skill, rule, quy ước, tool): kiểm chứng nguồn chính thức, kiểm tra độ khớp, xác nhận, tích hợp, ghi tài liệu.                                                                                                                    | "/claim add the conventional-commits rule from https://www.conventionalcommits.org"     |
+| `tutien`                      | Chế độ tu tiên riêng tư với bằng chứng Git/chat chính xác và trường thiên ký sự mở theo từng repo. Có tổng cương cốt truyện và một chương tuần tự cho mỗi kỳ bằng chứng mới đã duyệt; chỉ chạy khi user gọi, `/tutien off` khôi phục văn phong thường. | "/tutien preview sources=git story-language=vi story-style=web-serial"                  |
+| `mermaid`                     | Sinh sơ đồ Mermaid có style (31 loại) với độ chi tiết theo coding level. Chủ động hỏi có muốn thêm sơ đồ khi viết tài liệu, và khi debug có thể vẽ workflow tô đỏ vùng nghi là nguyên nhân bug.                                                        | "Use the mermaid skill. Vẽ flowchart cho pipeline deploy này."                          |
 
 Với `story=on` (mặc định), sau khi phân tích được duyệt, chế độ chuẩn bị `.vibekit/reports/tutien/story/`: `plot.md` lưu tổng cương và thế giới quan đang phát triển, `story-state.json` giữ mạch truyện, còn `chapters/NNNN-<tên-chương-tu-tiên>.md` lưu mỗi lần đúng một chương. Văn truyện do agent sáng tác từ dữ liệu tổng hợp thay vì ghép câu cố định; tên nhân vật, xưng hô và đối thoại tự nhiên theo `story-language=vi|en|zh`.
+
+</details>
 
 ## Nâng cao
 
@@ -224,6 +444,42 @@ Budget: 3.
 ```
 
 Hợp đồng: baseline trước → mỗi lần một thử nghiệm nhỏ → chỉ giữ thay đổi cải thiện metric → log tất cả.
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+---
+flowchart TD
+    Start([Goal + metric + budget]) --> Base("Chạy baseline có log")
+    Base --> Exp("Một thử nghiệm nhỏ")
+    Exp --> Check{"Metric tốt hơn?"}
+    Check -->|có| Keep("Giữ thay đổi")
+    Check -->|không| Revert("Hoàn tác thay đổi")
+    Keep --> Left{"Còn budget?"}
+    Revert --> Left
+    Left -->|có| Exp
+    Left -->|không| Report([Báo cáo + log])
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111
+    linkStyle default stroke:#444444,stroke-width:1.5px
+
+    class Start,Report terminal
+    class Base,Exp step
+    class Check,Left decision
+    class Keep success
+    class Revert danger
+```
 
 ### Rà soát bảo mật (AgentShield)
 

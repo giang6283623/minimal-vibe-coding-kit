@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.5.2 — 2026-07-26
+
+### Added
+
+- Added a `mermaid` skill (canonical + Claude/Cursor/Codex/Grok mirrors) that generates styled Mermaid diagrams for all 31 diagram types with per-type syntax references, the Vivid Clay preset, and a rendered `preview.html` verification page. Vetted and integrated via `/claim` from a user-supplied local skill clone; foreign plugin contracts were removed, while the imported Mermaid documentation retains upstream authorship and its MIT notice in `UPSTREAM-NOTICE.md`. The source clone's eval harness was intentionally not imported.
+- Added kit-specific mermaid behavior: diagram density and type choice adapt to the active `/coding-level` (`references/coding-level-charts.md`); document generation offers a one-time "include diagrams? yes/no"; debugging offers a workflow chart with red/amber suspicion zones that pinpoint the likely bug location (`references/debug-heatmap.md`).
+- Added a strong color palette for large-area marks to the Vivid Clay preset and fixed the three weakest chart types: timeline no longer shows clashing auto-inverted accent underlines (`cScaleInv` pinned to ink), kanban uses a Mermaid 11.16-render-verified `cScale2`–`cScale5` compatibility mapping plus `priority` metadata, and xychart ships a bold colorblind-safe blue/orange plot palette with data labels for bars.
+
+### Changed
+
+- Visualized all three READMEs (English, `docs/README.vi.md`, `docs/README.zh-CN.md`) with three Vivid Clay Mermaid flowcharts each — the Quick Start approval flow, "How the pieces connect" (replacing the ASCII sketch), and the autoresearch contract loop. Diagram labels follow each document's language on the Vietnamese-safe mono font stack.
+- Led the Guide, Commands, and Skills sections of all three READMEs with section visuals — a day-to-day usage flowchart, a command-lifecycle flowchart, and a 16-skill category chart — and collapsed each section's original list or table behind a localized "Read more" / "Xem thêm" / "查看更多" toggle, matching the existing Troubleshooting pattern.
+- Fixed GitHub dark-mode legibility of the README diagrams after screenshots showed ink frontmatter titles vanishing on the transparent canvas and unreadable mindmap labels: removed the `title:` line from every README diagram (section headings already name them) and replaced the 16-skill mindmap with a four-column subgraph flowchart whose classDefs pin every label's fill and text color.
+- Extended the Vivid Clay preset (all five skill mirrors) with a theme-following-hosts section: omit frontmatter titles on hosts like GitHub that render on a transparent theme-following canvas, documented that Mermaid 11.16 mindmaps ignore pinned `cScaleLabel` values (third timeline/mindmap/kanban trap), added the flowchart catalog pattern as the dark-safe alternative, and added a matching legibility-checklist gate.
+- Enhanced the `sequential-thinking` skill with a closed public-checkpoint vocabulary (`[REVISION]`, `[BRANCH]`, `[HYPOTHESIS]`, `[VERIFICATION]`, `[CONVERGENCE]`, `[META]`, `[FINAL]`), a hypothesis→verification debugging loop, dynamic expand/contract totals, revision-cascade reassessment, and explicit/implicit application modes. Replaced pseudo-MCP runtime claims and long thought transcripts with concise evidence summaries and kit-native cases.
+- Added kit-authored Mermaid cases for safe configuration promotion, repository safety evolution, localization release work, validation feedback time, and duplicate-webhook debugging. Updated the executable gallery to the strong palette and corrected high-risk red text to an AA-compliant 5.75:1 contrast.
+- Reconciled the imported Mermaid reference snapshot with its executable Mermaid 11.16 boundary: local links now resolve, upstream links are immutable, unavailable development-only syntax is explicitly marked, and the exact preserved MIT license remains in `UPSTREAM-NOTICE.md`.
+- Pinned optional AgentShield invocations to `ecc-agentshield@1.4.0`, made package execution approval-aware, and expanded the deterministic local probe to cover the kit's complete agent-surface file set.
+- Added permanent validator gates for sequential-thinking's public contract, Mermaid mirror parity and strict-mode examples, local reference links, runtime pins, unavailable-syntax warnings, visual-palette invariants, and AgentShield command pinning.
+
+### Validation
+
+- Registered the new skill and references in `skills-manifest.json`, the validator's required-file registry, and the npm `files` manifest. The initial aggregate suite grew from 708 to 764 passing checks; the second-pass deterministic validator grew from 565 to 598 checks. `npm run validate:all` passes, including installer sandboxes, all Tutien suites, the local AgentShield probe, and an npm dry-run containing all 589 on-disk skill files.
+- Synchronized the release version to `0.5.2` in `package.json`, `.codex-plugin/plugin.json`, and all three README badges.
+
 ## 0.5.1 — 2026-07-22
 
 ### Added
