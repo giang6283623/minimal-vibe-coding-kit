@@ -38,7 +38,7 @@ Run the shared `agentshield-security-review` skill against the current repo or t
 Prefer the deterministic scanner:
 
 ```bash
-npx ecc-agentshield scan --path "${TARGET_PATH:-.}" --format text
+npx ecc-agentshield@1.4.0 scan --path "${TARGET_PATH:-.}" --format text
 ```
 
 If `--fix` is requested, summarize planned safe fixes first, apply only scanner-marked safe fixes, then re-run the scan.
@@ -93,5 +93,5 @@ jobs:
         with:
           node-version: "20"
       - name: Run AgentShield
-        run: npx ecc-agentshield scan --path . --format text --min-severity medium
+        run: npx ecc-agentshield@1.4.0 scan --path . --format text --min-severity medium
 ```

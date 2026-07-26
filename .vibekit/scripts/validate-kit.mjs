@@ -32,6 +32,41 @@ function listFiles(rel) {
   try { inner(base); } catch {}
   return out.sort();
 }
+function markdownTargets(text) {
+  const withoutCode = text
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/~~~[\s\S]*?~~~/g, '')
+    .replace(/`[^`\n]*`/g, '');
+  return [...withoutCode.matchAll(/!?\[[^\]\n]*\]\(([^)\n]+)\)/g)].map((match) => match[1].trim());
+}
+function markdownPathPart(rawTarget) {
+  const target = rawTarget.startsWith('<')
+    ? rawTarget.slice(1, rawTarget.indexOf('>'))
+    : rawTarget.split(/\s+["']/)[0];
+  return target.split(/[?#]/, 1)[0];
+}
+function validateCanonicalSkillLinks() {
+  const base = '.vibekit/skills';
+  let checked = 0;
+  let broken = 0;
+  for (const file of listFiles(base).filter((entry) => entry.endsWith('.md'))) {
+    const rel = `${base}/${file}`;
+    for (const rawTarget of markdownTargets(read(rel))) {
+      const target = markdownPathPart(rawTarget);
+      if (!target || target.startsWith('#') || target.startsWith('//') || /^[a-z][a-z0-9+.-]*:/i.test(target)) continue;
+      checked += 1;
+      let decoded = target;
+      try { decoded = decodeURIComponent(target); } catch {}
+      const resolved = target.startsWith('/')
+        ? path.join(root, target)
+        : path.resolve(path.dirname(path.join(root, rel)), decoded);
+      if (fs.existsSync(resolved)) continue;
+      broken += 1;
+      fail(`broken local Markdown link ${rel} -> ${rawTarget}`);
+    }
+  }
+  if (broken === 0) ok(`canonical skill Markdown links resolve (${checked} local targets)`);
+}
 
 // Surface presence: end-user repos may install only some profiles, so
 // per-surface files are required only when that surface is installed.
@@ -109,6 +144,7 @@ const reasoningSkillResources = {
     'references/output-schema.md',
     'references/parameters.md',
     'references/patterns.md',
+    'references/advanced-techniques.md',
     'examples/linear-reasoning.md',
     'examples/revision-pattern.md',
     'examples/branching-exploration.md',
@@ -119,6 +155,17 @@ const reasoningSkillResources = {
   ],
   'path-sensitive-shell-safety': [
     'references/workflow.md'
+  ],
+  'mermaid': [
+    'UPSTREAM-NOTICE.md',
+    'references/kit-examples.md',
+    'references/preview.html',
+    'references/styling-preset.md',
+    'references/coding-level-charts.md',
+    'references/debug-heatmap.md',
+    'references/flowchart.md',
+    'references/sequenceDiagram.md',
+    'references/config-theming.md'
   ]
 };
 
@@ -134,6 +181,7 @@ for (const surface of reasoningSurfaceDirs) {
 }
 
 for (const rel of required) exists(rel) ? ok(`required file ${rel}`) : fail(`missing required file ${rel}`);
+validateCanonicalSkillLinks();
 if (exists('README.md')) ok('optional README.md present');
 else console.log('INFO optional README.md not present in target project');
 
@@ -150,6 +198,9 @@ requireText('.github/workflows/vibekit-validate.yml', 'npm run pack:dry-run', 'C
 requireText('.vibekit/docs/AUTORESEARCH_LEDGER.md', 'node .vibekit/scripts/validate-kit.mjs .', 'autoresearch ledger documents validation command');
 requireText('.cursor/rules/020-security-agentshield.mdc', 'node .vibekit/scripts/agentshield-probe.mjs .', 'Cursor security rule uses Node AgentShield probe wrapper');
 requireText('.vibekit/scripts/doctor.mjs', '.vibekit/scripts/agentshield-probe.mjs', 'doctor uses Node AgentShield probe wrapper');
+requireText('.vibekit/skills/agentshield-security-review/SKILL.md', 'ecc-agentshield@1.4.0', 'AgentShield workflow pins the reviewed scanner version');
+requireText('.vibekit/skills/agentshield-security-review/SKILL.md', 'npm ls ecc-agentshield --depth=0 --ignore-scripts', 'AgentShield workflow checks for a local scanner without lifecycle scripts');
+requireText('.vibekit/scripts/init-backbone.mjs', 'npx ecc-agentshield@1.4.0 scan', 'generated backbone pins the AgentShield scanner version');
 
 if (exists('.vibekit/docs/AUTORESEARCH_LEDGER.md')) {
   const ledgerText = read('.vibekit/docs/AUTORESEARCH_LEDGER.md');
@@ -212,6 +263,119 @@ for (const [skill, mirrors] of Object.entries(skillMirrors)) {
     validateSkillMirror(`.vibekit/skills/${skill}`, mirror);
   }
 }
+
+function validateSequentialThinkingContract() {
+  const base = '.vibekit/skills/sequential-thinking';
+  if (!exists(`${base}/SKILL.md`)) return;
+  const skill = read(`${base}/SKILL.md`);
+  const markdown = listFiles(base)
+    .filter((file) => file.endsWith('.md'))
+    .map((file) => read(`${base}/${file}`))
+    .join('\n');
+
+  const markers = ['REVISION', 'BRANCH', 'HYPOTHESIS', 'VERIFICATION', 'CONVERGENCE', 'META', 'FINAL'];
+  const missingMarkers = markers.filter((marker) => !skill.includes(`[${marker}`));
+  missingMarkers.length
+    ? fail(`sequential-thinking marker allowlist missing: ${missingMarkers.join(', ')}`)
+    : ok(`sequential-thinking closed marker allowlist (${markers.length} markers)`);
+
+  if (skill.includes('Keep private chain-of-thought private.')
+      && skill.includes('Complexity alone does not authorize more detailed reasoning.')
+      && skill.includes('Implicit (default)')) {
+    ok('sequential-thinking uses public checkpoints with explicit-only visible reasoning');
+  } else {
+    fail('sequential-thinking public-checkpoint or explicit-mode contract drifted');
+  }
+
+  const banned = ['thoughtContent', 'recentThoughts', 'sessionContext', 'remainingThoughts', 'Unlike MCP', 'Zod Layer', 'Response Prefix', 'PREFIX_LABEL'];
+  const leaked = banned.filter((term) => markdown.includes(term));
+  leaked.length
+    ? fail(`sequential-thinking contains rejected pseudo-runtime/plugin terms: ${leaked.join(', ')}`)
+    : ok('sequential-thinking rejects pseudo-runtime and foreign-plugin contracts');
+
+  const jsonBlocks = [];
+  for (const pattern of [/```json\s*\n([\s\S]*?)\n```/g, /~~~json\s*\n([\s\S]*?)\n~~~/g]) {
+    let match;
+    while ((match = pattern.exec(markdown))) jsonBlocks.push(match[1]);
+  }
+  let invalidJson = 0;
+  for (const block of jsonBlocks) {
+    try { JSON.parse(block); } catch { invalidJson += 1; }
+  }
+  if (jsonBlocks.length > 0 && invalidJson === 0) ok(`sequential-thinking JSON examples parse (${jsonBlocks.length} blocks)`);
+  else fail(`sequential-thinking JSON examples invalid or missing (${invalidJson} invalid, ${jsonBlocks.length} total)`);
+}
+
+function validateMermaidContract() {
+  const base = '.vibekit/skills/mermaid';
+  if (!exists(`${base}/SKILL.md`)) return;
+  const skill = read(`${base}/SKILL.md`);
+  const examples = read(`${base}/references/kit-examples.md`);
+  const preview = read(`${base}/references/preview.html`);
+  const notice = read(`${base}/UPSTREAM-NOTICE.md`);
+  const debug = read(`${base}/references/debug-heatmap.md`);
+  const styling = read(`${base}/references/styling-preset.md`);
+  const imported = listFiles(`${base}/references`)
+    .filter((file) => file.endsWith('.md'))
+    .map((file) => read(`${base}/references/${file}`))
+    .join('\n');
+
+  const diagrams = [...examples.matchAll(/```mermaid\s*\n([\s\S]*?)\n```/g)].map((match) => match[1]);
+  const distinctCases = ['Safe configuration promotion', 'Repository safety evolution', 'Localization release board', 'Validation feedback time', 'Duplicate webhook investigation'];
+  if (diagrams.length === 5
+      && diagrams.every((diagram) => diagram.includes('securityLevel: strict'))
+      && distinctCases.every((name) => examples.toLowerCase().includes(name.toLowerCase()))) {
+    ok('Mermaid maintains five strict kit-native examples');
+  } else {
+    fail('Mermaid kit-native example set, strict security, or distinct cases drifted');
+  }
+
+  if (preview.includes('mermaid@11.16.0/dist/mermaid.esm.min.mjs')
+      && preview.includes('mermaid-zenuml@0.2.2/dist/mermaid-zenuml.esm.min.mjs')
+      && preview.includes("securityLevel: 'strict'")
+      && skill.includes('isolated profile with no secrets or user data')) {
+    ok('Mermaid executable preview is pinned, strict, and isolated by policy');
+  } else {
+    fail('Mermaid executable preview pin, strict mode, or isolation warning drifted');
+  }
+
+  if (notice.includes('Copyright (c) 2014 - 2022 Knut Sveidqvist')
+      && notice.includes('The MIT License (MIT)')
+      && notice.includes('unavailable')) {
+    ok('Mermaid upstream ownership, MIT license, and version boundary are preserved');
+  } else {
+    fail('Mermaid upstream notice or preserved license is incomplete');
+  }
+
+  const staleTokens = ['MERMAID_RELEASE_VERSION', '/blob/develop/', 'Please edit the corresponding file', 'THIS IS AN AUTOGENERATED FILE'];
+  const stale = staleTokens.filter((token) => imported.includes(token));
+  stale.length
+    ? fail(`Mermaid imported references contain stale or operational tokens: ${stale.join(', ')}`)
+    : ok('Mermaid references remove development placeholders and imported operational directives');
+
+  const unavailableCount = (imported.match(/unreleased upstream; unavailable in Mermaid 11\.16\.0/g) || []).length;
+  unavailableCount === 3
+    ? ok('Mermaid marks three development-only syntaxes unavailable for 11.16.0')
+    : fail(`Mermaid expected 3 development-only boundary warnings, found ${unavailableCount}`);
+
+  if (styling.includes('first Kanban column to `section-1`')
+      && styling.includes('maps `section-1` to `cScale2`')
+      && examples.includes('cScale2: "#339AF0"')
+      && examples.includes('cScale5: "#9775FA"')) {
+    ok('Mermaid 11.16 Kanban compatibility mapping is documented and exercised');
+  } else {
+    fail('Mermaid 11.16 Kanban compatibility mapping drifted');
+  }
+
+  if (debug.includes('fill:#FA5252,stroke:#444444,stroke-width:2px,color:#111111')) {
+    ok('Mermaid debug heat map uses accessible ink on strong red');
+  } else {
+    fail('Mermaid debug heat-map strong-red text contrast drifted');
+  }
+}
+
+validateSequentialThinkingContract();
+validateMermaidContract();
 
 function parseFrontmatter(text) {
   const match = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -328,7 +492,7 @@ for (const [rel, settings] of [['.claude/settings.json', claudeSettings], ['.cur
   piped.length === 0
     ? ok(`${rel} deny rules avoid pipe-spanning patterns (subcommands are matched independently)`)
     : fail(`${rel} deny rules span a pipe and never match: ${piped.join(', ')}`);
-  const yesFirst = deny.some((rule) => rule.startsWith('Bash(npx --yes') || rule.startsWith('Bash(npx -y'));
+  const yesFirst = deny.some((rule) => rule.startsWith('Bash(npx --yes') || rule.startsWith('Bash(npx ' + '-y'));
   yesFirst
     ? ok(`${rel} denies leading npx --yes/-y forms`)
     : fail(`${rel} missing deny for leading npx --yes/-y forms`);
@@ -491,13 +655,25 @@ function walk(item) {
   return out;
 }
 
-for (const file of scanDirs.flatMap(walk)) {
-  if (!/\.(md|mdc|json|toml|yml|yaml|js|mjs|py|sh)$/i.test(file)) continue;
+const agentSurfaceFiles = scanDirs.flatMap(walk);
+for (const file of agentSurfaceFiles) {
+  if (!/\.(md|mdc|json|toml|yml|yaml|js|mjs|cjs|ts|tsx|py|sh|ps1|html|htm)$/i.test(file)) continue;
   const text = fs.readFileSync(file, 'utf8');
   for (const r of riskyPatterns) {
     if (text.includes(r.pattern)) warn(`${path.relative(root, file)} contains ${r.message}`);
   }
 }
+
+const unpinnedScanner = 'npx' + ' ecc-agentshield ';
+const unpinnedScannerFiles = agentSurfaceFiles
+  .filter((file) => /\.(md|mdc|json|toml|yml|yaml|js|mjs|py|sh|ps1|html)$/i.test(file))
+  .filter((file) => fs.readFileSync(file, 'utf8').includes(unpinnedScanner));
+unpinnedScannerFiles.length === 0
+  ? ok('agent surfaces avoid unpinned ecc-agentshield npx execution')
+  : fail(`agent surfaces contain unpinned ecc-agentshield npx execution: ${unpinnedScannerFiles.map((file) => path.relative(root, file)).join(', ')}`);
+
+requireText('.vibekit/skills/agentshield-security-review/scripts/agentshield_repo_probe.py', '".html"', 'AgentShield probe scans executable HTML surfaces');
+requireText('.vibekit/skills/agentshield-security-review/scripts/agentshield_repo_probe.py', '"npx" + " ecc-agentshield "', 'AgentShield probe flags unpinned scanner execution');
 
 const probe = path.join(root, '.vibekit/scripts/agentshield-probe.mjs');
 if (fs.existsSync(probe)) {

@@ -22,6 +22,7 @@
     { "name": "parallel-analysis", "surfaces": ["claude", "cursor", "codex", "grok"] },
     { "name": "prompt-sharpener", "surfaces": ["claude", "cursor", "codex", "grok"] },
     { "name": "claim", "surfaces": ["claude", "cursor", "codex", "grok"] },
-    { "name": "tutien", "surfaces": ["claude", "cursor", "codex", "grok"] }
+    { "name": "tutien", "surfaces": ["claude", "cursor", "codex", "grok"] },
+    { "name": "mermaid", "surfaces": ["claude", "cursor", "codex", "grok"] }
   ]
 }

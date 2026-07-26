@@ -27,6 +27,7 @@ PATTERNS = {
 SUSPICIOUS_TEXT = [
     "Bash" + "(*)",
     "npx" + " -y",
+    "npx" + " ecc-agentshield ",
     "curl" + " | sh",
     "wget" + " | sh",
     "||" + " true",
@@ -96,7 +97,24 @@ def main() -> int:
             if candidate.exists():
                 found.append(str(candidate.relative_to(root)))
                 for file_path in iter_files(candidate):
-                    if file_path.suffix.lower() not in {".md", ".json", ".toml", ".yaml", ".yml", ".sh", ".js", ".ts"}:
+                    if file_path.suffix.lower() not in {
+                        ".md",
+                        ".mdc",
+                        ".json",
+                        ".toml",
+                        ".yaml",
+                        ".yml",
+                        ".sh",
+                        ".ps1",
+                        ".js",
+                        ".mjs",
+                        ".cjs",
+                        ".ts",
+                        ".tsx",
+                        ".py",
+                        ".html",
+                        ".htm",
+                    }:
                         continue
                     text = safe_read(file_path)
                     skip_lines = deny_block_lines(text)

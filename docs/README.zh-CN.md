@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.1-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.2-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -35,6 +35,38 @@
 ## 快速开始
 
 三个步骤，大约两分钟。
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+---
+flowchart LR
+    Start([你的项目]) --> Install("1 — 安装工具包")
+    Install --> Paste("2 — 粘贴初始化提示词")
+    Paste --> Review{"3 — 批准差异?"}
+    Review -->|yes| Ready("backbone.yml 初始化完成")
+    Review -->|no| Revise("Agent 修改方案")
+    Revise --> Review
+    Ready --> Done([在护栏保护下编码])
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111
+    linkStyle default stroke:#444444,stroke-width:1.5px
+
+    class Start,Done terminal
+    class Install,Paste,Revise step
+    class Review decision
+    class Ready success
+```
 
 **1. 安装到你的项目中**（无需克隆仓库）：
 
@@ -122,17 +154,56 @@ your-project/
 
 ## 各部分如何连接
 
-```text
-你（提示词）──▶ Claude Code / Cursor / Codex / Grok
-                      │  首先读取
-                      ▼
-        backbone.yml  +  AGENTS.md / CLAUDE.md  +  rules
-                      │  按需加载
-                      ▼
-        skills（流程） +  commands（快捷入口）
-                      │  受以下机制保护
-                      ▼
-        protected paths · 写入前提案 · AgentShield probe
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+    clusterBkg: "#FFF9DB"
+    clusterBorder: "#444444"
+---
+flowchart TD
+    You([你 — 一个提示词]) --> Agent("Claude / Cursor / Codex / Grok")
+
+    subgraph First["首先读取"]
+        Backbone[("backbone.yml")]
+        Docs("AGENTS.md / CLAUDE.md")
+        Rules("规则 — 简短护栏")
+    end
+
+    subgraph Demand["按需加载"]
+        Skills("技能 — 工作流程")
+        Commands("命令 — 快捷入口")
+    end
+
+    subgraph Guard["由以下机制保护"]
+        Protected("受保护路径")
+        Propose("写入前提案")
+        Shield("AgentShield 探针")
+    end
+
+    Agent --> First
+    First --> Demand
+    Demand --> Guard
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef data fill:#63E6BE,stroke:#444444,stroke-width:2px,color:#111111
+    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111
+    linkStyle default stroke:#444444,stroke-width:1.5px
+
+    class You terminal
+    class Agent step
+    class Backbone data
+    class Docs,Rules step
+    class Skills,Commands accent
+    class Protected,Propose,Shield danger
 ```
 
 - **`backbone.yml`**——仓库路径、约定、受保护路径以及验证命令。
@@ -141,6 +212,57 @@ your-project/
 - **命令（Commands）**——常用技能的一词快捷入口。
 
 ## 日常使用指南
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+    clusterBkg: "#FFF9DB"
+    clusterBorder: "#444444"
+---
+flowchart TD
+    Task([新任务]) --> Big{任务大或模糊?}
+    Big -->|否| Code("直接编码")
+    Big -->|是| Plan("clearthought /<br/>sequential-thinking")
+    Big -->|提示词粗略| Sharp("/prompt-sharpener")
+    Plan --> Code
+    Sharp --> Code
+    Code --> Surface{修改了 Agent 表面?}
+    Surface -->|是| Scan("/security-scan")
+    Surface -->|否| Ship([合并并继续])
+    Scan --> Ship
+
+    subgraph Anytime["随时可用"]
+        Wide("parallel-analysis<br/>全仓库问题")
+        Auto("/autoresearch-coding<br/>可衡量改进")
+        Daily("/daily-enhance<br/>仅提案调优")
+    end
+    Ship -.-> Anytime
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111
+    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111
+    linkStyle default stroke:#444444,stroke-width:1.5px
+
+    class Task,Ship terminal
+    class Plan,Sharp step
+    class Big,Surface decision
+    class Code success
+    class Scan danger
+    class Wide,Auto,Daily accent
+```
+
+<details>
+<summary><strong>查看更多</strong></summary>
 
 1. **正常提出编码需求。** 像平时一样请求功能或修复；Agent 会遵循 `backbone.yml` 中的约定，并保持差异小而易审查。
 2. **任务很大或不够明确？** 先使用 `clearthought` 或 `sequential-thinking` 技能生成计划。
@@ -153,7 +275,56 @@ your-project/
 9. **保持配置清晰可靠：** `/daily-enhance` 只提出改进建议，绝不会静默应用。
 10. **引导工作已经彻底完成？** `/vibe-finalize` 会移出一次性 bootstrap 文件。
 
+</details>
+
 ## 命令
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+    clusterBkg: "#FFF9DB"
+    clusterBorder: "#444444"
+---
+flowchart LR
+    subgraph SetupPhase["设置"]
+        Init("/init-vibe<br/>一个差异，等待批准")
+    end
+    subgraph DailyPhase["日常"]
+        Scan("/security-scan<br/>Agent 表面")
+        Enhance("/daily-enhance<br/>仅提案")
+    end
+    subgraph ImprovePhase["改进"]
+        Auto("/autoresearch-coding<br/>指标循环")
+        Council("/council<br/>统一计划")
+    end
+    subgraph GradPhase["毕业"]
+        Final("/vibe-finalize<br/>清理引导文件")
+    end
+    SetupPhase --> DailyPhase --> ImprovePhase --> GradPhase
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111
+    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111
+    linkStyle default stroke:#444444,stroke-width:1.5px
+
+    class Init step
+    class Scan danger
+    class Enhance,Council accent
+    class Auto success
+    class Final terminal
+```
+
+<details>
+<summary><strong>查看更多</strong></summary>
 
 | 命令                     | 作用                                                               | 示例                                                               |
 | ------------------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------ |
@@ -164,9 +335,55 @@ your-project/
 | `/council`               | 协调 reviewer、researcher 和 analyst Agent，形成一个统一计划。      | `/council` on this branch diff.                                    |
 | `/vibe-finalize`         | 让项目完成引导：将一次性文件移到 `_vibekit-cleanup/`。              | `/vibe-finalize`——先预览，批准后再应用。                           |
 
+</details>
+
 ## 技能
 
-全部 15 个技能的规范版本位于 `.vibekit/skills/`。Claude、Codex 和 Grok 镜像全部 15 个技能；Cursor 镜像其中 10 个交互式技能。可以直接按名称调用（例如“Use the X skill…”），也可以使用上面的命令。
+全部 16 个技能的规范版本位于 `.vibekit/skills/`。Claude、Codex 和 Grok 镜像全部 16 个技能；Cursor 镜像其中 11 个交互式技能。可以直接按名称调用（例如“Use the X skill…”），也可以使用上面的命令。
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    clusterBkg: "#FFF9DB"
+    clusterBorder: "#444444"
+---
+flowchart LR
+    subgraph SetupCat["设置与安全"]
+        direction TB
+        S1("vibekit-init") ~~~ S2("agentshield-<br/>security-review") ~~~ S3("path-sensitive-<br/>shell-safety")
+    end
+    subgraph ThinkCat["思考与规划"]
+        direction TB
+        T1("clearthought") ~~~ T2("sequential-thinking") ~~~ T3("prompt-sharpener") ~~~ T4("reviewing-4p-priorities")
+    end
+    subgraph AnalyzeCat["分析与改进"]
+        direction TB
+        A1("parallel-analysis") ~~~ A2("autoresearch-coding") ~~~ A3("daily-workflow-curator") ~~~ A4("visual-design-loop")
+    end
+    subgraph HelperCat["日常助手"]
+        direction TB
+        H1("memento") ~~~ H2("coding-level") ~~~ H3("mermaid") ~~~ H4("claim") ~~~ H5("tutien")
+    end
+
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111
+    classDef data fill:#63E6BE,stroke:#444444,stroke-width:2px,color:#111111
+
+    class S1,S2,S3 step
+    class T1,T2,T3,T4 accent
+    class A1,A2,A3,A4 success
+    class H1,H2,H3,H4,H5 data
+```
+
+<details>
+<summary><strong>查看更多</strong></summary>
 
 | 技能                            | 适用场景                                                                                             | 示例提示词                                                                                              |
 | ------------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
@@ -185,8 +402,11 @@ your-project/
 | `prompt-sharpener`              | 复杂任务只有粗略提示词时：优化提示词并在同一轮执行。                                                 | "/prompt-sharpener make the settings page load faster"                                                |
 | `claim`                         | 将新技能、规则、约定或工具带入仓库：验证官方来源、检查适配性、确认、集成并记录文档。                 | "/claim add the conventional-commits rule from https://www.conventionalcommits.org"                   |
 | `tutien`                        | 基于准确 Git/聊天证据的私密修仙模式，并为每个仓库维护开放式连载故事。每个新的已批准证据窗口对应一个有序章节；仅由用户调用，`/tutien off` 恢复正常文风。 | "/tutien preview sources=git story-language=zh story-style=web-serial"                                |
+| `mermaid`                       | 生成带样式的 Mermaid 图表（31 种），密度随 coding level 自适应。写文档时会主动询问是否配图；调试时可以生成用红色高亮可疑风险区的流程图。 | "Use the mermaid skill. 把这个部署流程画成流程图。"                                                    |
 
 `story=on`（默认）时，获批分析会准备 `.vibekit/reports/tutien/story/`：`plot.md` 保存持续演化的总纲与世界设定，`story-state.json` 保存连续性，`chapters/NNNN-<修仙章名>.md` 每次只保存一个章节。故事由 Agent 根据聚合证据原创，而不是拼接固定句子；人物姓名、称谓和对白会自然遵循 `story-language=vi|en|zh`。
+
+</details>
 
 ## 高级用法
 
@@ -224,6 +444,42 @@ Budget: 3.
 ```
 
 约定：先建立基线 → 每次只进行一个小实验 → 只保留指标改善的变更 → 记录所有实验。
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+---
+flowchart TD
+    Start([目标 + 指标 + 预算]) --> Base("运行有日志的基线")
+    Base --> Exp("一次小实验")
+    Exp --> Check{"指标改善?"}
+    Check -->|是| Keep("保留变更")
+    Check -->|否| Revert("回滚变更")
+    Keep --> Left{"预算还有剩余?"}
+    Revert --> Left
+    Left -->|是| Exp
+    Left -->|否| Report([最终报告 + 日志])
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111
+    linkStyle default stroke:#444444,stroke-width:1.5px
+
+    class Start,Report terminal
+    class Base,Exp step
+    class Check,Left decision
+    class Keep success
+    class Revert danger
+```
 
 ### 安全审查（AgentShield）
 
