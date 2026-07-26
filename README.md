@@ -345,41 +345,58 @@ All 16 skills live canonically in `.vibekit/skills/`. Claude, Codex, and Grok mi
 ---
 config:
   theme: base
+  themeCSS: >-
+    .mindmap-node:not(.section-root):not(.section--1) text,
+    .mindmap-node:not(.section-root):not(.section--1) tspan
+    { fill: #FFFFFF !important; }
+    .mindmap-node:not(.section-root):not(.section--1) div,
+    .mindmap-node:not(.section-root):not(.section--1) span,
+    .mindmap-node:not(.section-root):not(.section--1) p
+    { color: #FFFFFF !important; }
   themeVariables:
+    darkMode: false
     fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
     fontSize: 15px
-    lineColor: "#444444"
+    lineColor: "#888888"
     textColor: "#111111"
-    clusterBkg: "#FFF9DB"
-    clusterBorder: "#444444"
+    primaryColor: "#FFD43B"
+    primaryTextColor: "#111111"
+    primaryBorderColor: "#444444"
+    cScale0: "#1971C2"
+    cScale1: "#7048E8"
+    cScale2: "#2B8A3E"
+    cScale3: "#087F5B"
+    cScale4: "#D9480F"
+    cScale5: "#C2255C"
+    cScaleLabel0: "#FFFFFF"
+    cScaleLabel1: "#FFFFFF"
+    cScaleLabel2: "#FFFFFF"
+    cScaleLabel3: "#FFFFFF"
+    cScaleLabel4: "#FFFFFF"
+    cScaleLabel5: "#FFFFFF"
 ---
-flowchart LR
-    subgraph SetupCat["Setup and safety"]
-        direction TB
-        S1("vibekit-init") ~~~ S2("agentshield-<br/>security-review") ~~~ S3("path-sensitive-<br/>shell-safety")
-    end
-    subgraph ThinkCat["Think and plan"]
-        direction TB
-        T1("clearthought") ~~~ T2("sequential-thinking") ~~~ T3("prompt-sharpener") ~~~ T4("reviewing-4p-priorities")
-    end
-    subgraph AnalyzeCat["Analyze and improve"]
-        direction TB
-        A1("parallel-analysis") ~~~ A2("autoresearch-coding") ~~~ A3("daily-workflow-curator") ~~~ A4("visual-design-loop")
-    end
-    subgraph HelperCat["Daily helpers"]
-        direction TB
-        H1("memento") ~~~ H2("coding-level") ~~~ H3("mermaid") ~~~ H4("claim") ~~~ H5("tutien")
-    end
-
-    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111
-    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111
-    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111
-    classDef data fill:#63E6BE,stroke:#444444,stroke-width:2px,color:#111111
-
-    class S1,S2,S3 step
-    class T1,T2,T3,T4 accent
-    class A1,A2,A3,A4 success
-    class H1,H2,H3,H4,H5 data
+mindmap
+  root(("16 skills"))
+    setup("Setup and safety")
+      s1("vibekit-init")
+      s2("agentshield-<br/>security-review")
+      s3("path-sensitive-<br/>shell-safety")
+    think("Think and plan")
+      t1("clearthought")
+      t2("sequential-thinking")
+      t3("prompt-sharpener")
+      t4("reviewing-4p-priorities")
+    analyze("Analyze and improve")
+      a1("parallel-analysis")
+      a2("autoresearch-coding")
+      a3("daily-workflow-curator")
+      a4("visual-design-loop")
+    helpers("Daily helpers")
+      h1("memento")
+      h2("coding-level")
+      h3("mermaid")
+      h4("claim")
+      h5("tutien")
 ```
 
 <details>
