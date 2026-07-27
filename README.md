@@ -339,7 +339,7 @@ flowchart LR
 
 ## Skills
 
-All 16 skills live canonically in `.vibekit/skills/`. Claude, Codex, and Grok mirror all 16; Cursor mirrors the 11 interactive ones. Invoke them by name ("Use the X skill…") or via the commands above.
+All 17 skills live canonically in `.vibekit/skills/`. Claude, Codex, and Grok mirror all 17; Cursor mirrors the 12 interactive ones. Invoke them by name ("Use the X skill…") or via the commands above.
 
 ```mermaid
 ---
@@ -376,7 +376,7 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("16 skills"))
+  root(("17 skills"))
     setup("Setup and safety")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
@@ -386,6 +386,7 @@ mindmap
       t2("sequential-thinking")
       t3("prompt-sharpener")
       t4("reviewing-4p-priorities")
+      t5("graph-engineering-<br/>verified-orchestration")
     analyze("Analyze and improve")
       a1("parallel-analysis")
       a2("autoresearch-coding")
@@ -406,6 +407,7 @@ mindmap
 | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | `vibekit-init`                | First-time setup, or `backbone.yml` / managed blocks need repair.                                                                                                                                                                        | "Use the vibekit-init skill. Propose one diff and wait for my yes."                                   |
 | `parallel-analysis`           | Repo-wide questions, large diff reviews, consistency audits.                                                                                                                                                                             | "Use parallel-analysis: where is auth handled and what depends on it?"                                |
+| `graph-engineering-verified-orchestration` | Complex work has genuinely independent branches and needs explicit dependencies, isolation, budgets, objective verification, rollback, and bounded merge gates. | "Use graph-engineering-verified-orchestration to design a safe task graph for this migration." |
 | `agentshield-security-review` | Auditing agent config, skills, hooks, MCP, commands before merge.                                                                                                                                                                        | "Use agentshield-security-review on .claude/** and .vibekit/skills/**."                               |
 | `autoresearch-coding`         | Improving the repo through measured experiments.                                                                                                                                                                                         | "Use autoresearch-coding. Metric: `npm test`. Direction: higher. Budget: 3."                          |
 | `daily-workflow-curator`      | Periodic tune-up of rules, skills, and workflows (propose-only).                                                                                                                                                                         | "Use daily-workflow-curator and propose today's improvements."                                        |
@@ -422,6 +424,136 @@ mindmap
 | `mermaid`                     | Generating styled Mermaid diagrams (31 types) with coding-level-aware density. Offers to illustrate generated docs, and draws debug workflow charts with the risky zones highlighted red.                                                                | "Use the mermaid skill. Draw this deploy pipeline as a flowchart."                                    |
 
 With `story=on` (default), approved analysis prepares `.vibekit/reports/tutien/story/`: `plot.md` is the evolving world/plot bible, `story-state.json` preserves continuity, and `chapters/NNNN-<xianxia-title>.md` stores one chapter per save. Story prose is agent-authored from aggregate evidence rather than a fixed sentence bank; character names and dialogue follow `story-language=vi|en|zh` naturally.
+
+</details>
+
+### Graph engineering: verified orchestration
+
+This is a **user-invoked skill**, not an always-on rule or a provider-specific workflow. Use it when a graph has a plausible time/cost benefit or reduces coordination risk. Every edge must carry a named artifact; mutable work needs enforceable isolation; and only objectively verified outputs reach the final merge. If authority, budgets, rollback, or verifiers are unresolved, the skill returns a graph plan instead of executing.
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    darkMode: false
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    primaryColor: "#8ECAFF"
+    primaryTextColor: "#111111"
+    primaryBorderColor: "#444444"
+    edgeLabelBackground: "#FFFFFF"
+---
+flowchart TD
+    Begin([Define done signal and graph]) --> Benefit{Graph worth overhead?}
+    Benefit -->|no| Plan([Return graph plan])
+    Benefit -->|yes| Freeze(Freeze graph, inputs, verifiers)
+    Freeze --> Ready{Scopes, budgets, verifier, rollback ready?}
+    Ready -->|no| Plan
+    Ready -->|yes| Approval{Approval required?}
+    Approval -->|yes| Approve(Approve exact digest and target)
+    Approval -->|no| Run(Run ready wave)
+    Approve --> Run
+    Run --> Verify{Node verifier passes?}
+    Verify -->|no| Revise(Clean and revise graph)
+    Revise --> Limits{Cleanup, authority, limits permit retry?}
+    Limits -->|no| Stop([Stop and report partial])
+    Limits -->|yes| Freeze
+    Verify -->|yes| Merge(Merge accepted artifacts)
+    Merge --> Final{Integration checks pass?}
+    Final -->|no| Revise
+    Final -->|yes| Done([Accept verified result])
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF;
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111;
+
+    class Begin,Plan,Stop terminal;
+    class Freeze,Run,Merge step;
+    class Benefit,Ready,Approval,Verify,Limits,Final decision;
+    class Done success;
+    class Revise danger;
+    class Approve accent;
+    linkStyle default stroke:#444444,stroke-width:1.5px;
+```
+
+<details>
+<summary><strong>Read more: a real example</strong></summary>
+
+**Case — migrate three services to one structured logger.** A monorepo has `billing/`, `auth/`, and `reports/`, each calling a legacy logger from its own files. This matches the skill's trigger exactly: three bounded work items, branches that share no files, and one objective verifier (the test suite).
+
+- **When**: the work splits into three or more bounded items with two or more genuinely independent branches, and a graph plausibly saves time or reduces coordination risk.
+- **Where**: repos where write ownership separates cleanly (per service, package, or doc set) and tests or schemas can verify results from outside the writers' scope.
+- **Why**: enforced isolation prevents overlapping writes, every edge carries a named artifact so no imagined dependency serializes the work, and only verified diffs reach the single merge owner.
+- **When not**: fewer than three items, branches that touch the same files, or no objective verifier — a plain sequential edit is cheaper, and the skill says so by returning a graph plan instead of executing.
+
+```text
+Use graph-engineering-verified-orchestration.
+Goal: replace the legacy logger with structlog in billing/, auth/, reports/.
+Done signal: npm test passes and no legacy logger import remains.
+Editable paths: billing/ auth/ reports/. Protected paths: tests/ and configs.
+```
+
+How this case runs as a graph — every edge carries the named artifact the next node consumes:
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    darkMode: false
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    primaryColor: "#8ECAFF"
+    primaryTextColor: "#111111"
+    primaryBorderColor: "#444444"
+    edgeLabelBackground: "#FFFFFF"
+---
+flowchart TD
+    Goal([Adopt one structured logger]) --> Scan(Inventory legacy call sites)
+    Scan -->|inventory.md| Freeze(Freeze graph, scopes, oracle)
+    Freeze -->|contract v1| MigA(Migrate billing/)
+    Freeze -->|contract v1| MigB(Migrate auth/)
+    Freeze -->|contract v1| MigC(Migrate reports/)
+    MigA -->|diff A| VerA{Billing tests pass?}
+    MigB -->|diff B| VerB{Auth tests pass?}
+    MigC -->|diff C| VerC{Reports tests pass?}
+    VerA -->|no| Fix(Quarantine and revise)
+    VerB -->|no| Fix
+    VerC -->|no| Fix
+    Fix --> Freeze
+    VerA -->|yes| Merge(Merge owner integrates)
+    VerB -->|yes| Merge
+    VerC -->|yes| Merge
+    Merge -->|combined diff| Final{Integration suite passes?}
+    Final -->|no| Fix
+    Final -->|yes| Gate(Human approves exact diff)
+    Gate --> Done([Verified migration lands])
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF;
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111;
+
+    class Goal terminal;
+    class Scan,Freeze,MigA,MigB,MigC,Merge step;
+    class VerA,VerB,VerC,Final decision;
+    class Done success;
+    class Fix danger;
+    class Gate accent;
+    linkStyle default stroke:#444444,stroke-width:1.5px;
+```
+
+The three migrate nodes run as one wave because their write scopes never overlap; the test oracle stays protected outside those scopes; a failed diff is quarantined and revised without blocking accepted ones; and the human gate approves the exact combined diff before anything lands.
 
 </details>
 

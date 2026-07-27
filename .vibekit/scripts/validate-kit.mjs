@@ -156,6 +156,10 @@ const reasoningSkillResources = {
   'path-sensitive-shell-safety': [
     'references/workflow.md'
   ],
+  'graph-engineering-verified-orchestration': [
+    'agents/openai.yaml',
+    'references/graph-contract.md'
+  ],
   'mermaid': [
     'UPSTREAM-NOTICE.md',
     'references/kit-examples.md',
@@ -374,8 +378,109 @@ function validateMermaidContract() {
   }
 }
 
+function validateGraphEngineeringContract() {
+  const base = '.vibekit/skills/graph-engineering-verified-orchestration';
+  if (!exists(`${base}/SKILL.md`)) return;
+  const skill = read(`${base}/SKILL.md`);
+  const contract = read(`${base}/references/graph-contract.md`);
+  const ui = read(`${base}/agents/openai.yaml`);
+  const readme = exists('README.md') ? read('README.md') : '';
+  const readmeVi = exists('docs/README.vi.md') ? read('docs/README.vi.md') : '';
+  const readmeZh = exists('docs/README.zh-CN.md') ? read('docs/README.zh-CN.md') : '';
+  const install = exists('.vibekit/docs/INSTALL.md') ? read('.vibekit/docs/INSTALL.md') : '';
+  const pkg = exists('package.json') ? read('package.json') : '';
+
+  const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
+
+  if (hasAll(skill, [
+    'consumes a named artifact',
+    'same verification and integration obligations',
+    'critical_path + schedule + queue + merge + verification',
+    'Never promise linear speedup'
+  ])) {
+    ok('Graph engineering proves artifact edges and compares equal-quality orchestration costs');
+  } else {
+    fail('Graph engineering artifact-edge or orchestration-cost contract drifted');
+  }
+
+  if (hasAll(skill, [
+    'approval of a graph plan is not mutation authority',
+    'canonical digest of the complete contract',
+    'separate affirmative execute/change instruction'
+  ]) && hasAll(contract, [
+    'execute_grant: absent | exact affirmative authority',
+    'artifact_digest: Exact content digest',
+    'expires_at: Timestamp or single-use'
+  ])) {
+    ok('Graph engineering separates plan approval, execution authority, and exact consequential gates');
+  } else {
+    fail('Graph engineering authority or exact-gate binding drifted');
+  }
+
+  if (hasAll(skill, [
+    'read, write, and semantic resource scopes',
+    'tool-enforced filesystem/API/credential allowlists',
+    'Every R2 action—serial or concurrent—requires enforceable least-privilege',
+    'Large blast radius also requires a pilot and human gate'
+  ])) {
+    ok('Graph engineering enforces semantic ownership, mutable containment, and blast-radius gates');
+  } else {
+    fail('Graph engineering isolation, containment, or blast-radius contract drifted');
+  }
+
+  if (hasAll(skill, [
+    'protect tests, schemas, fixtures, expected snapshots, commands, and verifier configuration',
+    'verifier owner must not be the actor that produced or merged the artifact',
+    'deterministic harness-run check'
+  ]) && contract.includes('| Verifier effects |')) {
+    ok('Graph engineering protects verification oracles and separates verifier ownership');
+  } else {
+    fail('Graph engineering verifier-integrity contract drifted');
+  }
+
+  if (hasAll(skill, [
+    'Use `unresolved` rather than `0`',
+    'maximum nodes, maximum rounds, a deduplication key',
+    'Reject and quarantine outputs',
+    'For irreversible R2 work, say `reversible: false`'
+  ]) && hasAll(contract, [
+    'cleanup_status: clean | quarantined | failed | not_applicable',
+    'mitigation_if_irreversible: Explicitly not a rollback',
+    'stop_conditions: []'
+  ])) {
+    ok('Graph engineering bounds resources, retries, cleanup, discovery, and irreversible work');
+  } else {
+    fail('Graph engineering failure, budget, cleanup, or rollback contract drifted');
+  }
+
+  const sourceDiscoveryValid = !isKitSourceRepo || (
+    hasAll(readme, [
+      'All 17 skills',
+      'Graph engineering: verified orchestration',
+      'edgeLabelBackground: "#FFFFFF"'
+    ])
+    && readmeVi.includes('Graph engineering: điều phối có xác minh')
+    && readmeZh.includes('图工程：经验证的编排')
+    && install.includes('Seven user-invoked skills')
+    && hasAll(pkg, [
+      '.claude/skills/graph-engineering-verified-orchestration/',
+      '.cursor/skills/graph-engineering-verified-orchestration/'
+    ])
+  );
+
+  if (hasAll(ui, [
+    'display_name: "Graph Engineering: Verified Orchestration"',
+    'Use $graph-engineering-verified-orchestration'
+  ]) && sourceDiscoveryValid) {
+    ok('Graph engineering discovery, localization, Mermaid legibility, and packaging stay synchronized');
+  } else {
+    fail('Graph engineering documentation, localization, Mermaid, or packaging drifted');
+  }
+}
+
 validateSequentialThinkingContract();
 validateMermaidContract();
+validateGraphEngineeringContract();
 
 function parseFrontmatter(text) {
   const match = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);

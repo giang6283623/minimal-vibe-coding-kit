@@ -339,7 +339,7 @@ flowchart LR
 
 ## 技能
 
-全部 16 个技能的规范版本位于 `.vibekit/skills/`。Claude、Codex 和 Grok 镜像全部 16 个技能；Cursor 镜像其中 11 个交互式技能。可以直接按名称调用（例如“Use the X skill…”），也可以使用上面的命令。
+全部 17 个技能的规范版本位于 `.vibekit/skills/`。Claude、Codex 和 Grok 镜像全部 17 个技能；Cursor 镜像其中 12 个交互式技能。可以直接按名称调用（例如“Use the X skill…”），也可以使用上面的命令。
 
 ```mermaid
 ---
@@ -376,7 +376,7 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("16 个技能"))
+  root(("17 个技能"))
     setup("设置与安全")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
@@ -386,6 +386,7 @@ mindmap
       t2("sequential-thinking")
       t3("prompt-sharpener")
       t4("reviewing-4p-priorities")
+      t5("graph-engineering-<br/>verified-orchestration")
     analyze("分析与改进")
       a1("parallel-analysis")
       a2("autoresearch-coding")
@@ -406,6 +407,7 @@ mindmap
 | ------------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | `vibekit-init`                  | 首次设置，或需要修复 `backbone.yml` / 受管理区块。                                                   | "Use the vibekit-init skill. Propose one diff and wait for my yes."                                   |
 | `parallel-analysis`             | 全仓库问题、大型差异审查、一致性审计。                                                               | "Use parallel-analysis: where is auth handled and what depends on it?"                                |
+| `graph-engineering-verified-orchestration` | 复杂工作包含真正独立的分支，并且需要明确依赖、隔离、预算、客观验证、回滚和有界合并门。 | "Use graph-engineering-verified-orchestration to design a safe task graph for this migration." |
 | `agentshield-security-review`   | 合并前审计 Agent 配置、技能、hook、MCP 和命令。                                                       | "Use agentshield-security-review on .claude/** and .vibekit/skills/**."                               |
 | `autoresearch-coding`           | 通过可衡量的实验持续改进仓库。                                                                       | "Use autoresearch-coding. Metric: `npm test`. Direction: higher. Budget: 3."                          |
 | `daily-workflow-curator`        | 定期调整规则、技能和工作流（仅提案）。                                                               | "Use daily-workflow-curator and propose today's improvements."                                        |
@@ -422,6 +424,136 @@ mindmap
 | `mermaid`                       | 生成带样式的 Mermaid 图表（31 种），密度随 coding level 自适应。写文档时会主动询问是否配图；调试时可以生成用红色高亮可疑风险区的流程图。 | "Use the mermaid skill. 把这个部署流程画成流程图。"                                                    |
 
 `story=on`（默认）时，获批分析会准备 `.vibekit/reports/tutien/story/`：`plot.md` 保存持续演化的总纲与世界设定，`story-state.json` 保存连续性，`chapters/NNNN-<修仙章名>.md` 每次只保存一个章节。故事由 Agent 根据聚合证据原创，而不是拼接固定句子；人物姓名、称谓和对白会自然遵循 `story-language=vi|en|zh`。
+
+</details>
+
+### 图工程：经验证的编排
+
+这是一个**由用户调用的技能**，不是始终启用的规则，也不是特定提供商的工作流。仅当任务图具有合理的时间/成本收益或能降低协调风险时使用。每条边必须携带命名产物；可变工作需要可强制执行的隔离；只有通过客观验证的输出才能进入最终合并。如果权限、预算、回滚或验证器尚未明确，技能只返回任务图计划。
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    darkMode: false
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    primaryColor: "#8ECAFF"
+    primaryTextColor: "#111111"
+    primaryBorderColor: "#444444"
+    edgeLabelBackground: "#FFFFFF"
+---
+flowchart TD
+    Begin([定义完成信号和任务图]) --> Benefit{任务图值得开销吗?}
+    Benefit -->|否| Plan([返回任务图计划])
+    Benefit -->|是| Freeze(冻结任务图、输入和验证器)
+    Freeze --> Ready{范围、预算、验证器和回滚就绪?}
+    Ready -->|否| Plan
+    Ready -->|是| Approval{需要批准吗?}
+    Approval -->|是| Approve(批准精确摘要和目标)
+    Approval -->|否| Run(运行就绪批次)
+    Approve --> Run
+    Run --> Verify{节点验证通过吗?}
+    Verify -->|否| Revise(清理并修订任务图)
+    Revise --> Limits{清理、权限和限制允许重试?}
+    Limits -->|否| Stop([停止并报告部分结果])
+    Limits -->|是| Freeze
+    Verify -->|是| Merge(合并已接受产物)
+    Merge --> Final{集成检查通过吗?}
+    Final -->|否| Revise
+    Final -->|是| Done([接受已验证结果])
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF;
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111;
+
+    class Begin,Plan,Stop terminal;
+    class Freeze,Run,Merge step;
+    class Benefit,Ready,Approval,Verify,Limits,Final decision;
+    class Done success;
+    class Revise danger;
+    class Approve accent;
+    linkStyle default stroke:#444444,stroke-width:1.5px;
+```
+
+<details>
+<summary><strong>查看更多：一个真实案例</strong></summary>
+
+**案例 — 把三个服务迁移到同一个结构化日志器。** Monorepo 中有 `billing/`、`auth/` 和 `reports/`，每个服务都在自己的文件里调用旧日志器。这正好满足技能的触发条件：三个有边界的工作项、互不共享文件的分支，以及一个客观验证器（测试套件）。
+
+- **何时**：工作可以拆成至少三个有边界的工作项，且至少有两条真正独立的分支，任务图有望节省时间或降低协调风险。
+- **何处**：写入所有权能干净拆分的仓库（按服务、按包或按文档集），且测试或 schema 可以在写入方范围之外验证结果。
+- **为何**：可强制执行的隔离防止写入重叠；每条边都携带命名产物，不会有想象出来的依赖把工作串行化；只有通过验证的差异才会到达唯一的合并负责人。
+- **何时不用**：少于三个工作项、分支都触碰同一批文件、或没有客观验证器 — 直接顺序修改更便宜，技能也会通过只返回任务图计划来说明这一点。
+
+```text
+Use graph-engineering-verified-orchestration.
+Goal: replace the legacy logger with structlog in billing/, auth/, reports/.
+Done signal: npm test passes and no legacy logger import remains.
+Editable paths: billing/ auth/ reports/. Protected paths: tests/ and configs.
+```
+
+该案例作为任务图运行时 — 每条边都携带下一个节点要消费的命名产物：
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    darkMode: false
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    primaryColor: "#8ECAFF"
+    primaryTextColor: "#111111"
+    primaryBorderColor: "#444444"
+    edgeLabelBackground: "#FFFFFF"
+---
+flowchart TD
+    Goal([统一使用一个结构化日志器]) --> Scan(盘点旧日志调用点)
+    Scan -->|inventory.md| Freeze(冻结任务图、范围和基准)
+    Freeze -->|contract v1| MigA(迁移 billing/)
+    Freeze -->|contract v1| MigB(迁移 auth/)
+    Freeze -->|contract v1| MigC(迁移 reports/)
+    MigA -->|diff A| VerA{billing 测试通过吗?}
+    MigB -->|diff B| VerB{auth 测试通过吗?}
+    MigC -->|diff C| VerC{reports 测试通过吗?}
+    VerA -->|否| Fix(隔离并修订)
+    VerB -->|否| Fix
+    VerC -->|否| Fix
+    Fix --> Freeze
+    VerA -->|是| Merge(合并负责人整合差异)
+    VerB -->|是| Merge
+    VerC -->|是| Merge
+    Merge -->|合并差异| Final{集成测试通过吗?}
+    Final -->|否| Fix
+    Final -->|是| Gate(人工批准精确差异)
+    Gate --> Done([已验证迁移落地])
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF;
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111;
+
+    class Goal terminal;
+    class Scan,Freeze,MigA,MigB,MigC,Merge step;
+    class VerA,VerB,VerC,Final decision;
+    class Done success;
+    class Fix danger;
+    class Gate accent;
+    linkStyle default stroke:#444444,stroke-width:1.5px;
+```
+
+三个迁移节点在同一批次运行，因为它们的写入范围互不重叠；测试基准被保护在这些范围之外；未通过的差异会被隔离和修订，而不会阻塞已通过的差异；人工门在任何内容落地之前批准精确的合并差异。
 
 </details>
 
