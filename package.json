@@ -1,6 +1,6 @@
 {
   "name": "minimal-vibe-coding-kit",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Project-agnostic AI coding workflow kit for Claude Code, Cursor, Codex, and Grok with AgentShield security review.",
   "type": "module",
   "bin": {
@@ -58,6 +58,7 @@
     ".claude/skills/memento/",
     ".claude/skills/coding-level/",
     ".claude/skills/parallel-analysis/",
+    ".claude/skills/graph-engineering-verified-orchestration/",
     ".claude/skills/prompt-sharpener/",
     ".claude/skills/claim/",
     ".claude/skills/tutien/",
@@ -73,6 +74,7 @@
     ".cursor/skills/memento/",
     ".cursor/skills/coding-level/",
     ".cursor/skills/parallel-analysis/",
+    ".cursor/skills/graph-engineering-verified-orchestration/",
     ".cursor/skills/prompt-sharpener/",
     ".cursor/skills/claim/",
     ".cursor/skills/tutien/",

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Graph Engineering: Verified Orchestration"
+  short_description: "Build bounded dependency graphs with verification"
+  default_prompt: "Use $graph-engineering-verified-orchestration to design a safe, testable task graph for this work."

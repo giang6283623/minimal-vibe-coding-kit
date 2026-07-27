@@ -339,7 +339,7 @@ flowchart LR
 
 ## Skills
 
-Cả 16 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex và Grok mirror đủ 16; Cursor mirror 11 skill tương tác. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
+Cả 17 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex và Grok mirror đủ 17; Cursor mirror 12 skill tương tác. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
 
 ```mermaid
 ---
@@ -376,7 +376,7 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("16 skill"))
+  root(("17 skill"))
     setup("Thiết lập và an toàn")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
@@ -386,6 +386,7 @@ mindmap
       t2("sequential-thinking")
       t3("prompt-sharpener")
       t4("reviewing-4p-priorities")
+      t5("graph-engineering-<br/>verified-orchestration")
     analyze("Phân tích và cải tiến")
       a1("parallel-analysis")
       a2("autoresearch-coding")
@@ -406,6 +407,7 @@ mindmap
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
 | `vibekit-init`                | Setup lần đầu, hoặc `backbone.yml` / managed blocks cần sửa.                                                                                                                                                                                           | "Use the vibekit-init skill. Propose one diff and wait for my yes."                     |
 | `parallel-analysis`           | Câu hỏi toàn repo, review diff lớn, audit tính nhất quán.                                                                                                                                                                                              | "Use parallel-analysis: where is auth handled and what depends on it?"                  |
+| `graph-engineering-verified-orchestration` | Công việc phức tạp có các nhánh thực sự độc lập và cần dependency rõ ràng, cô lập, budget, xác minh khách quan, rollback và merge gate có giới hạn. | "Use graph-engineering-verified-orchestration to design a safe task graph for this migration." |
 | `agentshield-security-review` | Audit config agent, skills, hooks, MCP, commands trước khi merge.                                                                                                                                                                                      | "Use agentshield-security-review on .claude/** and .vibekit/skills/**."                 |
 | `autoresearch-coding`         | Cải tiến repo qua các thử nghiệm đo được.                                                                                                                                                                                                              | "Use autoresearch-coding. Metric: `npm test`. Direction: higher. Budget: 3."            |
 | `daily-workflow-curator`      | Tune-up định kỳ cho rules, skills, workflows (chỉ đề xuất).                                                                                                                                                                                            | "Use daily-workflow-curator and propose today's improvements."                          |
@@ -422,6 +424,136 @@ mindmap
 | `mermaid`                     | Sinh sơ đồ Mermaid có style (31 loại) với độ chi tiết theo coding level. Chủ động hỏi có muốn thêm sơ đồ khi viết tài liệu, và khi debug có thể vẽ workflow tô đỏ vùng nghi là nguyên nhân bug.                                                        | "Use the mermaid skill. Vẽ flowchart cho pipeline deploy này."                          |
 
 Với `story=on` (mặc định), sau khi phân tích được duyệt, chế độ chuẩn bị `.vibekit/reports/tutien/story/`: `plot.md` lưu tổng cương và thế giới quan đang phát triển, `story-state.json` giữ mạch truyện, còn `chapters/NNNN-<tên-chương-tu-tiên>.md` lưu mỗi lần đúng một chương. Văn truyện do agent sáng tác từ dữ liệu tổng hợp thay vì ghép câu cố định; tên nhân vật, xưng hô và đối thoại tự nhiên theo `story-language=vi|en|zh`.
+
+</details>
+
+### Graph engineering: điều phối có xác minh
+
+Đây là **skill do user gọi**, không phải rule luôn bật hay workflow riêng của một provider. Chỉ dùng khi graph có lợi ích thời gian/chi phí hợp lý hoặc giảm rủi ro phối hợp. Mỗi edge phải mang một artifact có tên; thay đổi mutable cần cô lập có thể cưỡng chế; và chỉ output vượt qua xác minh khách quan mới được merge. Nếu quyền, budget, rollback hoặc verifier chưa rõ, skill chỉ trả về graph plan.
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    darkMode: false
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    primaryColor: "#8ECAFF"
+    primaryTextColor: "#111111"
+    primaryBorderColor: "#444444"
+    edgeLabelBackground: "#FFFFFF"
+---
+flowchart TD
+    Begin([Chốt tín hiệu hoàn tất và graph]) --> Benefit{Graph đáng chi phí?}
+    Benefit -->|không| Plan([Trả về graph plan])
+    Benefit -->|có| Freeze(Đóng băng graph, input, verifier)
+    Freeze --> Ready{Scope, budget, verifier, rollback sẵn sàng?}
+    Ready -->|không| Plan
+    Ready -->|có| Approval{Cần phê duyệt?}
+    Approval -->|có| Approve(Duyệt digest và đích chính xác)
+    Approval -->|không| Run(Chạy wave sẵn sàng)
+    Approve --> Run
+    Run --> Verify{Node qua verifier?}
+    Verify -->|không| Revise(Dọn sạch và sửa graph)
+    Revise --> Limits{Cleanup, quyền, giới hạn cho retry?}
+    Limits -->|không| Stop([Dừng và báo phần đã làm])
+    Limits -->|có| Freeze
+    Verify -->|có| Merge(Gộp artifact đã đạt)
+    Merge --> Final{Kiểm tra tích hợp đạt?}
+    Final -->|không| Revise
+    Final -->|có| Done([Nhận kết quả đã xác minh])
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF;
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111;
+
+    class Begin,Plan,Stop terminal;
+    class Freeze,Run,Merge step;
+    class Benefit,Ready,Approval,Verify,Limits,Final decision;
+    class Done success;
+    class Revise danger;
+    class Approve accent;
+    linkStyle default stroke:#444444,stroke-width:1.5px;
+```
+
+<details>
+<summary><strong>Xem thêm: một ví dụ thực tế</strong></summary>
+
+**Tình huống — chuyển ba service sang một structured logger.** Monorepo có `billing/`, `auth/` và `reports/`, mỗi service gọi logger cũ trong file riêng của mình. Đúng điều kiện kích hoạt của skill: ba hạng mục công việc có ranh giới, các nhánh không chạm chung file, và một verifier khách quan (bộ test).
+
+- **Khi nào**: công việc tách được thành ít nhất ba hạng mục có ranh giới với ít nhất hai nhánh thực sự độc lập, và graph có khả năng tiết kiệm thời gian hoặc giảm rủi ro phối hợp.
+- **Ở đâu**: repo mà quyền ghi tách được rõ ràng (theo service, package hoặc bộ tài liệu) và test hoặc schema có thể xác minh kết quả từ ngoài scope của bên ghi.
+- **Vì sao**: cô lập cưỡng chế chặn ghi chồng lấn; mỗi edge mang một artifact có tên nên không có dependency tưởng tượng nào tuần tự hóa công việc; và chỉ diff đã xác minh mới đến merge owner duy nhất.
+- **Khi nào không**: dưới ba hạng mục, các nhánh chạm chung file, hoặc không có verifier khách quan — sửa tuần tự rẻ hơn, và skill sẽ tự nói điều đó bằng cách trả về graph plan thay vì thực thi.
+
+```text
+Use graph-engineering-verified-orchestration.
+Goal: replace the legacy logger with structlog in billing/, auth/, reports/.
+Done signal: npm test passes and no legacy logger import remains.
+Editable paths: billing/ auth/ reports/. Protected paths: tests/ and configs.
+```
+
+Cách tình huống này chạy dưới dạng graph — mỗi edge mang artifact có tên mà node sau tiêu thụ:
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    darkMode: false
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    lineColor: "#444444"
+    textColor: "#111111"
+    primaryColor: "#8ECAFF"
+    primaryTextColor: "#111111"
+    primaryBorderColor: "#444444"
+    edgeLabelBackground: "#FFFFFF"
+---
+flowchart TD
+    Goal([Dùng chung một structured logger]) --> Scan(Quét call site logger cũ)
+    Scan -->|inventory.md| Freeze(Đóng băng graph, scope, oracle)
+    Freeze -->|contract v1| MigA(Chuyển billing/)
+    Freeze -->|contract v1| MigB(Chuyển auth/)
+    Freeze -->|contract v1| MigC(Chuyển reports/)
+    MigA -->|diff A| VerA{Test billing đạt?}
+    MigB -->|diff B| VerB{Test auth đạt?}
+    MigC -->|diff C| VerC{Test reports đạt?}
+    VerA -->|không| Fix(Cách ly và sửa lại)
+    VerB -->|không| Fix
+    VerC -->|không| Fix
+    Fix --> Freeze
+    VerA -->|có| Merge(Merge owner gộp diff)
+    VerB -->|có| Merge
+    VerC -->|có| Merge
+    Merge -->|diff gộp| Final{Test tích hợp đạt?}
+    Final -->|không| Fix
+    Final -->|có| Gate(Người duyệt đúng diff gộp)
+    Gate --> Done([Migration đã được xác minh])
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF;
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111;
+
+    class Goal terminal;
+    class Scan,Freeze,MigA,MigB,MigC,Merge step;
+    class VerA,VerB,VerC,Final decision;
+    class Done success;
+    class Fix danger;
+    class Gate accent;
+    linkStyle default stroke:#444444,stroke-width:1.5px;
+```
+
+Ba node chuyển đổi chạy trong một wave vì scope ghi không chồng lấn; oracle test được bảo vệ ngoài các scope đó; diff hỏng bị cách ly và sửa lại mà không chặn các diff đã đạt; và human gate duyệt đúng diff gộp trước khi mọi thứ được áp dụng.
 
 </details>
 

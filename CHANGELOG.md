@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.5.3 — 2026-07-27
+
+### Added
+
+- Added `graph-engineering-verified-orchestration` as a portable user-invoked skill across the canonical, Claude, Cursor, Codex, and Grok surfaces. It converts large work into bounded artifact dependency graphs with critical-path checks, enforceable state and semantic isolation, protected verification oracles, resource/retry budgets, rollback semantics, exact human gates, and accepted-only merging.
+- Added a reusable graph contract covering plan-only versus execute authority, node/edge/state ledgers, risk and blast radius, verifier effects, immutable input/graph digests, bounded discovery, cleanup, partial results, and irreversible R2 handling.
+
+### Changed
+
+- Documented the skill in the English, Vietnamese, and Simplified Chinese READMEs with a Vivid Clay Mermaid flow. Updated skill counts and install guidance without hardcoding provider-specific concurrency or pricing claims.
+- Added a collapsible "Read more: a real example" case study to the graph-engineering section of all three READMEs — a three-service logger migration explaining when, where, and why to use the skill (and when not), with an example prompt and a localized Vivid Clay case-graph diagram whose edges carry named artifacts.
+
+### Validation
+
+- Added permanent validator gates for artifact-edge economics, authority separation, exact approval binding, enforced isolation, verification-oracle protection, bounded failures, localized discovery, Mermaid legibility, and package inclusion. The deterministic validator grew from 598 to 635 passing checks with zero failures or warnings.
+
 ## 0.5.2 — 2026-07-26
 
 ### Added
