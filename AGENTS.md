@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Shared instructions for Claude, Cursor, Codex, Grok, and other coding agents.
+Shared instructions for Claude, Cursor, Codex, Grok, Kimi, and other coding agents.
 
 <!-- BEGIN: minimal-vibe-coding-kit -->
 ## Minimal Vibe Coding Kit
@@ -20,6 +20,12 @@ Shared instructions for Claude, Cursor, Codex, Grok, and other coding agents.
 - Run the validation command listed in `backbone.yml` after relevant changes.
 - Summarize changed files, validation results, and remaining risks.
 
+### Writing style
+
+- No emoji in responses, code, docs, commits, or diagrams unless the user explicitly asks.
+- No em dashes or en dashes in generated prose; use ASCII punctuation (comma, colon, semicolon, hyphen, parentheses).
+- When editing files whose established style already uses these characters, keep existing characters and apply the rule only to new text.
+
 ### Visual design loop trigger
 
 Always use the `visual-design-loop` skill when a Claude skill loop or Codex goal touches UI, visual design, screenshots, rendering, product polish, or visible frontend behavior.
@@ -35,7 +41,7 @@ Track every loop in `/tmp/design-{project_slug}.md`. Each loop entry must includ
 - Do not run untrusted hooks, MCP servers, deploy scripts, package lifecycle scripts, migrations, or destructive shell commands just to inspect a repo.
 - Do not modify protected paths from `backbone.yml` without explicit approval.
 - Before editing or approving shell/deploy/installer/repair logic that uses path variables or destructive commands (`rm`, `mv`, `cp -a`, `rsync --delete`, `find -delete`, `git clean`, checkout replacement), use `path-sensitive-shell-safety` and prove base/folder/repo values are non-empty, contained, quoted, and not broad system paths.
-- If a task changes agent surfaces (`CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.grok/**`, `.codex-plugin/**`, `.vibekit/skills/**`, `.vibekit/commands/**`, `.vibekit/scripts/**`, hooks, MCP config), run the AgentShield probe or explain why it was skipped.
+- If a task changes agent surfaces (`CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.grok/**`, `.kimi/**`, `.codex-plugin/**`, `.vibekit/skills/**`, `.vibekit/commands/**`, `.vibekit/scripts/**`, hooks, MCP config), run the AgentShield probe or explain why it was skipped.
 
 ### Skills to prefer
 
