@@ -476,6 +476,31 @@ function validateGraphEngineeringContract() {
   } else {
     fail('Graph engineering documentation, localization, Mermaid, or packaging drifted');
   }
+
+  const viz = exists(`${base}/references/graph-visualization.md`) ? read(`${base}/references/graph-visualization.md`) : '';
+  const renderer = exists(`${base}/scripts/render-graph.mjs`) ? read(`${base}/scripts/render-graph.mjs`) : '';
+  const graphTestOk = !isKitSourceRepo
+    || (exists('test/graph-engineering/scripts/test-render-graph.mjs') && exists('test/graph-engineering/fixtures/sample-graph.json'));
+  if (hasAll(skill, [
+    'scripts/render-graph.mjs',
+    'references/graph-visualization.md',
+    'never hand-draw'
+  ]) && hasAll(viz, [
+    '--format=mermaid',
+    '--format=ascii',
+    'deterministic',
+    'cycle'
+  ]) && hasAll(renderer, [
+    'flowchart TD',
+    'edgeLabelBackground',
+    'assertAcyclic',
+    'criticalPath',
+    'sanitizeLabel'
+  ]) && graphTestOk) {
+    ok('Graph engineering visualization contract, deterministic renderer, and tests stay synchronized');
+  } else {
+    fail('Graph engineering visualization contract, renderer, or test drifted');
+  }
 }
 
 validateSequentialThinkingContract();
