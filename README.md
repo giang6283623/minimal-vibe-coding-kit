@@ -11,6 +11,7 @@
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
 ![Grok](https://img.shields.io/badge/Grok-Rules%20%26%20Skills-000000)
+![Kimi](https://img.shields.io/badge/Kimi-AGENTS.md%20%26%20Skills-2f54eb)
 ![AgentShield](https://img.shields.io/badge/Security-AgentShield-d62828)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)
 
@@ -112,7 +113,7 @@ npx mvck install .        # required — copies the kit out of node_modules into
 ```
 
 > **Important:** `npm i` alone only downloads the kit into `node_modules/` — nothing is active yet.
-> `mvck install` is the step that copies `.claude/`, `.cursor/`, `.agents/`, `.vibekit/`, and `backbone.yml` into your repo root.
+> `mvck install` is the step that copies `.claude/`, `.cursor/`, `.agents/`, `.grok/`, `.kimi/`, `.vibekit/`, and `backbone.yml` into your repo root.
 
 Either way, the short `mvck` command (alias: `vibe-kit`) is then available via `npx`:
 
@@ -142,6 +143,7 @@ your-project/
 ├── .agents/                  ← Codex / portable skills
 ├── .codex/  .codex-plugin/   ← Codex config example + plugin manifest
 ├── .grok/                    ← Grok Build: rules, skills, config example
+├── .kimi/                    ← Kimi Code: skills (highest-priority project skills dir)
 └── .vibekit/                 ← everything kit-owned, in ONE folder
     ├── skills/               ← canonical shared skills (mirrored to the harness dirs)
     ├── commands/             ← shared command prompts
@@ -638,7 +640,7 @@ node .vibekit/scripts/agentshield-probe.mjs .                          # fast re
 npx ecc-agentshield scan --path . --format text --min-severity medium  # optional full scan
 ```
 
-Any change to `CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.codex-plugin/**`, or `.vibekit/skills|commands|scripts/**` should trigger a review. Model: [.vibekit/docs/SECURITY_MODEL.md](.vibekit/docs/SECURITY_MODEL.md).
+Any change to `CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.grok/**`, `.kimi/**`, `.codex-plugin/**`, or `.vibekit/skills|commands|scripts/**` should trigger a review. Model: [.vibekit/docs/SECURITY_MODEL.md](.vibekit/docs/SECURITY_MODEL.md).
 
 ### Doctor and reports
 
@@ -673,7 +675,7 @@ Publishing checklist: [.vibekit/init/PUSH_TO_GITHUB.md](.vibekit/init/PUSH_TO_GI
 
 ## Contributing
 
-Issues and PRs welcome at [`giang6283623/minimal-vibe-coding-kit`](https://github.com/giang6283623/minimal-vibe-coding-kit). Before a PR: mirror skill changes across `.claude/`, `.cursor/`, `.agents/`, keep templates project-neutral, and run `npm run validate:all`. See [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+Issues and PRs welcome at [`giang6283623/minimal-vibe-coding-kit`](https://github.com/giang6283623/minimal-vibe-coding-kit). Before a PR: mirror skill changes across `.claude/`, `.cursor/`, `.agents/`, `.grok/`, `.kimi/`, keep templates project-neutral, and run `npm run validate:all`. See [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 **Created by:** [GiangBV](https://www.linkedin.com/in/buivangiang1992), [AuPMH](https://www.linkedin.com/in/pham-au-2a1bb1162)
 **Powered by:** Caffeine, Determination, AI Collaboration, and Weekend Coding Sessions.

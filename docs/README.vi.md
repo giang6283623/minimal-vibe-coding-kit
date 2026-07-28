@@ -11,10 +11,11 @@
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
 ![Grok](https://img.shields.io/badge/Grok-Rules%20%26%20Skills-000000)
+![Kimi](https://img.shields.io/badge/Kimi-AGENTS.md%20%26%20Skills-2f54eb)
 ![AgentShield](https://img.shields.io/badge/Security-AgentShield-d62828)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)
 
-**Một bộ kit AI-coding cài một lần cho Claude Code, Cursor, Codex và Grok — mọi repo, mọi ngôn ngữ.**
+**Một bộ kit AI-coding cài một lần cho Claude Code, Cursor, Codex, Grok và Kimi — mọi repo, mọi ngôn ngữ.**
 
 Cài đặt → dán một prompt → duyệt đề xuất → code với guardrails.
 
@@ -24,7 +25,7 @@ Cài đặt → dán một prompt → duyệt đề xuất → code với guardr
 
 ## Bộ kit này là gì?
 
-Một bộ kit nhỏ gồm **rules**, **skills**, **commands** dùng chung, cộng một manifest **`backbone.yml`**, giúp Claude Code, Cursor, Codex và Grok hiểu project của bạn theo cùng một cách.
+Một bộ kit nhỏ gồm **rules**, **skills**, **commands** dùng chung, cộng một manifest **`backbone.yml`**, giúp Claude Code, Cursor, Codex, Grok và Kimi hiểu project của bạn theo cùng một cách.
 
 - Không bao giờ ghi đè `CLAUDE.md` / `AGENTS.md` sẵn có — chỉ thêm managed block.
 - Mọi thao tác ghi khi setup đều chờ bạn duyệt.
@@ -76,7 +77,7 @@ npx --yes minimal-vibe-coding-kit@latest install /path/to/your-project
 
 Đã chạy `npm i minimal-vibe-coding-kit`, hoặc muốn cài từ GitHub / bản clone? Xem [Cài từ npm](#cài-từ-npm).
 
-**2. Mở project trong Claude Code, Cursor, Codex hoặc Grok và dán:**
+**2. Mở project trong Claude Code, Cursor, Codex, Grok hoặc Kimi Code và dán:**
 
 ```text
 Read .vibekit/init/FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit.
@@ -112,7 +113,7 @@ npx mvck install .        # bắt buộc — copy kit từ node_modules ra repo 
 ```
 
 > **Quan trọng:** `npm i` một mình chỉ tải kit vào `node_modules/` — chưa có gì hoạt động.
-> `mvck install` mới là bước copy `.claude/`, `.cursor/`, `.agents/`, `.vibekit/` và `backbone.yml` vào repo root.
+> `mvck install` mới là bước copy `.claude/`, `.cursor/`, `.agents/`, `.grok/`, `.kimi/`, `.vibekit/` và `backbone.yml` vào repo root.
 
 Sau đó, lệnh ngắn `mvck` (alias: `vibe-kit`) dùng được qua `npx`:
 
@@ -142,6 +143,7 @@ your-project/
 ├── .agents/                  ← skills cho Codex / portable
 ├── .codex/  .codex-plugin/   ← config mẫu Codex + plugin manifest
 ├── .grok/                    ← Grok Build: rules, skills, config mẫu
+├── .kimi/                    ← Kimi Code: skills (thư mục skills project được ưu tiên cao nhất)
 └── .vibekit/                 ← mọi thứ thuộc kit, trong MỘT thư mục
     ├── skills/               ← shared skills canonical (mirror sang các harness)
     ├── commands/             ← prompt command dùng chung
@@ -638,7 +640,7 @@ node .vibekit/scripts/agentshield-probe.mjs .                          # probe c
 npx ecc-agentshield scan --path . --format text --min-severity medium  # scan đầy đủ, tùy chọn
 ```
 
-Mọi thay đổi tới `CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.grok/**`, `.codex-plugin/**`, hoặc `.vibekit/skills|commands|scripts/**` đều nên kích hoạt review. Mô hình: [.vibekit/docs/SECURITY_MODEL.md](../.vibekit/docs/SECURITY_MODEL.md).
+Mọi thay đổi tới `CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.grok/**`, `.kimi/**`, `.codex-plugin/**`, hoặc `.vibekit/skills|commands|scripts/**` đều nên kích hoạt review. Mô hình: [.vibekit/docs/SECURITY_MODEL.md](../.vibekit/docs/SECURITY_MODEL.md).
 
 ### Doctor và báo cáo
 
@@ -673,7 +675,7 @@ Checklist publish: [.vibekit/init/PUSH_TO_GITHUB.md](../.vibekit/init/PUSH_TO_GI
 
 ## Đóng góp
 
-Issue và PR luôn welcome tại [`giang6283623/minimal-vibe-coding-kit`](https://github.com/giang6283623/minimal-vibe-coding-kit). Trước khi mở PR: mirror thay đổi skill giữa `.claude/`, `.cursor/`, `.agents/`, `.kimi/`, giữ template trung lập, và chạy `npm run validate:all`. Xem [CONTRIBUTING.md](../CONTRIBUTING.md), [SECURITY.md](../SECURITY.md), [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md).
+Issue và PR luôn welcome tại [`giang6283623/minimal-vibe-coding-kit`](https://github.com/giang6283623/minimal-vibe-coding-kit). Trước khi mở PR: mirror thay đổi skill giữa `.claude/`, `.cursor/`, `.agents/`, `.grok/`, `.kimi/`, giữ template trung lập, và chạy `npm run validate:all`. Xem [CONTRIBUTING.md](../CONTRIBUTING.md), [SECURITY.md](../SECURITY.md), [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md).
 
 **Tác giả:** [GiangBV](https://www.linkedin.com/in/buivangiang1992), [AuPMH](https://www.linkedin.com/in/pham-au-2a1bb1162)
 **Powered by:** Caffeine, Determination, AI Collaboration, và những đêm code cuối tuần.

@@ -11,10 +11,11 @@
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
 ![Grok](https://img.shields.io/badge/Grok-Rules%20%26%20Skills-000000)
+![Kimi](https://img.shields.io/badge/Kimi-AGENTS.md%20%26%20Skills-2f54eb)
 ![AgentShield](https://img.shields.io/badge/Security-AgentShield-d62828)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)
 
-**一套可安装的 AI 编程工作流工具包，同时支持 Claude Code、Cursor、Codex 和 Grok——适用于任何仓库、任何语言。**
+**一套可安装的 AI 编程工作流工具包，同时支持 Claude Code、Cursor、Codex、Grok 和 Kimi——适用于任何仓库、任何语言。**
 
 安装 → 粘贴一个提示词 → 审核方案 → 在护栏保护下开始编码。
 
@@ -24,7 +25,7 @@
 
 ## 这是什么？
 
-这是一套精简的共享 **规则（rules）**、**技能（skills）** 和 **命令（commands）**，再配合一个 **`backbone.yml`** 清单，让 Claude Code、Cursor、Codex 和 Grok 以一致的方式理解你的项目。
+这是一套精简的共享 **规则（rules）**、**技能（skills）** 和 **命令（commands）**，再配合一个 **`backbone.yml`** 清单，让 Claude Code、Cursor、Codex、Grok 和 Kimi 以一致的方式理解你的项目。
 
 - 绝不会覆盖已有的 `CLAUDE.md` 或 `AGENTS.md`，只会添加受管理的区块。
 - 初始化期间的每一次写入都会等待你的明确批准。
@@ -76,7 +77,7 @@ npx --yes minimal-vibe-coding-kit@latest install /path/to/your-project
 
 已经运行过 `npm i minimal-vibe-coding-kit`，或者更喜欢 GitHub / 本地克隆方式？请参阅[从 npm 安装](#从-npm-安装)。
 
-**2. 在 Claude Code、Cursor、Codex 或 Grok 中打开项目并粘贴：**
+**2. 在 Claude Code、Cursor、Codex、Grok 或 Kimi Code 中打开项目并粘贴：**
 
 ```text
 Read .vibekit/init/FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit.
@@ -112,7 +113,7 @@ npx mvck install .        # 必需——将工具包从 node_modules 复制到�
 ```
 
 > **重要：** 单独运行 `npm i` 只会把工具包下载到 `node_modules/`，此时任何功能都尚未启用。
-> `mvck install` 才会把 `.claude/`、`.cursor/`、`.agents/`、`.vibekit/` 和 `backbone.yml` 复制到仓库根目录。
+> `mvck install` 才会把 `.claude/`、`.cursor/`、`.agents/`、`.grok/`、`.kimi/`、`.vibekit/` 和 `backbone.yml` 复制到仓库根目录。
 
 之后可以通过 `npx` 使用简短命令 `mvck`（别名：`vibe-kit`）：
 
@@ -142,6 +143,7 @@ your-project/
 ├── .agents/                  ← Codex / 可移植技能
 ├── .codex/  .codex-plugin/   ← Codex 配置示例和插件清单
 ├── .grok/                    ← Grok Build：规则、技能、配置示例
+├── .kimi/                    ← Kimi Code：技能（最高优先级的项目级技能目录）
 └── .vibekit/                 ← 工具包拥有的所有内容都集中在一个目录
     ├── skills/               ← 规范技能源（镜像到各工具目录）
     ├── commands/             ← 共享命令提示词
@@ -638,7 +640,7 @@ node .vibekit/scripts/agentshield-probe.mjs .                          # 快速�
 npx ecc-agentshield scan --path . --format text --min-severity medium  # 可选完整扫描
 ```
 
-对 `CLAUDE.md`、`AGENTS.md`、`.claude/**`、`.cursor/**`、`.agents/**`、`.grok/**`、`.codex-plugin/**` 或 `.vibekit/skills|commands|scripts/**` 的任何修改都应触发安全审查。安全模型：[.vibekit/docs/SECURITY_MODEL.md](../.vibekit/docs/SECURITY_MODEL.md)。
+对 `CLAUDE.md`、`AGENTS.md`、`.claude/**`、`.cursor/**`、`.agents/**`、`.grok/**`、`.kimi/**`、`.codex-plugin/**` 或 `.vibekit/skills|commands|scripts/**` 的任何修改都应触发安全审查。安全模型：[.vibekit/docs/SECURITY_MODEL.md](../.vibekit/docs/SECURITY_MODEL.md)。
 
 ### Doctor 和报告
 
@@ -673,7 +675,7 @@ npm run validate:all    # npm test + AgentShield 探针 + npm 打包预检
 
 ## 贡献
 
-欢迎在 [`giang6283623/minimal-vibe-coding-kit`](https://github.com/giang6283623/minimal-vibe-coding-kit) 提交 Issue 和 PR。提交 PR 前，请在 `.claude/`、`.cursor/`、`.agents/` 之间同步技能变更，保持模板与具体项目无关，并运行 `npm run validate:all`。另请参阅 [CONTRIBUTING.md](../CONTRIBUTING.md)、[SECURITY.md](../SECURITY.md) 和 [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)。
+欢迎在 [`giang6283623/minimal-vibe-coding-kit`](https://github.com/giang6283623/minimal-vibe-coding-kit) 提交 Issue 和 PR。提交 PR 前，请在 `.claude/`、`.cursor/`、`.agents/`、`.grok/`、`.kimi/` 之间同步技能变更，保持模板与具体项目无关，并运行 `npm run validate:all`。另请参阅 [CONTRIBUTING.md](../CONTRIBUTING.md)、[SECURITY.md](../SECURITY.md) 和 [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)。
 
 **创建者：** [GiangBV](https://www.linkedin.com/in/buivangiang1992)、[AuPMH](https://www.linkedin.com/in/pham-au-2a1bb1162)  
 **技术动力：** 咖啡因、坚持、与 AI 协作，以及周末的编程时光。
