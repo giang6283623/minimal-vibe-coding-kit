@@ -1,6 +1,6 @@
 {
   "name": "minimal-vibe-coding-kit",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "Project-agnostic AI coding workflow kit for Claude Code, Cursor, Codex, Grok, and Kimi with AgentShield security review.",
   "type": "module",
   "bin": {
@@ -13,7 +13,7 @@
     "init:backbone": "node .vibekit/scripts/init-backbone.mjs . --propose",
     "doctor": "node .vibekit/scripts/doctor.mjs .",
     "daily": "node .vibekit/scripts/daily-enhance.mjs . --write-report",
-    "check:syntax": "node --check .vibekit/scripts/mvck.mjs && node --check .vibekit/scripts/init-backbone.mjs && node --check .vibekit/scripts/daily-enhance.mjs && node --check .vibekit/scripts/validate-kit.mjs && node --check .vibekit/scripts/doctor.mjs && node --check .vibekit/scripts/test-install.mjs && node --check .vibekit/scripts/agentshield-probe.mjs && node --check .vibekit/scripts/pack-dry-run.mjs && node --check .vibekit/scripts/vibekit-finalize.mjs && node --check bin/mvck.js && node --check bin/vibe-kit.js",
+    "check:syntax": "node --check .vibekit/scripts/mvck.mjs && node --check .vibekit/scripts/init-backbone.mjs && node --check .vibekit/scripts/daily-enhance.mjs && node --check .vibekit/scripts/validate-kit.mjs && node --check .vibekit/scripts/doctor.mjs && node --check .vibekit/scripts/test-install.mjs && node --check .vibekit/scripts/agentshield-probe.mjs && node --check .vibekit/scripts/pack-dry-run.mjs && node --check .vibekit/scripts/vibekit-finalize.mjs && node --check .vibekit/skills/graph-engineering-verified-orchestration/scripts/render-graph.mjs && node --check bin/mvck.js && node --check bin/vibe-kit.js",
     "test:install": "node .vibekit/scripts/test-install.mjs",
     "test": "npm run check:syntax && npm run test:install && npm run validate && npm run test:tutien && npm run test:graph",
     "validate": "node .vibekit/scripts/validate-kit.mjs .",
@@ -64,6 +64,7 @@
     ".claude/skills/prompt-sharpener/",
     ".claude/skills/claim/",
     ".claude/skills/tutien/",
+    ".claude/skills/the-creator/",
     ".claude/skills/mermaid/",
     ".cursor/rules/",
     ".cursor/commands/",
@@ -80,6 +81,7 @@
     ".cursor/skills/prompt-sharpener/",
     ".cursor/skills/claim/",
     ".cursor/skills/tutien/",
+    ".cursor/skills/the-creator/",
     ".cursor/skills/mermaid/",
     ".agents/",
     ".grok/",

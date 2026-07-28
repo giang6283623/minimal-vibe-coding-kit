@@ -169,6 +169,9 @@ const reasoningSkillResources = {
     'references/graph-visualization.md',
     'scripts/render-graph.mjs'
   ],
+  'the-creator': [
+    'agents/openai.yaml'
+  ],
   'mermaid': [
     'UPSTREAM-NOTICE.md',
     'references/kit-examples.md',
@@ -492,13 +495,13 @@ function validateGraphEngineeringContract() {
 
   const sourceDiscoveryValid = !isKitSourceRepo || (
     hasAll(readme, [
-      'All 17 skills',
+      'All 18 skills',
       'Graph engineering: verified orchestration',
       'edgeLabelBackground: "#FFFFFF"'
     ])
     && readmeVi.includes('Graph engineering: điều phối có xác minh')
     && readmeZh.includes('图工程：经验证的编排')
-    && install.includes('Seven user-invoked skills')
+    && install.includes('Eight user-invoked skills')
     && hasAll(pkg, [
       '.claude/skills/graph-engineering-verified-orchestration/',
       '.cursor/skills/graph-engineering-verified-orchestration/'
@@ -521,18 +524,30 @@ function validateGraphEngineeringContract() {
   if (hasAll(skill, [
     'scripts/render-graph.mjs',
     'references/graph-visualization.md',
-    'never hand-draw'
+    'never hand-draw',
+    '--format=ascii-3d',
+    'Cursor CLI'
   ]) && hasAll(viz, [
     '--format=mermaid',
     '--format=ascii',
+    '--format=ascii-3d',
+    '--width=N',
     'deterministic',
-    'cycle'
+    'cycle',
+    'explicit blocker'
   ]) && hasAll(renderer, [
     'flowchart TD',
     'edgeLabelBackground',
     'assertAcyclic',
     'criticalPath',
-    'sanitizeLabel'
+    'sanitizeLabel',
+    'topologicalLayers',
+    'deriveBlockers',
+    'resolveWidth',
+    'toAsciiText',
+    'escapeMermaidText',
+    'securityLevel: strict',
+    'renderAscii3d'
   ]) && graphTestOk) {
     ok('Graph engineering visualization contract, deterministic renderer, and tests stay synchronized');
   } else {
@@ -540,9 +555,85 @@ function validateGraphEngineeringContract() {
   }
 }
 
+function validateTheCreatorContract() {
+  const base = '.vibekit/skills/the-creator';
+  if (!exists(`${base}/SKILL.md`)) return;
+  const skill = read(`${base}/SKILL.md`);
+  const ui = read(`${base}/agents/openai.yaml`);
+  const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
+  const levelRows = Array.from({ length: 10 }, (_, index) => {
+    const level = index + 1;
+    return `| ${level} | ${level * 10}% |`;
+  });
+
+  if (hasAll(skill, levelRows)
+      && skill.includes('ten eligible convention categories')
+      && skill.includes('Every use must show the compact ten-row level table')
+      && skill.includes('disable-model-invocation: true')) {
+    ok('The Creator defines ten visible cumulative 10% creativity levels');
+  } else {
+    fail('The Creator level count, percentages, cumulative model, or visible calibration drifted');
+  }
+
+  if (hasAll(skill, [
+    'instruction precedence',
+    'law, safety, privacy, security',
+    'authorization boundaries',
+    'factual honesty',
+    'required interfaces, formats, schemas, accessibility',
+    'functional acceptance, validation, rollback',
+    'abandon 100% of eligible conventions',
+    '0% of this immutable'
+  ])) {
+    ok('The Creator keeps safety, authority, evidence, accessibility, and acceptance immutable');
+  } else {
+    fail('The Creator immutable creativity floor drifted');
+  }
+
+  if (hasAll(skill, [
+    'Never silently increase an explicit level',
+    'speculative invention',
+    'Never call a speculative concept production-ready',
+    'It may not invent ledger nodes, edges, statuses, evidence'
+  ])) {
+    ok('The Creator labels speculation and cannot fabricate graph or completion state');
+  } else {
+    fail('The Creator speculation, level-control, or graph-integrity contract drifted');
+  }
+
+  const discoveryValid = !isKitSourceRepo || (
+    exists('README.md')
+    && read('README.md').includes('All 18 skills')
+    && exists('docs/README.vi.md')
+    && read('docs/README.vi.md').includes('Cả 18 skill')
+    && read('docs/README.vi.md').includes('| `the-creator`')
+    && exists('docs/README.zh-CN.md')
+    && read('docs/README.zh-CN.md').includes('全部 18 个技能')
+    && read('docs/README.zh-CN.md').includes('| `the-creator`')
+    && exists('.vibekit/docs/INSTALL.md')
+    && read('.vibekit/docs/INSTALL.md').includes('Eight user-invoked skills')
+    && exists('.vibekit/init/CLAUDE-template.md')
+    && read('.vibekit/init/CLAUDE-template.md').includes('/the-creator level N')
+    && exists('package.json')
+    && hasAll(read('package.json'), [
+      '.claude/skills/the-creator/',
+      '.cursor/skills/the-creator/'
+    ])
+  );
+  if (hasAll(ui, [
+    'display_name: "The Creator"',
+    'Use $the-creator at level 6'
+  ]) && discoveryValid) {
+    ok('The Creator discovery, localization, UI metadata, and packaging stay synchronized');
+  } else {
+    fail('The Creator discovery, localization, UI metadata, or packaging drifted');
+  }
+}
+
 validateSequentialThinkingContract();
 validateMermaidContract();
 validateGraphEngineeringContract();
+validateTheCreatorContract();
 
 function parseFrontmatter(text) {
   const match = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);

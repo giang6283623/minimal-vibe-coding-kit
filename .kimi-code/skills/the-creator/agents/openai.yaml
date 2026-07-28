@@ -1,0 +1,4 @@
+interface:
+  display_name: "The Creator"
+  short_description: "Ten-level constraint-aware creative invention"
+  default_prompt: "Use $the-creator at level 6 to invent a novel, logical solution for this problem."

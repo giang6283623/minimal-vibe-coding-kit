@@ -25,6 +25,7 @@
     { "name": "prompt-sharpener", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
     { "name": "claim", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
     { "name": "tutien", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
+    { "name": "the-creator", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
     { "name": "mermaid", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] }
   ]
 }

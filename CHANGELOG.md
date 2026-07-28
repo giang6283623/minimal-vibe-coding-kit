@@ -2,16 +2,21 @@
 
 ## Unreleased
 
+## 0.5.4 - 2026-07-28
+
 ### Added
 
-- Added a native Kimi Code CLI surface: `.kimi-code/skills/` mirrors all 17 skills (Kimi Code's project-level brand skills directory per the official `kimi-code` discovery order, with the generic `.agents/skills/` also discovered), `.kimi-code/README.md`, a `kimi` install/update profile in `mvck.mjs` (included in `all`), and registration across `skills-manifest.json`, `validate-kit.mjs`, `test-install.mjs`, `backbone.yml` `agent_surfaces`, npm package files, and the English, Vietnamese, and Chinese docs. Kimi Code already loads the root `AGENTS.md` at project level, so existing installs keep working without changes.
-- Added a deterministic graph renderer to `graph-engineering-verified-orchestration` (all mirrors): `scripts/render-graph.mjs` turns a graph ledger JSON into a styled Mermaid flowchart for app surfaces or an ASCII wave view for CLI terminals, with schema, duplicate-id, unknown-edge, and cycle validation plus a deterministic critical path. `references/graph-visualization.md` documents the rendering contract; 19 offline checks cover the renderer.
+- Added `the-creator` across Claude, Cursor, Codex, Grok, and Kimi. Its ten cumulative creativity levels each relax one additional 10% category of eligible conventions for art, design, interfaces, methods, processes, systems, and other invention, while an immutable floor preserves instruction precedence, safety, authorization, evidence, accessibility, validation, and functional acceptance.
+- Added a width-aware `--format=ascii-3d` graph view for Cursor CLI, Claude Code, Codex CLI, Grok CLI, Kimi CLI, and plain terminals. It derives topological depth, renders portable pseudo-3D node boxes, numbers every artifact edge, marks the structural critical path, explains blockers, escapes unsafe terminal labels, rejects unknown state, and falls back to a wrapped compact ledger on narrow or dense graphs. Mermaid output separately encodes graph delimiters, removes bidi controls, and pins strict security mode.
+- Added a native Kimi Code CLI surface: `.kimi-code/skills/` mirrors all 18 skills (Kimi Code's project-level brand skills directory per the official `kimi-code` discovery order, with the generic `.agents/skills/` also discovered), `.kimi-code/README.md`, a `kimi` install/update profile in `mvck.mjs` (included in `all`), and registration across `skills-manifest.json`, `validate-kit.mjs`, `test-install.mjs`, `backbone.yml` `agent_surfaces`, npm package files, and the English, Vietnamese, and Chinese docs. Kimi Code already loads the root `AGENTS.md` at project level, so existing installs keep working without changes.
+- Added a deterministic graph renderer to `graph-engineering-verified-orchestration` (all mirrors): `scripts/render-graph.mjs` turns a graph ledger JSON into a styled Mermaid flowchart for app surfaces or ASCII views for CLI terminals, with schema, duplicate-id, unknown-edge, and cycle validation plus a deterministic critical path. `references/graph-visualization.md` documents the rendering contract; 39 offline checks cover the renderer.
 - Added a writing-style guardrail banning emoji and em/en dashes in generated prose: `.cursor/rules/050-writing-style.mdc` (always-on), `.claude/rules/writing-style.md`, `.grok/rules/writing-style.md`, an `AGENTS.md` managed-block section, and a `backbone.yml` `custom_rules` entry.
 - Added response-format rules across the Claude, Cursor, and Grok rule surfaces plus the `AGENTS.md` managed block (which also covers Codex and Kimi): outcome-first answers with short main points, decision tables with the fixed columns Option, What it does, Cost, Risk, Recommended, and a Done / Next / Decision needed status block at the end of multi-step work, registered in `backbone.yml` `custom_rules`.
 - Added proportional-effort rules on the same surfaces: one-line task triage (trivial, small, medium, large) with matching process weight so review never costs more than the change itself, a ban on heavy loops (parallel-analysis, graph orchestration, multi-agent review, visual, e2e) for trivial or small tasks, and a 0-6 scored gate that requires explicit user approval before any `visual-design-loop` or e2e run.
 
 ### Changed
 
+- The graph renderer's default `--format=both` output now pairs Mermaid with ASCII 3D instead of the legacy ASCII wave list. Consumers that require the previous schedule-first text can request `--format=ascii` explicitly.
 - `validate-kit.mjs` now derives mirror surface directories and the frontmatter scan list from the manifest's own `surfaces` map instead of hardcoded lists, so a surface registered in `skills-manifest.json` cannot drift from mirror validation.
 - `mvck doctor` is now read-only by default: it no longer executes `validate-kit.mjs` or the AgentShield probe from the target repository unless the new `--run-repo-checks` flag is passed. The report and the JSON output mark the checks as present but not executed.
 - The Kimi surface directory follows the current Kimi Code CLI product layout (`.kimi-code/` instead of the older Kimi CLI `.kimi/`), matching the official discovery order now that the older CLI repository is being wound down.
@@ -22,6 +27,11 @@
 - The graph renderer rejects node ids that collide after Mermaid id sanitization (for example `A-B` and `A_B` both became `A_B` and collapsed into one rendered node).
 - The graph cycle CLI test writes its fixture to a unique temporary directory instead of overwriting and permanently deleting the fixed path `fixtures/cyclic-graph.json`.
 - `.cursor/cli.json` ships a read-only `permissions.allow` list next to the existing `deny` list so non-interactive Cursor CLI runs can execute read-only commands without prompting.
+
+### Validation
+
+- `npm run validate:all` passed with zero validator failures or warnings, all 39 graph renderer checks, a clean deterministic AgentShield probe, and all 752 skill files on disk included in a package tarball of 849 files.
+- Synchronized release version `0.5.4` across package metadata, Codex plugin metadata, and all three README badges.
 
 ## 0.5.3 - 2026-07-27
 
