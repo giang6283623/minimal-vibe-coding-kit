@@ -7,6 +7,9 @@ const args = process.argv.slice(2);
 const target = path.resolve(args.find((a) => !a.startsWith('--')) || process.cwd());
 const json = args.includes('--json');
 const writeReport = args.includes('--write-report');
+// Doctor is read-only by default: it must never execute scripts owned by the
+// target repository unless the user explicitly opts in with --run-repo-checks.
+const runRepoChecks = args.includes('--run-repo-checks');
 
 function exists(rel) { return fs.existsSync(path.join(target, rel)); }
 function read(rel) { return fs.readFileSync(path.join(target, rel), 'utf8'); }
@@ -168,10 +171,11 @@ const kitVersion = isKitTemplate
   : exists('.vibekit/KIT_VERSION') ? read('.vibekit/KIT_VERSION').trim() : 'unknown';
 const surfaces = {
   agents: exists('AGENTS.md'),
-  claude: exists('CLAUDE.md') || exists('.vibekit/init/CLAUDE-template.md') || exists('.claude'),
+  claude: exists('CLAUDE.md') || exists('.claude'),
   cursor: exists('.cursor/rules'),
   codex: exists('.agents') || exists('.codex-plugin/plugin.json'),
-  grok: exists('.grok')
+  grok: exists('.grok'),
+  kimi: exists('.kimi-code')
 };
 const managedBlocks = {
   AGENTS: countManaged('AGENTS.md'),
@@ -189,20 +193,32 @@ const legacySurfaces = [
 const nativeReasoningSkills = ['clearthought', 'sequential-thinking', 'reviewing-4p-priorities'];
 const nativeSkillSurfaces = {
   shared: '.vibekit/skills',
-  claude: '.claude/skills',
-  codex: '.agents/skills',
-  cursor: '.cursor/skills',
-  grok: '.grok/skills'
+  ...Object.fromEntries(
+    Object.entries(readJson('.vibekit/skills/skills-manifest.json')?.surfaces || {})
+      .filter(([surface, dir]) => surfaces[surface] && typeof dir === 'string')
+  )
 };
+const nativeSkillSurfaceLabels = Object.keys(nativeSkillSurfaces)
+  .map((surface) => surface === 'shared' ? 'shared' : surface[0].toUpperCase() + surface.slice(1))
+  .join(', ');
 const missingNativeSkills = [];
 for (const [surface, dir] of Object.entries(nativeSkillSurfaces)) {
   for (const skill of nativeReasoningSkills) {
     if (!exists(`${dir}/${skill}/SKILL.md`)) missingNativeSkills.push(`${surface}:${skill}`);
   }
 }
+function probeAvailable() {
+  return exists('.vibekit/scripts/agentshield-probe.mjs')
+    || exists('.vibekit/skills/agentshield-security-review/scripts/agentshield_repo_probe.py');
+}
+
 const commands = commandMap();
-const validation = runNodeScript('.vibekit/scripts/validate-kit.mjs');
-const probe = runProbe();
+const validation = runRepoChecks
+  ? runNodeScript('.vibekit/scripts/validate-kit.mjs')
+  : { found: exists('.vibekit/scripts/validate-kit.mjs'), status: null, output: 'skipped' };
+const probe = runRepoChecks
+  ? runProbe()
+  : { found: probeAvailable(), command: null, status: null, output: 'skipped' };
 const hasTrash = trashAvailable();
 const risks = [];
 
@@ -217,8 +233,8 @@ for (const [name, result] of Object.entries(managedBlocks)) {
   if (result && !result.ok) risks.push(`${name} has duplicated or unbalanced managed block markers.`);
 }
 if (!protectedSane) risks.push('protected_paths is missing one or more common secret/generated path guards.');
-if (validation.found && validation.status !== 0) risks.push('validation command failed.');
-if (probe.found && probe.status !== 0) risks.push('AgentShield probe failed.');
+if (runRepoChecks && validation.found && validation.status !== 0) risks.push('validation command failed.');
+if (runRepoChecks && probe.found && probe.status !== 0) risks.push('AgentShield probe failed.');
 if (!risks.length) risks.push('No immediate structural risks detected by mvck doctor.');
 
 const report = {
@@ -243,10 +259,12 @@ const report = {
   },
   validation: {
     found: validation.found,
+    ran: runRepoChecks,
     status: validation.status
   },
   agentShieldProbe: {
     found: probe.found,
+    ran: runRepoChecks,
     command: probe.command,
     status: probe.status
   },
@@ -261,7 +279,8 @@ const report = {
     cursorSkills: listFiles('.cursor/skills').filter((f) => f.endsWith('SKILL.md')).length,
     cursorRules: listFiles('.cursor/rules').filter((f) => f.endsWith('.mdc')).length,
     grokSkills: listFiles('.grok/skills').filter((f) => f.endsWith('SKILL.md')).length,
-    grokRules: listFiles('.grok/rules').filter((f) => f.endsWith('.md')).length
+    grokRules: listFiles('.grok/rules').filter((f) => f.endsWith('.md')).length,
+    kimiSkills: listFiles('.kimi-code/skills').filter((f) => f.endsWith('SKILL.md')).length
   },
   recommendedFirstPrompt: 'Read AGENTS.md and backbone.yml, run mvck doctor ., then propose a small safe plan before editing.',
   knownRisks: risks
@@ -273,8 +292,12 @@ function renderMarkdown(data) {
     statusLine(data.projectSummary.backboneStatus === 'initialized' || data.projectSummary.kitTemplate, 'backbone initialized or kit template', data.projectSummary.backboneStatus),
     statusLine(Boolean(commands.validate), 'validation command detected', commands.validate || 'missing'),
     statusLine(protectedSane, 'protected paths are sane', `${data.protectedPaths.length} entries`),
-    statusLine(validation.found && validation.status === 0, 'validation runs', validation.found ? `exit ${validation.status}` : 'missing'),
-    statusLine(probe.found && probe.status === 0, 'AgentShield probe runs', probe.found ? `exit ${probe.status}` : 'missing'),
+    runRepoChecks
+      ? statusLine(validation.found && validation.status === 0, 'validation runs', validation.found ? `exit ${validation.status}` : 'missing')
+      : statusLine(validation.found, 'validation script present', validation.found ? 'not executed; pass --run-repo-checks to run it' : 'missing'),
+    runRepoChecks
+      ? statusLine(probe.found && probe.status === 0, 'AgentShield probe runs', probe.found ? `exit ${probe.status}` : 'missing')
+      : statusLine(probe.found, 'AgentShield probe present', probe.found ? 'not executed; pass --run-repo-checks to run it' : 'missing'),
     statusLine(hasTrash, 'trash command available for safe deletes', hasTrash ? 'deletions are recoverable' : TRASH_INSTALL_HINT)
   ];
 
@@ -313,6 +336,7 @@ ${(data.protectedPaths.length ? data.protectedPaths : ['not declared']).map((ite
 - Cursor surface: ${data.agentSurfaces.cursor ? 'yes' : 'no'}
 - Codex surface: ${data.agentSurfaces.codex ? 'yes' : 'no'}
 - Grok surface: ${data.agentSurfaces.grok ? 'yes' : 'no'}
+- Kimi surface: ${data.agentSurfaces.kimi ? 'yes' : 'no'}
 - Shared skills: ${data.aiRulesLoaded.sharedSkills}
 - Claude skills: ${data.aiRulesLoaded.claudeSkills}
 - Codex skills: ${data.aiRulesLoaded.codexSkills}
@@ -320,10 +344,11 @@ ${(data.protectedPaths.length ? data.protectedPaths : ['not declared']).map((ite
 - Cursor rules: ${data.aiRulesLoaded.cursorRules}
 - Grok skills: ${data.aiRulesLoaded.grokSkills}
 - Grok rules: ${data.aiRulesLoaded.grokRules}
+- Kimi skills: ${data.aiRulesLoaded.kimiSkills}
 
 ## Native reasoning skills
 
-${data.nativeReasoningSkills.names.map((skill) => `- ${skill}: ${data.nativeReasoningSkills.missing.some((item) => item.endsWith(`:${skill}`)) ? 'missing on one or more surfaces' : 'available on shared, Claude, Codex, Cursor, and Grok'}`).join('\n')}
+${data.nativeReasoningSkills.names.map((skill) => `- ${skill}: ${data.nativeReasoningSkills.missing.some((item) => item.endsWith(`:${skill}`)) ? 'missing on one or more surfaces' : `available on ${nativeSkillSurfaceLabels}`}`).join('\n')}
 
 ## Recommended first prompt
 

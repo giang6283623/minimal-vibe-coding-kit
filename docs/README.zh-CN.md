@@ -15,7 +15,7 @@
 ![AgentShield](https://img.shields.io/badge/Security-AgentShield-d62828)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)
 
-**一套可安装的 AI 编程工作流工具包，同时支持 Claude Code、Cursor、Codex、Grok 和 Kimi——适用于任何仓库、任何语言。**
+**一套可安装的 AI 编程工作流工具包，同时支持 Claude Code、Cursor、Codex、Grok 和 Kimi，适用于任何仓库、任何语言。**
 
 安装 → 粘贴一个提示词 → 审核方案 → 在护栏保护下开始编码。
 
@@ -30,8 +30,8 @@
 - 绝不会覆盖已有的 `CLAUDE.md` 或 `AGENTS.md`，只会添加受管理的区块。
 - 初始化期间的每一次写入都会等待你的明确批准。
 - 对 Agent 表面进行安全审查（AgentShield）是标准工作流的一部分。
-- 默认安全删除：所有 Agent 优先使用可恢复的 `trash` 命令。初始化会检查它是否可用，并在缺失时给出安装建议；同时配合各工具官方支持的护栏配置——Claude Code 拒绝规则（`.claude/settings.json`）、Cursor CLI 权限（`.cursor/cli.json`）、Codex 执行策略规则（`.codex/rules/`，实验性，需要先信任项目）以及 Grok 项目权限规则（`.grok/config.toml`）。
-- 首次初始化会询问两个偏好：是否用 `trash` 代替 `rm`，以及默认解释级别（0–5，可随时通过 `/coding-level N` 修改），然后将它们记录到 `backbone.yml`。
+- 默认安全删除：所有 Agent 优先使用可恢复的 `trash` 命令。初始化会检查它是否可用，并在缺失时给出安装建议；同时配合各工具官方支持的护栏配置，Claude Code 拒绝规则（`.claude/settings.json`）、Cursor CLI 权限（`.cursor/cli.json`）、Codex 执行策略规则（`.codex/rules/`，实验性，需要先信任项目）以及 Grok 项目权限规则（`.grok/config.toml`）。
+- 首次初始化会询问两个偏好：是否用 `trash` 代替 `rm`，以及默认解释级别（0-5，可随时通过 `/coding-level N` 修改），然后将它们记录到 `backbone.yml`。
 
 ## 快速开始
 
@@ -49,9 +49,9 @@ config:
     edgeLabelBackground: "#FFFFFF"
 ---
 flowchart LR
-    Start([你的项目]) --> Install("1 — 安装工具包")
-    Install --> Paste("2 — 粘贴初始化提示词")
-    Paste --> Review{"3 — 批准差异?"}
+    Start([你的项目]) --> Install("1 - 安装工具包")
+    Install --> Paste("2 - 粘贴初始化提示词")
+    Paste --> Review{"3 - 批准差异?"}
     Review -->|yes| Ready("backbone.yml 初始化完成")
     Review -->|no| Revise("Agent 修改方案")
     Revise --> Review
@@ -97,23 +97,23 @@ node .vibekit/scripts/mvck.mjs doctor .
 
 ## 从 npm 安装
 
-工具包以 [`minimal-vibe-coding-kit`](https://www.npmjs.com/package/minimal-vibe-coding-kit) 的名称发布到 npm。它是一个**脚手架 CLI，而不是代码库依赖**——仅仅放在 `node_modules/` 中不会自动生效。运行一次 `install`，才会像 GitHub 安装方式一样把工具包复制到你的仓库根目录。
+工具包以 [`minimal-vibe-coding-kit`](https://www.npmjs.com/package/minimal-vibe-coding-kit) 的名称发布到 npm。它是一个**脚手架 CLI，而不是代码库依赖**，仅仅放在 `node_modules/` 中不会自动生效。运行一次 `install`，才会像 GitHub 安装方式一样把工具包复制到你的仓库根目录。
 
-**方式 A——一次性运行（推荐）。** 不会向项目依赖中添加任何内容：
+**方式 A，一次性运行（推荐）。** 不会向项目依赖中添加任何内容：
 
 ```bash
 npx --yes minimal-vibe-coding-kit@latest install /path/to/your-project
 ```
 
-**方式 B——作为开发依赖安装。** 如果工具包已经存在或将要加入你的 `package.json`，还需要再执行一个命令：
+**方式 B，作为开发依赖安装。** 如果工具包已经存在或将要加入你的 `package.json`，还需要再执行一个命令：
 
 ```bash
 npm i -D minimal-vibe-coding-kit
-npx mvck install .        # 必需——将工具包从 node_modules 复制到仓库中
+npx mvck install .        # 必需，将工具包从 node_modules 复制到仓库中
 ```
 
 > **重要：** 单独运行 `npm i` 只会把工具包下载到 `node_modules/`，此时任何功能都尚未启用。
-> `mvck install` 才会把 `.claude/`、`.cursor/`、`.agents/`、`.grok/`、`.kimi/`、`.vibekit/` 和 `backbone.yml` 复制到仓库根目录。
+> `mvck install` 才会把 `.claude/`、`.cursor/`、`.agents/`、`.grok/`、`.kimi-code/`、`.vibekit/` 和 `backbone.yml` 复制到仓库根目录。
 
 之后可以通过 `npx` 使用简短命令 `mvck`（别名：`vibe-kit`）：
 
@@ -121,7 +121,7 @@ npx mvck install .        # 必需——将工具包从 node_modules 复制到�
 | ------------------------- | ---------------------------------------------------------------- |
 | `npx mvck install .`      | 将工具包复制到仓库（`--profile`、`--dry-run`、`--force`）        |
 | `npx mvck update .`       | 在新版本发布后刷新工具包拥有的文件                               |
-| `npx mvck doctor .`       | 只读健康检查                                                     |
+| `npx mvck doctor .`       | 只读健康检查（`--run-repo-checks` 才会执行仓库的 validation 与探针） |
 | `npx mvck validate .`     | 验证目录和配置结构                                               |
 
 然后继续执行快速开始的**第 2 步**（粘贴初始化提示词）。
@@ -143,7 +143,7 @@ your-project/
 ├── .agents/                  ← Codex / 可移植技能
 ├── .codex/  .codex-plugin/   ← Codex 配置示例和插件清单
 ├── .grok/                    ← Grok Build：规则、技能、配置示例
-├── .kimi/                    ← Kimi Code：技能（最高优先级的项目级技能目录）
+├── .kimi-code/                    ← Kimi Code：技能（最高优先级的项目级技能目录）
 └── .vibekit/                 ← 工具包拥有的所有内容都集中在一个目录
     ├── skills/               ← 规范技能源（镜像到各工具目录）
     ├── commands/             ← 共享命令提示词
@@ -170,17 +170,17 @@ config:
     clusterBorder: "#444444"
 ---
 flowchart TD
-    You([你 — 一个提示词]) --> Agent("Claude / Cursor / Codex / Grok / Kimi")
+    You([你 - 一个提示词]) --> Agent("Claude / Cursor / Codex / Grok / Kimi")
 
     subgraph First["首先读取"]
         Backbone[("backbone.yml")]
         Docs("AGENTS.md / CLAUDE.md")
-        Rules("规则 — 简短护栏")
+        Rules("规则 - 简短护栏")
     end
 
     subgraph Demand["按需加载"]
-        Skills("技能 — 工作流程")
-        Commands("命令 — 快捷入口")
+        Skills("技能 - 工作流程")
+        Commands("命令 - 快捷入口")
     end
 
     subgraph Guard["由以下机制保护"]
@@ -208,10 +208,10 @@ flowchart TD
     class Protected,Propose,Shield danger
 ```
 
-- **`backbone.yml`**——仓库路径、约定、受保护路径以及验证命令。
-- **规则（Rules）**——始终加载的短护栏，例如先读取 backbone、保持差异小、修改 Agent 表面时执行安全审查。
-- **技能（Skills）**——可重复执行的工作流程，只在任务需要时加载。
-- **命令（Commands）**——常用技能的一词快捷入口。
+- **`backbone.yml`**，仓库路径、约定、受保护路径以及验证命令。
+- **规则（Rules）**，始终加载的短护栏，例如先读取 backbone、保持差异小、修改 Agent 表面时执行安全审查。
+- **技能（Skills）**，可重复执行的工作流程，只在任务需要时加载。
+- **命令（Commands）**，常用技能的一词快捷入口。
 
 ## 日常使用指南
 
@@ -330,12 +330,12 @@ flowchart LR
 
 | 命令                     | 作用                                                               | 示例                                                               |
 | ------------------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------ |
-| `/init-vibe`             | 首次初始化或修复：提出一个差异并等待批准。                         | `/init-vibe`——审核差异后回复 `yes`。                               |
+| `/init-vibe`             | 首次初始化或修复：提出一个差异并等待批准。                         | `/init-vibe`，审核差异后回复 `yes`。                               |
 | `/security-scan`         | 对 Agent 表面执行只读 AgentShield 探针和可选完整扫描。              | 修改 `.claude/**` 或技能后，在合并前运行 `/security-scan`。         |
-| `/daily-enhance`         | 生成仅供提案的规则、技能和工作流改进报告。                         | `/daily-enhance`——审核提出的差异后再批准。                         |
+| `/daily-enhance`         | 生成仅供提案的规则、技能和工作流改进报告。                         | `/daily-enhance`，审核提出的差异后再批准。                         |
 | `/autoresearch-coding`   | 带基线、指标和预算的实验循环。                                     | `/autoresearch-coding` Goal: fewer lint errors. Budget: 3.         |
 | `/council`               | 协调 reviewer、researcher 和 analyst Agent，形成一个统一计划。      | `/council` on this branch diff.                                    |
-| `/vibe-finalize`         | 让项目完成引导：将一次性文件移到 `_vibekit-cleanup/`。              | `/vibe-finalize`——先预览，批准后再应用。                           |
+| `/vibe-finalize`         | 让项目完成引导：将一次性文件移到 `_vibekit-cleanup/`。              | `/vibe-finalize`，先预览，批准后再应用。                           |
 
 </details>
 
@@ -417,8 +417,8 @@ mindmap
 | `visual-design-loop`            | UI 打磨：渲染 → 截图 → 审查 → 修复，循环进行。                                                       | "Use visual-design-loop on /dashboard. Budget 3 loops."                                               |
 | `clearthought`                  | 需求模糊、存在设计取舍或高风险决策。                                                                 | "Use clearthought. Operation: implementation_plan. Split this feature into safe tasks."               |
 | `sequential-thinking`           | 将复杂工作拆解为有序步骤。                                                                           | "Use sequential-thinking. Break this refactor into ordered steps with tests."                         |
-| `reviewing-4p-priorities`       | 按 P0–P4 对缺陷和发现进行排序。                                                                      | "Use reviewing-4p-priorities. Classify these findings and give a fix sequence."                       |
-| `memento`                       | 跨多日任务：停止前保存上下文，下一会话恢复。                                                         | "/memento — write MEMENTO.md with Goal, Done, Stuck, Next."                                           |
+| `reviewing-4p-priorities`       | 按 P0-P4 对缺陷和发现进行排序。                                                                      | "Use reviewing-4p-priorities. Classify these findings and give a fix sequence."                       |
+| `memento`                       | 跨多日任务：停止前保存上下文，下一会话恢复。                                                         | "/memento - write MEMENTO.md with Goal, Done, Stuck, Next."                                           |
 | `coding-level`                  | 设置解释详细程度（0 = ELI5，5 = 专家同行）。                                                        | "/coding-level 2"                                                                                     |
 | `prompt-sharpener`              | 复杂任务只有粗略提示词时：优化提示词并在同一轮执行。                                                 | "/prompt-sharpener make the settings page load faster"                                                |
 | `claim`                         | 将新技能、规则、约定或工具带入仓库：验证官方来源、检查适配性、确认、集成并记录文档。                 | "/claim add the conventional-commits rule from https://www.conventionalcommits.org"                   |
@@ -487,12 +487,12 @@ flowchart TD
 <details>
 <summary><strong>查看更多：一个真实案例</strong></summary>
 
-**案例 — 把三个服务迁移到同一个结构化日志器。** Monorepo 中有 `billing/`、`auth/` 和 `reports/`，每个服务都在自己的文件里调用旧日志器。这正好满足技能的触发条件：三个有边界的工作项、互不共享文件的分支，以及一个客观验证器（测试套件）。
+**案例 - 把三个服务迁移到同一个结构化日志器。** Monorepo 中有 `billing/`、`auth/` 和 `reports/`，每个服务都在自己的文件里调用旧日志器。这正好满足技能的触发条件：三个有边界的工作项、互不共享文件的分支，以及一个客观验证器（测试套件）。
 
 - **何时**：工作可以拆成至少三个有边界的工作项，且至少有两条真正独立的分支，任务图有望节省时间或降低协调风险。
 - **何处**：写入所有权能干净拆分的仓库（按服务、按包或按文档集），且测试或 schema 可以在写入方范围之外验证结果。
 - **为何**：可强制执行的隔离防止写入重叠；每条边都携带命名产物，不会有想象出来的依赖把工作串行化；只有通过验证的差异才会到达唯一的合并负责人。
-- **何时不用**：少于三个工作项、分支都触碰同一批文件、或没有客观验证器 — 直接顺序修改更便宜，技能也会通过只返回任务图计划来说明这一点。
+- **何时不用**：少于三个工作项、分支都触碰同一批文件、或没有客观验证器 - 直接顺序修改更便宜，技能也会通过只返回任务图计划来说明这一点。
 
 ```text
 Use graph-engineering-verified-orchestration.
@@ -501,7 +501,7 @@ Done signal: npm test passes and no legacy logger import remains.
 Editable paths: billing/ auth/ reports/. Protected paths: tests/ and configs.
 ```
 
-该案例作为任务图运行时 — 每条边都携带下一个节点要消费的命名产物：
+该案例作为任务图运行时 - 每条边都携带下一个节点要消费的命名产物：
 
 ```mermaid
 ---
@@ -640,12 +640,12 @@ node .vibekit/scripts/agentshield-probe.mjs .                          # 快速�
 npx ecc-agentshield scan --path . --format text --min-severity medium  # 可选完整扫描
 ```
 
-对 `CLAUDE.md`、`AGENTS.md`、`.claude/**`、`.cursor/**`、`.agents/**`、`.grok/**`、`.kimi/**`、`.codex-plugin/**` 或 `.vibekit/skills|commands|scripts/**` 的任何修改都应触发安全审查。安全模型：[.vibekit/docs/SECURITY_MODEL.md](../.vibekit/docs/SECURITY_MODEL.md)。
+对 `CLAUDE.md`、`AGENTS.md`、`.claude/**`、`.cursor/**`、`.agents/**`、`.grok/**`、`.kimi-code/**`、`.codex-plugin/**` 或 `.vibekit/skills|commands|scripts/**` 的任何修改都应触发安全审查。安全模型：[.vibekit/docs/SECURITY_MODEL.md](../.vibekit/docs/SECURITY_MODEL.md)。
 
 ### Doctor 和报告
 
 ```bash
-node .vibekit/scripts/mvck.mjs doctor .                 # 只读健康检查
+node .vibekit/scripts/mvck.mjs doctor .                 # 只读健康检查（加 --run-repo-checks 才会执行仓库的 validation 与探针）
 node .vibekit/scripts/mvck.mjs doctor . --write-report  # 写入 VIBE_REPORT.md
 node .vibekit/scripts/daily-enhance.mjs . --write-report
 ```
@@ -675,7 +675,7 @@ npm run validate:all    # npm test + AgentShield 探针 + npm 打包预检
 
 ## 贡献
 
-欢迎在 [`giang6283623/minimal-vibe-coding-kit`](https://github.com/giang6283623/minimal-vibe-coding-kit) 提交 Issue 和 PR。提交 PR 前，请在 `.claude/`、`.cursor/`、`.agents/`、`.grok/`、`.kimi/` 之间同步技能变更，保持模板与具体项目无关，并运行 `npm run validate:all`。另请参阅 [CONTRIBUTING.md](../CONTRIBUTING.md)、[SECURITY.md](../SECURITY.md) 和 [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)。
+欢迎在 [`giang6283623/minimal-vibe-coding-kit`](https://github.com/giang6283623/minimal-vibe-coding-kit) 提交 Issue 和 PR。提交 PR 前，请在 `.claude/`、`.cursor/`、`.agents/`、`.grok/`、`.kimi-code/` 之间同步技能变更，保持模板与具体项目无关，并运行 `npm run validate:all`。另请参阅 [CONTRIBUTING.md](../CONTRIBUTING.md)、[SECURITY.md](../SECURITY.md) 和 [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)。
 
 **创建者：** [GiangBV](https://www.linkedin.com/in/buivangiang1992)、[AuPMH](https://www.linkedin.com/in/pham-au-2a1bb1162)  
 **技术动力：** 咖啡因、坚持、与 AI 协作，以及周末的编程时光。
@@ -684,4 +684,5 @@ npm run validate:all    # npm test + AgentShield 探针 + npm 打包预检
 
 MIT。请参阅 [LICENSE](../LICENSE)。
 
+<!-- user-authored dedication: keep the Vietnam flag emoji; exempt from the writing-style emoji rule -->
 > 🇻🇳 _如果你热爱越南和越南人民，你可以完全免费使用这里的一切。_

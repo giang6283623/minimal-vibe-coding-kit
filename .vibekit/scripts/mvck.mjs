@@ -17,7 +17,7 @@ Usage:
   mvck update [target] [--profile all|claude,cursor,codex,grok,kimi] [--dry-run] [--json] [--no-backup]
   mvck init [target] [--propose|--write --yes] [--preset nextjs|wordpress|python|laravel|docker]
   mvck validate [target]
-  mvck doctor [target] [--write-report] [--json]
+  mvck doctor [target] [--write-report] [--run-repo-checks] [--json]
   mvck daily [target] [--write-report]
   mvck finalize [target] [--write --yes] [--restore] [--json]
 
@@ -176,7 +176,7 @@ const CURSOR_DIRS = ['.cursor/rules', '.cursor/commands'];
 const CURSOR_SKILLS = skillsManifest.skills.filter((s) => (s.surfaces || []).includes('cursor')).map((s) => s.name);
 const CODEX_DIRS = ['.agents', '.codex', '.codex-plugin'];
 const GROK_DIRS = ['.grok'];
-const KIMI_DIRS = ['.kimi'];
+const KIMI_DIRS = ['.kimi-code'];
 const GITIGNORE_BLOCK = `# BEGIN: minimal-vibe-coding-kit\n.autoresearch/\nresults.tsv\n.vibekit/INIT_DONE\n.vibekit/FINALIZE_DONE\n.vibekit/reports/\n.vibekit/update-backup/\n_vibekit-cleanup/\nCLAUDE.local.md\n# END: minimal-vibe-coding-kit`;
 
 function kitVersion() {

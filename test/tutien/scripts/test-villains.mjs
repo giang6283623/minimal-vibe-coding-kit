@@ -75,7 +75,7 @@ check('determinism: identical inputs produce identical cards', () => {
   const b = buildVillains(crafted, { tone: 'gentle', seedInputs: { projectId: 'x', window: 'w', schemaVersion: 1 } });
   assert.deepEqual(a, b);
 });
-check('seed changes wording only — evidence, quest, victory stay identical', () => {
+check('seed changes wording only: evidence, quest, victory stay identical', () => {
   const a = buildVillains(crafted, { tone: 'spirited', seedInputs: { projectId: 'aaaa', window: 'w1', schemaVersion: 1 } }).villains;
   const b = buildVillains(crafted, { tone: 'spirited', seedInputs: { projectId: 'zzzz', window: 'w9', schemaVersion: 9 } }).villains;
   assert.equal(a.length, b.length);

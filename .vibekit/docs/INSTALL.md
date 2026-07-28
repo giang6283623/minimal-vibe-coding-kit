@@ -3,7 +3,7 @@
 ## Install from npm
 
 ```bash
-# one-shot (recommended) — adds nothing to the project's dependencies:
+# one-shot (recommended) - adds nothing to the project's dependencies:
 npx --yes minimal-vibe-coding-kit@latest install /path/to/project
 
 # or, after `npm i -D minimal-vibe-coding-kit` inside the project:
@@ -30,6 +30,7 @@ Profiles:
 - `cursor`: `.cursor/rules`, `.cursor/commands`, `.cursor/cli.json` CLI permissions, Cursor skill entrypoints.
 - `codex`: `AGENTS.md`, `.agents/skills`, `.codex/rules` execution-policy rules, `.codex-plugin`, `.codex` examples.
 - `grok`: `AGENTS.md`, `.grok/rules`, `.grok/skills`, `.grok/config.toml` permission rules, user config example.
+- `kimi`: `AGENTS.md`, `.kimi-code/README.md`, and the full `.kimi-code/skills` mirror.
 - `all`: every profile.
 
 ## Safe behavior
@@ -60,8 +61,8 @@ node /path/to/kit/.vibekit/scripts/mvck.mjs update /path/to/project
 
 The updater:
 
-- refreshes kit-owned surfaces (`.vibekit/skills/`, `.vibekit/commands/`, `.vibekit/scripts/`, `.vibekit/docs/`, and the `.claude/`, `.cursor/`, `.agents/`, `.grok/`, `.codex*` mirrors) and adds any new kit skills;
-- never overwrites `backbone.yml`, `CLAUDE.md`, `AGENTS.md` content outside the managed block, or `settings.json` files — those are seeded only if missing;
+- refreshes kit-owned surfaces (`.vibekit/skills/`, `.vibekit/commands/`, `.vibekit/scripts/`, `.vibekit/docs/`, and the `.claude/`, `.cursor/`, `.agents/`, `.grok/`, `.kimi-code/`, `.codex*` mirrors) and adds any new kit skills;
+- never overwrites `backbone.yml`, `CLAUDE.md`, `AGENTS.md` content outside the managed block, or `settings.json` files - those are seeded only if missing;
 - backs up every replaced kit file to `.vibekit/update-backup/<timestamp>/` (disable with `--no-backup`);
 - never deletes files you added, and skips re-seeding one-time files after `mvck finalize`;
 - records the kit version in `.vibekit/KIT_VERSION` (shown by `mvck doctor`).
@@ -73,7 +74,7 @@ npx --yes minimal-vibe-coding-kit@latest update . --dry-run
 npx --yes minimal-vibe-coding-kit@latest update . --dry-run --json
 ```
 
-Note: run the updater from a newer kit (npx or a local clone), not via the project's own `.vibekit/scripts/mvck.mjs` copy — source and target would be the same files.
+Note: run the updater from a newer kit (npx or a local clone), not via the project's own `.vibekit/scripts/mvck.mjs` copy - source and target would be the same files.
 
 ## After install
 
@@ -107,6 +108,12 @@ Run a read-only health check after install:
 node .vibekit/scripts/mvck.mjs doctor .
 ```
 
+Doctor never executes scripts owned by the target repository by default. To also run the repo's `validate-kit.mjs` and AgentShield probe (only for repositories you trust), opt in explicitly:
+
+```bash
+node .vibekit/scripts/mvck.mjs doctor . --run-repo-checks
+```
+
 Generate a handoff report:
 
 ```bash
@@ -115,7 +122,7 @@ node .vibekit/scripts/mvck.mjs doctor . --write-report
 
 ## Native reasoning skills
 
-The installer includes three flexible custom reasoning skills across Claude, Codex, Cursor, and Grok. These install as full skill folders, including examples and references for progressive disclosure:
+The installer includes three flexible custom reasoning skills across Claude, Codex, Cursor, Grok, and Kimi. These install as full skill folders, including examples and references for progressive disclosure:
 
 - `clearthought`: clarify ambiguous tasks and choose a reasoning mode.
 - `sequential-thinking`: split complex work into ordered implementation steps.
@@ -127,12 +134,12 @@ The installer also includes `visual-design-loop` for Claude, Codex, Grok, and Ki
 
 ## User-invoked utility skills
 
-Seven user-invoked skills install across Claude, Codex, Cursor, and Grok surfaces:
+Seven user-invoked skills install across Claude, Codex, Cursor, Grok, and Kimi surfaces:
 
 - `memento`: write a `MEMENTO.md` working note before closing a multi-day task (`/memento`), then resume from it in the next session (`/memento resume`).
 - `coding-level`: set the explanation register from 0 (ELI5) to 5 (expert peer) with `/coding-level N`; stays active until reinvoked.
 - `graph-engineering-verified-orchestration`: design and optionally execute a bounded dependency graph with explicit artifacts, enforceable isolation, objective verification, budgets, rollback, and human gates; unresolved controls force plan-only mode.
 - `prompt-sharpener`: sharpen a rough prompt into a precise one with `/prompt-sharpener <rough prompt>`, then execute the sharpened version immediately in the same turn.
-- `claim`: vet a request to bring something new into the repo with `/claim <request>` — validate URLs and references against official sources, check fit with existing rules and skills, confirm anything unclear, then integrate and document it.
+- `claim`: vet a request to bring something new into the repo with `/claim <request>` - validate URLs and references against official sources, check fit with existing rules and skills, confirm anything unclear, then integrate and document it.
 - `tutien`: turn Git history and explicitly supplied AI-chat exports into a private, funny xianxia "cultivation" report with `/tutien` (realm, token use, workflow habits, evidence-bound suggestions); read-only, aggregate-only by default, and `/tutien off` disables the mode.
 - `mermaid`: generate styled diagrams across 31 Mermaid types, adapt density to `/coding-level`, and optionally visualize multi-step documentation or debugging flows.

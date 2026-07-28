@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -45,6 +46,8 @@ check('parseLedger: rejects duplicate node ids', () =>
   assert.throws(() => parseLedger('{"nodes":[{"id":"A"},{"id":"A"}]}'), /duplicate/));
 check('parseLedger: rejects edges to unknown nodes', () =>
   assert.throws(() => parseLedger('{"nodes":[{"id":"A"}],"edges":[{"from":"A","to":"B"}]}'), /unknown node/));
+check('parseLedger: rejects ids that collide after mermaid sanitization', () =>
+  assert.throws(() => parseLedger('{"nodes":[{"id":"A-B"},{"id":"A_B"}]}'), /collide after id sanitization/));
 
 // ---- cycle guard ----
 check('assertAcyclic: accepts the DAG fixture', () => assertAcyclic(ledger.nodes, ledger.edges));
@@ -52,6 +55,12 @@ check('assertAcyclic: rejects a cycle and prints its path', () => {
   const nodes = [{ id: 'A' }, { id: 'B' }];
   const edges = [{ from: 'A', to: 'B' }, { from: 'B', to: 'A' }];
   assert.throws(() => assertAcyclic(nodes, edges), /cycle: A -> B -> A/);
+});
+check('criticalPath: ties use the node id sequence without concatenation collisions', () => {
+  const nodes = [{ id: 'AB' }, { id: 'C' }, { id: 'A' }, { id: 'BC' }];
+  const edges = [{ from: 'AB', to: 'C' }, { from: 'A', to: 'BC' }];
+  assert.deepEqual(criticalPath(nodes, edges), ['A', 'BC']);
+  assert.deepEqual(criticalPath([...nodes].reverse(), [...edges].reverse()), ['A', 'BC']);
 });
 
 // ---- label sanitization follows the writing-style rule ----
@@ -109,14 +118,16 @@ check('CLI: --format=ascii prints only the ascii view', () => {
   assert.match(run.stdout, /wave 2/);
 });
 check('CLI: cyclic input exits non-zero', () => {
-  const cyclic = path.join(fixtures, 'cyclic-graph.json');
-  fs.writeFileSync(cyclic, '{"nodes":[{"id":"A"},{"id":"B"}],"edges":[{"from":"A","to":"B"},{"from":"B","to":"A"}]}');
+  // Unique temp dir so the test can never overwrite or delete a repo fixture.
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'render-graph-test-'));
+  const cyclic = path.join(tempRoot, 'cyclic-graph.json');
   try {
+    fs.writeFileSync(cyclic, '{"nodes":[{"id":"A"},{"id":"B"}],"edges":[{"from":"A","to":"B"},{"from":"B","to":"A"}]}');
     const run = spawnSync(process.execPath, [rendererPath, cyclic], { encoding: 'utf8' });
     assert.equal(run.status, 1);
     assert.match(run.stderr, /cycle/);
   } finally {
-    fs.rmSync(cyclic, { force: true });
+    fs.rmSync(tempRoot, { recursive: true, force: true });
   }
 });
 

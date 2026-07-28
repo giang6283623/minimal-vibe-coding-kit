@@ -79,6 +79,17 @@ export function parseLedger(raw) {
       risk: typeof node.risk === 'string' ? node.risk : null
     };
   });
+  // Mermaid node ids are sanitized, so distinct raw ids such as "A-B" and
+  // "A_B" could collapse into one rendered node. Reject that instead.
+  const sanitizedIds = new Map();
+  for (const node of nodes) {
+    const key = sanitizeId(node.id);
+    const existing = sanitizedIds.get(key);
+    if (existing !== undefined) {
+      throw new Error(`node ids "${existing}" and "${node.id}" collide after id sanitization ("${key}")`);
+    }
+    sanitizedIds.set(key, node.id);
+  }
   const cleanEdges = edges.map((edge, index) => {
     if (!edge || !ids.has(edge.from) || !ids.has(edge.to)) {
       throw new Error(`edge at index ${index} references an unknown node`);
@@ -110,7 +121,16 @@ export function assertAcyclic(nodes, edges) {
   for (const node of nodes) if (!state.has(node.id)) visit(node.id);
 }
 
-// Longest path by node count over the DAG, deterministic tie-break by id.
+function compareIdPaths(left, right) {
+  const count = Math.min(left.length, right.length);
+  for (let index = 0; index < count; index += 1) {
+    if (left[index] < right[index]) return -1;
+    if (left[index] > right[index]) return 1;
+  }
+  return left.length - right.length;
+}
+
+// Longest path by node count over the DAG, deterministic tie-break by id sequence.
 export function criticalPath(nodes, edges) {
   const indegree = new Map(nodes.map((node) => [node.id, 0]));
   const adjacency = new Map(nodes.map((node) => [node.id, []]));
@@ -128,7 +148,7 @@ export function criticalPath(nodes, edges) {
     for (const next of adjacency.get(id)) {
       const candidate = best.get(id).concat(next);
       const current = best.get(next);
-      if (candidate.length > current.length || (candidate.length === current.length && candidate.join('') < current.join(''))) {
+      if (candidate.length > current.length || (candidate.length === current.length && compareIdPaths(candidate, current) < 0)) {
         best.set(next, candidate);
       }
       indegree.set(next, indegree.get(next) - 1);
@@ -137,7 +157,7 @@ export function criticalPath(nodes, edges) {
   }
   let result = [];
   for (const path of best.values()) {
-    if (path.length > result.length || (path.length === result.length && path.join('') < result.join(''))) result = path;
+    if (path.length > result.length || (path.length === result.length && compareIdPaths(path, result) < 0)) result = path;
   }
   return result;
 }

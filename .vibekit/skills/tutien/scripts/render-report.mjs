@@ -42,7 +42,7 @@ export function buildReportModel(analysis, options = {}) {
   // fail-closed policy state governs the whole report: only `clear` enables
   // realm/score/villains/recommendations/positive progression. Everything
   // else (declared-stop, needs-review, authorization-required) suppresses
-  // them at the DATA level — score/realm/dimensions become null, not hidden.
+  // them at the DATA level - score/realm/dimensions become null, not hidden.
   let cultivation = null;
   let canGamify = true;
   if (options.profile) {
@@ -75,7 +75,7 @@ export function buildReportModel(analysis, options = {}) {
   // the data level rather than merely hidden by the renderer.
   const problems = suppressed ? [] : rawProblems;
   // One implementation-intention practice, specific to the top problem's
-  // catalog entry — a conflict gets a conflict rule, not a retry rule.
+  // catalog entry - a conflict gets a conflict rule, not a retry rule.
   const ifThen = suppressed
     ? null
     : problems.length
@@ -251,7 +251,7 @@ const L = {
     reported: 'provider-reported (exact)', estimated: 'locally estimated', unknown: 'unknown turns',
     dedup: 'streaming updates deduplicated',
     score: 'Score', evidence: 'Evidence', counter: 'Counter-technique', quest: 'Micro-quest', victory: 'Victory',
-    help: 'Project help', ifthen: 'If—then', notEnough: 'Not enough evidence to compute a realm yet',
+    help: 'Project help', ifthen: 'If-then', notEnough: 'Not enough evidence to compute a realm yet',
     noProblems: 'No heart demon crossed the evidence threshold. Hold your Dao heart.',
     method: 'Deterministic analysis v1; counts are confidence-scored candidates; lore never changes the numbers.',
     repeatEv: (n) => `${n} repeats/retries within one task (candidate).`,
@@ -260,11 +260,11 @@ const L = {
     proofEv: (n) => `${n} commits but no validation event.`,
     daoSection: 'Dao & Lineage',
     faction: 'Faction', affiliation: 'Affiliation', pathsL: 'Cultivation paths',
-    affNote: 'Affiliation is organizational status, not ethics — Tán Tu is not the opposite of Tà Tu.',
+    affNote: 'Affiliation is organizational status, not ethics - Tán Tu is not the opposite of Tà Tu.',
     tienCanh: 'Progression',
     lifetime: 'lifetime', windowsL: 'reporting windows',
-    nghiepWarn: 'Unresolved Nghiệp Lực — clear the open items above first.',
-    suppressedProgression: 'Policy is withholding gains: no Tu Vi, Công Đức, or positive metrics — only Nghiệp Lực (risk) remains.',
+    nghiepWarn: 'Unresolved Nghiệp Lực - clear the open items above first.',
+    suppressedProgression: 'Policy is withholding gains: no Tu Vi, Công Đức, or positive metrics - only Nghiệp Lực (risk) remains.',
     policyNotice: {
       'declared-stop': 'Tà Đạo is not a cultivation path: no realm, no Tu Vi/Công Đức, no lore. Stop and seek human review / lawful authorization.',
       'needs-review': 'Intent-to-harm signals detected: faction undetermined, gamification withheld, human review required before proceeding.',
@@ -277,9 +277,9 @@ const L = {
     },
     lineageIntro: 'These three classifications describe the project and its working patterns; they are never labels for the person.',
     progressionIntro: 'Progression is a small mirror for observing habits, not a measure of anyone\'s worth.',
-    problemIntro: 'Each heart demon below is a playful name for an evidence-backed workflow pattern—something to notice and release, never a reason for self-blame.',
-    detailSeparator: ' — ',
-    reasonSeparator: ' — ',
+    problemIntro: 'Each heart demon below is a playful name for an evidence-backed workflow pattern, something to notice and release, never a reason for self-blame.',
+    detailSeparator: ' - ',
+    reasonSeparator: ' - ',
     coverageSeparator: ' / ',
     knowledge: {
       tamPhap: 'Tâm Pháp', congPhap: 'Công Pháp', biThuat: 'Bí Thuật', thanThong: 'Thần Thông',
@@ -294,8 +294,8 @@ const L = {
 
 const pick = (obj, lang) => obj[lang] ?? obj.en ?? obj.vi;
 const localized = (map, value) => map?.[String(value)] ?? value;
-const joinDetail = (left, right, t) => `${left}${t.detailSeparator ?? ' — '}${right}`;
-const joinReason = (left, right, t) => `${left}${t.reasonSeparator ?? ' — '}${right}`;
+const joinDetail = (left, right, t) => `${left}${t.detailSeparator ?? ' - '}${right}`;
+const joinReason = (left, right, t) => `${left}${t.reasonSeparator ?? ' - '}${right}`;
 
 function bar(value) {
   const filled = Math.round(value * 10);
@@ -303,7 +303,7 @@ function bar(value) {
 }
 
 function realmName(realm, lang) {
-  return lang === 'vi' ? realm.name : `${realm.name} — ${realm.gloss}`;
+  return lang === 'vi' ? realm.name : `${realm.name} - ${realm.gloss}`;
 }
 
 function missingReason(reason, lang) {
@@ -362,7 +362,7 @@ function cultivationLines(cultivation, lang, t) {
 }
 
 // Standalone classification markdown for the `classify` runner action (no
-// history analysis involved — profile only).
+// history analysis involved - profile only).
 export function renderClassificationMarkdown(classification, language = 'en') {
   const lang = L[language] ? language : 'en';
   return classificationLines(classification, lang, L[lang]).join('\n');
@@ -395,7 +395,7 @@ export function renderMarkdown(model, language = 'en') {
   const promptUnit = cov.userPrompts === 1 ? t.promptOne : t.prompts;
   const commitUnit = cov.commits === 1 ? t.commitOne : t.commits;
   out.push(`- ${cov.sessions} ${sessionUnit}${t.coverageSeparator}${cov.userPrompts} ${promptUnit}${t.coverageSeparator}${cov.commits} ${commitUnit}`);
-  out.push(`- ${t.window}: ${cov.window.start ?? '—'} … ${cov.window.end ?? '—'}`);
+  out.push(`- ${t.window}: ${cov.window.start ?? '-'} ... ${cov.window.end ?? '-'}`);
   out.push(`- ${t.reported}: ${Math.round(cov.reportedTurnsPct * 100)}% · ${t.estimated}: ${Math.round(cov.estimatedTurnsPct * 100)}%`);
   out.push(`- ${t.confidence}: ${localized(t.confidenceLevels, cov.confidence)}`, '');
 
@@ -403,7 +403,7 @@ export function renderMarkdown(model, language = 'en') {
   if (model.suppressGamification) {
     out.push(t.suppressedRealmNotice[model.policyState] ?? t.suppressedRealmNotice['declared-stop']);
   } else if (!model.enoughEvidence) {
-    out.push(`**${realmName(model.realm, lang)}** — ${t.notEnough}.`);
+    out.push(`**${realmName(model.realm, lang)}** - ${t.notEnough}.`);
     for (const m of model.missing) out.push(`- ${missingReason(m, lang)}`);
   } else {
     out.push(`**${realmName(model.realm, lang)}**${model.showScore ? ` · ${t.score}: ${model.score}/100` : ''}`);
@@ -431,7 +431,7 @@ export function renderMarkdown(model, language = 'en') {
     } else {
       for (const p of model.problems) {
         if (p.villain) {
-          const label = lang === 'vi' ? p.villain.name : `${p.villain.name} — ${p.villain.gloss}`;
+          const label = lang === 'vi' ? p.villain.name : `${p.villain.name} - ${p.villain.gloss}`;
           out.push(`### ${label} (${localized(t.roleLabels, p.villain.role)}, ${t.confidence} ${p.confidence})`);
           out.push(`> ${pick(p.villain.challenge, lang)}`);
         } else {

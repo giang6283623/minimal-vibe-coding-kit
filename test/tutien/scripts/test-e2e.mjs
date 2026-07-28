@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Subprocess-level end-to-end tests for the /tutien runner: every advertised
 // action, the preview -> approval -> analyze boundary, and off-mode
-// suppression — exercised through a real `node run-tutien.mjs` process in an
+// suppression, exercised through a real `node run-tutien.mjs` process in an
 // isolated working directory.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';

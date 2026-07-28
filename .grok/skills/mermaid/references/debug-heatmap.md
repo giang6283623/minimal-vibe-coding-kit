@@ -24,7 +24,7 @@ Append these classDefs and assign every node exactly one:
 ## Rules
 
 - **Evidence ranks the red.** Base suspicion on observed facts (stack traces, logs, diffs, failing tests) and state the strongest fact in the node or on its edge label (`"500 here"`, `"null at line 42"`).
-- Show relative likelihood in the label when it helps: `Parse config<br/>(suspect ~70%)`. Percentages are stated estimates, not measurements — round to tens.
+- Show relative likelihood in the label when it helps: `Parse config<br/>(suspect ~70%)`. Percentages are stated estimates, not measurements - round to tens.
 - One or two red nodes maximum. If everything looks red, the investigation is not ready for a chart yet.
 - Re-emit the chart when evidence changes: a ruled-out red node turns green, and the next suspect turns red. The chart tracks the hypothesis→verification loop of the `sequential-thinking` skill.
 - Respect the active coding level for density (see `coding-level-charts.md`).
@@ -65,4 +65,4 @@ flowchart TD
     class G riskMed
 ```
 
-Reading: auth and cache-serve are ruled out (green), the database query is the prime suspect (red — timeouts observed in logs), serialization is untested downstream of it (amber).
+Reading: auth and cache-serve are ruled out (green), the database query is the prime suspect (red - timeouts observed in logs), serialization is untested downstream of it (amber).

@@ -2,14 +2,14 @@
 
 > Scaffolded by Minimal Vibe Coding Kit. A short, shared glossary and map so any
 > agent (Claude, Cursor, Codex, Grok, Kimi) navigates this project with less back-and-forth.
-> Keep it current and terse — definitions, not prose.
+> Keep it current and terse - definitions, not prose.
 
 ## Domain glossary
 
 Terms, acronyms, and entities specific to this project. One line each.
 
-- **<Term>** — <plain-language meaning, and where it lives in code if relevant>.
-- **<Acronym>** — <expansion + what it refers to here>.
+- **<Term>** - <plain-language meaning, and where it lives in code if relevant>.
+- **<Acronym>** - <expansion + what it refers to here>.
 
 ## Key areas
 
@@ -27,8 +27,8 @@ Pointers to the patterns this repo already follows (also captured in `backbone.y
 
 - Naming:
 - Architecture / folder layout:
-- Shared resources (assets, routes, config, generated code) — accessor to use:
-- User-facing copy / localization — accessor to use:
+- Shared resources (assets, routes, config, generated code) - accessor to use:
+- User-facing copy / localization - accessor to use:
 
 ## External systems & integrations
 

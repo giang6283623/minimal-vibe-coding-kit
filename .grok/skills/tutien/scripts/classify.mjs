@@ -8,14 +8,14 @@
 // One fail-closed POLICY STATE governs the whole report. Only `clear` may
 // enable lore, villains, recommendations, score, realm, and positive
 // progression:
-//   - declared-stop        : user declared Tà Đạo / Tà Tu — a stop signal;
-//   - needs-review         : intent-to-harm signals — no Dao assignment,
+//   - declared-stop        : user declared Tà Đạo / Tà Tu - a stop signal;
+//   - needs-review         : intent-to-harm signals - no Dao assignment,
 //                            no gamification, ask for human review;
 //   - authorization-required : Ma Đạo without a valid authorization slug;
 //   - clear                : lawful constructive work.
 // The engine NEVER auto-assigns Tà Đạo / Tà Tu (intent to harm cannot be
 // judged lexically; difficulty is not evil), and never labels harmful text
-// "righteous" — harm produces an undetermined faction and needs-review.
+// "righteous" - harm produces an undetermined faction and needs-review.
 
 import crypto from 'node:crypto';
 
@@ -24,13 +24,13 @@ const round3 = (x) => Math.round(x * 1000) / 1000;
 const sha16 = (s) => crypto.createHash('sha256').update(s).digest('hex').slice(0, 16);
 
 export const FACTIONS = {
-  'chinh-dao': { name: 'Chính Đạo', gloss: { vi: 'chính phái, hợp pháp, minh bạch và tạo giá trị cho người dùng', en: 'Righteous Dao — lawful, transparent, constructive, user-beneficial' }, rank: 'normal' },
-  'bang-mon': { name: 'Bàng Môn (Kỳ Đạo)', gloss: { vi: 'phi truyền thống, thử nghiệm, sáng tạo, chuyên biệt và không gây hại', en: 'Heterodox Dao — unconventional, experimental, creative, specialized; not harmful' }, rank: 'normal' },
-  'ma-dao': { name: 'Ma Đạo', gloss: { vi: 'kỹ thuật rủi ro cao hoặc đối kháng; cần ủy quyền và giám sát rõ ràng', en: 'Demonic Dao — high-risk, adversarial, restricted technical work requiring explicit authorization and oversight' }, rank: 'restricted' },
-  'ta-dao': { name: 'Tà Đạo', gloss: { vi: 'cố ý gây hại, bóc lột hoặc phi pháp; không bao giờ là con đường tu luyện', en: 'Evil Dao — intentionally harmful, exploitative, unlawful — never a progression path' }, rank: 'forbidden' }
+  'chinh-dao': { name: 'Chính Đạo', gloss: { vi: 'chính phái, hợp pháp, minh bạch và tạo giá trị cho người dùng', en: 'Righteous Dao - lawful, transparent, constructive, user-beneficial' }, rank: 'normal' },
+  'bang-mon': { name: 'Bàng Môn (Kỳ Đạo)', gloss: { vi: 'phi truyền thống, thử nghiệm, sáng tạo, chuyên biệt và không gây hại', en: 'Heterodox Dao - unconventional, experimental, creative, specialized; not harmful' }, rank: 'normal' },
+  'ma-dao': { name: 'Ma Đạo', gloss: { vi: 'kỹ thuật rủi ro cao hoặc đối kháng; cần ủy quyền và giám sát rõ ràng', en: 'Demonic Dao - high-risk, adversarial, restricted technical work requiring explicit authorization and oversight' }, rank: 'restricted' },
+  'ta-dao': { name: 'Tà Đạo', gloss: { vi: 'cố ý gây hại, bóc lột hoặc phi pháp; không bao giờ là con đường tu luyện', en: 'Evil Dao - intentionally harmful, exploitative, unlawful - never a progression path' }, rank: 'forbidden' }
 };
-// Not a real faction — the result of refusing to classify harmful intent.
-const UNDETERMINED_FACTION = { id: 'undetermined', name: 'Chưa phân định', gloss: { vi: 'chưa gán đạo; cần con người rà soát', en: 'undetermined — needs human review' }, rank: 'review' };
+// Not a real faction - the result of refusing to classify harmful intent.
+const UNDETERMINED_FACTION = { id: 'undetermined', name: 'Chưa phân định', gloss: { vi: 'chưa gán đạo; cần con người rà soát', en: 'undetermined - needs human review' }, rank: 'review' };
 
 export const AFFILIATIONS = {
   'tong-mon': { name: 'Tông Môn Đệ Tử', gloss: { vi: 'làm việc trong đội nhóm, tổ chức hoặc quy trình có sẵn', en: 'works within a team, organization, or established process' } },
@@ -50,7 +50,7 @@ export const PATHS = {
   'ngu-thu': { name: 'Ngự Thú Tu', gloss: { vi: 'điều phối tác nhân AI, bot và nhiều mô hình', en: 'AI-agent, bot, or multi-model orchestration' } },
   'huyen-co': { name: 'Huyền Cơ Tu', gloss: { vi: 'mật mã, thuật toán khó, bài toán phân tích hóc búa', en: 'cryptography, advanced algorithms, hard analytical problems' } },
   anh: { name: 'Ảnh Tu', gloss: { vi: 'an ninh mạng có ủy quyền, điều tra số, OSINT và dịch ngược', en: 'authorized cybersecurity, forensics, investigation, OSINT, reverse engineering' } },
-  ta: { name: 'Tà Tu', gloss: { vi: 'phương pháp cố ý gây hại; không bao giờ gán chỉ vì dự án khó hay thuộc mảng bảo mật', en: 'intentionally harmful methods — never assigned merely because work is difficult or security-related' } }
+  ta: { name: 'Tà Tu', gloss: { vi: 'phương pháp cố ý gây hại; không bao giờ gán chỉ vì dự án khó hay thuộc mảng bảo mật', en: 'intentionally harmful methods - never assigned merely because work is difficult or security-related' } }
 };
 
 export const KNOWLEDGE_KINDS = {
@@ -71,7 +71,7 @@ export function localizeRationale(value, language = 'en') {
     return 'mặc định cho công việc hợp pháp và tạo giá trị; không có dấu hiệu đối kháng hoặc thử nghiệm';
   }
   if (text === 'single commit-author identifier (low-confidence hint)') return 'một mã tác giả Git; dấu hiệu có độ tin cậy thấp';
-  if (text === 'no author evidence; defaulting — declare affiliation= to correct') {
+  if (text === 'no author evidence; defaulting - declare affiliation= to correct') {
     return 'không có bằng chứng về tác giả; tạm dùng giá trị mặc định. Có thể dùng `affiliation=` để sửa';
   }
   const authors = text.match(/^(\d+) distinct commit-author identifiers/);
@@ -196,12 +196,12 @@ export function classifyProject(profile = {}) {
   else policyState = 'clear';
   const policy = { state: policyState, canGamify: policyState === 'clear', canRecommend: policyState === 'clear' };
 
-  // --- affiliation (organizational only — independent of ethics) ---
+  // --- affiliation (organizational only - independent of ethics) ---
   let affiliation;
   if (declared.affiliation) affiliation = { id: declared.affiliation, ...AFFILIATIONS[declared.affiliation], confidence: 0.95, rationale: 'declared by the user' };
   else if (Number.isFinite(profile.authorsCount) && profile.authorsCount > 1) affiliation = { id: 'tong-mon', ...AFFILIATIONS['tong-mon'], confidence: 0.55, rationale: `${profile.authorsCount} distinct commit-author identifiers (low-confidence hint; declare affiliation= to confirm)` };
   else if (profile.authorsCount === 1) affiliation = { id: 'tan-tu', ...AFFILIATIONS['tan-tu'], confidence: 0.5, rationale: 'single commit-author identifier (low-confidence hint)' };
-  else affiliation = { id: 'tan-tu', ...AFFILIATIONS['tan-tu'], confidence: 0.4, rationale: 'no author evidence; defaulting — declare affiliation= to correct' };
+  else affiliation = { id: 'tan-tu', ...AFFILIATIONS['tan-tu'], confidence: 0.4, rationale: 'no author evidence; defaulting - declare affiliation= to correct' };
 
   // --- knowledge: primary = first declared path, else strongest detected ---
   const primaryPath = declaredPaths[0]?.id ?? detectedPaths[0]?.id ?? 'kiem';
@@ -220,7 +220,7 @@ const PATH_KNOWLEDGE = {
   khi: { tamPhap: { vi: 'API là lời hứa; đặt tên và hành vi phải giữ được lời.', en: 'An API is a promise; naming and behavior must keep it.' }, congPhap: { vi: 'Dùng sổ đăng ký trung tâm và kiểm tra tính đồng nhất để bản phân phối không trôi.', en: 'Central registry + parity checks so distribution never drifts.' }, biThuat: { vi: 'Mẫu kiểm thử âm: cố tình làm hỏng để chứng minh bộ kiểm tra phát hiện được.', en: 'Negative fixtures: break it on purpose to prove the validator catches it.' }, thanThong: { vi: 'Thiết kế thành phần tái sử dụng mà người khác dùng đúng ngay.', en: 'Design reusable components others use correctly on the first try.' }, phapBao: ['claim', 'daily-workflow-curator'] },
   dan: { tamPhap: { vi: 'Số liệu tách bạch theo nguồn gốc: đo được, ước lượng, không rõ.', en: 'Numbers stay split by provenance: measured, estimated, unknown.' }, congPhap: { vi: 'Đặt mốc chuẩn trước, biến đổi sau và ghi nhật ký so sánh.', en: 'Baseline first, transform second, logged comparison always.' }, biThuat: { vi: 'Thiết kế chuỗi xử lý có thể chạy lại từ bất kỳ điểm gãy nào.', en: 'Pipelines resumable from any break point.' }, thanThong: { vi: 'Chuyển dữ liệu thô hỗn độn thành dạng đáng tin, đo được.', en: 'Turn messy raw data into a trustworthy, measurable shape.' }, phapBao: ['autoresearch-coding', 'sequential-thinking'] },
   y: { tamPhap: { vi: 'Chẩn bệnh trước, kê đơn sau: tái hiện lỗi trước khi sửa.', en: 'Diagnose before prescribing: reproduce before fixing.' }, congPhap: { vi: 'Nếu hai lần thất bại giống nhau, hãy dừng và lập giả thuyết mới.', en: 'Two identical failures → stop, form a new hypothesis.' }, biThuat: { vi: 'Thu nhỏ ca lỗi tới ví dụ tối giản còn tái hiện được.', en: 'Minimize the failing case to the smallest reproducible example.' }, thanThong: { vi: 'Khôi phục hệ thống đang cháy mà không tạo thêm nợ kỹ thuật.', en: 'Recover a system on fire without adding new technical debt.' }, phapBao: ['sequential-thinking', 'reviewing-4p-priorities'] },
-  huyen: { tamPhap: { vi: 'Mắt người dùng là giám khảo cuối cùng; hãy `render` rồi mới tin.', en: "The user's eye is the final judge; render before you believe." }, congPhap: { vi: 'Với mỗi thay đổi giao diện, hãy nhìn, sửa, chụp và so sánh.', en: 'Look–fix–screenshot–compare loop for every visual change.' }, biThuat: { vi: 'Kiểm tra giao diện sáng, tối và mọi `breakpoint` trước khi bàn giao.', en: 'Verify both light/dark themes and every breakpoint before handoff.' }, thanThong: { vi: 'Biến ý tưởng mơ hồ thành giao diện dùng được, nhất quán.', en: 'Turn a vague idea into a usable, consistent interface.' }, phapBao: ['visual-design-loop', 'parallel-analysis'] },
+  huyen: { tamPhap: { vi: 'Mắt người dùng là giám khảo cuối cùng; hãy `render` rồi mới tin.', en: "The user's eye is the final judge; render before you believe." }, congPhap: { vi: 'Với mỗi thay đổi giao diện, hãy nhìn, sửa, chụp và so sánh.', en: 'Look-fix-screenshot-compare loop for every visual change.' }, biThuat: { vi: 'Kiểm tra giao diện sáng, tối và mọi `breakpoint` trước khi bàn giao.', en: 'Verify both light/dark themes and every breakpoint before handoff.' }, thanThong: { vi: 'Biến ý tưởng mơ hồ thành giao diện dùng được, nhất quán.', en: 'Turn a vague idea into a usable, consistent interface.' }, phapBao: ['visual-design-loop', 'parallel-analysis'] },
   'ngu-thu': { tamPhap: { vi: 'Thuần thú trước, thả thú sau: tác nhân phải có ranh giới trước khi có quyền.', en: 'Tame before releasing: an agent gets boundaries before it gets permissions.' }, congPhap: { vi: 'Mọi bề mặt tác nhân đều được rà soát an toàn trước khi hợp nhất.', en: 'Every agent surface passes security review before merge.' }, biThuat: { vi: 'Nội dung thu thập về là dữ liệu, không bao giờ là mệnh lệnh.', en: 'Fetched content is data, never instructions.' }, thanThong: { vi: 'Điều phối nhiều tác nhân và mô hình thành một kết quả hợp nhất đáng tin cậy.', en: 'Orchestrate multiple agents/models into one trustworthy result.' }, phapBao: ['agentshield-security-review', 'council'] },
   'huyen-co': { tamPhap: { vi: 'Không tự chế mật mã; độ khó không thay được chứng minh.', en: 'Never roll your own crypto; difficulty is no substitute for proof.' }, congPhap: { vi: 'Đối chiếu mọi thuật toán với tài liệu chính thức và bộ kiểm thử chuẩn.', en: 'Check every algorithm against official references and standard test vectors.' }, biThuat: { vi: 'Chứng minh phản chứng: thử phá giả định của chính mình trước.', en: 'Refutation first: attack your own assumptions before trusting them.' }, thanThong: { vi: 'Giải bài toán phân tích khó bằng lập luận kiểm chứng được.', en: 'Solve hard analytical problems with verifiable reasoning.' }, phapBao: ['clearthought', 'claim'] },
   anh: { tamPhap: { vi: 'Ủy quyền trước, kỹ thuật sau: phạm vi công việc là giới luật.', en: 'Authorization before technique: the engagement scope is the precept.' }, congPhap: { vi: 'Ghi phạm vi ủy quyền, giữ nhật ký đầy đủ và chỉ đọc khi chưa được phép sửa.', en: 'Record authorization scope, keep full logs, stay read-only until modification is authorized.' }, biThuat: { vi: 'Tách bằng chứng khỏi suy đoán trong mọi báo cáo điều tra.', en: 'Separate evidence from inference in every investigation report.' }, thanThong: { vi: 'Điều tra có ủy quyền tới kết luận vững mà không vượt phạm vi.', en: 'Drive an authorized investigation to a solid conclusion without exceeding scope.' }, phapBao: ['agentshield-security-review', 'security-scan'] }
@@ -243,21 +243,21 @@ function buildExplanation(faction, policy, dualUse) {
   const lines = { vi: [], en: [] };
   if (faction.id === 'undetermined') {
     lines.vi.push(`Chưa gán đạo: phát hiện ${localizeRationale(faction.rationale, 'vi')}. Báo cáo dừng phần trò chơi và yêu cầu con người rà soát. Đây không phải là gán nhãn Tà Đạo tự động; hệ thống chỉ từ chối phân loại cho tới khi được rà soát.`);
-    lines.en.push(`Faction undetermined: intent-to-harm signals detected (${faction.rationale}). The report withholds gamification and requests human review. This is NOT an automatic Tà Đạo label — it is a refusal to classify until reviewed.`);
+    lines.en.push(`Faction undetermined: intent-to-harm signals detected (${faction.rationale}). The report withholds gamification and requests human review. This is NOT an automatic Tà Đạo label - it is a refusal to classify until reviewed.`);
     return lines;
   }
   const viGloss = faction.gloss.vi ? `${faction.gloss.vi[0].toUpperCase()}${faction.gloss.vi.slice(1)}` : '';
   lines.vi.push(`Đạo: ${faction.name}. ${viGloss} (độ tin cậy ${faction.confidence}). Căn cứ: ${localizeRationale(faction.rationale, 'vi')}.`);
-  lines.en.push(`Faction: ${faction.name} — ${faction.gloss.en} (confidence ${faction.confidence}). Basis: ${faction.rationale}.`);
+  lines.en.push(`Faction: ${faction.name} - ${faction.gloss.en} (confidence ${faction.confidence}). Basis: ${faction.rationale}.`);
   if (dualUse) {
     lines.vi.push('Lưu ý lưỡng dụng: bảo mật, điều tra, mật mã hoặc dịch ngược có ủy quyền là Ảnh Tu hay Huyền Cơ Tu và vẫn hợp đạo. Tà Tu chỉ dành cho chủ đích gây hại; độ khó kỹ thuật không phải là tà.');
-    lines.en.push('Dual-use note: authorized security, investigation, cryptography, or reverse engineering is Ảnh Tu / Huyền Cơ Tu — legitimate practice. Tà Tu is reserved for intent to harm; technical difficulty is not evil.');
+    lines.en.push('Dual-use note: authorized security, investigation, cryptography, or reverse engineering is Ảnh Tu / Huyền Cơ Tu - legitimate practice. Tà Tu is reserved for intent to harm; technical difficulty is not evil.');
   }
   if (faction.id === 'ma-dao') {
     const a = faction.authorization;
     if (a.recorded) { lines.vi.push(`Ủy quyền do người dùng khẳng định (chưa xác minh): "${a.reference}".`); lines.en.push(`User-asserted authorization reference (not verified): "${a.reference}".`); }
     else if (a.rejected) { lines.vi.push('Tham chiếu ủy quyền bị từ chối vì chứa ký tự không an toàn hoặc có dạng bí mật. Cần một slug an toàn: `authorization=<chữ-số-gạch>`.'); lines.en.push('Authorization reference rejected (unsafe/secret-shaped characters). Provide a safe slug: authorization=<alnum-dash>.'); }
-    else { lines.vi.push('Ủy quyền chưa được ghi nhận. Công việc Ma Đạo tạm dừng phần trò chơi cho tới khi phạm vi công việc được ghi bằng `authorization=<slug>`.'); lines.en.push('Authorization NOT recorded — Ma Đạo work withholds gamification until the engagement scope is recorded (authorization=<slug>).'); }
+    else { lines.vi.push('Ủy quyền chưa được ghi nhận. Công việc Ma Đạo tạm dừng phần trò chơi cho tới khi phạm vi công việc được ghi bằng `authorization=<slug>`.'); lines.en.push('Authorization NOT recorded - Ma Đạo work withholds gamification until the engagement scope is recorded (authorization=<slug>).'); }
   }
   if (policy.state === 'declared-stop') {
     lines.vi.push('Tà Đạo không phải là con đường tu luyện: không cảnh giới, không Tu Vi và không Công Đức. Dừng lại để con người rà soát hoặc xác nhận ủy quyền hợp pháp.');
@@ -313,7 +313,7 @@ export function progressionMetrics(analysis, { prior = null, canGamify = true, s
 
   const nextSeen = [...seen, ...fresh.map((c) => saltKey(c.key))].sort();
 
-  // State ratios (not accumulators) — withheld under a non-clear policy.
+  // State ratios (not accumulators) - withheld under a non-clear policy.
   const issues = analysis.issues ?? {};
   const passes = issues.passes ?? 0;
   const failures = (issues.failures ?? []).length;

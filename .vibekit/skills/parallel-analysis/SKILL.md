@@ -39,15 +39,15 @@ passes, NEVER ask again.
    (binary missing, logged out), tell the user what broke, offer to re-run
    setup, and update the file with their answer.
 2. **If it does not exist**: detect what is available, then ask the user ONE
-   question — "Which provider should run parallel analysis lanes?" — using the
+   question - "Which provider should run parallel analysis lanes?" - using the
    harness-native prompt (AskUserQuestion in Claude Code; a plain chat
    question in Cursor/Codex). Offer, in this order:
-   - **Cursor CLI + Composer 2.5 Fast (recommended)** — fastest lane executor;
+   - **Cursor CLI + Composer 2.5 Fast (recommended)** - fastest lane executor;
      requires `cursor-agent` installed and logged in.
-   - **Claude subagents** — no extra install; lanes run as read-only Claude
+   - **Claude subagents** - no extra install; lanes run as read-only Claude
      Code subagents (Explore/general-purpose). Choose this automatically if
      the user declines external CLIs.
-   - **Codex CLI** — lanes run via `codex exec` in a read-only sandbox with
+   - **Codex CLI** - lanes run via `codex exec` in a read-only sandbox with
      the best available Codex model.
 3. **Resolve the model** for the chosen provider (see per-executor notes),
    confirm the resolved value in one line, and write the config file. Include
@@ -65,7 +65,7 @@ passes, NEVER ask again.
 - `codex-cli`: `codex --version` must succeed. Use the CLI's default/best
   coding model unless the user names one; record the resolved model.
 
-### Config file — `.vibekit/parallel-analysis.json`
+### Config file - `.vibekit/parallel-analysis.json`
 
 ```json
 {
@@ -83,7 +83,7 @@ share a default. To change the choice later, delete the file or ask for
 
 ## Running a lane (per executor)
 
-Every lane is READ-ONLY: search, read, summarize — never edit files, execute
+Every lane is READ-ONLY: search, read, summarize - never edit files, execute
 project binaries, run hooks, or trigger installs/deploys/migrations.
 
 - `cursor-cli`:
@@ -107,7 +107,7 @@ project binaries, run hooks, or trigger installs/deploys/migrations.
   ```
 
 If the harness cannot run lanes concurrently (plain CLI loop), run them
-back-to-back without changing the briefs — merge and verification stay the
+back-to-back without changing the briefs - merge and verification stay the
 same.
 
 ## Workflow
@@ -117,12 +117,12 @@ same.
    If lanes would depend on each other's output, merge them or run two rounds.
 2. **Brief.** Give each lane a numbered brief: exact paths, the questions to
    answer, and the required return format ("facts only, numbered sections,
-   findings as `file:line — issue — why it matters`").
+   findings as `file:line - issue - why it matters`").
 3. **Launch all lanes at once** with the configured executor.
 4. **Prepare while waiting.** Build the merge skeleton; do not duplicate lane
    work.
 5. **Merge.** Combine lane reports into one findings list. Mark conflicts
-   between lanes and unknowns explicitly — never average away a disagreement.
+   between lanes and unknowns explicitly - never average away a disagreement.
 6. **Verify.** Run one verification lane that receives the merged claims (not
    the reasoning) with the instruction: "Default-skeptical: confirm or refute
    each claim against the repo with file:line evidence." Drop or re-investigate
@@ -143,7 +143,7 @@ Questions:
 1. <specific question>
 2. <specific question>
 Return: numbered sections matching the questions, facts only,
-findings as file:line — issue — why it matters.
+findings as file:line - issue - why it matters.
 ```
 
 ## Guardrails
@@ -151,7 +151,8 @@ findings as file:line — issue — why it matters.
 - 2-5 lanes per round; needing more means the question is under-scoped.
 - Lanes are read-only; only the main session edits files. Agent-surface edits
   (`backbone.yml`, `AGENTS.md`, `CLAUDE.md`, `.claude/**`, `.cursor/**`,
-  `.agents/**`, `.codex/**`, kit skills/commands) additionally require the
+  `.agents/**`, `.grok/**`, `.kimi-code/**`, `.codex/**`, `.codex-plugin/**`,
+  kit skills/commands) additionally require the
   `agentshield-security-review` skill afterwards.
 - Respect `backbone.yml` `policy.protected_paths` in every lane brief.
 - Never put secrets in lane briefs or executor prompts: no `.env*` contents,

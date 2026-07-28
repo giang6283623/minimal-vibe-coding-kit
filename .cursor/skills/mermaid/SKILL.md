@@ -1,6 +1,6 @@
 ---
 name: mermaid
-description: Generate styled Mermaid diagrams (31 types) from requirements — flowcharts, sequence, class, ER, state, Gantt, kanban, timeline, XY charts, architecture, and more. Also use when writing documentation (offer to include diagrams), when debugging or explaining a workflow (offer a visual flow map with risky zones highlighted red), or whenever the user asks for a chart, diagram, or visualization. Adapts diagram complexity to the active coding level.
+description: Generate styled Mermaid diagrams (31 types) from requirements - flowcharts, sequence, class, ER, state, Gantt, kanban, timeline, XY charts, architecture, and more. Also use when writing documentation (offer to include diagrams), when debugging or explaining a workflow (offer a visual flow map with risky zones highlighted red), or whenever the user asks for a chart, diagram, or visualization. Adapts diagram complexity to the active coding level.
 argument-hint: "[diagram description or requirements]"
 user-invocable: true
 ---
@@ -12,16 +12,16 @@ Maintained by Minimal Vibe Coding Kit. Generate high-quality Mermaid diagram cod
 ## Workflow
 
 1. **Understand requirements**: analyze the request to determine the most suitable diagram type.
-2. **Match the coding level**: read `references/coding-level-charts.md` and shape the diagram to the active `/coding-level` (or the `Default coding level` in `backbone.yml` `conventions.custom_rules`; level 2–3 conventions when none is set).
+2. **Match the coding level**: read `references/coding-level-charts.md` and shape the diagram to the active `/coding-level` (or the `Default coding level` in `backbone.yml` `conventions.custom_rules`; level 2-3 conventions when none is set).
 3. **Read the type reference**: open the syntax reference for the chosen diagram type from the table below.
 4. **Generate code**: produce Mermaid code following that specification.
 5. **Apply styling**: read [styling-preset.md](references/styling-preset.md), find the diagram type in its coverage table, and apply exactly the mechanism that row names (universal frontmatter block plus the type's own section when it has one). Skip only if the user asks for plain output or names another theme.
 6. **Apply safety defaults**: keep Mermaid's strict security mode, do not emit callbacks or remote media from untrusted input, and use only user-approved links.
 7. **Validate honestly**: parse or render when trusted tooling is available. Otherwise label the output syntax-reviewed and never claim visual verification.
 
-## Kit Triggers — offer, don't assume
+## Kit Triggers - offer, don't assume
 
-- **Document generation**: when asked to produce documentation with a flow, structure, ownership map, or state change involving at least three materially related parts—and diagrams were not mentioned—ask once before writing: "Include Mermaid diagrams to illustrate this? (yes/no)". Do not interrupt a small copy edit or a one-fact document. Respect the answer for the whole document. If the session cannot ask (autonomous run), include diagrams only where the relationship is genuinely clearer as a picture, and say so.
+- **Document generation**: when asked to produce documentation with a flow, structure, ownership map, or state change involving at least three materially related parts, and diagrams were not mentioned, ask once before writing: "Include Mermaid diagrams to illustrate this? (yes/no)". Do not interrupt a small copy edit or a one-fact document. Respect the answer for the whole document. If the session cannot ask (autonomous run), include diagrams only where the relationship is genuinely clearer as a picture, and say so.
 - **Debugging / failure analysis**: when a root cause is being traced across at least three workflow steps or components, offer once: "Want a visual workflow chart with the risky zones highlighted in red? (yes/no)". Do not offer for a single-line or already-isolated failure. On yes, follow [debug-heatmap.md](references/debug-heatmap.md) to render the flow with evidence-ranked suspect zones.
 - Never repeat a declined offer within the same task.
 
@@ -65,17 +65,17 @@ Select the appropriate diagram type and read the corresponding documentation:
 
 ## Configuration & Themes
 
-- [Vivid Clay preset](references/styling-preset.md) — **default style for all output**: semantic color roles, thick ink borders, high contrast, plus the strong palette for large-area marks (timeline, kanban, xychart). Covers all 31 diagram types — see its coverage table for which mechanism applies per type
-- [Coding-level charts](references/coding-level-charts.md) — how diagram density, type choice, and annotation adapt to `/coding-level` 0–5
-- [Debug heat map](references/debug-heatmap.md) — red/amber risk zones for bug-hunt workflow charts
-- [Kit-authored examples](references/kit-examples.md) — distinct workflow, timeline, kanban, XY, and debug cases maintained by this kit
-- [preview.html](references/preview.html) — executable visual QA gallery pinned to Mermaid 11.16.0. It fetches official CDN modules, so run it only in an isolated profile with no secrets or user data
-- [Upstream notice](UPSTREAM-NOTICE.md) — provenance, version boundary, modification notice, and Mermaid's preserved MIT license
-- [Theming](references/config-theming.md) — custom colors and styles
-- [Directives](references/config-directives.md) — diagram-level configuration
-- [Layouts](references/config-layouts.md) — layout direction and spacing
-- [Configuration](references/config-configuration.md) — global settings
-- [Math](references/config-math.md) — LaTeX math support
+- [Vivid Clay preset](references/styling-preset.md) - **default style for all output**: semantic color roles, thick ink borders, high contrast, plus the strong palette for large-area marks (timeline, kanban, xychart). Covers all 31 diagram types - see its coverage table for which mechanism applies per type
+- [Coding-level charts](references/coding-level-charts.md) - how diagram density, type choice, and annotation adapt to `/coding-level` 0-5
+- [Debug heat map](references/debug-heatmap.md) - red/amber risk zones for bug-hunt workflow charts
+- [Kit-authored examples](references/kit-examples.md) - distinct workflow, timeline, kanban, XY, and debug cases maintained by this kit
+- [preview.html](references/preview.html) - executable visual QA gallery pinned to Mermaid 11.16.0. It fetches official CDN modules, so run it only in an isolated profile with no secrets or user data
+- [Upstream notice](UPSTREAM-NOTICE.md) - provenance, version boundary, modification notice, and Mermaid's preserved MIT license
+- [Theming](references/config-theming.md) - custom colors and styles
+- [Directives](references/config-directives.md) - diagram-level configuration
+- [Layouts](references/config-layouts.md) - layout direction and spacing
+- [Configuration](references/config-configuration.md) - global settings
+- [Math](references/config-math.md) - LaTeX math support
 
 ## Output Specification
 
@@ -86,7 +86,7 @@ Generated Mermaid code should:
 3. Have clear structure with proper line breaks and indentation
 4. Use semantic node naming
 5. Ship styled by default (Vivid Clay preset): every node classed by semantic role, ink borders, no light-on-light text; strong palette on large-area marks
-6. Never clip text or mix typefaces: default fontFamily is `cascadia mono, consolas, noto sans mono, menlo, monospace` at 15px — Vietnamese-safe on every OS (sans option and web-font mono variants per preset Typography) — and never set font-weight in classDef (bold overflows the measured node width)
+6. Never clip text or mix typefaces: default fontFamily is `cascadia mono, consolas, noto sans mono, menlo, monospace` at 15px - Vietnamese-safe on every OS (sans option and web-font mono variants per preset Typography) - and never set font-weight in classDef (bold overflows the measured node width)
 7. Match the active coding level's density and annotation rules
 
 ## Example Output

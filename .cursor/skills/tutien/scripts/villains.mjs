@@ -8,7 +8,7 @@
 //  - villains=off, tone=neutral, or any emergency signal -> no villains;
 //  - challenge lines are authored safe and re-checked against banned
 //    categories before emission;
-//  - origin stories use only an allowlist of sanitized context slugs — never
+//  - origin stories use only an allowlist of sanitized context slugs - never
 //    raw prompts, secrets, names, emails, or identity-bearing paths.
 
 import crypto from 'node:crypto';
@@ -39,7 +39,7 @@ export function containsBannedCategory(text) {
 }
 
 // Only these context fields may shape an origin story, and each must be a
-// strict slug: no slashes, dots, at-signs, spaces, or traversal — so neither
+// strict slug: no slashes, dots, at-signs, spaces, or traversal - so neither
 // free text nor path-like or identity-bearing values can ride along.
 const CONTEXT_ALLOWLIST = ['projectType', 'primaryLanguage', 'fileCategory', 'validationLabel', 'metricCategory'];
 const SLUG = /^[a-z0-9][a-z0-9_-]{0,39}$/i;

@@ -882,7 +882,7 @@ digit = "0" | "1" | "2" | "3" ;
 number = digit , { digit } ;
 </pre>
 
-<h2 id="s32">32. Typography test — JetBrains Mono variant</h2>
+<h2 id="s32">32. Typography test - JetBrains Mono variant</h2>
 <pre class="mermaid">
 ---
 config:
@@ -950,11 +950,11 @@ erDiagram
   }
 </pre>
 
-<h2 id="s33">33. Typography test — Vietnamese</h2>
-<p>33a. Repro — default trebuchet stack with Vietnamese labels. Trebuchet MS has no Vietnamese
-glyphs, so marked letters fall back to Verdana and each word mixes two typefaces — and labels
+<h2 id="s33">33. Typography test - Vietnamese</h2>
+<p>33a. Repro - default trebuchet stack with Vietnamese labels. Trebuchet MS has no Vietnamese
+glyphs, so marked letters fall back to Verdana and each word mixes two typefaces - and labels
 clip (canvas measure falls back differently than the DOM draw; ~34px measured here). Kept only
-to show the failure — do not copy:</p>
+to show the failure - do not copy:</p>
 <pre class="mermaid">
 ---
 config:
@@ -973,7 +973,7 @@ flowchart LR
   linkStyle default stroke:#444444,stroke-width:1.5px
   class Doc,Kiem step
 </pre>
-<p>33b. Sans option (segoe ui, verdana, arial) — Vietnamese-safe; no sans-serif generic,
+<p>33b. Sans option (segoe ui, verdana, arial) - Vietnamese-safe; no sans-serif generic,
 the sanitizer voids dash tokens (mermaid#6256):</p>
 <pre class="mermaid">
 ---
@@ -1009,7 +1009,7 @@ flowchart TD
   class Tra success
   class Go danger
 </pre>
-<p>33c. Be Vietnam Pro web font — pages you control, loaded with a Vietnamese sample string:</p>
+<p>33c. Be Vietnam Pro web font - pages you control, loaded with a Vietnamese sample string:</p>
 <pre class="mermaid">
 ---
 config:
@@ -1059,7 +1059,7 @@ config:
 flowchart LR
   A(Đọc tệp cấu hình) --> B{Hợp lệ?}
   B -->|đúng| C(Ghi kết quả)
-  B -->|sai| D(Báo lỗi — dừng)
+  B -->|sai| D(Báo lỗi - dừng)
 
   classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111
   classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111
@@ -1122,8 +1122,8 @@ flowchart TD
   // Web fonts must be fully loaded BEFORE mermaid measures text,
   // otherwise labels are measured with the fallback font and clip.
   // The Vietnamese sample string pulls the vietnamese unicode-range
-  // files too — the default sample (a space) fetches latin only.
-  const vnSample = 'Đọc dữ liệu, gỡ lỗi — 500.000₫';
+  // files too - the default sample (a space) fetches latin only.
+  const vnSample = 'Đọc dữ liệu, gỡ lỗi - 500.000₫';
   await Promise.all([
     document.fonts.load('15px "JetBrains Mono"', vnSample),
     document.fonts.load('16px "Be Vietnam Pro"', vnSample),
@@ -1134,7 +1134,7 @@ flowchart TD
     document.getElementById('render-status').textContent = 'Render status: PASS';
   } catch (e) {
     console.warn('mermaid run error:', e);
-    document.getElementById('render-status').textContent = `Render status: FAIL — ${e.message}`;
+    document.getElementById('render-status').textContent = `Render status: FAIL - ${e.message}`;
     window.__mermaidError = String(e);
   }
   window.__mermaidDone = true;

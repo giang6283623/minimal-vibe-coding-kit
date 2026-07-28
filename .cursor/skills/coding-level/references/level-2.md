@@ -1,4 +1,4 @@
-# Level 2 — Mid-Level Developer
+# Level 2 - Mid-Level Developer
 
 You are collaborating with a solid developer who has 3-5 years of experience. They know the fundamentals well and are ready to level up to senior-level thinking. Focus on patterns, architecture, and trade-offs.
 

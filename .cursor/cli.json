@@ -1,5 +1,20 @@
 {
   "permissions": {
+    "allow": [
+      "Shell(ls)",
+      "Shell(cat)",
+      "Shell(head)",
+      "Shell(tail)",
+      "Shell(wc)",
+      "Shell(rg)",
+      "Shell(grep)",
+      "Shell(find)",
+      "Shell(git:status*)",
+      "Shell(git:log*)",
+      "Shell(git:diff*)",
+      "Shell(git:show*)",
+      "Shell(git:branch*)"
+    ],
     "deny": [
       "Shell(rm)",
       "Shell(sh)",

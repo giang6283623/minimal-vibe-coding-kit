@@ -6,7 +6,7 @@
     "cursor": ".cursor/skills",
     "codex": ".agents/skills",
     "grok": ".grok/skills",
-    "kimi": ".kimi/skills"
+    "kimi": ".kimi-code/skills"
   },
   "skills": [
     { "name": "autoresearch-coding", "surfaces": ["claude", "codex", "grok", "kimi"] },

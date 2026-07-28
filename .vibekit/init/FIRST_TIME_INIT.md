@@ -11,7 +11,7 @@ Before writing anything, print this checklist and mark each item as found, missi
 1. `backbone.yml` exists.
 2. `AGENTS.md` exists or will be created/merged.
 3. `CLAUDE.md` exists or will be created from `.vibekit/init/CLAUDE-template.md` when Claude support is installed.
-4. At least one harness folder exists: `.claude/`, `.cursor/`, `.agents/`, `.grok/`, or `.codex-plugin/`.
+4. At least one harness folder exists: `.claude/`, `.cursor/`, `.agents/`, `.grok/`, `.kimi-code/`, `.codex/`, or `.codex-plugin/`.
 5. Git status is known. If user changes exist, do not overwrite them.
 6. A validation command is inferred or set to `node .vibekit/scripts/validate-kit.mjs .` for the kit itself.
 7. Protected paths include `.env*`, secrets, lockfiles, generated files, build output, migrations, and infra unless the user says otherwise.
@@ -71,7 +71,7 @@ Then:
 
 ## Setup preferences
 
-Ask these two questions right after the PRD interview. Persist both answers as `backbone.yml` `conventions.custom_rules` entries in the same proposed diff.
+Ask these two questions right after the PRD interview. Persist both answers as `backbone.yml` `conventions.custom_rules` entries in the same proposed diff. Also record the standing writing-style default from section 3 without asking.
 
 ### 1. Safe delete (trash instead of rm)
 
@@ -100,6 +100,12 @@ Show this table exactly and ask: "Which explanation level should I use by defaul
 | 5 | God | Expert peer. Minimal explanation, maximum signal. |
 
 Record the answer as a custom rule: `Default coding level: N (<Level>) - apply this explanation depth every session; change with /coding-level N.`
+
+### 3. Writing style (recorded by default, no question)
+
+Record this custom rule in every proposed backbone without asking; the user can edit or remove it during diff review:
+
+`Writing style: no emoji and no em/en dashes in generated prose unless the user explicitly asks; use ASCII punctuation and keep existing characters in files whose established style already uses them.`
 
 ## FIRST_TIME_INIT_RULES
 

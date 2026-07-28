@@ -29,7 +29,20 @@ try {
 
 // Every skill file present on disk must ship in the tarball. A skill directory
 // added without its package.json `files` entry fails here with the missing path.
-const skillRoots = ['.vibekit/skills', '.claude/skills', '.cursor/skills', '.agents/skills', '.grok/skills'];
+const manifest = JSON.parse(fs.readFileSync('.vibekit/skills/skills-manifest.json', 'utf8'));
+const manifestSkillRoots = Object.values(manifest.surfaces || {});
+const unsafeSkillRoots = manifestSkillRoots.filter((root) =>
+  typeof root !== 'string'
+  || !root.endsWith('/skills')
+  || path.isAbsolute(root)
+  || root.includes('\\')
+  || root.split('/').includes('..')
+);
+if (unsafeSkillRoots.length > 0) {
+  console.error(`FAIL unsafe skill roots in manifest: ${unsafeSkillRoots.join(', ')}`);
+  process.exit(1);
+}
+const skillRoots = [...new Set(['.vibekit/skills', ...manifestSkillRoots])];
 const expected = [];
 function walk(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {

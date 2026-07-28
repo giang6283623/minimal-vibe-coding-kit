@@ -117,7 +117,7 @@ Vietnamese, English, and Simplified Chinese use identical facts, continuity, and
 
 ### Vietnamese (`vi`)
 
-- Use fluent modern Vietnamese narration enriched with controlled Hán–Việt cultivation vocabulary.
+- Use fluent modern Vietnamese narration enriched with controlled Hán-Việt cultivation vocabulary.
 - Prefer meaningful two-to-four-syllable personal names and titles whose semantics fit origin, path, and temperament. Record the meaning in the cast registry.
 - Use natural address such as `đạo hữu`, `sư huynh`, `sư tỷ`, `tiền bối`, `bản tọa`, or role-specific titles only when relationships justify them.
 - Keep sentences smooth and readable; avoid piling archaic particles or mechanically converting English metaphors.
@@ -159,7 +159,7 @@ Villains may be genuinely malicious **inside the fiction**: they exploit the sec
 3. deliver a cutting but meaningful tease;
 4. leave room for the heroes to answer with the real counter-technique.
 
-Aim hostility at the failure mode, plan, array, artifact, or sect strategy—never at the user's identity, intelligence, health, worth, protected traits, or finances. No threats toward the user, humiliation, slurs, or abusive degradation. Safety-sensitive contexts remain neutral and villain-free.
+Aim hostility at the failure mode, plan, array, artifact, or sect strategy, never at the user's identity, intelligence, health, worth, protected traits, or finances. No threats toward the user, humiliation, slurs, or abusive degradation. Safety-sensitive contexts remain neutral and villain-free.
 
 Generate antagonist names, titles, schemes, and lines from the current project, language, prior chapters, and evidence. Do not reuse the renderer's fixed villain sentence bank as chapter dialogue.
 

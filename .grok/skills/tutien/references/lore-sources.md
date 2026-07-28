@@ -2,11 +2,11 @@
 
 The report borrows xianxia/xiuxian genre vocabulary as a creative theme. It distinguishes historical/philosophical ideas from modern fictional/game progression, and does **not** present a fictional realm ladder as religious or historical fact.
 
-- Daoism's "the Way/path", learning, change, and self-correcting practice inform the broad framing — not a software achievement ladder: Stanford Encyclopedia of Philosophy, *Daoism* (`https://plato.stanford.edu/entries/daoism/`).
+- Daoism's "the Way/path", learning, change, and self-correcting practice inform the broad framing - not a software achievement ladder: Stanford Encyclopedia of Philosophy, *Daoism* (`https://plato.stanford.edu/entries/daoism/`).
 - The distinction between `xiuzhen`, `xiuxian`, and `xianxia`, and how cultivation is translated into game systems and levels: "Cultivation games and cosmotechnics" (`https://journals.sagepub.com/doi/pdf/10.1177/20594364251364733`).
 - Xianxia as fiction grounded in Daoist cultivation philosophy and mythology, centered on growth and struggle: Wuxiaworld genre introduction (`https://www.wuxiaworld.com/page/introduction-to-chinese-webnovel-genres-xianxia`) and general glossary (`https://www.wuxiaworld.com/page/general-glossary-of-terms`).
 - Vietnamese reader register and community terminology: Tàng Thư Viện (`https://truyen.tangthuvien.vn/`). Treat it as a varied reader corpus containing translated, edited, and converted text, not as a single authoritative style or a source to copy.
-- Sino-Vietnamese name and term verification: Từ điển Hán–Việt (`https://hanviet.asia/`). Use it to check readings and meanings, not to manufacture dense archaic prose.
+- Sino-Vietnamese name and term verification: Từ điển Hán-Việt (`https://hanviet.asia/`). Use it to check readings and meanings, not to manufacture dense archaic prose.
 
 These sources justify the theme and terminology only. The realm names, score bands, achievement mappings, villain archetypes, and jokes in tutien are an original project design and are documented as such.
 
@@ -29,12 +29,12 @@ The Wuxiaworld genre introduction identifies Daoist cultivation and mythology, g
 
 Verified on 2026-07-22:
 
-- `https://plato.stanford.edu/entries/daoism/` — official Stanford Encyclopedia of Philosophy entry; verified for path, practice, learning, change, and self-correction framing.
-- `https://www.wuxiaworld.com/page/introduction-to-chinese-webnovel-genres-xianxia` — Wuxiaworld's own editorial genre guide; verified for xianxia foundations and style families.
-- `https://www.wuxiaworld.com/page/general-glossary-of-terms` — Wuxiaworld's own glossary; verified for common genre terminology and sect/cultivation organization.
-- `https://journals.sagepub.com/doi/pdf/10.1177/20594364251364733` — SAGE-hosted academic paper; verified for cultivation narrative structures expressed through technical game systems.
-- `https://truyen.tangthuvien.vn/` — Tàng Thư Viện reader platform; verified as a varied Vietnamese cultivation-fiction corpus and terminology reference, not a unified style guide.
-- `https://hanviet.asia/` — structured Hán–Việt lookup with cited character sources; verified for name and term checking.
+- `https://plato.stanford.edu/entries/daoism/` - official Stanford Encyclopedia of Philosophy entry; verified for path, practice, learning, change, and self-correction framing.
+- `https://www.wuxiaworld.com/page/introduction-to-chinese-webnovel-genres-xianxia` - Wuxiaworld's own editorial genre guide; verified for xianxia foundations and style families.
+- `https://www.wuxiaworld.com/page/general-glossary-of-terms` - Wuxiaworld's own glossary; verified for common genre terminology and sect/cultivation organization.
+- `https://journals.sagepub.com/doi/pdf/10.1177/20594364251364733` - SAGE-hosted academic paper; verified for cultivation narrative structures expressed through technical game systems.
+- `https://truyen.tangthuvien.vn/` - Tàng Thư Viện reader platform; verified as a varied Vietnamese cultivation-fiction corpus and terminology reference, not a unified style guide.
+- `https://hanviet.asia/` - structured Hán-Việt lookup with cited character sources; verified for name and term checking.
 
 ## Tone contract
 

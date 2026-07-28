@@ -30,7 +30,7 @@ For this kit itself, use:
 goal: improve Minimal Vibe Coding Kit quality
 metric command: node .vibekit/scripts/validate-kit.mjs .
 direction: higher
-editable paths: .vibekit/docs .vibekit/scripts .vibekit/skills .vibekit/commands .claude .cursor .agents .codex-plugin .github README.md AGENTS.md .vibekit/init/CLAUDE-template.md .vibekit/init/FIRST_TIME_INIT.md .vibekit/init/FIRST_PROMPT.md backbone.yml package.json install.sh install.ps1
+editable paths: .vibekit/docs .vibekit/scripts .vibekit/skills .vibekit/commands .claude .cursor .agents .grok .kimi-code .codex .codex-plugin .github README.md AGENTS.md .vibekit/init/CLAUDE-template.md .vibekit/init/FIRST_TIME_INIT.md .vibekit/init/FIRST_PROMPT.md backbone.yml package.json install.sh install.ps1
 protected paths: .git .env* node_modules vendor secrets lockfiles
 budget: 3
 ```
@@ -78,7 +78,7 @@ For each experiment:
 7. Keep good changes; revert discarded or crashed changes.
 8. If a crash is from a trivial patch mistake, fix once and rerun.
 
-If a kept change touches agent surfaces such as `AGENTS.md`, `CLAUDE.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.codex-plugin/**`, `.vibekit/skills/**`, `.vibekit/commands/**`, `.vibekit/scripts/**`, hooks, or MCP config, run the AgentShield probe before final reporting.
+If a kept change touches agent surfaces such as `AGENTS.md`, `CLAUDE.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.grok/**`, `.kimi-code/**`, `.codex/**`, `.codex-plugin/**`, `.vibekit/skills/**`, `.vibekit/commands/**`, `.vibekit/scripts/**`, hooks, or MCP config, run the AgentShield probe before final reporting.
 
 ## Delegation
 

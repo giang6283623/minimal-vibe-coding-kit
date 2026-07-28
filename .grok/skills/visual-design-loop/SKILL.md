@@ -1,11 +1,25 @@
 ---
 name: visual-design-loop
-description: Run an iterative visual design improvement loop for UI/product polish tasks. Use when a request involves screenshots, rendering, visual review, frontend polish, layout/typography/color refinement, design QA, or a Claude/Codex loop goal that touches a visible product surface.
+description: Run an iterative visual design improvement loop for UI/product polish tasks. Use when a request involves screenshots, rendering, visual review, frontend polish, layout/typography/color refinement, design QA, or a Claude/Codex loop goal that touches a visible product surface. Score the visual gate first and wait for user approval before starting loops.
 ---
 
 # Visual Design Loop
 
 Use this skill to improve a visible UI through controlled render-review-fix loops. Keep the brief and existing project conventions as the source of truth; do not add new product requirements just because a screen could be enhanced.
+
+## Gate
+
+Do not start loops by default. Score the need first, 0-2 per question:
+
+1. Did the change alter a user-visible surface?
+2. Does the outcome depend on subjective visual judgment (layout, typography, color)?
+3. Could a visual regression reach end users unnoticed by existing tests?
+
+- Score 0-2: skip the loop; rely on the repo validation command.
+- Score 3-4: one screenshot check with at most one targeted fix; no loop.
+- Score 5-6: propose the loop with its budget and estimated cost, then wait for explicit user approval before the first loop.
+
+Report the score and decision in one line, for example: "visual gate 5/6: proposing a 3-loop run, awaiting approval".
 
 ## Contract
 

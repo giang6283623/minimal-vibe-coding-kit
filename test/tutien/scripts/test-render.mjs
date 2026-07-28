@@ -258,7 +258,7 @@ check('render: no secrets or raw prompt text in the report', () => {
 });
 check('render: realm names keep Sino-Vietnamese form, glossed in English', () => {
   const en = renderMarkdown(buildReportModel(clean, {}), 'en');
-  assert.match(en, /\*\*[^*]+ — [^*]+\*\*/);
+  assert.match(en, /\*\*[^*]+ - [^*]+\*\*/);
 });
 check('render: deterministic output', () =>
   assert.equal(renderMarkdown(buildReportModel(loop, { score: 'show' }), 'vi'),

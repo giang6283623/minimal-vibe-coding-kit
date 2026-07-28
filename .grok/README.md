@@ -4,7 +4,7 @@ Grok Build (the `grok` CLI) reads `AGENTS.md` from the repo root down to the wor
 
 Useful built-ins include `/plan`, `/skills`, `/plugins`, `/hooks`, `/mcps`, and `/model`; `grok inspect` lists the config sources, instructions, skills, plugins, hooks, and MCP servers discovered for the current directory, and `grok -p "<prompt>"` runs headless.
 
-Guardrails ship in two layers. This repo's `.grok/config.toml` carries project-scoped `[permission]` deny rules for dangerous commands — project configs support MCP servers, plugins, and permission rules. User preferences such as `[ui] permission_mode` are user-scoped only and belong in `~/.grok/config.toml`; see `config.example.toml`. Project `.grok/hooks/` require `/hooks-trust` before they run.
+Guardrails ship in two layers. This repo's `.grok/config.toml` carries project-scoped `[permission]` deny rules for dangerous commands - project configs support MCP servers, plugins, and permission rules. User preferences such as `[ui] permission_mode` are user-scoped only and belong in `~/.grok/config.toml`; see `config.example.toml`. Project `.grok/hooks/` require `/hooks-trust` before they run.
 
 Native custom reasoning skills:
 

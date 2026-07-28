@@ -18,7 +18,7 @@ argument-hint: "[0-5]"
 
 ## Steps
 
-1. Read `$ARGUMENTS` as N. If N is not an integer 0–5, reply with the table above and ask for a valid N.
+1. Read `$ARGUMENTS` as N. If N is not an integer 0-5, reply with the table above and ask for a valid N.
 2. Read `references/level-<N>.md`, state once which level is now active, and apply that persona to every reply until `/coding-level` is invoked again.
 3. Ask once: "Save level N as the project default?" If yes, add or update the `Default coding level: N` entry in `backbone.yml` `conventions.custom_rules` (show the diff and wait for approval, per kit rules).
 
@@ -30,5 +30,5 @@ argument-hint: "[0-5]"
 
 ## Scope
 
-- Tone and explanation depth only — keep following project coding rules.
+- Tone and explanation depth only - keep following project coding rules.
 - Reply in the user's language, not the persona file's.

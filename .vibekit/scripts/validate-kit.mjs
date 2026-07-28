@@ -77,7 +77,7 @@ const surfacePresent = {
   cursor: isKitSourceRepo || exists('.cursor'),
   codex: isKitSourceRepo || exists('.agents') || exists('.codex') || exists('.codex-plugin'),
   grok: isKitSourceRepo || exists('.grok'),
-  kimi: isKitSourceRepo || exists('.kimi')
+  kimi: isKitSourceRepo || exists('.kimi-code')
 };
 for (const [surface, present] of Object.entries(surfacePresent)) {
   if (!present) console.log(`INFO surface ${surface} not installed; skipping its checks`);
@@ -135,8 +135,8 @@ if (surfacePresent.grok) {
     ...KIT_SKILLS.map((skill) => `.grok/skills/${skill}/SKILL.md`));
 }
 if (surfacePresent.kimi) {
-  required.push('.kimi/README.md',
-    ...KIMI_KIT_SKILLS.map((skill) => `.kimi/skills/${skill}/SKILL.md`));
+  required.push('.kimi-code/README.md',
+    ...KIMI_KIT_SKILLS.map((skill) => `.kimi-code/skills/${skill}/SKILL.md`));
 }
 
 const reasoningSkillResources = {
@@ -187,7 +187,7 @@ if (surfacePresent.claude) reasoningSurfaceDirs.push('.claude/skills');
 if (surfacePresent.cursor) reasoningSurfaceDirs.push('.cursor/skills');
 if (surfacePresent.codex) reasoningSurfaceDirs.push('.agents/skills');
 if (surfacePresent.grok) reasoningSurfaceDirs.push('.grok/skills');
-if (surfacePresent.kimi) reasoningSurfaceDirs.push('.kimi/skills');
+if (surfacePresent.kimi) reasoningSurfaceDirs.push('.kimi-code/skills');
 for (const surface of reasoningSurfaceDirs) {
   for (const [skill, files] of Object.entries(reasoningSkillResources)) {
     for (const file of files) required.push(`${surface}/${skill}/${file}`);
@@ -229,8 +229,31 @@ if (exists('.vibekit/docs/AUTORESEARCH_LEDGER.md')) {
 // surface there cannot drift from mirror validation.
 const MANIFEST_SURFACE_DIRS = Object.fromEntries(
   Object.entries(skillsManifest?.surfaces ?? {})
-    .filter(([, dir]) => typeof dir === 'string' && dir.endsWith('/skills'))
+    .filter(([surface, dir]) => {
+      const safe = typeof dir === 'string'
+        && dir.endsWith('/skills')
+        && !path.isAbsolute(dir)
+        && !dir.includes('\\')
+        && !dir.split('/').includes('..');
+      if (!safe) fail(`manifest surface ${surface} has unsafe skill directory: ${String(dir)}`);
+      return safe;
+    })
 );
+const MANIFEST_SURFACE_ROOTS = [...new Set(
+  Object.values(MANIFEST_SURFACE_DIRS).map((dir) => dir.split('/')[0])
+)];
+for (const surfaceRoot of MANIFEST_SURFACE_ROOTS) {
+  requireText(
+    '.github/workflows/vibekit-validate.yml',
+    `"${surfaceRoot}/**"`,
+    `CI workflow watches ${surfaceRoot}/**`
+  );
+  requireText(
+    '.vibekit/skills/agentshield-security-review/scripts/agentshield_repo_probe.py',
+    `"${surfaceRoot}"`,
+    `AgentShield probe inventories ${surfaceRoot}`
+  );
+}
 const skillMirrors = {};
 for (const skill of manifestSkills) {
   skillMirrors[skill.name] = (skill.surfaces || [])
@@ -434,7 +457,7 @@ function validateGraphEngineeringContract() {
   if (hasAll(skill, [
     'read, write, and semantic resource scopes',
     'tool-enforced filesystem/API/credential allowlists',
-    'Every R2 action—serial or concurrent—requires enforceable least-privilege',
+    'Every R2 action, serial or concurrent, requires enforceable least-privilege',
     'Large blast radius also requires a pilot and human gate'
   ])) {
     ok('Graph engineering enforces semantic ownership, mutable containment, and blast-radius gates');
@@ -627,7 +650,7 @@ if (claudeSettings?.permissions?.deny && cursorSettings?.permissions?.deny) {
 }
 
 // Guardrail lint: catches known-dead deny patterns at the syntax level. It does
-// not replace native checks — verify semantics with each tool's own validator
+// not replace native checks - verify semantics with each tool's own validator
 // (e.g. `codex execpolicy check`, `grok inspect`).
 for (const [rel, settings] of [['.claude/settings.json', claudeSettings], ['.cursor/settings.json', cursorSettings]]) {
   const deny = settings?.permissions?.deny;
@@ -784,7 +807,16 @@ const riskyPatterns = [
   { pattern: 'ignore previous' + ' instructions', message: 'prompt injection phrase' }
 ];
 
-const scanDirs = ['.claude', '.cursor', '.agents', '.grok', '.codex-plugin', '.vibekit/skills', '.vibekit/commands', '.vibekit/scripts', 'AGENTS.md', '.vibekit/init/CLAUDE-template.md'];
+const scanDirs = [...new Set([
+  ...MANIFEST_SURFACE_ROOTS,
+  '.codex',
+  '.codex-plugin',
+  '.vibekit/skills',
+  '.vibekit/commands',
+  '.vibekit/scripts',
+  'AGENTS.md',
+  '.vibekit/init/CLAUDE-template.md'
+])];
 function walk(item) {
   const p = path.join(root, item);
   if (!fs.existsSync(p)) return [];

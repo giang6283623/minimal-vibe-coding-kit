@@ -60,7 +60,7 @@ Các tên công nghệ đã quen dùng như API, UI, Git, DevOps hoặc OSINT c�
 
 Mọi dàn ý, tiêu đề và câu ví dụ trong kỹ năng chỉ minh họa giới hạn. Agent không được sao chép rồi điền chỗ trống. Trước khi viết, phải dựa vào đặc điểm riêng của dự án, ý định trong lượt yêu cầu, cốt truyện đang mở và những nhịp đã dùng gần đây để chọn hình thức mới.
 
-Dùng Hán–Việt có kiểm soát: `sơn môn`, `đạo lộ`, `tâm ma`, `kiếm ý`, `pháp bảo`. Câu bao quanh vẫn phải là tiếng Việt tự nhiên. Tránh xếp nhiều danh từ Hán–Việt thành chuỗi khó hiểu.
+Dùng Hán-Việt có kiểm soát: `sơn môn`, `đạo lộ`, `tâm ma`, `kiếm ý`, `pháp bảo`. Câu bao quanh vẫn phải là tiếng Việt tự nhiên. Tránh xếp nhiều danh từ Hán-Việt thành chuỗi khó hiểu.
 
 ## 5. Xưng hô và tên riêng
 
@@ -73,7 +73,7 @@ Dùng Hán–Việt có kiểm soát: `sơn môn`, `đạo lộ`, `tâm ma`, `ki
 
 - Tàng Thư Viện (`https://truyen.tangthuvien.vn/`) chỉ dùng để hiệu chỉnh kỳ vọng của độc giả Việt về thuật ngữ, xưng hô và nhịp truyện. Đây là kho nội dung không đồng nhất, không phải một style guide duy nhất.
 - Wuxiaworld glossary và terms of address dùng để kiểm tra quan hệ tông môn và khái niệm thể loại.
-- Từ điển Hán–Việt (`https://hanviet.asia/`) dùng để kiểm tra âm và nghĩa của tên Hán–Việt.
+- Từ điển Hán-Việt (`https://hanviet.asia/`) dùng để kiểm tra âm và nghĩa của tên Hán-Việt.
 - Không chép câu, nối tiếp tác phẩm có bản quyền hoặc mô phỏng giọng đặc trưng của một tác giả hay dịch giả.
 
 ## 7. Tự kiểm trước khi gửi

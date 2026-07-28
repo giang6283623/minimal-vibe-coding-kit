@@ -160,7 +160,7 @@ const STOPWORDS = new Set(['the', 'a', 'an', 'to', 'this', 'that', 'of', 'in', '
 
 // Conservative lexical detector: only a "never/do not X" instruction followed
 // in the same task by a later prompt requesting X. Candidates only, with
-// confidence — a later correction that replaces the earlier instruction is a
+// confidence - a later correction that replaces the earlier instruction is a
 // revision, which is why confidence stays at 0.6 and review is expected.
 export function conflictCandidates(events, tasks) {
   const byId = new Map(events.map((e) => [e.eventId, e]));

@@ -1,5 +1,5 @@
 // Documented generic export format "tutien-generic-v1": one JSON object per
-// line. The whole declared schema is validated, not just the event type —
+// line. The whole declared schema is validated, not just the event type -
 // unknown schemas, unknown types, reserved fields, and malformed values all
 // fail closed with the offending file and line.
 
