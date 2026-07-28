@@ -121,7 +121,7 @@ try {
   assert(updParsed.status === 'dry-run' && typeof updParsed.toVersion === 'string', 'update --dry-run --json returns machine-readable plan');
 
   // Single-profile installs must pass validation on their own.
-  for (const profile of ['claude', 'cursor', 'codex', 'grok']) {
+  for (const profile of ['claude', 'cursor', 'codex', 'grok', 'kimi']) {
     const solo = tempDir(`profile-${profile}`);
     run(['.vibekit/scripts/mvck.mjs', 'install', solo, '--profile', profile]);
     run(['.vibekit/scripts/validate-kit.mjs', solo]);

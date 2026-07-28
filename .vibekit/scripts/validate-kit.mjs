@@ -76,7 +76,8 @@ const surfacePresent = {
   claude: isKitSourceRepo || exists('.claude'),
   cursor: isKitSourceRepo || exists('.cursor'),
   codex: isKitSourceRepo || exists('.agents') || exists('.codex') || exists('.codex-plugin'),
-  grok: isKitSourceRepo || exists('.grok')
+  grok: isKitSourceRepo || exists('.grok'),
+  kimi: isKitSourceRepo || exists('.kimi')
 };
 for (const [surface, present] of Object.entries(surfacePresent)) {
   if (!present) console.log(`INFO surface ${surface} not installed; skipping its checks`);
@@ -91,7 +92,9 @@ if (!skillsManifest || !Array.isArray(skillsManifest.skills)) {
 }
 const manifestSkills = skillsManifest?.skills ?? [];
 const KIT_SKILLS = manifestSkills.map((s) => s.name);
-const CURSOR_KIT_SKILLS = manifestSkills.filter((s) => (s.surfaces || []).includes('cursor')).map((s) => s.name);
+const skillsForSurface = (surface) => manifestSkills.filter((s) => (s.surfaces || []).includes(surface)).map((s) => s.name);
+const CURSOR_KIT_SKILLS = skillsForSurface('cursor');
+const KIMI_KIT_SKILLS = skillsForSurface('kimi');
 
 // Fail closed: a canonical skill directory that is not in the manifest would
 // otherwise escape mirror, package, and install validation entirely.
@@ -131,6 +134,10 @@ if (surfacePresent.grok) {
     '.grok/rules/vibe-core.md', '.grok/rules/security.md', '.grok/rules/safe-delete.md',
     ...KIT_SKILLS.map((skill) => `.grok/skills/${skill}/SKILL.md`));
 }
+if (surfacePresent.kimi) {
+  required.push('.kimi/README.md',
+    ...KIMI_KIT_SKILLS.map((skill) => `.kimi/skills/${skill}/SKILL.md`));
+}
 
 const reasoningSkillResources = {
   'clearthought': [
@@ -158,7 +165,9 @@ const reasoningSkillResources = {
   ],
   'graph-engineering-verified-orchestration': [
     'agents/openai.yaml',
-    'references/graph-contract.md'
+    'references/graph-contract.md',
+    'references/graph-visualization.md',
+    'scripts/render-graph.mjs'
   ],
   'mermaid': [
     'UPSTREAM-NOTICE.md',
@@ -178,6 +187,7 @@ if (surfacePresent.claude) reasoningSurfaceDirs.push('.claude/skills');
 if (surfacePresent.cursor) reasoningSurfaceDirs.push('.cursor/skills');
 if (surfacePresent.codex) reasoningSurfaceDirs.push('.agents/skills');
 if (surfacePresent.grok) reasoningSurfaceDirs.push('.grok/skills');
+if (surfacePresent.kimi) reasoningSurfaceDirs.push('.kimi/skills');
 for (const surface of reasoningSurfaceDirs) {
   for (const [skill, files] of Object.entries(reasoningSkillResources)) {
     for (const file of files) required.push(`${surface}/${skill}/${file}`);
@@ -214,8 +224,13 @@ if (exists('.vibekit/docs/AUTORESEARCH_LEDGER.md')) {
 }
 
 // Mirror registry is derived from the manifest so a skill cannot be
-// registered for install yet skipped by parity validation.
-const MANIFEST_SURFACE_DIRS = { claude: '.claude/skills', cursor: '.cursor/skills', codex: '.agents/skills', grok: '.grok/skills' };
+// registered for install yet skipped by parity validation. Surface skill
+// directories come from the manifest's own `surfaces` map, so adding a
+// surface there cannot drift from mirror validation.
+const MANIFEST_SURFACE_DIRS = Object.fromEntries(
+  Object.entries(skillsManifest?.surfaces ?? {})
+    .filter(([, dir]) => typeof dir === 'string' && dir.endsWith('/skills'))
+);
 const skillMirrors = {};
 for (const skill of manifestSkills) {
   skillMirrors[skill.name] = (skill.surfaces || [])
@@ -257,13 +272,12 @@ function validateSkillMirror(sourceRel, mirrorRel) {
   if (mismatches === 0) ok(`skill mirror ${mirrorRel} matches ${sourceRel} (${sourceFiles.length} files)`);
 }
 
-const mirrorSurface = (mirror) => mirror.startsWith('.claude/') ? 'claude'
-  : mirror.startsWith('.cursor/') ? 'cursor'
-  : mirror.startsWith('.agents/') ? 'codex'
-  : 'grok';
+const mirrorSurface = (mirror) => Object.entries(MANIFEST_SURFACE_DIRS)
+  .find(([, dir]) => mirror === dir || mirror.startsWith(`${dir}/`))?.[0];
 for (const [skill, mirrors] of Object.entries(skillMirrors)) {
   for (const mirror of mirrors) {
-    if (!surfacePresent[mirrorSurface(mirror)]) continue;
+    const surface = mirrorSurface(mirror);
+    if (!surface || !surfacePresent[surface]) continue;
     validateSkillMirror(`.vibekit/skills/${skill}`, mirror);
   }
 }
@@ -518,7 +532,7 @@ function parseFrontmatter(text) {
   return fields;
 }
 
-for (const surface of ['.vibekit/skills', '.claude/skills', '.cursor/skills', '.agents/skills', '.grok/skills']) {
+for (const surface of ['.vibekit/skills', ...Object.values(MANIFEST_SURFACE_DIRS)]) {
   if (!exists(surface)) continue;
   for (const file of listFiles(surface).filter((f) => f.endsWith('SKILL.md'))) {
     const rel = `${surface}/${file}`;

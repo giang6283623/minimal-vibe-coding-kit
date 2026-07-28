@@ -1,0 +1,5 @@
+interface:
+  display_name: AgentShield Security Review
+  short_description: Audit Claude, Codex, skills, hooks, MCP, and agent config surfaces.
+  icon: shield
+  brand_color: "#334155"

@@ -13,8 +13,8 @@ function usage() {
   console.log(`Minimal Vibe Coding Kit
 
 Usage:
-  mvck install [target] [--profile all|claude,cursor,codex,grok] [--force] [--dry-run] [--json]
-  mvck update [target] [--profile all|claude,cursor,codex,grok] [--dry-run] [--json] [--no-backup]
+  mvck install [target] [--profile all|claude,cursor,codex,grok,kimi] [--force] [--dry-run] [--json]
+  mvck update [target] [--profile all|claude,cursor,codex,grok,kimi] [--dry-run] [--json] [--no-backup]
   mvck init [target] [--propose|--write --yes] [--preset nextjs|wordpress|python|laravel|docker]
   mvck validate [target]
   mvck doctor [target] [--write-report] [--json]
@@ -158,12 +158,12 @@ const KIT_SCRIPTS = [
   '.vibekit/scripts/mvck.mjs', '.vibekit/scripts/init-backbone.mjs', '.vibekit/scripts/daily-enhance.mjs', '.vibekit/scripts/validate-kit.mjs',
   '.vibekit/scripts/doctor.mjs', '.vibekit/scripts/agentshield-probe.mjs', '.vibekit/scripts/vibekit-finalize.mjs'
 ];
-const VALID_PROFILES = new Set(['claude', 'cursor', 'codex', 'grok']);
+const VALID_PROFILES = new Set(['claude', 'cursor', 'codex', 'grok', 'kimi']);
 
 function parseProfiles(profileRaw) {
-  const profiles = new Set(profileRaw === 'all' ? ['claude', 'cursor', 'codex', 'grok'] : profileRaw.split(',').map((x) => x.trim()).filter(Boolean));
+  const profiles = new Set(profileRaw === 'all' ? ['claude', 'cursor', 'codex', 'grok', 'kimi'] : profileRaw.split(',').map((x) => x.trim()).filter(Boolean));
   for (const p of profiles) {
-    if (!VALID_PROFILES.has(p)) throw new Error(`Unknown profile: ${p}. Valid values: all, claude, cursor, codex, grok (comma-separated).`);
+    if (!VALID_PROFILES.has(p)) throw new Error(`Unknown profile: ${p}. Valid values: all, claude, cursor, codex, grok, kimi (comma-separated).`);
   }
   return profiles;
 }
@@ -176,6 +176,7 @@ const CURSOR_DIRS = ['.cursor/rules', '.cursor/commands'];
 const CURSOR_SKILLS = skillsManifest.skills.filter((s) => (s.surfaces || []).includes('cursor')).map((s) => s.name);
 const CODEX_DIRS = ['.agents', '.codex', '.codex-plugin'];
 const GROK_DIRS = ['.grok'];
+const KIMI_DIRS = ['.kimi'];
 const GITIGNORE_BLOCK = `# BEGIN: minimal-vibe-coding-kit\n.autoresearch/\nresults.tsv\n.vibekit/INIT_DONE\n.vibekit/FINALIZE_DONE\n.vibekit/reports/\n.vibekit/update-backup/\n_vibekit-cleanup/\nCLAUDE.local.md\n# END: minimal-vibe-coding-kit`;
 
 function kitVersion() {
@@ -268,6 +269,11 @@ function install() {
   }
   if (profiles.has('grok')) {
     for (const dir of GROK_DIRS) {
+      actions.push(copyDirSafe(dir, dir, target, opts));
+    }
+  }
+  if (profiles.has('kimi')) {
+    for (const dir of KIMI_DIRS) {
       actions.push(copyDirSafe(dir, dir, target, opts));
     }
   }
@@ -408,6 +414,9 @@ function update() {
   if (profiles.has('grok')) {
     // .grok/config.toml holds user-editable permission rules; seed it below instead of overwriting.
     for (const dir of GROK_DIRS) actions.push(...updateDirSafe(dir, target, dir === '.grok' ? { ...opts, exclude: ['config.toml'] } : opts));
+  }
+  if (profiles.has('kimi')) {
+    for (const dir of KIMI_DIRS) actions.push(...updateDirSafe(dir, target, opts));
   }
 
   // User-owned files: seed only when missing, never overwrite. Finalized
