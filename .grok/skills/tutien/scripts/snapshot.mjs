@@ -33,7 +33,7 @@ export function buildSnapshot(analysis, options = {}) {
 
   const shown = options.shownVillains ?? [];
   // A suppressed policy (declared-stop / needs-review / authorization-required)
-  // must not persist a score, realm, or dimensions — the same fail-closed
+  // must not persist a score, realm, or dimensions - the same fail-closed
   // projection the renderer uses. Only Nghiệp Lực survives in progression.
   const suppressed = options.canGamify === false;
   return {
@@ -59,7 +59,7 @@ export function buildSnapshot(analysis, options = {}) {
     adapterVersions,
     villainState: advanceVillainState(prevVillainState, shown),
     // Cultivation accumulators and classification are aggregate slugs only:
-    // metric counters, the salted seen-ledger, and faction/path ids — never
+    // metric counters, the salted seen-ledger, and faction/path ids - never
     // rationale text, raw prompts, or authorization values.
     progression: options.progression ?? null,
     classification: options.classification ?? null,

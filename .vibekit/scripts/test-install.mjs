@@ -89,6 +89,9 @@ try {
 
   const proposed = run([path.join(kitRoot, '.vibekit/scripts/mvck.mjs'), 'init', '--propose'], { cwd: cwdTarget });
   assert(proposed.stdout.includes('Proposed backbone.yml'), 'init --propose without target preserves flag');
+  assert(proposed.stdout.includes('  grok: .grok/'), 'generated backbone registers the Grok surface');
+  assert(proposed.stdout.includes('  kimi: .kimi-code/'), 'generated backbone registers the Kimi surface');
+  assert(proposed.stdout.includes('Writing style: no emoji'), 'generated backbone seeds the writing-style rule');
 
   const jsonPlan = run(['.vibekit/scripts/mvck.mjs', 'install', clean, '--dry-run', '--json']);
   const parsed = JSON.parse(jsonPlan.stdout);
@@ -121,11 +124,20 @@ try {
   assert(updParsed.status === 'dry-run' && typeof updParsed.toVersion === 'string', 'update --dry-run --json returns machine-readable plan');
 
   // Single-profile installs must pass validation on their own.
-  for (const profile of ['claude', 'cursor', 'codex', 'grok']) {
+  for (const profile of ['claude', 'cursor', 'codex', 'grok', 'kimi']) {
     const solo = tempDir(`profile-${profile}`);
     run(['.vibekit/scripts/mvck.mjs', 'install', solo, '--profile', profile]);
     run(['.vibekit/scripts/validate-kit.mjs', solo]);
     assert(true, `${profile}-only install passes validation`);
+    if (profile === 'kimi') {
+      const doctor = JSON.parse(run(['.vibekit/scripts/doctor.mjs', solo, '--json']).stdout);
+      assert(doctor.agentSurfaces.kimi === true, 'doctor detects a Kimi-only install');
+      assert(doctor.aiRulesLoaded.kimiSkills > 0, 'doctor counts Kimi skills');
+      assert(
+        doctor.nativeReasoningSkills.missing.every((item) => !item.startsWith('kimi:')),
+        'doctor validates Kimi native reasoning skills'
+      );
+    }
   }
 
   console.log('\nInstall behavior tests passed.');

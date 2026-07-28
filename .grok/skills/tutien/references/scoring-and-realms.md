@@ -4,7 +4,7 @@ Scoring is deterministic (`scripts/score.mjs`): the same analysis JSON always yi
 
 ## Coverage gate
 
-A realm is computed only when known-token coverage (reported + estimated turns) is at least **60%**. Below that the report shows `Cảnh giới: Chưa đủ thiên cơ` (not enough evidence) and lists what is missing — it never guesses a realm from thin data.
+A realm is computed only when known-token coverage (reported + estimated turns) is at least **60%**. Below that the report shows `Cảnh giới: Chưa đủ thiên cơ` (not enough evidence) and lists what is missing - it never guesses a realm from thin data.
 
 ## Dimensions (weights)
 
@@ -23,15 +23,15 @@ Score = round(Σ dimension × weight × 100).
 
 | Band | Realm | Gloss |
 |---|---|---|
-| 0–14 | Phàm Nhân Nhập Môn | Mortal Initiate |
-| 15–29 | Luyện Khí | Qi Refining |
-| 30–44 | Trúc Cơ | Foundation Establishment |
-| 45–59 | Kết Đan | Core Formation |
-| 60–69 | Nguyên Anh | Nascent Soul |
-| 70–79 | Hóa Thần | Spirit Transformation |
-| 80–87 | Luyện Hư | Void Refinement |
-| 88–93 | Hợp Thể | Body Integration |
-| 94–97 | Đại Thừa | Great Vehicle |
-| 98–100 | Độ Kiếp / Phi Thăng | Tribulation / Ascension |
+| 0-14 | Phàm Nhân Nhập Môn | Mortal Initiate |
+| 15-29 | Luyện Khí | Qi Refining |
+| 30-44 | Trúc Cơ | Foundation Establishment |
+| 45-59 | Kết Đan | Core Formation |
+| 60-69 | Nguyên Anh | Nascent Soul |
+| 70-79 | Hóa Thần | Spirit Transformation |
+| 80-87 | Luyện Hư | Void Refinement |
+| 88-93 | Hợp Thể | Body Integration |
+| 94-97 | Đại Thừa | Great Vehicle |
+| 98-100 | Độ Kiếp / Phi Thăng | Tribulation / Ascension |
 
-The realm names, thresholds, dimension weights, and jokes are an original project design — a creative theme, not a claim that one authentic cultivation ladder exists. See `lore-sources.md`.
+The realm names, thresholds, dimension weights, and jokes are an original project design - a creative theme, not a claim that one authentic cultivation ladder exists. See `lore-sources.md`.

@@ -101,7 +101,7 @@ function previewLines(options, language = 'en') {
   const metadata = inventoryProjectMetadata(root);
   const lines = [vi
     ? 'Xem trước phạm vi tu tiên: đài quan sát đã mở nhưng chưa đọc cuộn thư nào. Chỉ phân tích sau khi phạm vi chính xác này được phê duyệt.'
-    : 'tutien preview — the observatory is open, but no scroll has been read; nothing is analyzed until this exact scope is approved.'];
+    : 'tutien preview - the observatory is open, but no scroll has been read; nothing is analyzed until this exact scope is approved.'];
   if (options.sources.length === 0) lines.push(vi ? '- Chưa có nguồn. Hãy truyền `sources=git,/duong-dan/export.jsonl`.' : '- (no sources; pass sources=git,/path/to/export.jsonl)');
   for (const s of options.sources) {
     if (s === 'git') {
@@ -166,7 +166,7 @@ export function run(argsString = '') {
   if (action === 'on') {
     state.mode = 'on';
     saveState(state);
-    return { code: 0, out: [say('Chế độ tu tiên đã bật. Sơn môn đã mở; hãy chạy `preview` để xem phạm vi chính xác trước khi phân tích.', 'Tutien mode is on — the mountain gate is open. Run preview to see the exact scope before any analysis.')] };
+    return { code: 0, out: [say('Chế độ tu tiên đã bật. Sơn môn đã mở; hãy chạy `preview` để xem phạm vi chính xác trước khi phân tích.', 'Tutien mode is on - the mountain gate is open. Run preview to see the exact scope before any analysis.')] };
   }
   if (action === 'status') {
     const snaps = fs.existsSync(snapDir) ? fs.readdirSync(snapDir).length : 0;
@@ -226,7 +226,7 @@ export function run(argsString = '') {
 
   if (action === 'explain') {
     if (options.metric && EXPLAIN[options.metric]) {
-      return { code: 0, out: [say(`Ghi chú từ đạo ký về \`${options.metric}\`: ${EXPLAIN_VI[options.metric]}`, `A note from the Dao ledger — ${options.metric}: ${EXPLAIN[options.metric]}`)] };
+      return { code: 0, out: [say(`Ghi chú từ đạo ký về \`${options.metric}\`: ${EXPLAIN_VI[options.metric]}`, `A note from the Dao ledger - ${options.metric}: ${EXPLAIN[options.metric]}`)] };
     }
     return { code: 0, out: [say(`Đạo ký có thể giải thích: ${Object.keys(EXPLAIN).map((key) => `\`${key}\``).join(', ')}. Hãy truyền \`metric=<tên>\`.`, `The Dao ledger can explain: ${Object.keys(EXPLAIN).join(', ')} (pass metric=<name>).`)] };
   }

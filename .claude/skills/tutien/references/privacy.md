@@ -40,6 +40,6 @@ Story files must never contain raw prompts, conversation excerpts, commit subjec
 ## Deletion, retention, reset, export
 
 - **Retention:** keep the newest N snapshots; `snapshotsToPrune()` returns the rest as a list to remove.
-- **Delete/reset:** use the repo safe-delete policy — prefer `trash <path>`; never a silent `rm`. Deleting `.vibekit/reports/tutien/` resets all trend history.
+- **Delete/reset:** use the repo safe-delete policy - prefer `trash <path>`; never a silent `rm`. Deleting `.vibekit/reports/tutien/` resets all trend history.
 - **Export:** a snapshot is plain JSON; copy the file. It already contains no raw content.
 - **Story export:** copy `story/` only after reviewing the fictional prose for project-sensitive metaphors. The deterministic context remains aggregate-only, but the user's chosen plot may itself be private.

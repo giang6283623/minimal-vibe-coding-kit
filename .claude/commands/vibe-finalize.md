@@ -1,5 +1,5 @@
 ---
-description: Graduate the project after init — move one-time bootstrap files into _vibekit-cleanup/ for deletion. Reversible; refuses to run on the kit source repo.
+description: Graduate the project after init - move one-time bootstrap files into _vibekit-cleanup/ for deletion. Reversible; refuses to run on the kit source repo.
 ---
 
 # vibe-finalize

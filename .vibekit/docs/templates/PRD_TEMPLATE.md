@@ -1,4 +1,4 @@
-# <Project name> — Product Requirements
+# <Project name> - Product Requirements
 
 > Scaffolded by Minimal Vibe Coding Kit during init. Keep it short and current;
 > agents read this to understand intent. Fill answers from the init interview.
@@ -16,7 +16,7 @@ One or two sentences: what this project is and who it is for.
 ## 3. Users & use cases
 
 - Primary users:
-- Top use cases (1–3):
+- Top use cases (1-3):
 
 ## 4. Success criteria
 

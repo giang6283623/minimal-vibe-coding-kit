@@ -199,4 +199,3 @@ export function buildProjectProfile(root, options = {}) {
   profile.recommendedValidation = profile.validationCommands[0] ?? null;
   return profile;
 }
-

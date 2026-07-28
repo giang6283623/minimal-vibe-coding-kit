@@ -1,0 +1,21 @@
+{
+  "goal": "Close skill blind spots without validation regressions",
+  "graph_version": "v1",
+  "nodes": [
+    { "id": "N1", "label": "blind-spot report", "status": "accepted", "wave": 1, "risk": "R0" },
+    { "id": "N2", "label": "writing-style rule", "status": "accepted", "wave": 2, "risk": "R1" },
+    { "id": "N3", "label": "graph viz renderer", "status": "running", "wave": 2, "risk": "R1" },
+    { "id": "N4", "label": "kimi surface", "status": "ready", "wave": 3, "risk": "R1" },
+    { "id": "N5", "label": "docs update", "status": "ready", "wave": 4, "risk": "R1" },
+    { "id": "N6", "label": "final verification", "status": "blocked", "wave": 5, "risk": "R0" }
+  ],
+  "edges": [
+    { "from": "N1", "to": "N2", "artifact": "blind-spot report" },
+    { "from": "N1", "to": "N3", "artifact": "blind-spot report" },
+    { "from": "N1", "to": "N4", "artifact": "blind-spot report" },
+    { "from": "N3", "to": "N5", "artifact": "viz contract" },
+    { "from": "N4", "to": "N5", "artifact": "kimi surface" },
+    { "from": "N2", "to": "N6", "artifact": "rule files" },
+    { "from": "N5", "to": "N6", "artifact": "docs diff" }
+  ]
+}

@@ -342,7 +342,7 @@ Advanced frameworks for high-stakes problem-solving and rapid iteration.
   "toolOperation": "ulysses_protocol",
   "action": "export",
   "format": "markdown",
-  "export": "# Ulysses Protocol Session Report\n\n**Session:** conversation\n**Stakes:** Critical\n**Status:** Complete\n\n## Gates Status\n\n### ✅ Reconnaissance (PASSED)\n- Status: passed\n- Entry criteria: [x] scope_defined [x] stakeholders_identified [x] impact_assessed\n- Exit criteria: [x] risks_catalogued [x] resources_allocated [x] timeline_established\n\n### ✅ Planning (PASSED)\n...\n\n## Metrics\n- Gates Passed: 5/5\n- Total Iterations: 12\n- Confidence: 0.95\n- Time Spent: 3.5 hours\n\n## Final Decision\n✅ **SHIP**\n\n**Rationale:** All tests passed, error rate reduced to 0.1%\n**Confidence:** 0.95\n\n## Phase History\n\n### Reconnaissance\n- Identified payment errors affecting 40% transactions\n- Assessed $50k/hour revenue impact\n\n### Planning\n- Debugged gateway timeout issue\n- Planned database connection pool fix\n\n### Implementation\n- Increased connection pool size\n- Added retry logic with exponential backoff\n- Deployed canary release\n\n### Validation\n- Monitored error rates: 500 errors → 0.1%\n- Performance: p95 latency 120ms → 45ms\n- All regression tests passed\n\n## Constraints\n- Timebox: 4 hours (used 3.5h) ✅\n- Max Iterations: 3 (used 2) ✅\n- Min Confidence: 0.9 (achieved 0.95) ✅\n- Max Scope Drift: 0.3 (actual 0.05) ✅\n\n## Lessons Learned\n1. Connection pool was undersized for peak load\n2. Retry logic critical for transient errors\n3. Canary deployment allowed safe validation\n",
+  "export": "# Ulysses Protocol Session Report\n\n**Session:** conversation\n**Stakes:** Critical\n**Status:** Complete\n\n## Gates Status\n\n### Reconnaissance (PASSED)\n- Status: passed\n- Entry criteria: [x] scope_defined [x] stakeholders_identified [x] impact_assessed\n- Exit criteria: [x] risks_catalogued [x] resources_allocated [x] timeline_established\n\n### Planning (PASSED)\n...\n\n## Metrics\n- Gates Passed: 5/5\n- Total Iterations: 12\n- Confidence: 0.95\n- Time Spent: 3.5 hours\n\n## Final Decision\n**SHIP**\n\n**Rationale:** All tests passed, error rate reduced to 0.1%\n**Confidence:** 0.95\n\n## Phase History\n\n### Reconnaissance\n- Identified payment errors affecting 40% transactions\n- Assessed $50k/hour revenue impact\n\n### Planning\n- Debugged gateway timeout issue\n- Planned database connection pool fix\n\n### Implementation\n- Increased connection pool size\n- Added retry logic with exponential backoff\n- Deployed canary release\n\n### Validation\n- Monitored error rates: 500 errors → 0.1%\n- Performance: p95 latency 120ms → 45ms\n- All regression tests passed\n\n## Constraints\n- Timebox: 4 hours (used 3.5h) [ok]\n- Max Iterations: 3 (used 2) [ok]\n- Min Confidence: 0.9 (achieved 0.95) [ok]\n- Max Scope Drift: 0.3 (actual 0.05) [ok]\n\n## Lessons Learned\n1. Connection pool was undersized for peak load\n2. Retry logic critical for transient errors\n3. Canary deployment allowed safe validation\n",
   "sessionContext": {
     "sessionId": "conversation"
   }
@@ -503,8 +503,8 @@ Advanced frameworks for high-stakes problem-solving and rapid iteration.
   "action": "continue",
   "currentPhase": "implementation",
   "constraintViolations": [
-    "⚠️ Time constraint: 3.8h / 4h used (95%)",
-    "⚠️ Iteration limit: 3/3 iterations in implementation"
+    "WARNING: Time constraint: 3.8h / 4h used (95%)",
+    "WARNING: Iteration limit: 3/3 iterations in implementation"
   ],
   "escalation": {
     "triggered": true,
@@ -512,7 +512,7 @@ Advanced frameworks for high-stakes problem-solving and rapid iteration.
     "action": "abort",
     "escalationNode": {
       "phase": "implementation",
-      "content": "🚨 ESCALATION: Iteration limit reached, forcing decision",
+      "content": "ESCALATION: Iteration limit reached, forcing decision",
       "escalated": true
     }
   },

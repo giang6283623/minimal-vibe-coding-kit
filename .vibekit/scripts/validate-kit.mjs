@@ -76,7 +76,8 @@ const surfacePresent = {
   claude: isKitSourceRepo || exists('.claude'),
   cursor: isKitSourceRepo || exists('.cursor'),
   codex: isKitSourceRepo || exists('.agents') || exists('.codex') || exists('.codex-plugin'),
-  grok: isKitSourceRepo || exists('.grok')
+  grok: isKitSourceRepo || exists('.grok'),
+  kimi: isKitSourceRepo || exists('.kimi-code')
 };
 for (const [surface, present] of Object.entries(surfacePresent)) {
   if (!present) console.log(`INFO surface ${surface} not installed; skipping its checks`);
@@ -91,7 +92,9 @@ if (!skillsManifest || !Array.isArray(skillsManifest.skills)) {
 }
 const manifestSkills = skillsManifest?.skills ?? [];
 const KIT_SKILLS = manifestSkills.map((s) => s.name);
-const CURSOR_KIT_SKILLS = manifestSkills.filter((s) => (s.surfaces || []).includes('cursor')).map((s) => s.name);
+const skillsForSurface = (surface) => manifestSkills.filter((s) => (s.surfaces || []).includes(surface)).map((s) => s.name);
+const CURSOR_KIT_SKILLS = skillsForSurface('cursor');
+const KIMI_KIT_SKILLS = skillsForSurface('kimi');
 
 // Fail closed: a canonical skill directory that is not in the manifest would
 // otherwise escape mirror, package, and install validation entirely.
@@ -131,6 +134,10 @@ if (surfacePresent.grok) {
     '.grok/rules/vibe-core.md', '.grok/rules/security.md', '.grok/rules/safe-delete.md',
     ...KIT_SKILLS.map((skill) => `.grok/skills/${skill}/SKILL.md`));
 }
+if (surfacePresent.kimi) {
+  required.push('.kimi-code/README.md',
+    ...KIMI_KIT_SKILLS.map((skill) => `.kimi-code/skills/${skill}/SKILL.md`));
+}
 
 const reasoningSkillResources = {
   'clearthought': [
@@ -158,7 +165,12 @@ const reasoningSkillResources = {
   ],
   'graph-engineering-verified-orchestration': [
     'agents/openai.yaml',
-    'references/graph-contract.md'
+    'references/graph-contract.md',
+    'references/graph-visualization.md',
+    'scripts/render-graph.mjs'
+  ],
+  'the-creator': [
+    'agents/openai.yaml'
   ],
   'mermaid': [
     'UPSTREAM-NOTICE.md',
@@ -178,6 +190,7 @@ if (surfacePresent.claude) reasoningSurfaceDirs.push('.claude/skills');
 if (surfacePresent.cursor) reasoningSurfaceDirs.push('.cursor/skills');
 if (surfacePresent.codex) reasoningSurfaceDirs.push('.agents/skills');
 if (surfacePresent.grok) reasoningSurfaceDirs.push('.grok/skills');
+if (surfacePresent.kimi) reasoningSurfaceDirs.push('.kimi-code/skills');
 for (const surface of reasoningSurfaceDirs) {
   for (const [skill, files] of Object.entries(reasoningSkillResources)) {
     for (const file of files) required.push(`${surface}/${skill}/${file}`);
@@ -214,8 +227,36 @@ if (exists('.vibekit/docs/AUTORESEARCH_LEDGER.md')) {
 }
 
 // Mirror registry is derived from the manifest so a skill cannot be
-// registered for install yet skipped by parity validation.
-const MANIFEST_SURFACE_DIRS = { claude: '.claude/skills', cursor: '.cursor/skills', codex: '.agents/skills', grok: '.grok/skills' };
+// registered for install yet skipped by parity validation. Surface skill
+// directories come from the manifest's own `surfaces` map, so adding a
+// surface there cannot drift from mirror validation.
+const MANIFEST_SURFACE_DIRS = Object.fromEntries(
+  Object.entries(skillsManifest?.surfaces ?? {})
+    .filter(([surface, dir]) => {
+      const safe = typeof dir === 'string'
+        && dir.endsWith('/skills')
+        && !path.isAbsolute(dir)
+        && !dir.includes('\\')
+        && !dir.split('/').includes('..');
+      if (!safe) fail(`manifest surface ${surface} has unsafe skill directory: ${String(dir)}`);
+      return safe;
+    })
+);
+const MANIFEST_SURFACE_ROOTS = [...new Set(
+  Object.values(MANIFEST_SURFACE_DIRS).map((dir) => dir.split('/')[0])
+)];
+for (const surfaceRoot of MANIFEST_SURFACE_ROOTS) {
+  requireText(
+    '.github/workflows/vibekit-validate.yml',
+    `"${surfaceRoot}/**"`,
+    `CI workflow watches ${surfaceRoot}/**`
+  );
+  requireText(
+    '.vibekit/skills/agentshield-security-review/scripts/agentshield_repo_probe.py',
+    `"${surfaceRoot}"`,
+    `AgentShield probe inventories ${surfaceRoot}`
+  );
+}
 const skillMirrors = {};
 for (const skill of manifestSkills) {
   skillMirrors[skill.name] = (skill.surfaces || [])
@@ -257,13 +298,12 @@ function validateSkillMirror(sourceRel, mirrorRel) {
   if (mismatches === 0) ok(`skill mirror ${mirrorRel} matches ${sourceRel} (${sourceFiles.length} files)`);
 }
 
-const mirrorSurface = (mirror) => mirror.startsWith('.claude/') ? 'claude'
-  : mirror.startsWith('.cursor/') ? 'cursor'
-  : mirror.startsWith('.agents/') ? 'codex'
-  : 'grok';
+const mirrorSurface = (mirror) => Object.entries(MANIFEST_SURFACE_DIRS)
+  .find(([, dir]) => mirror === dir || mirror.startsWith(`${dir}/`))?.[0];
 for (const [skill, mirrors] of Object.entries(skillMirrors)) {
   for (const mirror of mirrors) {
-    if (!surfacePresent[mirrorSurface(mirror)]) continue;
+    const surface = mirrorSurface(mirror);
+    if (!surface || !surfacePresent[surface]) continue;
     validateSkillMirror(`.vibekit/skills/${skill}`, mirror);
   }
 }
@@ -420,7 +460,7 @@ function validateGraphEngineeringContract() {
   if (hasAll(skill, [
     'read, write, and semantic resource scopes',
     'tool-enforced filesystem/API/credential allowlists',
-    'Every R2 action—serial or concurrent—requires enforceable least-privilege',
+    'Every R2 action, serial or concurrent, requires enforceable least-privilege',
     'Large blast radius also requires a pilot and human gate'
   ])) {
     ok('Graph engineering enforces semantic ownership, mutable containment, and blast-radius gates');
@@ -455,13 +495,13 @@ function validateGraphEngineeringContract() {
 
   const sourceDiscoveryValid = !isKitSourceRepo || (
     hasAll(readme, [
-      'All 17 skills',
+      'All 18 skills',
       'Graph engineering: verified orchestration',
       'edgeLabelBackground: "#FFFFFF"'
     ])
     && readmeVi.includes('Graph engineering: điều phối có xác minh')
     && readmeZh.includes('图工程：经验证的编排')
-    && install.includes('Seven user-invoked skills')
+    && install.includes('Eight user-invoked skills')
     && hasAll(pkg, [
       '.claude/skills/graph-engineering-verified-orchestration/',
       '.cursor/skills/graph-engineering-verified-orchestration/'
@@ -476,11 +516,124 @@ function validateGraphEngineeringContract() {
   } else {
     fail('Graph engineering documentation, localization, Mermaid, or packaging drifted');
   }
+
+  const viz = exists(`${base}/references/graph-visualization.md`) ? read(`${base}/references/graph-visualization.md`) : '';
+  const renderer = exists(`${base}/scripts/render-graph.mjs`) ? read(`${base}/scripts/render-graph.mjs`) : '';
+  const graphTestOk = !isKitSourceRepo
+    || (exists('test/graph-engineering/scripts/test-render-graph.mjs') && exists('test/graph-engineering/fixtures/sample-graph.json'));
+  if (hasAll(skill, [
+    'scripts/render-graph.mjs',
+    'references/graph-visualization.md',
+    'never hand-draw',
+    '--format=ascii-3d',
+    'Cursor CLI'
+  ]) && hasAll(viz, [
+    '--format=mermaid',
+    '--format=ascii',
+    '--format=ascii-3d',
+    '--width=N',
+    'deterministic',
+    'cycle',
+    'explicit blocker'
+  ]) && hasAll(renderer, [
+    'flowchart TD',
+    'edgeLabelBackground',
+    'assertAcyclic',
+    'criticalPath',
+    'sanitizeLabel',
+    'topologicalLayers',
+    'deriveBlockers',
+    'resolveWidth',
+    'toAsciiText',
+    'escapeMermaidText',
+    'securityLevel: strict',
+    'renderAscii3d'
+  ]) && graphTestOk) {
+    ok('Graph engineering visualization contract, deterministic renderer, and tests stay synchronized');
+  } else {
+    fail('Graph engineering visualization contract, renderer, or test drifted');
+  }
+}
+
+function validateTheCreatorContract() {
+  const base = '.vibekit/skills/the-creator';
+  if (!exists(`${base}/SKILL.md`)) return;
+  const skill = read(`${base}/SKILL.md`);
+  const ui = read(`${base}/agents/openai.yaml`);
+  const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
+  const levelRows = Array.from({ length: 10 }, (_, index) => {
+    const level = index + 1;
+    return `| ${level} | ${level * 10}% |`;
+  });
+
+  if (hasAll(skill, levelRows)
+      && skill.includes('ten eligible convention categories')
+      && skill.includes('Every use must show the compact ten-row level table')
+      && skill.includes('disable-model-invocation: true')) {
+    ok('The Creator defines ten visible cumulative 10% creativity levels');
+  } else {
+    fail('The Creator level count, percentages, cumulative model, or visible calibration drifted');
+  }
+
+  if (hasAll(skill, [
+    'instruction precedence',
+    'law, safety, privacy, security',
+    'authorization boundaries',
+    'factual honesty',
+    'required interfaces, formats, schemas, accessibility',
+    'functional acceptance, validation, rollback',
+    'abandon 100% of eligible conventions',
+    '0% of this immutable'
+  ])) {
+    ok('The Creator keeps safety, authority, evidence, accessibility, and acceptance immutable');
+  } else {
+    fail('The Creator immutable creativity floor drifted');
+  }
+
+  if (hasAll(skill, [
+    'Never silently increase an explicit level',
+    'speculative invention',
+    'Never call a speculative concept production-ready',
+    'It may not invent ledger nodes, edges, statuses, evidence'
+  ])) {
+    ok('The Creator labels speculation and cannot fabricate graph or completion state');
+  } else {
+    fail('The Creator speculation, level-control, or graph-integrity contract drifted');
+  }
+
+  const discoveryValid = !isKitSourceRepo || (
+    exists('README.md')
+    && read('README.md').includes('All 18 skills')
+    && exists('docs/README.vi.md')
+    && read('docs/README.vi.md').includes('Cả 18 skill')
+    && read('docs/README.vi.md').includes('| `the-creator`')
+    && exists('docs/README.zh-CN.md')
+    && read('docs/README.zh-CN.md').includes('全部 18 个技能')
+    && read('docs/README.zh-CN.md').includes('| `the-creator`')
+    && exists('.vibekit/docs/INSTALL.md')
+    && read('.vibekit/docs/INSTALL.md').includes('Eight user-invoked skills')
+    && exists('.vibekit/init/CLAUDE-template.md')
+    && read('.vibekit/init/CLAUDE-template.md').includes('/the-creator level N')
+    && exists('package.json')
+    && hasAll(read('package.json'), [
+      '.claude/skills/the-creator/',
+      '.cursor/skills/the-creator/'
+    ])
+  );
+  if (hasAll(ui, [
+    'display_name: "The Creator"',
+    'Use $the-creator at level 6'
+  ]) && discoveryValid) {
+    ok('The Creator discovery, localization, UI metadata, and packaging stay synchronized');
+  } else {
+    fail('The Creator discovery, localization, UI metadata, or packaging drifted');
+  }
 }
 
 validateSequentialThinkingContract();
 validateMermaidContract();
 validateGraphEngineeringContract();
+validateTheCreatorContract();
 
 function parseFrontmatter(text) {
   const match = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -493,7 +646,7 @@ function parseFrontmatter(text) {
   return fields;
 }
 
-for (const surface of ['.vibekit/skills', '.claude/skills', '.cursor/skills', '.agents/skills', '.grok/skills']) {
+for (const surface of ['.vibekit/skills', ...Object.values(MANIFEST_SURFACE_DIRS)]) {
   if (!exists(surface)) continue;
   for (const file of listFiles(surface).filter((f) => f.endsWith('SKILL.md'))) {
     const rel = `${surface}/${file}`;
@@ -588,7 +741,7 @@ if (claudeSettings?.permissions?.deny && cursorSettings?.permissions?.deny) {
 }
 
 // Guardrail lint: catches known-dead deny patterns at the syntax level. It does
-// not replace native checks — verify semantics with each tool's own validator
+// not replace native checks - verify semantics with each tool's own validator
 // (e.g. `codex execpolicy check`, `grok inspect`).
 for (const [rel, settings] of [['.claude/settings.json', claudeSettings], ['.cursor/settings.json', cursorSettings]]) {
   const deny = settings?.permissions?.deny;
@@ -745,7 +898,16 @@ const riskyPatterns = [
   { pattern: 'ignore previous' + ' instructions', message: 'prompt injection phrase' }
 ];
 
-const scanDirs = ['.claude', '.cursor', '.agents', '.grok', '.codex-plugin', '.vibekit/skills', '.vibekit/commands', '.vibekit/scripts', 'AGENTS.md', '.vibekit/init/CLAUDE-template.md'];
+const scanDirs = [...new Set([
+  ...MANIFEST_SURFACE_ROOTS,
+  '.codex',
+  '.codex-plugin',
+  '.vibekit/skills',
+  '.vibekit/commands',
+  '.vibekit/scripts',
+  'AGENTS.md',
+  '.vibekit/init/CLAUDE-template.md'
+])];
 function walk(item) {
   const p = path.join(root, item);
   if (!fs.existsSync(p)) return [];

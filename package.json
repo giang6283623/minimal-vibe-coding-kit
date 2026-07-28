@@ -1,7 +1,7 @@
 {
   "name": "minimal-vibe-coding-kit",
-  "version": "0.5.3",
-  "description": "Project-agnostic AI coding workflow kit for Claude Code, Cursor, Codex, and Grok with AgentShield security review.",
+  "version": "0.5.4",
+  "description": "Project-agnostic AI coding workflow kit for Claude Code, Cursor, Codex, Grok, and Kimi with AgentShield security review.",
   "type": "module",
   "bin": {
     "minimal-vibe-coding-kit": "./bin/mvck.js",
@@ -13,15 +13,16 @@
     "init:backbone": "node .vibekit/scripts/init-backbone.mjs . --propose",
     "doctor": "node .vibekit/scripts/doctor.mjs .",
     "daily": "node .vibekit/scripts/daily-enhance.mjs . --write-report",
-    "check:syntax": "node --check .vibekit/scripts/mvck.mjs && node --check .vibekit/scripts/init-backbone.mjs && node --check .vibekit/scripts/daily-enhance.mjs && node --check .vibekit/scripts/validate-kit.mjs && node --check .vibekit/scripts/doctor.mjs && node --check .vibekit/scripts/test-install.mjs && node --check .vibekit/scripts/agentshield-probe.mjs && node --check .vibekit/scripts/pack-dry-run.mjs && node --check .vibekit/scripts/vibekit-finalize.mjs && node --check bin/mvck.js && node --check bin/vibe-kit.js",
+    "check:syntax": "node --check .vibekit/scripts/mvck.mjs && node --check .vibekit/scripts/init-backbone.mjs && node --check .vibekit/scripts/daily-enhance.mjs && node --check .vibekit/scripts/validate-kit.mjs && node --check .vibekit/scripts/doctor.mjs && node --check .vibekit/scripts/test-install.mjs && node --check .vibekit/scripts/agentshield-probe.mjs && node --check .vibekit/scripts/pack-dry-run.mjs && node --check .vibekit/scripts/vibekit-finalize.mjs && node --check .vibekit/skills/graph-engineering-verified-orchestration/scripts/render-graph.mjs && node --check bin/mvck.js && node --check bin/vibe-kit.js",
     "test:install": "node .vibekit/scripts/test-install.mjs",
-    "test": "npm run check:syntax && npm run test:install && npm run validate && npm run test:tutien",
+    "test": "npm run check:syntax && npm run test:install && npm run validate && npm run test:tutien && npm run test:graph",
     "validate": "node .vibekit/scripts/validate-kit.mjs .",
     "security:probe": "node .vibekit/scripts/agentshield-probe.mjs .",
     "pack:dry-run": "node .vibekit/scripts/pack-dry-run.mjs",
     "validate:all": "npm test && npm run security:probe && npm run pack:dry-run",
     "pack:repo": "node .vibekit/scripts/validate-kit.mjs . && npm pack",
-    "test:tutien": "node test/tutien/scripts/test-analyzer.mjs && node test/tutien/scripts/test-profile.mjs && node test/tutien/scripts/test-render.mjs && node test/tutien/scripts/test-villains.mjs && node test/tutien/scripts/test-snapshot.mjs && node test/tutien/scripts/test-classify.mjs && node test/tutien/scripts/test-story.mjs && node test/tutien/scripts/test-adversarial.mjs && node test/tutien/scripts/test-e2e.mjs"
+    "test:tutien": "node test/tutien/scripts/test-analyzer.mjs && node test/tutien/scripts/test-profile.mjs && node test/tutien/scripts/test-render.mjs && node test/tutien/scripts/test-villains.mjs && node test/tutien/scripts/test-snapshot.mjs && node test/tutien/scripts/test-classify.mjs && node test/tutien/scripts/test-story.mjs && node test/tutien/scripts/test-adversarial.mjs && node test/tutien/scripts/test-e2e.mjs",
+    "test:graph": "node test/graph-engineering/scripts/test-render-graph.mjs"
   },
   "keywords": [
     "vibe-coding",
@@ -29,6 +30,7 @@
     "cursor",
     "codex",
     "grok",
+    "kimi",
     "agents",
     "skills",
     "agentshield"
@@ -62,6 +64,7 @@
     ".claude/skills/prompt-sharpener/",
     ".claude/skills/claim/",
     ".claude/skills/tutien/",
+    ".claude/skills/the-creator/",
     ".claude/skills/mermaid/",
     ".cursor/rules/",
     ".cursor/commands/",
@@ -78,9 +81,11 @@
     ".cursor/skills/prompt-sharpener/",
     ".cursor/skills/claim/",
     ".cursor/skills/tutien/",
+    ".cursor/skills/the-creator/",
     ".cursor/skills/mermaid/",
     ".agents/",
     ".grok/",
+    ".kimi-code/",
     ".codex/",
     ".codex-plugin/",
     ".vibekit/docs/",

@@ -56,7 +56,7 @@ Event object:
 
 ## Phase 2 render model
 
-`render-report.mjs` builds a language-neutral model from the analysis (realm, dimension scores, disjoint token totals, evidence-bound problems, one if-then practice, one lesson) and renders it in `vi` or `en` — the same model feeds both, so counts are identical across languages by construction. `score.mjs` returns `Chưa đủ thiên cơ` (no realm) when known-token coverage is below 60%. `catalog.mjs` emits at most three problems, ranked by `impact × recurrence × confidence × fixability`, each carrying `evidence` (event IDs / counts), a counter-technique, a project-skill pointer, and a micro-quest. Lore never alters a count.
+`render-report.mjs` builds a language-neutral model from the analysis (realm, dimension scores, disjoint token totals, evidence-bound problems, one if-then practice, one lesson) and renders it in `vi` or `en` - the same model feeds both, so counts are identical across languages by construction. `score.mjs` returns `Chưa đủ thiên cơ` (no realm) when known-token coverage is below 60%. `catalog.mjs` emits at most three problems, ranked by `impact × recurrence × confidence × fixability`, each carrying `evidence` (event IDs / counts), a counter-technique, a project-skill pointer, and a micro-quest. Lore never alters a count.
 
 ## Privacy invariant
 

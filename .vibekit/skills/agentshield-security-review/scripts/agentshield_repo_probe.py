@@ -14,12 +14,14 @@ from typing import Iterable
 PATTERNS = {
     "repo_instructions": ["CLAUDE.md", "AGENTS.md", ".github/copilot-instructions.md"],
     "claude": [".claude", ".claude-plugin", "agents"],
-    "codex": [".codex", ".codex-plugin"],
+    "cursor": [".cursor"],
+    "codex": [".agents", ".codex", ".codex-plugin"],
     "grok": [".grok"],
-    "shared_skills": [".vibekit/skills", ".claude/skills", ".cursor/skills", ".agents/skills", ".grok/skills", "skills"],
+    "kimi": [".kimi-code"],
+    "shared_skills": [".vibekit/skills", ".claude/skills", ".cursor/skills", ".agents/skills", ".grok/skills", ".kimi-code/skills", "skills"],
     "shared_commands": [".vibekit/commands"],
     "kit_scripts": [".vibekit/scripts"],
-    "hooks": ["hooks", ".claude/hooks", ".agents/hooks", ".grok/hooks"],
+    "hooks": ["hooks", ".claude/hooks", ".cursor/hooks", ".agents/hooks", ".grok/hooks", ".kimi-code/hooks"],
     "mcp": [".mcp.json", "mcp.json", "mcp-configs"],
     "ci": [".github/workflows"],
 }

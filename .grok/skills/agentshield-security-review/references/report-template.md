@@ -21,7 +21,10 @@ Use this structure for final reports.
 | Surface | Paths | Runtime confidence |
 |---|---|---|
 | Claude |  |  |
+| Cursor |  |  |
 | Codex |  |  |
+| Grok |  |  |
+| Kimi |  |  |
 | Shared skills |  |  |
 | Hooks |  |  |
 | MCP |  |  |

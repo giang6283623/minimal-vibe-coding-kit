@@ -20,6 +20,7 @@ This file is intentionally small. Shared rules live in `AGENTS.md`, project fact
 - `/prompt-sharpener <rough prompt>` - sharpen a rough prompt into a precise one, then execute it in the same turn.
 - `/claim <request>` - vet a request to bring something new into the repo (validate sources, fit-check, confirm, integrate, document).
 - `/tutien` - private, funny xianxia "cultivation" progress report from Git history + supplied AI-chat exports; `/tutien off` disables it.
+- `/the-creator level N` - create a novel but workable result while cumulatively relaxing 10% of eligible conventions per level.
 
 ## Hard rules
 

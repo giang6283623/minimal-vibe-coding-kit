@@ -6,15 +6,16 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.2-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.4-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
 ![Grok](https://img.shields.io/badge/Grok-Rules%20%26%20Skills-000000)
+![Kimi](https://img.shields.io/badge/Kimi-AGENTS.md%20%26%20Skills-2f54eb)
 ![AgentShield](https://img.shields.io/badge/Security-AgentShield-d62828)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)
 
-**Một bộ kit AI-coding cài một lần cho Claude Code, Cursor, Codex và Grok — mọi repo, mọi ngôn ngữ.**
+**Một bộ kit AI-coding cài một lần cho Claude Code, Cursor, Codex, Grok và Kimi - mọi repo, mọi ngôn ngữ.**
 
 Cài đặt → dán một prompt → duyệt đề xuất → code với guardrails.
 
@@ -24,13 +25,13 @@ Cài đặt → dán một prompt → duyệt đề xuất → code với guardr
 
 ## Bộ kit này là gì?
 
-Một bộ kit nhỏ gồm **rules**, **skills**, **commands** dùng chung, cộng một manifest **`backbone.yml`**, giúp Claude Code, Cursor, Codex và Grok hiểu project của bạn theo cùng một cách.
+Một bộ kit nhỏ gồm **rules**, **skills**, **commands** dùng chung, cộng một manifest **`backbone.yml`**, giúp Claude Code, Cursor, Codex, Grok và Kimi hiểu project của bạn theo cùng một cách.
 
-- Không bao giờ ghi đè `CLAUDE.md` / `AGENTS.md` sẵn có — chỉ thêm managed block.
+- Không bao giờ ghi đè `CLAUDE.md` / `AGENTS.md` sẵn có - chỉ thêm managed block.
 - Mọi thao tác ghi khi setup đều chờ bạn duyệt.
 - Rà soát bảo mật bề mặt agent (AgentShield) là một phần của workflow bình thường.
-- Xóa an toàn mặc định: mọi agent ưu tiên lệnh `trash` (khôi phục được; init sẽ kiểm tra và gợi ý cách cài nếu thiếu), kèm guardrail config đúng chuẩn từng tool — deny rules cho Claude Code (`.claude/settings.json`), CLI permissions cho Cursor (`.cursor/cli.json`), execution-policy rules cho Codex (`.codex/rules/`, experimental, chỉ chạy khi project được trust), và permission rules cấp project cho Grok (`.grok/config.toml`).
-- Init lần đầu hỏi hai tùy chọn — dùng `trash` thay `rm`, và mức giải thích mặc định (0–5, đổi bất cứ lúc nào với `/coding-level N`) — rồi lưu cả hai vào `backbone.yml`.
+- Xóa an toàn mặc định: mọi agent ưu tiên lệnh `trash` (khôi phục được; init sẽ kiểm tra và gợi ý cách cài nếu thiếu), kèm guardrail config đúng chuẩn từng tool - deny rules cho Claude Code (`.claude/settings.json`), CLI permissions cho Cursor (`.cursor/cli.json`), execution-policy rules cho Codex (`.codex/rules/`, experimental, chỉ chạy khi project được trust), và permission rules cấp project cho Grok (`.grok/config.toml`).
+- Init lần đầu hỏi hai tùy chọn - dùng `trash` thay `rm`, và mức giải thích mặc định (0-5, đổi bất cứ lúc nào với `/coding-level N`) - rồi lưu cả hai vào `backbone.yml`.
 
 ## Bắt đầu nhanh
 
@@ -48,9 +49,9 @@ config:
     edgeLabelBackground: "#FFFFFF"
 ---
 flowchart LR
-    Start([Project của bạn]) --> Install("1 — Cài kit")
-    Install --> Paste("2 — Dán prompt init")
-    Paste --> Review{"3 — Duyệt diff?"}
+    Start([Project của bạn]) --> Install("1 - Cài kit")
+    Install --> Paste("2 - Dán prompt init")
+    Paste --> Review{"3 - Duyệt diff?"}
     Review -->|yes| Ready("backbone.yml sẵn sàng")
     Review -->|no| Revise("Agent sửa đề xuất")
     Revise --> Review
@@ -76,7 +77,7 @@ npx --yes minimal-vibe-coding-kit@latest install /path/to/your-project
 
 Đã chạy `npm i minimal-vibe-coding-kit`, hoặc muốn cài từ GitHub / bản clone? Xem [Cài từ npm](#cài-từ-npm).
 
-**2. Mở project trong Claude Code, Cursor, Codex hoặc Grok và dán:**
+**2. Mở project trong Claude Code, Cursor, Codex, Grok hoặc Kimi Code và dán:**
 
 ```text
 Read .vibekit/init/FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit.
@@ -86,7 +87,7 @@ for backbone.yml and managed instruction blocks, and wait for my yes before writ
 
 **3. Review diff được đề xuất và trả lời `yes`.**
 
-Agent điền `backbone.yml` với stack và quy ước đã dò được, rồi chuyển sang `initialized`. Xong — mọi phiên sau tự động đọc file này và bỏ qua bước init.
+Agent điền `backbone.yml` với stack và quy ước đã dò được, rồi chuyển sang `initialized`. Xong - mọi phiên sau tự động đọc file này và bỏ qua bước init.
 
 Kiểm tra sức khỏe bất cứ lúc nào:
 
@@ -96,23 +97,23 @@ node .vibekit/scripts/mvck.mjs doctor .
 
 ## Cài từ npm
 
-Kit được publish trên npm với tên [`minimal-vibe-coding-kit`](https://www.npmjs.com/package/minimal-vibe-coding-kit). Đây là **CLI scaffolding, không phải library** — file nằm trong `node_modules/` tự nó không làm gì cả. Chạy `install` một lần sẽ copy kit vào repo root của bạn, giống hệt installer từ GitHub.
+Kit được publish trên npm với tên [`minimal-vibe-coding-kit`](https://www.npmjs.com/package/minimal-vibe-coding-kit). Đây là **CLI scaffolding, không phải library** - file nằm trong `node_modules/` tự nó không làm gì cả. Chạy `install` một lần sẽ copy kit vào repo root của bạn, giống hệt installer từ GitHub.
 
-**Cách A — chạy một phát (khuyến nghị).** Không thêm gì vào dependencies của project:
+**Cách A - chạy một phát (khuyến nghị).** Không thêm gì vào dependencies của project:
 
 ```bash
 npx --yes minimal-vibe-coding-kit@latest install /path/to/your-project
 ```
 
-**Cách B — cài như dependency.** Nếu bạn đã (hoặc muốn) `npm i` package, cần thêm đúng một lệnh nữa:
+**Cách B - cài như dependency.** Nếu bạn đã (hoặc muốn) `npm i` package, cần thêm đúng một lệnh nữa:
 
 ```bash
 npm i -D minimal-vibe-coding-kit
-npx mvck install .        # bắt buộc — copy kit từ node_modules ra repo của bạn
+npx mvck install .        # bắt buộc - copy kit từ node_modules ra repo của bạn
 ```
 
-> **Quan trọng:** `npm i` một mình chỉ tải kit vào `node_modules/` — chưa có gì hoạt động.
-> `mvck install` mới là bước copy `.claude/`, `.cursor/`, `.agents/`, `.vibekit/` và `backbone.yml` vào repo root.
+> **Quan trọng:** `npm i` một mình chỉ tải kit vào `node_modules/` - chưa có gì hoạt động.
+> `mvck install` mới là bước copy `.claude/`, `.cursor/`, `.agents/`, `.grok/`, `.kimi-code/`, `.vibekit/` và `backbone.yml` vào repo root.
 
 Sau đó, lệnh ngắn `mvck` (alias: `vibe-kit`) dùng được qua `npx`:
 
@@ -120,7 +121,7 @@ Sau đó, lệnh ngắn `mvck` (alias: `vibe-kit`) dùng được qua `npx`:
 | --------------------- | ------------------------------------------------------- |
 | `npx mvck install .`  | Copy kit vào repo (`--profile`, `--dry-run`, `--force`) |
 | `npx mvck update .`   | Làm mới file thuộc kit khi có bản phát hành mới         |
-| `npx mvck doctor .`   | Health check chỉ-đọc                                    |
+| `npx mvck doctor .`   | Health check chỉ-đọc (`--run-repo-checks` mới chạy validation và probe của repo) |
 | `npx mvck validate .` | Validate cấu trúc                                       |
 
 Rồi tiếp tục **bước 2** của Bắt đầu nhanh (dán prompt init).
@@ -129,7 +130,7 @@ Các cách cài khác: `npx github:giang6283623/minimal-vibe-coding-kit install 
 
 ## Những gì được cài vào repo của bạn
 
-Cài đặt chỉ thêm đúng những mục sau — không đụng vào bất cứ thứ gì khác:
+Cài đặt chỉ thêm đúng những mục sau - không đụng vào bất cứ thứ gì khác:
 
 ```text
 your-project/
@@ -142,6 +143,7 @@ your-project/
 ├── .agents/                  ← skills cho Codex / portable
 ├── .codex/  .codex-plugin/   ← config mẫu Codex + plugin manifest
 ├── .grok/                    ← Grok Build: rules, skills, config mẫu
+├── .kimi-code/                    ← Kimi Code: skills (thư mục skills project được ưu tiên cao nhất)
 └── .vibekit/                 ← mọi thứ thuộc kit, trong MỘT thư mục
     ├── skills/               ← shared skills canonical (mirror sang các harness)
     ├── commands/             ← prompt command dùng chung
@@ -150,7 +152,7 @@ your-project/
     └── init/                 ← file onboarding một lần (xóa được bằng /vibe-finalize)
 ```
 
-File sẵn có không bao giờ bị thay thế — kit chỉ merge managed block (`BEGIN/END: minimal-vibe-coding-kit`) và bỏ qua những gì thuộc về bạn.
+File sẵn có không bao giờ bị thay thế - kit chỉ merge managed block (`BEGIN/END: minimal-vibe-coding-kit`) và bỏ qua những gì thuộc về bạn.
 
 ## Các mảnh ghép kết nối thế nào
 
@@ -168,17 +170,17 @@ config:
     clusterBorder: "#444444"
 ---
 flowchart TD
-    You([Bạn — một prompt]) --> Agent("Claude / Cursor / Codex / Grok")
+    You([Bạn - một prompt]) --> Agent("Claude / Cursor / Codex / Grok / Kimi")
 
     subgraph First["Đọc đầu tiên"]
         Backbone[("backbone.yml")]
         Docs("AGENTS.md / CLAUDE.md")
-        Rules("Rules — guardrail ngắn")
+        Rules("Rules - guardrail ngắn")
     end
 
     subgraph Demand["Load khi cần"]
-        Skills("Skills — quy trình")
-        Commands("Commands — phím tắt")
+        Skills("Skills - quy trình")
+        Commands("Commands - phím tắt")
     end
 
     subgraph Guard["Được bảo vệ bởi"]
@@ -206,12 +208,12 @@ flowchart TD
     class Protected,Propose,Shield danger
 ```
 
-- **`backbone.yml`** — đường dẫn, quy ước, protected paths, và lệnh validate của repo bạn.
-- **Rules** — guardrails ngắn, luôn được load (đọc backbone trước, diff nhỏ, security review khi sửa bề mặt agent).
-- **Skills** — quy trình lặp lại được, chỉ load khi task cần.
-- **Commands** — phím tắt một từ cho các skill hay dùng nhất.
+- **`backbone.yml`** - đường dẫn, quy ước, protected paths, và lệnh validate của repo bạn.
+- **Rules** - guardrails ngắn, luôn được load (đọc backbone trước, diff nhỏ, security review khi sửa bề mặt agent).
+- **Skills** - quy trình lặp lại được, chỉ load khi task cần.
+- **Commands** - phím tắt một từ cho các skill hay dùng nhất.
 
-## Hướng dẫn — sử dụng hằng ngày
+## Hướng dẫn - sử dụng hằng ngày
 
 ```mermaid
 ---
@@ -269,10 +271,10 @@ flowchart TD
 3. **Task phức tạp nhưng prompt mù mờ?** `/prompt-sharpener <prompt mù mờ>` cải thiện prompt thành bản rõ ràng rồi thực thi ngay trong cùng lượt.
 4. **Muốn đưa skill, rule, hoặc tool mới vào repo?** `/claim <yêu cầu + link>` kiểm chứng nguồn với tài liệu chính thức, kiểm tra độ khớp với repo, hỏi lại khi chưa rõ, rồi tích hợp và ghi tài liệu.
 5. **Muốn thả lỏng một chút khi nhìn lại tiến độ?** `/tutien` là chế độ tu tiên riêng tư dựa trên lịch sử Git + file export chat AI. Ngoài phân loại theo bằng chứng thật, trường thiên ký sự sẽ phát triển một thế giới, nhân vật, tông môn, hệ thống cảnh giới và các chương truyện riêng cho từng dự án bằng tiếng Việt, tiếng Anh hoặc tiếng Trung giản thể; `/tutien off` khôi phục văn phong bình thường của kit.
-6. **Câu hỏi toàn repo hoặc review lớn?** Dùng `parallel-analysis` — chia các lane phân tích chỉ-đọc chạy song song rồi xác minh kết quả gộp.
+6. **Câu hỏi toàn repo hoặc review lớn?** Dùng `parallel-analysis` - chia các lane phân tích chỉ-đọc chạy song song rồi xác minh kết quả gộp.
 7. **Đã sửa `.claude/`, skills, hooks, hoặc script installer?** Chạy `/security-scan` trước khi merge.
 8. **Muốn cải tiến đo được?** Chạy `/autoresearch-coding` với metric và budget.
-9. **Giữ setup luôn sắc bén:** `/daily-enhance` đề xuất cải tiến — không bao giờ tự áp dụng.
+9. **Giữ setup luôn sắc bén:** `/daily-enhance` đề xuất cải tiến - không bao giờ tự áp dụng.
 10. **Onboarding xong hẳn?** `/vibe-finalize` dọn các file bootstrap một lần.
 
 </details>
@@ -328,18 +330,18 @@ flowchart LR
 
 | Command                | Chức năng                                                                  | Ví dụ                                                               |
 | ---------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| `/init-vibe`           | Init lần đầu hoặc sửa chữa: đề xuất một diff, chờ duyệt.                   | `/init-vibe` — review diff rồi trả lời `yes`.                       |
+| `/init-vibe`           | Init lần đầu hoặc sửa chữa: đề xuất một diff, chờ duyệt.                   | `/init-vibe` - review diff rồi trả lời `yes`.                       |
 | `/security-scan`       | AgentShield probe chỉ-đọc + scanner tùy chọn cho bề mặt agent.             | `/security-scan` trước khi merge thay đổi `.claude/**` hoặc skills. |
-| `/daily-enhance`       | Báo cáo chỉ-đề-xuất để cải tiến rules, skills, workflows.                  | `/daily-enhance` — review diff đề xuất rồi duyệt.                   |
+| `/daily-enhance`       | Báo cáo chỉ-đề-xuất để cải tiến rules, skills, workflows.                  | `/daily-enhance` - review diff đề xuất rồi duyệt.                   |
 | `/autoresearch-coding` | Vòng lặp thử nghiệm theo metric với baseline và budget.                    | `/autoresearch-coding` Goal: giảm lỗi lint. Budget: 3.              |
 | `/council`             | Phối hợp các agent reviewer/researcher/analyst thành một kế hoạch gộp.     | `/council` trên diff của branch này.                                |
-| `/vibe-finalize`       | Tốt nghiệp project: chuyển file bootstrap một lần vào `_vibekit-cleanup/`. | `/vibe-finalize` — xem trước, áp dụng sau khi duyệt.                |
+| `/vibe-finalize`       | Tốt nghiệp project: chuyển file bootstrap một lần vào `_vibekit-cleanup/`. | `/vibe-finalize` - xem trước, áp dụng sau khi duyệt.                |
 
 </details>
 
 ## Skills
 
-Cả 17 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex và Grok mirror đủ 17; Cursor mirror 12 skill tương tác. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
+Cả 18 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex, Grok và Kimi mirror đủ 18; Cursor mirror 13 skill tương tác. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
 
 ```mermaid
 ---
@@ -376,7 +378,7 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("17 skill"))
+  root(("18 skill"))
     setup("Thiết lập và an toàn")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
@@ -387,6 +389,7 @@ mindmap
       t3("prompt-sharpener")
       t4("reviewing-4p-priorities")
       t5("graph-engineering-<br/>verified-orchestration")
+      t6("the-creator")
     analyze("Phân tích và cải tiến")
       a1("parallel-analysis")
       a2("autoresearch-coding")
@@ -415,12 +418,13 @@ mindmap
 | `visual-design-loop`          | Polish UI: render → screenshot → review → fix, theo vòng lặp.                                                                                                                                                                                          | "Use visual-design-loop on /dashboard. Budget 3 loops."                                 |
 | `clearthought`                | Yêu cầu mơ hồ, tradeoff thiết kế, quyết định rủi ro.                                                                                                                                                                                                   | "Use clearthought. Operation: implementation_plan. Split this feature into safe tasks." |
 | `sequential-thinking`         | Chia nhỏ công việc phức tạp theo từng bước.                                                                                                                                                                                                            | "Use sequential-thinking. Break this refactor into ordered steps with tests."           |
-| `reviewing-4p-priorities`     | Triage bug/finding theo thứ tự fix P0–P4.                                                                                                                                                                                                              | "Use reviewing-4p-priorities. Classify these findings and give a fix sequence."         |
-| `memento`                     | Task nhiều ngày: lưu ngữ cảnh trước khi dừng, resume phiên sau.                                                                                                                                                                                        | "/memento — write MEMENTO.md with Goal, Done, Stuck, Next."                             |
+| `reviewing-4p-priorities`     | Triage bug/finding theo thứ tự fix P0-P4.                                                                                                                                                                                                              | "Use reviewing-4p-priorities. Classify these findings and give a fix sequence."         |
+| `memento`                     | Task nhiều ngày: lưu ngữ cảnh trước khi dừng, resume phiên sau.                                                                                                                                                                                        | "/memento - write MEMENTO.md with Goal, Done, Stuck, Next."                             |
 | `coding-level`                | Chỉnh độ chi tiết khi giải thích (0 = ELI5 … 5 = chuyên gia).                                                                                                                                                                                          | "/coding-level 2"                                                                       |
 | `prompt-sharpener`            | Task phức tạp nhưng prompt mù mờ: cải thiện prompt rồi thực thi ngay trong cùng lượt.                                                                                                                                                                  | "/prompt-sharpener make the settings page load faster"                                  |
 | `claim`                       | Đưa thứ mới vào repo (skill, rule, quy ước, tool): kiểm chứng nguồn chính thức, kiểm tra độ khớp, xác nhận, tích hợp, ghi tài liệu.                                                                                                                    | "/claim add the conventional-commits rule from https://www.conventionalcommits.org"     |
 | `tutien`                      | Chế độ tu tiên riêng tư với bằng chứng Git/chat chính xác và trường thiên ký sự mở theo từng repo. Có tổng cương cốt truyện và một chương tuần tự cho mỗi kỳ bằng chứng mới đã duyệt; chỉ chạy khi user gọi, `/tutien off` khôi phục văn phong thường. | "/tutien preview sources=git story-language=vi story-style=web-serial"                  |
+| `the-creator`                 | Sáng tạo art, design, interface, method, process hoặc system qua 10 level cộng dồn; mỗi level bỏ thêm 10% convention đủ điều kiện nhưng giữ nguyên safety, logic và functional acceptance. | "Use the-creator level 7 để tạo một quy trình code review mới." |
 | `mermaid`                     | Sinh sơ đồ Mermaid có style (31 loại) với độ chi tiết theo coding level. Chủ động hỏi có muốn thêm sơ đồ khi viết tài liệu, và khi debug có thể vẽ workflow tô đỏ vùng nghi là nguyên nhân bug.                                                        | "Use the mermaid skill. Vẽ flowchart cho pipeline deploy này."                          |
 
 Với `story=on` (mặc định), sau khi phân tích được duyệt, chế độ chuẩn bị `.vibekit/reports/tutien/story/`: `plot.md` lưu tổng cương và thế giới quan đang phát triển, `story-state.json` giữ mạch truyện, còn `chapters/NNNN-<tên-chương-tu-tiên>.md` lưu mỗi lần đúng một chương. Văn truyện do agent sáng tác từ dữ liệu tổng hợp thay vì ghép câu cố định; tên nhân vật, xưng hô và đối thoại tự nhiên theo `story-language=vi|en|zh`.
@@ -485,12 +489,12 @@ flowchart TD
 <details>
 <summary><strong>Xem thêm: một ví dụ thực tế</strong></summary>
 
-**Tình huống — chuyển ba service sang một structured logger.** Monorepo có `billing/`, `auth/` và `reports/`, mỗi service gọi logger cũ trong file riêng của mình. Đúng điều kiện kích hoạt của skill: ba hạng mục công việc có ranh giới, các nhánh không chạm chung file, và một verifier khách quan (bộ test).
+**Tình huống - chuyển ba service sang một structured logger.** Monorepo có `billing/`, `auth/` và `reports/`, mỗi service gọi logger cũ trong file riêng của mình. Đúng điều kiện kích hoạt của skill: ba hạng mục công việc có ranh giới, các nhánh không chạm chung file, và một verifier khách quan (bộ test).
 
 - **Khi nào**: công việc tách được thành ít nhất ba hạng mục có ranh giới với ít nhất hai nhánh thực sự độc lập, và graph có khả năng tiết kiệm thời gian hoặc giảm rủi ro phối hợp.
 - **Ở đâu**: repo mà quyền ghi tách được rõ ràng (theo service, package hoặc bộ tài liệu) và test hoặc schema có thể xác minh kết quả từ ngoài scope của bên ghi.
 - **Vì sao**: cô lập cưỡng chế chặn ghi chồng lấn; mỗi edge mang một artifact có tên nên không có dependency tưởng tượng nào tuần tự hóa công việc; và chỉ diff đã xác minh mới đến merge owner duy nhất.
-- **Khi nào không**: dưới ba hạng mục, các nhánh chạm chung file, hoặc không có verifier khách quan — sửa tuần tự rẻ hơn, và skill sẽ tự nói điều đó bằng cách trả về graph plan thay vì thực thi.
+- **Khi nào không**: dưới ba hạng mục, các nhánh chạm chung file, hoặc không có verifier khách quan - sửa tuần tự rẻ hơn, và skill sẽ tự nói điều đó bằng cách trả về graph plan thay vì thực thi.
 
 ```text
 Use graph-engineering-verified-orchestration.
@@ -499,7 +503,7 @@ Done signal: npm test passes and no legacy logger import remains.
 Editable paths: billing/ auth/ reports/. Protected paths: tests/ and configs.
 ```
 
-Cách tình huống này chạy dưới dạng graph — mỗi edge mang artifact có tên mà node sau tiêu thụ:
+Cách tình huống này chạy dưới dạng graph - mỗi edge mang artifact có tên mà node sau tiêu thụ:
 
 ```mermaid
 ---
@@ -568,6 +572,7 @@ npx --yes minimal-vibe-coding-kit@latest install . --profile claude          # c
 npx --yes minimal-vibe-coding-kit@latest install . --profile claude,cursor   # Claude + Cursor
 npx --yes minimal-vibe-coding-kit@latest install . --profile codex           # Codex / agent dùng AGENTS.md
 npx --yes minimal-vibe-coding-kit@latest install . --profile grok            # Grok Build CLI
+npx --yes minimal-vibe-coding-kit@latest install . --profile kimi            # Kimi Code CLI
 ```
 
 Cờ: `--force` (ghi đè file kit sẵn có), `--dry-run` (xem trước), `--json` (kế hoạch dạng máy đọc).
@@ -637,12 +642,12 @@ node .vibekit/scripts/agentshield-probe.mjs .                          # probe c
 npx ecc-agentshield scan --path . --format text --min-severity medium  # scan đầy đủ, tùy chọn
 ```
 
-Mọi thay đổi tới `CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.grok/**`, `.codex-plugin/**`, hoặc `.vibekit/skills|commands|scripts/**` đều nên kích hoạt review. Mô hình: [.vibekit/docs/SECURITY_MODEL.md](../.vibekit/docs/SECURITY_MODEL.md).
+Mọi thay đổi tới `CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.grok/**`, `.kimi-code/**`, `.codex-plugin/**`, hoặc `.vibekit/skills|commands|scripts/**` đều nên kích hoạt review. Mô hình: [.vibekit/docs/SECURITY_MODEL.md](../.vibekit/docs/SECURITY_MODEL.md).
 
 ### Doctor và báo cáo
 
 ```bash
-node .vibekit/scripts/mvck.mjs doctor .                 # health check chỉ-đọc
+node .vibekit/scripts/mvck.mjs doctor .                 # health check chỉ-đọc (thêm --run-repo-checks để chạy validation và probe của repo)
 node .vibekit/scripts/mvck.mjs doctor . --write-report  # ghi VIBE_REPORT.md
 node .vibekit/scripts/daily-enhance.mjs . --write-report
 ```
@@ -665,14 +670,14 @@ Checklist publish: [.vibekit/init/PUSH_TO_GITHUB.md](../.vibekit/init/PUSH_TO_GI
 | Agent hỏi init lại mỗi phiên | Chạy init và duyệt; xác nhận `meta.template_status: initialized` trong `backbone.yml`.                                   |
 | Dò sai stack                 | Xóa lockfile cũ, hoặc sửa `backbone.yml` trực tiếp.                                                                      |
 | Agent chạm path không nên    | Thêm path vào `policy.protected_paths` trong `backbone.yml` (hỗ trợ glob).                                               |
-| AgentShield probe cảnh báo   | Cài Python 3, hoặc bỏ qua — là warning, không phải failure.                                                              |
+| AgentShield probe cảnh báo   | Cài Python 3, hoặc bỏ qua - là warning, không phải failure.                                                              |
 | Thiếu script sau khi cài     | Chạy lại install với `--force`, hoặc copy thủ công `.vibekit/scripts/`.                                                  |
 
 </details>
 
 ## Đóng góp
 
-Issue và PR luôn welcome tại [`giang6283623/minimal-vibe-coding-kit`](https://github.com/giang6283623/minimal-vibe-coding-kit). Trước khi mở PR: mirror thay đổi skill giữa `.claude/`, `.cursor/`, `.agents/`, giữ template trung lập, và chạy `npm run validate:all`. Xem [CONTRIBUTING.md](../CONTRIBUTING.md), [SECURITY.md](../SECURITY.md), [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md).
+Issue và PR luôn welcome tại [`giang6283623/minimal-vibe-coding-kit`](https://github.com/giang6283623/minimal-vibe-coding-kit). Trước khi mở PR: mirror thay đổi skill giữa `.claude/`, `.cursor/`, `.agents/`, `.grok/`, `.kimi-code/`, giữ template trung lập, và chạy `npm run validate:all`. Xem [CONTRIBUTING.md](../CONTRIBUTING.md), [SECURITY.md](../SECURITY.md), [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md).
 
 **Tác giả:** [GiangBV](https://www.linkedin.com/in/buivangiang1992), [AuPMH](https://www.linkedin.com/in/pham-au-2a1bb1162)
 **Powered by:** Caffeine, Determination, AI Collaboration, và những đêm code cuối tuần.
@@ -681,4 +686,5 @@ Issue và PR luôn welcome tại [`giang6283623/minimal-vibe-coding-kit`](https:
 
 MIT. Xem [LICENSE](../LICENSE).
 
+<!-- user-authored dedication: keep the Vietnam flag emoji; exempt from the writing-style emoji rule -->
 > 🇻🇳 _Nếu bạn yêu Việt Nam và con người Việt Nam, bạn hoàn toàn được dùng miễn phí mọi thứ trong đây._

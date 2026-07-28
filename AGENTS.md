@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Shared instructions for Claude, Cursor, Codex, Grok, and other coding agents.
+Shared instructions for Claude, Cursor, Codex, Grok, Kimi, and other coding agents.
 
 <!-- BEGIN: minimal-vibe-coding-kit -->
 ## Minimal Vibe Coding Kit
@@ -20,13 +20,33 @@ Shared instructions for Claude, Cursor, Codex, Grok, and other coding agents.
 - Run the validation command listed in `backbone.yml` after relevant changes.
 - Summarize changed files, validation results, and remaining risks.
 
-### Visual design loop trigger
+### Response format
 
-Always use the `visual-design-loop` skill when a Claude skill loop or Codex goal touches UI, visual design, screenshots, rendering, product polish, or visible frontend behavior.
+- Lead with the outcome: the first one or two sentences state the result, answer, or recommendation. Supporting detail comes after, kept short and scannable.
+- When the user must choose, present a decision table with the columns Option, What it does, Cost, Risk, Recommended. Mark exactly one option as recommended and give the reason in one line under the table.
+- Use tables for comparable facts only; keep reasoning in prose around the table, not inside cells.
+- End every multi-step task response with a status block: Done (what was completed and how it was verified), Next (the next task in order, or "none" when work is complete), Decision needed (only when a blocking choice belongs to the user). When several tasks remain, list them in order and name the one that starts next.
 
-Use the current brief as the source of truth. Render the product, capture screenshots, review them visually, make one targeted improvement, and repeat until the design is polished, blocked, or the loop budget is reached.
+### Writing style
 
-Track every loop in `/tmp/design-{project_slug}.md`. Each loop entry must include screenshot reviewed, issue found, fix applied, before/after judgment, remaining concerns, and stop/continue decision. Default budget is 3 loops unless the user specifies otherwise.
+- No emoji in responses, code, docs, commits, or diagrams unless the user explicitly asks.
+- No em dashes or en dashes in generated prose; use ASCII punctuation (comma, colon, semicolon, hyphen, parentheses).
+- When editing files whose established style already uses these characters, keep existing characters and apply the rule only to new text.
+
+### Proportional effort
+
+- Triage each request in one line before working: trivial (typo, comment, one-liner: edit, validate, report), small (one file: two-line plan, edit, validate), medium (several files: short plan plus one diff self-review), large or risky (installers, validators, security, agent surfaces: full plan plus the skills and probes the security rules require).
+- Review must never cost more than the change itself. Do not launch parallel-analysis, graph orchestration, multi-agent review, visual loops, or e2e suites for trivial or small tasks unless the user asks for them.
+
+### Visual design loop and e2e gate
+
+Do not run the `visual-design-loop` skill or full e2e suites by default. Score the need first, 0-2 per question: (1) did the change alter a user-visible surface, (2) does the outcome depend on subjective visual judgment such as layout, typography, or color, (3) could a visual regression reach end users unnoticed by existing tests. Report the score and decision in one line, for example "visual gate 2/6: skipped".
+
+- Score 0-2: skip; rely on the validation command in `backbone.yml`.
+- Score 3-4: one screenshot check with at most one targeted fix; no loop.
+- Score 5-6: propose the loop or e2e run with its budget and estimated cost, then wait for explicit user approval before starting.
+
+When the loop is approved, use the current brief as the source of truth, make one targeted improvement per loop, and track every loop in `/tmp/design-{project_slug}.md`. Each loop entry must include screenshot reviewed, issue found, fix applied, before/after judgment, remaining concerns, and stop/continue decision. Default budget is 3 loops unless the user specifies otherwise.
 
 ### Safety
 
@@ -35,7 +55,7 @@ Track every loop in `/tmp/design-{project_slug}.md`. Each loop entry must includ
 - Do not run untrusted hooks, MCP servers, deploy scripts, package lifecycle scripts, migrations, or destructive shell commands just to inspect a repo.
 - Do not modify protected paths from `backbone.yml` without explicit approval.
 - Before editing or approving shell/deploy/installer/repair logic that uses path variables or destructive commands (`rm`, `mv`, `cp -a`, `rsync --delete`, `find -delete`, `git clean`, checkout replacement), use `path-sensitive-shell-safety` and prove base/folder/repo values are non-empty, contained, quoted, and not broad system paths.
-- If a task changes agent surfaces (`CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.grok/**`, `.codex-plugin/**`, `.vibekit/skills/**`, `.vibekit/commands/**`, `.vibekit/scripts/**`, hooks, MCP config), run the AgentShield probe or explain why it was skipped.
+- If a task changes agent surfaces (`CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.grok/**`, `.kimi-code/**`, `.codex-plugin/**`, `.vibekit/skills/**`, `.vibekit/commands/**`, `.vibekit/scripts/**`, hooks, MCP config), run the AgentShield probe or explain why it was skipped.
 
 ### Skills to prefer
 
@@ -45,7 +65,7 @@ Track every loop in `/tmp/design-{project_slug}.md`. Each loop entry must includ
 - `agentshield-security-review`: agent-surface security review.
 - `path-sensitive-shell-safety`: validate remote base paths, repo folders, branch sync, and destructive shell commands before edits land.
 - `daily-workflow-curator`: daily proposal for improving rules, skills, workflows, and docs.
-- `visual-design-loop`: screenshot-driven UI polish loop.
+- `visual-design-loop`: screenshot-driven UI polish loop (gated: score the need first and get user approval before running).
 
 ### Autoresearch loop contract
 

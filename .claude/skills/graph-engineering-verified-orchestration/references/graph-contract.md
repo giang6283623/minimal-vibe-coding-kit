@@ -77,9 +77,9 @@ Use visible environment-derived limits. A budget is a maximum, not a target. `un
 
 ### Risk tiers
 
-- **R0 — read-only:** analysis, inventory, or evidence collection. Require an evidence rule.
-- **R1 — local reversible:** scoped edits with deterministic validation and recoverable rollback. Add integration checks when outputs interact.
-- **R2 — consequential:** destructive, production, external-message, secret, migration, permission, or hard-to-recover changes. Require explicit authority and a human gate.
+- **R0 - read-only:** analysis, inventory, or evidence collection. Require an evidence rule.
+- **R1 - local reversible:** scoped edits with deterministic validation and recoverable rollback. Add integration checks when outputs interact.
+- **R2 - consequential:** destructive, production, external-message, secret, migration, permission, or hard-to-recover changes. Require explicit authority and a human gate.
 
 Track advisory impact separately: read-only work can still drive a consequential security, production, medical, legal, or financial decision. Upgrade a node when uncertain; do not downgrade merely because a verifier exists. Large blast radius requires a pilot and human gate even when each edit is individually R1.
 
@@ -130,7 +130,7 @@ Use the minimum required rung and add higher rungs as risk increases:
 5. independent adversarial review;
 6. human acceptance for consequential results.
 
-Snapshot and protect the verification oracle—tests, schemas, fixtures, expected snapshots, commands, and verifier configuration—outside implementer write scope. An oracle change is a separate approved node, changes the graph digest, and invalidates dependent results.
+Snapshot and protect the verification oracle (tests, schemas, fixtures, expected snapshots, commands, and verifier configuration) outside implementer write scope. An oracle change is a separate approved node, changes the graph digest, and invalidates dependent results.
 
 For R1/R2, the verifier owner must not be the actor that produced or merged the artifact. A deterministic harness-run check may own verification when its protected oracle remains outside every implementer and merge scope. Give nontrivial verifiers their own authority, read/write/semantic scopes, risk, timeout, cleanup, and rollback; executable checks are code and require a trust review. Fresh context is useful for review but does not create model, training-data, tool, or source independence. Prefer different evidence paths and objective signals over reviewer count.
 

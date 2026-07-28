@@ -80,7 +80,7 @@ Concrete scenarios for each priority level based on real-world software developm
 - **Scope:** Enhancement, not fix
 - **Response:** Strategic timing, fit into roadmap
 
-**Classification rationale:** "Like adding a chocolate drizzle on top – great to have, but your ice cream sundae is still good without it."
+**Classification rationale:** "Like adding a chocolate drizzle on top - great to have, but your ice cream sundae is still good without it."
 
 **Not P1 because:** Current app is fully functional. No users are blocked.
 

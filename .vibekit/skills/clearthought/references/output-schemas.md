@@ -466,15 +466,15 @@ The `sessionContext` object provides session metadata:
     direction: "up" | "down";
     timestamp: string;
   }>;
-  
+
   // Operation-specific context
   totalThoughts?: number;
   remainingThoughts?: number;
   recentThoughts?: Array<{number: number, preview: string}>;
-  
+
   totalModels?: number;
   recentModels?: string[];
-  
+
   totalSessions?: number;
   recentSessions?: Array<{approach: string, issue: string}>;
 }
@@ -490,5 +490,5 @@ For full TypeScript type definitions, see the MCP source:
 
 ---
 
-**Reference:** Clear Thought MCP v0.2.1  
+**Reference:** Clear Thought MCP v0.2.1
 **Last Updated:** 2026-04-05

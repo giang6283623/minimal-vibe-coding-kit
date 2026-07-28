@@ -1,6 +1,6 @@
 ---
 name: agentshield-security-review
-description: repository-native security review workflow for Claude Code and Codex projects using the AgentShield concept. Use when auditing or hardening agent configuration, skills, prompts, hooks, MCP servers, permissions, slash commands, Codex plugin files, Claude plugin files, AGENTS.md, CLAUDE.md, or repository-level AI coding-agent surfaces. Prefer this skill before merging changes to .claude, .codex, .codex-plugin, .claude-plugin, .agents, .vibekit/skills, .vibekit/commands, .vibekit/scripts, hooks, mcp configs, or generated code that touches agent execution.
+description: repository-native security review workflow for Claude Code, Cursor, Codex, Grok, and Kimi projects using the AgentShield concept. Use when auditing or hardening agent configuration, skills, prompts, hooks, MCP servers, permissions, commands, plugin files, AGENTS.md, CLAUDE.md, or repository-level AI coding-agent surfaces. Prefer this skill before merging changes to .claude, .cursor, .codex, .codex-plugin, .claude-plugin, .agents, .grok, .kimi-code, .vibekit/skills, .vibekit/commands, .vibekit/scripts, hooks, mcp configs, or generated code that touches agent execution.
 ---
 
 # AgentShield Security Review
@@ -54,10 +54,12 @@ Prioritize runtime-active files over examples and docs:
 
 1. `CLAUDE.md`, `AGENTS.md`, `.github/copilot-instructions.md`
 2. `.claude/settings.json`, `.claude/settings.local.json`, `.claude/agents/*.md`, `.claude/commands/*.md`
-3. `.codex/config.toml`, `.codex/`, `.codex-plugin/plugin.json`
-4. `.agents/`, `agents/`, `.vibekit/skills/`, `.vibekit/commands/`, `.vibekit/scripts/`, `hooks/`
-5. `.mcp.json`, `mcp.json`, `mcp-configs/*.json`
-6. installer scripts, CI workflows, package scripts, and generated plugin manifests
+3. `.cursor/settings.json`, `.cursor/cli.json`, `.cursor/rules/`, `.cursor/commands/`
+4. `.codex/config.toml`, `.codex/`, `.codex-plugin/plugin.json`
+5. `.grok/`, `.kimi-code/`
+6. `.agents/`, `agents/`, `.vibekit/skills/`, `.vibekit/commands/`, `.vibekit/scripts/`, `hooks/`
+7. `.mcp.json`, `mcp.json`, `mcp-configs/*.json`
+8. installer scripts, CI workflows, package scripts, and generated plugin manifests
 
 ## Output contract
 
