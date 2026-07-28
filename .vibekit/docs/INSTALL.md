@@ -123,7 +123,7 @@ The installer includes three flexible custom reasoning skills across Claude, Cod
 
 ## Visual design loop skill
 
-The installer also includes `visual-design-loop` for Claude, Codex, and Grok surfaces. Use it when a loop goal touches UI polish, screenshots, rendering, visual QA, or visible frontend behavior.
+The installer also includes `visual-design-loop` for Claude, Codex, Grok, and Kimi surfaces. Use it when a loop goal touches UI polish, screenshots, rendering, visual QA, or visible frontend behavior.
 
 ## User-invoked utility skills
 

@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Added a native Kimi Code CLI surface: `.kimi/skills/` mirrors all 17 skills (Kimi's highest-priority project-level brand skills directory per the official `kimi-cli` discovery order), `.kimi/README.md`, a `kimi` install/update profile in `mvck.mjs` (included in `all`), and registration across `skills-manifest.json`, `validate-kit.mjs`, `test-install.mjs`, `backbone.yml` `agent_surfaces`, npm package files, and the English, Vietnamese, and Chinese docs. Kimi CLI already loads the root `AGENTS.md` hierarchically, so existing installs keep working without changes.
+- Added a deterministic graph renderer to `graph-engineering-verified-orchestration` (all mirrors): `scripts/render-graph.mjs` turns a graph ledger JSON into a styled Mermaid flowchart for app surfaces or an ASCII wave view for CLI terminals, with schema, duplicate-id, unknown-edge, and cycle validation plus a deterministic critical path. `references/graph-visualization.md` documents the rendering contract; 19 offline checks cover the renderer.
+- Added a writing-style guardrail banning emoji and em/en dashes in generated prose: `.cursor/rules/050-writing-style.mdc` (always-on), `.claude/rules/writing-style.md`, `.grok/rules/writing-style.md`, an `AGENTS.md` managed-block section, and a `backbone.yml` `custom_rules` entry.
+
+### Changed
+
+- `validate-kit.mjs` now derives mirror surface directories and the frontmatter scan list from the manifest's own `surfaces` map instead of hardcoded lists, so a surface registered in `skills-manifest.json` cannot drift from mirror validation.
+
 ## 0.5.3 — 2026-07-27
 
 ### Added

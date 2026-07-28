@@ -14,7 +14,7 @@
 ![AgentShield](https://img.shields.io/badge/Security-AgentShield-d62828)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)
 
-**One installable AI-coding workflow kit for Claude Code, Cursor, Codex, and Grok — any repo, any language.**
+**One installable AI-coding workflow kit for Claude Code, Cursor, Codex, Grok, and Kimi — any repo, any language.**
 
 Install → paste one prompt → approve the proposal → code with guardrails.
 
@@ -24,7 +24,7 @@ Install → paste one prompt → approve the proposal → code with guardrails.
 
 ## What is this?
 
-A small kit of shared **rules**, **skills**, and **commands**, plus one **`backbone.yml`** manifest, so Claude Code, Cursor, Codex, and Grok all understand your project the same way.
+A small kit of shared **rules**, **skills**, and **commands**, plus one **`backbone.yml`** manifest, so Claude Code, Cursor, Codex, Grok, and Kimi all understand your project the same way.
 
 - Never overwrites your existing `CLAUDE.md` / `AGENTS.md` — it only adds managed blocks.
 - Every setup write waits for your explicit approval.
@@ -76,7 +76,7 @@ npx --yes minimal-vibe-coding-kit@latest install /path/to/your-project
 
 Already ran `npm i minimal-vibe-coding-kit`, or prefer GitHub or a local clone? See [Install from npm](#install-from-npm).
 
-**2. Open the project in Claude Code, Cursor, Codex, or Grok and paste:**
+**2. Open the project in Claude Code, Cursor, Codex, Grok, or Kimi Code and paste:**
 
 ```text
 Read .vibekit/init/FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit.
@@ -168,7 +168,7 @@ config:
     clusterBorder: "#444444"
 ---
 flowchart TD
-    You([You — one prompt]) --> Agent("Claude / Cursor / Codex / Grok")
+    You([You — one prompt]) --> Agent("Claude / Cursor / Codex / Grok / Kimi")
 
     subgraph First["Read first"]
         Backbone[("backbone.yml")]
@@ -339,7 +339,7 @@ flowchart LR
 
 ## Skills
 
-All 17 skills live canonically in `.vibekit/skills/`. Claude, Codex, and Grok mirror all 17; Cursor mirrors the 12 interactive ones. Invoke them by name ("Use the X skill…") or via the commands above.
+All 17 skills live canonically in `.vibekit/skills/`. Claude, Codex, Grok, and Kimi mirror all 17; Cursor mirrors the 12 interactive ones. Invoke them by name ("Use the X skill…") or via the commands above.
 
 ```mermaid
 ---
@@ -568,6 +568,7 @@ npx --yes minimal-vibe-coding-kit@latest install . --profile claude          # C
 npx --yes minimal-vibe-coding-kit@latest install . --profile claude,cursor   # Claude + Cursor
 npx --yes minimal-vibe-coding-kit@latest install . --profile codex           # Codex / AGENTS.md agents
 npx --yes minimal-vibe-coding-kit@latest install . --profile grok            # Grok Build CLI
+npx --yes minimal-vibe-coding-kit@latest install . --profile kimi            # Kimi Code CLI
 ```
 
 Flags: `--force` (overwrite existing kit files), `--dry-run` (preview), `--json` (machine-readable plan).

@@ -168,7 +168,7 @@ config:
     clusterBorder: "#444444"
 ---
 flowchart TD
-    You([Bạn — một prompt]) --> Agent("Claude / Cursor / Codex / Grok")
+    You([Bạn — một prompt]) --> Agent("Claude / Cursor / Codex / Grok / Kimi")
 
     subgraph First["Đọc đầu tiên"]
         Backbone[("backbone.yml")]
@@ -339,7 +339,7 @@ flowchart LR
 
 ## Skills
 
-Cả 17 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex và Grok mirror đủ 17; Cursor mirror 12 skill tương tác. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
+Cả 17 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex, Grok và Kimi mirror đủ 17; Cursor mirror 12 skill tương tác. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
 
 ```mermaid
 ---
@@ -568,6 +568,7 @@ npx --yes minimal-vibe-coding-kit@latest install . --profile claude          # c
 npx --yes minimal-vibe-coding-kit@latest install . --profile claude,cursor   # Claude + Cursor
 npx --yes minimal-vibe-coding-kit@latest install . --profile codex           # Codex / agent dùng AGENTS.md
 npx --yes minimal-vibe-coding-kit@latest install . --profile grok            # Grok Build CLI
+npx --yes minimal-vibe-coding-kit@latest install . --profile kimi            # Kimi Code CLI
 ```
 
 Cờ: `--force` (ghi đè file kit sẵn có), `--dry-run` (xem trước), `--json` (kế hoạch dạng máy đọc).
@@ -672,7 +673,7 @@ Checklist publish: [.vibekit/init/PUSH_TO_GITHUB.md](../.vibekit/init/PUSH_TO_GI
 
 ## Đóng góp
 
-Issue và PR luôn welcome tại [`giang6283623/minimal-vibe-coding-kit`](https://github.com/giang6283623/minimal-vibe-coding-kit). Trước khi mở PR: mirror thay đổi skill giữa `.claude/`, `.cursor/`, `.agents/`, giữ template trung lập, và chạy `npm run validate:all`. Xem [CONTRIBUTING.md](../CONTRIBUTING.md), [SECURITY.md](../SECURITY.md), [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md).
+Issue và PR luôn welcome tại [`giang6283623/minimal-vibe-coding-kit`](https://github.com/giang6283623/minimal-vibe-coding-kit). Trước khi mở PR: mirror thay đổi skill giữa `.claude/`, `.cursor/`, `.agents/`, `.kimi/`, giữ template trung lập, và chạy `npm run validate:all`. Xem [CONTRIBUTING.md](../CONTRIBUTING.md), [SECURITY.md](../SECURITY.md), [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md).
 
 **Tác giả:** [GiangBV](https://www.linkedin.com/in/buivangiang1992), [AuPMH](https://www.linkedin.com/in/pham-au-2a1bb1162)
 **Powered by:** Caffeine, Determination, AI Collaboration, và những đêm code cuối tuần.

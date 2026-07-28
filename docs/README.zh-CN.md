@@ -168,7 +168,7 @@ config:
     clusterBorder: "#444444"
 ---
 flowchart TD
-    You([你 — 一个提示词]) --> Agent("Claude / Cursor / Codex / Grok")
+    You([你 — 一个提示词]) --> Agent("Claude / Cursor / Codex / Grok / Kimi")
 
     subgraph First["首先读取"]
         Backbone[("backbone.yml")]
@@ -339,7 +339,7 @@ flowchart LR
 
 ## 技能
 
-全部 17 个技能的规范版本位于 `.vibekit/skills/`。Claude、Codex 和 Grok 镜像全部 17 个技能；Cursor 镜像其中 12 个交互式技能。可以直接按名称调用（例如“Use the X skill…”），也可以使用上面的命令。
+全部 17 个技能的规范版本位于 `.vibekit/skills/`。Claude、Codex、Grok 和 Kimi 镜像全部 17 个技能；Cursor 镜像其中 12 个交互式技能。可以直接按名称调用（例如“Use the X skill…”），也可以使用上面的命令。
 
 ```mermaid
 ---
@@ -568,6 +568,7 @@ npx --yes minimal-vibe-coding-kit@latest install . --profile claude          # �
 npx --yes minimal-vibe-coding-kit@latest install . --profile claude,cursor   # Claude + Cursor
 npx --yes minimal-vibe-coding-kit@latest install . --profile codex           # Codex / AGENTS.md Agent
 npx --yes minimal-vibe-coding-kit@latest install . --profile grok            # Grok Build CLI
+npx --yes minimal-vibe-coding-kit@latest install . --profile kimi            # Kimi Code CLI
 ```
 
 选项：`--force`（覆盖已有的工具包文件）、`--dry-run`（预览）、`--json`（机器可读计划）。

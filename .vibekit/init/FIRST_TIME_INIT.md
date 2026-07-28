@@ -1,6 +1,6 @@
 # .vibekit/init/FIRST_TIME_INIT.md - bootstrap runbook
 
-Audience: Claude, Cursor, Codex, Grok, or any AI coding agent in a repo that just received Minimal Vibe Coding Kit.
+Audience: Claude, Cursor, Codex, Grok, Kimi, or any AI coding agent in a repo that just received Minimal Vibe Coding Kit.
 
 Keep this flow short. Detailed schema notes live in `.vibekit/docs/BACKBONE_REFERENCE.md`.
 

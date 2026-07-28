@@ -1,6 +1,6 @@
 # `/tutien` dev test harness
 
-The live skill is canonical under `.vibekit/skills/tutien/` and mirrored to Claude, Cursor, Codex, and Grok. This directory contains only source-repository tests and synthetic fixtures. It is intentionally excluded from the npm package.
+The live skill is canonical under `.vibekit/skills/tutien/` and mirrored to Claude, Cursor, Codex, Grok, and Kimi. This directory contains only source-repository tests and synthetic fixtures. It is intentionally excluded from the npm package.
 
 Run all 158 deterministic, offline checks from the repository root:
 
