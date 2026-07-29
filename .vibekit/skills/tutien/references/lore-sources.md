@@ -38,6 +38,8 @@ Verified on 2026-07-22:
 
 ## Tone contract
 
-- The villain is always the failure mode, never the person.
-- Banned in every mode (including `spicy`): attacks involving identity, intelligence, mental health, disability, religion, gender, race, finances; threats, profanity, humiliation. `tẩu hỏa nhập ma` is not used as a label for a person.
+- The villain normally attacks the failure mode. With an explicit nonzero humiliation level, it may also defeat or shame the fictional cultivation avatar inside the current scene, but never the real person.
+- With `villains=on`, an eligible evidenced flaw may automatically become a villain. Every appearing villain uses sharp, language-natural sarcasm and mockery; `serene` only calms the narrator.
+- Never invent a flaw or antagonist merely to decorate a clean result.
+- Hard boundaries in every mode: threats; slurs; attacks involving real identity, intelligence, worth, mental health, disability, religion, gender, race, health, appearance, or finances; private-data exploitation; and abuse of another real person. Consented fictional loss of face is governed separately by `humiliation=0..10`. `tẩu hỏa nhập ma` is not used as a label for a person.
 - Sensitive or emergency contexts force neutral, villain-free output.

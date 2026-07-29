@@ -61,11 +61,22 @@ check('e2e: bare invocation re-activates the mode and previews', () => {
   assert.match(r.out, /tutien preview/);
   assert.match(r.out, /approve=[0-9a-f]{16}/);
 });
+check('e2e: explicit duel consent persists for the active mode', () => {
+  const r = tutien('on banter=duel');
+  assert.equal(r.code, 0);
+  const status = tutien('status');
+  assert.match(status.out, /banter mode: duel/);
+});
 check('e2e: status reports the mode and pending approval', () => {
   const r = tutien('status');
   assert.equal(r.code, 0);
   assert.match(r.out, /mode: on/);
   assert.match(r.out, /pending approval: [0-9a-f]{16}/);
+  assert.match(r.out, /voice: immersive-adaptive-xianxia/);
+  assert.match(r.out, /voice scope: all-user-facing-replies-while-active/);
+  assert.match(r.out, /language mode: match-current-user-request/);
+  assert.match(r.out, /villain voice: cutting-sarcastic-mockery/);
+  assert.match(r.out, /banter mode: duel/);
 });
 check('e2e: Vietnamese runner messages use clean native wording', () => {
   const status = tutien('status language=vi');
@@ -117,6 +128,8 @@ check('e2e: default analyze writes a response brief instead of printing the fixe
   assert.match(brief, /"schema": "tutien-response-brief-v1"/);
   assert.match(brief, /"material-ui"/);
   assert.match(brief, /"yarn lint"/);
+  assert.match(brief, /"banterMode": "duel"/);
+  assert.match(brief, /"target": "evidenced-action"/);
   assert.ok(!brief.includes('SECRETVALUE') && !brief.includes('eslint .'), 'package script body leaked into brief');
   const storyContext = fs.readFileSync(path.join(work, '.vibekit/reports/tutien/story/latest-context.json'), 'utf8');
   assert.ok(!storyContext.includes('hunter2') && !storyContext.includes('SECRETVALUE'), 'secret leaked into story context');
@@ -129,6 +142,8 @@ check('e2e: output=ledger remains an explicit diagnostic view', () => {
   assert.ok(diagnosticToken);
   const r = tutien(`analyze approve=${diagnosticToken} ${src} output=ledger language=en story=off`);
   assert.equal(r.code, 0);
+  assert.match(r.out, /\[diagnostic-ledger\]/);
+  assert.match(r.out, /not the user-facing Tutien response/);
   assert.match(r.out, /Cultivation Chronicle/);
 });
 check('e2e: an approval token is single-use', () => {
@@ -182,6 +197,7 @@ check('e2e: manifest changes invalidate the preview approval token', () => {
 // off again
 check('e2e: off disables the mode and suppresses later explicit actions', () => {
   assert.match(tutien('off').out, /mode is off/);
+  assert.match(tutien('status').out, /banter mode: flaw/);
   const briefFile = path.join(work, '.vibekit/reports/tutien/latest-brief.json');
   const before = fs.statSync(briefFile).mtimeMs;
   const r = tutien(`analyze approve=deadbeefdeadbeef ${src}`);
@@ -204,6 +220,7 @@ check('e2e: stale or user-edited story preferences are normalized before status 
   const stateFile = path.join(work, '.vibekit/reports/tutien/state.json');
   fs.writeFileSync(stateFile, `${JSON.stringify({
     mode: 'off',
+    banterMode: 'duel',
     storyPreferences: {
       story: '<script>',
       storyLanguage: '<script>',
@@ -213,6 +230,7 @@ check('e2e: stale or user-edited story preferences are normalized before status 
   })}\n`);
   const status = tutien('status');
   assert.equal(status.code, 0);
+  assert.match(status.out, /banter mode: flaw/);
   assert.match(status.out, /story: on \(auto, auto, balanced\)/);
   assert.ok(!status.out.includes('SECRETVALUE') && !status.out.includes('<script>') && !status.out.includes('../'));
 });

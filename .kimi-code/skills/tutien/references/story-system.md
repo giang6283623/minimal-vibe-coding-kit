@@ -150,16 +150,16 @@ Humor comes from character logic, hierarchy, technical irony, and timing. Keep s
 
 Examples and mappings in this reference define possibilities and invariants only. They are not phrase banks, mandatory beats, or response templates.
 
-## Villains: sarcastic and maliciously teasing
+## Villains: sarcastic and maliciously teasing by default
 
-Villains may be genuinely malicious **inside the fiction**: they exploit the sect's demonstrated weakness, savor the inconvenience, mislead rivals, and tease with sharp sarcasm. Their dialogue should:
+With `villains=on`, an eligible evidenced weakness may automatically become a villain when the scene benefits from one. Do not invent a villain for a clean result or force one into every chapter. Once a villain appears, it is genuinely malicious **inside the fiction**: it exploits the sect's demonstrated weakness, savors the inconvenience, misleads rivals, and mocks the flaw with sharp sarcasm in the active language. A serene narrator does not make the antagonist bland. Its dialogue must:
 
 1. point at the exact workflow weakness supported by evidence;
 2. reveal how the villain benefits from it;
 3. deliver a cutting but meaningful tease;
 4. leave room for the heroes to answer with the real counter-technique.
 
-Aim hostility at the failure mode, plan, array, artifact, or sect strategy, never at the user's identity, intelligence, health, worth, protected traits, or finances. No threats toward the user, humiliation, slurs, or abusive degradation. Safety-sensitive contexts remain neutral and villain-free.
+Normally aim hostility at the failure mode, plan, array, artifact, or sect strategy. With explicit `humiliation=1..10`, the fictional cultivation avatar may also suffer defeat or loss of face within the selected profile. Never turn that scene into an attack on the real user's identity, intelligence, health, worth, protected traits, appearance, or finances. No threats, slurs, private-data exploitation, or abusive degradation of a real person. Safety-sensitive contexts remain neutral and villain-free.
 
 Generate antagonist names, titles, schemes, and lines from the current project, language, prior chapters, and evidence. Do not reuse the renderer's fixed villain sentence bank as chapter dialogue.
 

@@ -6,12 +6,14 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import {
+  normalizeBanterMode,
   normalizeStoryFocus,
   normalizeStoryLanguage,
   normalizeStoryStyle,
   parseInvocation,
   TUTIEN_EXPERIENCE
 } from './command.mjs';
+import { humiliationImpliesDuel, normalizeHumiliationLevel } from './humiliation.mjs';
 import { analyze } from './analyze-history.mjs';
 import { renderReport, resolveLanguage, renderClassificationMarkdown } from './render-report.mjs';
 import { buildSnapshot, snapshotsToPrune } from './snapshot.mjs';
@@ -25,7 +27,7 @@ import { buildResponseBrief } from './response-brief.mjs';
 // under the git-ignored .vibekit/reports/tutien/ of the current repo; the
 // runner never deletes anything (retention only prints a `trash` command).
 //
-//   run-tutien.mjs [on|off|status|preview|analyze|compare|explain|classify] [k=v ...]
+//   run-tutien.mjs [on|off|status|levels|preview|analyze|compare|explain|classify] [k=v ...]
 //
 // Approval boundary: `preview` prints the exact scope and an approval token;
 // `analyze` refuses to read anything until it receives approve=<that token>
@@ -62,6 +64,44 @@ function resolveStoryPreferences(state, options, providedOptions = []) {
   };
   state.storyPreferences = preferences;
   return preferences;
+}
+
+function resolveBanterPreference(state, options, providedOptions = []) {
+  const explicitlyProvided = providedOptions.includes('banter');
+  if ((state.mode ?? 'off') !== 'on' && !explicitlyProvided) state.banterMode = 'flaw';
+  if (explicitlyProvided) state.banterMode = normalizeBanterMode(options.banter);
+  state.banterMode = normalizeBanterMode(state.banterMode ?? options.banter);
+  return state.banterMode;
+}
+
+function resolveHumiliationPreference(state, options, providedOptions = []) {
+  const explicitlyProvided = providedOptions.includes('humiliation');
+  if ((state.mode ?? 'off') !== 'on' && !explicitlyProvided) {
+    state.humiliationLevel = 0;
+    state.humiliationSelected = false;
+  }
+  if (explicitlyProvided) {
+    state.humiliationLevel = normalizeHumiliationLevel(options.humiliation);
+    state.humiliationSelected = true;
+  }
+  state.humiliationLevel = normalizeHumiliationLevel(state.humiliationLevel ?? options.humiliation);
+  state.humiliationSelected = state.humiliationSelected === true;
+  return state.humiliationLevel;
+}
+
+function humiliationQuestion(language = 'en') {
+  if (language === 'vi') {
+    return [
+      'Chọn mức hạ nhục vai diễn hư cấu từ 0 đến 10:',
+      '0 tắt; 1 nhướng mày; 2 châm nhẹ; 3 đối thủ ngạo nghễ; 4 chỉnh đốn sắc; 5 răn trước tông môn; 6 bại công khai; 7 cà khịa không nương; 8 mất mặt tại nghị điện; 9 phản diện áp đảo; 10 đại bại toàn trường.',
+      'Trả lời bằng `/tutien on humiliation=<0..10>`. Lựa chọn chỉ áp dụng cho vai diễn tu tiên và hành động kỹ thuật có bằng chứng.'
+    ];
+  }
+  return [
+    'Choose fictional-avatar humiliation from level 0 through 10:',
+    '0 off; 1 raised eyebrow; 2 dry tease; 3 smug rival; 4 cutting correction; 5 sect reprimand; 6 public defeat; 7 merciless move roast; 8 tribunal loss of face; 9 villain domination; 10 total theatrical rout.',
+    'Reply with `/tutien on humiliation=<0..10>`. The choice applies only to the cultivation avatar and an evidenced technical action.'
+  ];
 }
 
 function classifySources(sources) {
@@ -153,12 +193,21 @@ export function run(argsString = '') {
   const { action, explicitAction, options, providedOptions } = parseInvocation(argsString);
   const state = loadState();
   const storyPreferences = resolveStoryPreferences(state, options, providedOptions);
+  const configuredBanterMode = resolveBanterPreference(state, options, providedOptions);
+  const humiliationLevel = resolveHumiliationPreference(state, options, providedOptions);
+  const banterMode = humiliationImpliesDuel(humiliationLevel) ? 'duel' : configuredBanterMode;
+  options.banter = banterMode;
+  options.humiliation = humiliationLevel;
   const uiLanguage = resolveLanguage(options.language, { invocationText: argsString });
   const say = (vi, en) => uiLanguage === 'vi' ? vi : en;
   const refuse = (msg) => ({ code: 2, out: [msg] });
 
   if (action === 'off') {
     state.mode = 'off';
+    state.banterMode = 'flaw';
+    state.humiliationLevel = 0;
+    state.humiliationSelected = false;
+    delete state.responseShape;
     delete state.pendingApproval;
     saveState(state);
     return { code: 0, out: [say('Chế độ tu tiên đã tắt. Văn phong bình thường của bộ công cụ đã được khôi phục.', 'Tutien mode is off. Normal kit writing style restored.')] };
@@ -166,7 +215,16 @@ export function run(argsString = '') {
   if (action === 'on') {
     state.mode = 'on';
     saveState(state);
-    return { code: 0, out: [say('Chế độ tu tiên đã bật. Sơn môn đã mở; hãy chạy `preview` để xem phạm vi chính xác trước khi phân tích.', 'Tutien mode is on - the mountain gate is open. Run preview to see the exact scope before any analysis.')] };
+    const out = [say('Chế độ tu tiên đã bật. Sơn môn đã mở; hãy chạy `preview` để xem phạm vi chính xác trước khi phân tích.', 'Tutien mode is on. The mountain gate is open; run preview to see the exact scope before any analysis.')];
+    if (state.humiliationSelected) {
+      out.push(say(
+        `Mức hạ nhục vai diễn đã chọn: ${humiliationLevel}/10. Có thể đổi hoặc tắt bất cứ lúc nào.`,
+        `Selected fictional-avatar humiliation: ${humiliationLevel}/10. Change it or turn it off at any time.`
+      ));
+    } else {
+      out.push(...humiliationQuestion(uiLanguage));
+    }
+    return { code: 0, out };
   }
   if (action === 'status') {
     const snaps = fs.existsSync(snapDir) ? fs.readdirSync(snapDir).length : 0;
@@ -177,6 +235,11 @@ export function run(argsString = '') {
         say(`chế độ: ${(state.mode ?? 'off') === 'on' ? 'bật' : 'tắt'}`, `mode: ${state.mode ?? 'off'}`),
         say(`trải nghiệm: \`${TUTIEN_EXPERIENCE.kind}\``, `experience: ${TUTIEN_EXPERIENCE.kind}`),
         say(`giọng văn: \`${TUTIEN_EXPERIENCE.narrativeStyle}\``, `voice: ${TUTIEN_EXPERIENCE.narrativeStyle}`),
+        say(`phạm vi giọng văn: \`${TUTIEN_EXPERIENCE.responseScope}\``, `voice scope: ${TUTIEN_EXPERIENCE.responseScope}`),
+        say(`chế độ ngôn ngữ: \`${TUTIEN_EXPERIENCE.languageMode}\``, `language mode: ${TUTIEN_EXPERIENCE.languageMode}`),
+        say(`giọng phản diện: \`${TUTIEN_EXPERIENCE.villainVoice}\``, `villain voice: ${TUTIEN_EXPERIENCE.villainVoice}`),
+        say(`đấu khẩu: \`${banterMode}\``, `banter mode: ${banterMode}`),
+        say(`hạ nhục vai diễn: ${humiliationLevel}/10 (${state.humiliationSelected ? 'đã chọn' : 'chưa chọn, hiệu lực 0'})`, `fictional-avatar humiliation: ${humiliationLevel}/10 (${state.humiliationSelected ? 'selected' : 'not selected, effective 0'})`),
         say(`không gian ngữ nghĩa: \`${TUTIEN_EXPERIENCE.semanticNamespace}\``, `semantic namespace: ${TUTIEN_EXPERIENCE.semanticNamespace}`),
         say(`phê duyệt đang chờ: ${state.pendingApproval ?? 'không có'}`, `pending approval: ${state.pendingApproval ?? 'none'}`),
         say(`ảnh chụp tổng hợp: ${snaps}`, `snapshots: ${snaps}`),
@@ -195,12 +258,18 @@ export function run(argsString = '') {
     state.mode = 'on';
   }
 
+  if (action === 'levels') {
+    saveState(state);
+    return { code: 0, out: humiliationQuestion(uiLanguage) };
+  }
+
   if (action === 'preview') {
     const { lines, token } = previewLines(options, uiLanguage);
     lines.push(say(
       `- Trường thiên: ${storyPreferences.story === 'on' ? 'bật' : 'tắt'}; ngôn ngữ ${storyPreferences.storyLanguage}, phong cách ${storyPreferences.storyStyle}, trọng tâm ${storyPreferences.storyFocus}.`,
       `- living chronicle: ${storyPreferences.story} (language=${storyPreferences.storyLanguage}, style=${storyPreferences.storyStyle}, focus=${storyPreferences.storyFocus})`
     ));
+    if (!state.humiliationSelected) lines.push(...humiliationQuestion(uiLanguage));
     state.pendingApproval = token;
     saveState(state);
     return { code: 0, out: lines };
@@ -324,8 +393,14 @@ export function run(argsString = '') {
       language,
       profile,
       storyContext,
-      ledgerPath: path.relative(root, ledgerFile)
+      ledgerPath: path.relative(root, ledgerFile),
+      shapeSequence: (state.responseShape?.sequence ?? 0) + 1,
+      priorShapeSignature: state.responseShape?.shapeSignature ?? null
     });
+    state.responseShape = {
+      sequence: (state.responseShape?.sequence ?? 0) + 1,
+      shapeSignature: brief.composition.shapeSignature
+    };
     fs.writeFileSync(briefFile, `${JSON.stringify(brief, null, 2)}\n`);
     out.push(say(
       `Đã ghi đạo ký chứng cứ: ${path.relative(root, ledgerFile)}.`,
@@ -336,7 +411,14 @@ export function run(argsString = '') {
       `response brief ready: ${path.relative(root, briefFile)}; compose adaptively from it instead of copying the ledger structure.`
     ));
     saveState(state);
-    return { code: 0, out: options.output === 'ledger' ? [...out, markdown] : out };
+    if (options.output === 'ledger') {
+      out.push(say(
+        '[diagnostic-ledger] Bản dưới đây chỉ là sổ kiểm toán tất định, không phải phản hồi Tu Tiên dành cho người dùng và không được dùng làm mẫu văn phong.',
+        '[diagnostic-ledger] The artifact below is a deterministic audit ledger, not the user-facing Tutien response and not a prose template.'
+      ));
+      out.push(markdown);
+    }
+    return { code: 0, out };
   }
 
   return refuse(say(`Không nhận ra hành động "${action}".`, `unknown action "${action}"`));

@@ -111,6 +111,9 @@ check('cooldown: a worsened villain reappears despite cooldown', () => {
 check('banned-category guard catches attacks, passes safe taunts', () => {
   assert.ok(containsBannedCategory('you are incompetent and stupid'));
   assert.ok(containsBannedCategory('tẩu hỏa nhập ma'));
+  assert.ok(containsBannedCategory('đạo hữu thật ngu xuẩn'));
+  assert.ok(containsBannedCategory('phế vật như ngươi'));
+  assert.ok(!containsBannedCategory('đạo hữu dùng nguyên trạng của trận pháp'));
   assert.ok(!containsBannedCategory('The Error-Reincarnation Fiend fed on a repeated retry.'));
 });
 check('every emitted challenge line passes the banned-category guard', () => {
@@ -118,6 +121,9 @@ check('every emitted challenge line passes the banned-category guard', () => {
     for (const v of buildVillains(crafted, { tone }).villains) {
       assert.ok(!containsBannedCategory(v.challenge.vi));
       assert.ok(!containsBannedCategory(v.challenge.en));
+      assert.equal(v.voice, 'cutting-sarcastic-mockery');
+      assert.ok(v.safetyFlags.includes('sarcasm-targets-flaw'));
+      assert.ok(v.challenge.vi.includes('“') && v.challenge.en.includes('“'));
     }
   }
 });
@@ -141,6 +147,23 @@ check('cards carry evidence refs, rebuttal, micro-quest, and victory', () => {
 // ---- integration over real (secret-bearing) fixture ----
 const loop = analyze({ jsonlFiles: [fx('synthetic-repeat-loop.jsonl')] });
 const conflict = analyze({ jsonlFiles: [fx('synthetic-conflict.jsonl')] });
+
+check('duel: explicit mode targets the evidenced action and preserves its count', () => {
+  const card = buildVillains(detectProblems(loop), { tone: 'spirited', banter: 'duel' }).villains[0];
+  assert.equal(card.banterMode, 'duel');
+  assert.equal(card.target, 'evidenced-action');
+  assert.match(card.actionDuel.vi, /Đạo hữu/);
+  assert.match(card.actionDuel.vi, /4 lần/);
+  assert.ok(card.safetyFlags.includes('duel-targets-evidenced-action'));
+  assert.ok(card.safetyFlags.includes('never-person'));
+  assert.ok(!containsBannedCategory(card.actionDuel.vi));
+});
+check('duel: default flaw mode never emits a direct action challenge', () => {
+  const card = buildVillains(detectProblems(loop), { tone: 'spirited' }).villains[0];
+  assert.equal(card.banterMode, 'flaw');
+  assert.equal(card.target, 'evidenced-flaw');
+  assert.equal(card.actionDuel, null);
+});
 
 check('integration: high-confidence explicit-task loop yields a boss villain', () => {
   const { villains } = buildVillains(detectProblems(loop), { tone: 'serene' });
@@ -169,6 +192,13 @@ check('render: serene report shows the villain and then the evidence', () => {
   assert.ok(after.indexOf('Evidence:') > 0, 'evidence must follow the taunt');
   assert.ok(after.indexOf('Micro-quest:') > 0, 'micro-quest must follow the taunt');
   assert.ok(after.indexOf('Victory:') > 0, 'victory must follow the taunt');
+});
+check('render: explicit duel prints the evidenced action before its correction', () => {
+  const duelMd = renderReport(loop, { language: 'vi', tone: 'spirited', banter: 'duel' }).markdown;
+  const duelAt = duelMd.indexOf('Đạo hữu vừa đặt cùng một giả thuyết');
+  assert.ok(duelAt > 0);
+  assert.ok(duelMd.indexOf('Bằng chứng:', duelAt) > duelAt);
+  assert.ok(duelMd.indexOf('Cách hóa giải:', duelAt) > duelAt);
 });
 check('render: villains=off shows the plain problem header, no villain name', () => {
   assert.ok(!offMd.includes('Error-Cycle Wraith'));

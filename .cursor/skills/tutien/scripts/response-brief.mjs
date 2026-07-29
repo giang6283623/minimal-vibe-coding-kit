@@ -1,6 +1,8 @@
 // Compact, aggregate-only handoff between the deterministic analyzer and the
 // agent-authored response. It carries facts and constraints, never stock prose.
 
+import { buildResponseShape } from './response-shape.mjs';
+
 const localizeMissing = (reason, language) => {
   if (language !== 'vi') return reason;
   if (reason === 'token usage coverage below 60%; supply provider usage metadata to compute a realm') {
@@ -23,11 +25,41 @@ function problemEvidence(problem) {
   return {};
 }
 
+function roleAddressContract(language) {
+  if (language === 'vi') {
+    return {
+      scope: 'in-world-roleplay-prose',
+      visibleSecondPerson: 'đạo hữu',
+      establishedInWorldTitleMayOverride: true,
+      internalTargetLabels: 'metadata-only-never-render-as-addressee',
+      forbiddenVisibleAddresseeLabels: ['vai tu sĩ', 'vai tu sĩ hư cấu', 'vai diễn hư cấu', 'avatar'],
+      setupExplanationException: 'control-and-safety-explanations-only'
+    };
+  }
+  return {
+    scope: 'in-world-roleplay-prose',
+    visibleSecondPerson: 'you',
+    establishedInWorldTitleMayOverride: true,
+    internalTargetLabels: 'metadata-only-never-render-as-addressee',
+    forbiddenVisibleAddresseeLabels: ['fictional avatar', 'fictional cultivation avatar', 'role-play avatar'],
+    setupExplanationException: 'control-and-safety-explanations-only'
+  };
+}
+
 export function buildResponseBrief(model, options = {}) {
   const language = options.language === 'vi' ? 'vi' : 'en';
   const profile = options.profile ?? {};
   const classification = model.cultivation?.classification ?? null;
   const progression = model.cultivation?.progression ?? null;
+  const findingKey = (model.problems ?? []).map((problem) => problem.problemType).join('_') || 'clean';
+  const responseShape = buildResponseShape({
+    seed: {
+      projectId: profile.projectId ?? 'repo',
+      evidenceKey: options.storyContext?.evidenceKey ?? findingKey
+    },
+    sequence: options.shapeSequence,
+    priorShapeSignature: options.priorShapeSignature
+  });
   return {
     schema: 'tutien-response-brief-v1',
     semanticNamespace: model.experience.semanticNamespace,
@@ -76,7 +108,25 @@ export function buildResponseBrief(model, options = {}) {
       counterTechnique: localized(problem.counterTechnique, language),
       projectHelp: problem.projectHelp ?? null,
       microQuest: localized(problem.microQuest, language),
-      victory: localized(problem.victory, language)
+      victory: localized(problem.victory, language),
+      villain: problem.villain ? {
+        name: problem.villain.name,
+        gloss: problem.villain.gloss,
+        role: problem.villain.role,
+        voice: 'cutting-sarcastic-mockery',
+        humiliation: problem.villain.humiliation?.level > 0 ? {
+          level: problem.villain.humiliation.level,
+          key: problem.villain.humiliation.key,
+          band: problem.villain.humiliation.band,
+          target: problem.villain.humiliation.target
+        } : null,
+        duel: problem.villain.actionDuel ? {
+          enabled: true,
+          target: problem.villain.humiliation?.level > 0
+            ? 'fictional-cultivation-avatar-and-evidenced-action'
+            : 'evidenced-action'
+        } : null
+      } : null
     })),
     nextPractice: model.ifThen ? localized(model.ifThen, language) : null,
     story: options.storyContext ? {
@@ -90,6 +140,52 @@ export function buildResponseBrief(model, options = {}) {
     composition: {
       finalResponse: 'agent-authored',
       evidenceLedgerIsNotFinalResponse: true,
+      mustComposeFromBrief: true,
+      forbidDirectLedgerReuse: true,
+      forbiddenLedgerShape: [
+        'fixed-report-title',
+        'fixed-heading-sequence',
+        'evidence-counter-quest-victory-template',
+        'stock-ledger-opening',
+        'stock-ledger-closing'
+      ],
+      activeModeVoice: 'immersive-adaptive-xianxia',
+      responseScope: 'all-user-facing-replies-while-active',
+      roleAddress: roleAddressContract(language),
+      literalTechnicalContent: 'preserve-exactly',
+      villainVoice: 'cutting-sarcastic-mockery',
+      banterMode: model.banterMode,
+      humiliationLevel: model.humiliationLevel,
+      humiliationContract: model.humiliationLevel > 0 ? {
+        consent: 'explicit-current-session',
+        target: 'fictional-cultivation-avatar-and-evidenced-action',
+        level: model.humiliationLevel,
+        key: model.humiliationProfile.key,
+        band: model.humiliationProfile.band,
+        directness: model.humiliationProfile.directness,
+        sarcasmDensity: model.humiliationProfile.sarcasmDensity,
+        fictionalStatusPressure: model.humiliationProfile.fictionalStatusPressure,
+        maxDirectAddresses: model.humiliationProfile.maxDirectAddresses,
+        allowAvatarDefeat: model.humiliationProfile.allowAvatarDefeat,
+        allowLossOfFace: model.humiliationProfile.allowLossOfFace,
+        hardBoundary: 'never-real-person-protected-trait-vulnerability-threat-or-private-data',
+        correctiveGuidance: 'required-near-theatrical-strike'
+      } : {
+        consent: 'none',
+        target: 'none',
+        level: 0
+      },
+      banterContract: model.banterMode === 'duel' ? {
+        consent: 'explicit',
+        target: model.humiliationLevel > 0 ? 'fictional-cultivation-avatar-and-evidenced-action' : 'evidenced-action',
+        safetyBoundary: 'never-person'
+      } : {
+        consent: 'default',
+        target: 'evidenced-flaw',
+        safetyBoundary: 'never-person'
+      },
+      responseShape,
+      shapeSignature: responseShape.shapeSignature,
       deriveFrom: ['current-user-request', 'project-facts', 'approved-evidence', 'living-chronicle', 'recent-response-rhythm'],
       preserve: model.composition.preserve,
       vary: model.composition.vary,

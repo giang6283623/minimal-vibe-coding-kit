@@ -270,7 +270,7 @@ flowchart TD
 2. **任务很大或不够明确？** 先使用 `clearthought` 或 `sequential-thinking` 技能生成计划。
 3. **任务复杂，但只有一个粗略提示词？** `/prompt-sharpener <rough prompt>` 会将它变得清晰准确，并在同一轮中执行。
 4. **想把新技能、规则或工具带入仓库？** `/claim <request + links>` 会根据官方文档验证来源、检查是否适合当前仓库、在不明确时询问，然后完成集成和文档记录。
-5. **想在回顾进度时安静地放松一下？** `/tutien` 是基于 Git 历史和你明确提供的 AI 聊天导出的私密修仙模式。除了严格依据证据进行分类，它还会为每个项目逐步发展独有的世界、人物、宗门、境界体系与连续章节，支持越南语、英语和简体中文；`/tutien off` 会恢复工具包的正常文风。
+5. **想在回顾进度时安静地放松一下？** `/tutien` 是基于 Git 历史和你明确提供的 AI 聊天导出的私密修仙模式。启用后，每次回复都会按用户当前语言保持自然的修仙小说文风，直到执行 `/tutien off`；符合证据条件的反派默认以讽刺和挖苦嘲弄工作流缺陷。激活时会询问可选的 `humiliation=0..10` 等级，用于逐级增强虚构修士角色的败阵程度，同时保留针对真人的硬性边界。连载故事会为每个项目逐步发展独有的世界、人物、宗门、境界体系与连续章节，支持越南语、英语和简体中文。
 6. **需要回答全仓库问题或进行大型审查？** 使用 `parallel-analysis`，它会并行执行多个只读分析通道，并验证合并后的结论。
 7. **修改了 `.claude/`、技能、hook 或安装脚本？** 合并前运行 `/security-scan`。
 8. **想进行可衡量的改进？** 使用带有 metric 和预算的 `/autoresearch-coding`。
@@ -423,7 +423,7 @@ mindmap
 | `coding-level`                  | 设置解释详细程度（0 = ELI5，5 = 专家同行）。                                                        | "/coding-level 2"                                                                                     |
 | `prompt-sharpener`              | 复杂任务只有粗略提示词时：优化提示词并在同一轮执行。                                                 | "/prompt-sharpener make the settings page load faster"                                                |
 | `claim`                         | 将新技能、规则、约定或工具带入仓库：验证官方来源、检查适配性、确认、集成并记录文档。                 | "/claim add the conventional-commits rule from https://www.conventionalcommits.org"                   |
-| `tutien`                        | 基于准确 Git/聊天证据的私密修仙模式，并为每个仓库维护开放式连载故事。每个新的已批准证据窗口对应一个有序章节；仅由用户调用，`/tutien off` 恢复正常文风。 | "/tutien preview sources=git story-language=zh story-style=web-serial"                                |
+| `tutien`                        | 由用户调用的私密修仙模式，使用准确的 Git/聊天证据并维护开放式连载故事。启用期间，每次回复都按用户语言使用自然的修仙文风；`humiliation=0..10` 控制虚构修士角色的败阵强度。`/tutien off` 恢复正常文风。 | "/tutien on humiliation=8"                                                                         |
 | `the-creator`                   | 通过 10 个累积创意等级创造新颖但可用的艺术、设计、界面、方法、流程或系统；每级放宽 10% 的适用惯例，同时保持安全、逻辑和功能验收不变。 | "Use the-creator level 7 设计一种更安全的代码审查流程。" |
 | `mermaid`                       | 生成带样式的 Mermaid 图表（31 种），密度随 coding level 自适应。写文档时会主动询问是否配图；调试时可以生成用红色高亮可疑风险区的流程图。 | "Use the mermaid skill. 把这个部署流程画成流程图。"                                                    |
 
