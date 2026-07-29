@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changed
+
+- The graph renderer's Mermaid output now follows the mermaid skill's Vivid Clay preset instead of a partial theme block (all mirrors): full universal frontmatter (primary/secondary/tertiary tokens), rounded status-colored nodes, a paper-tint `wave` class on wave clusters, `linkStyle default` edge styling, `<br/>` wrapping for labels longer than 24 characters, and only the classDefs that are actually assigned. Inline class and link styling keeps diagrams legible on hosts that ignore frontmatter themeVariables, such as forced dark themes. `references/graph-visualization.md` and the skill's visualize section now name the preset as the style source; renderer checks grew from 39 to 41.
+
 ## 0.5.4 - 2026-07-28
 
 ### Added

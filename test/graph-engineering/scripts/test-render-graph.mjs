@@ -113,10 +113,27 @@ check('toAsciiText: preserves meaning with printable ASCII escapes', () => {
 
 // ---- mermaid output ----
 const mermaid = renderMermaid(ledger);
-check('mermaid: emits a styled flowchart with kit theme', () => {
+check('mermaid: emits a styled flowchart with the Vivid Clay preset', () => {
   assert.match(mermaid, /flowchart TD/);
+  assert.match(mermaid, /primaryColor: "#8ECAFF"/);
+  assert.match(mermaid, /tertiaryColor: "#FFF9DB"/);
   assert.match(mermaid, /edgeLabelBackground: "#FFFFFF"/);
   assert.match(mermaid, /classDef success/);
+  assert.match(mermaid, /linkStyle default stroke:#444444,stroke-width:1\.5px/);
+});
+check('mermaid: nodes are rounded and wave clusters carry the paper-tint class', () => {
+  assert.match(mermaid, /N1\("blind-spot report"\)/);
+  assert.match(mermaid, /classDef wave fill:#FFF9DB/);
+  assert.match(mermaid, /class Wave1,Wave2,Wave3,Wave4,Wave5 wave/);
+});
+check('mermaid: long labels wrap with <br/> and unused styling is dropped', () => {
+  const single = parseLedger('{"nodes":[{"id":"A","label":"a very long label that keeps going past one line"}]}');
+  const output = renderMermaid(single);
+  assert.match(output, /A\("a very long label that<br\/>keeps going past one<br\/>line"\)/);
+  assert.match(output, /classDef step/);
+  assert.equal(output.includes('classDef danger'), false);
+  assert.equal(output.includes('classDef wave'), false);
+  assert.equal(output.includes('linkStyle'), false);
 });
 check('mermaid: waves become subgraphs', () => assert.match(mermaid, /subgraph Wave2\["Wave 2"\]/));
 check('mermaid: edges carry artifact labels', () =>

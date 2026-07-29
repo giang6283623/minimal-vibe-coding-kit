@@ -99,7 +99,16 @@ requests, or provider-specific terminal commands.
 | blocked | danger (red) | `[block]` |
 | rejected | danger (red) | `[rej]` |
 
-The Mermaid theme follows the kit README conventions (`theme: base`, monospace font stack, `edgeLabelBackground: "#FFFFFF"`) so diagrams stay legible in light and dark previews.
+The Mermaid view follows the mermaid skill's Vivid Clay preset
+(`.vibekit/skills/mermaid/references/styling-preset.md`): the universal
+frontmatter block (`theme: base`, mono font stack, primary/secondary/tertiary
+tokens), rounded status-colored nodes with 2px ink borders, a paper-tint `wave`
+class on every wave cluster, and `linkStyle default` on edges. Status and wave
+classes are emitted inline so the styling survives hosts that ignore
+frontmatter themeVariables (for example forced dark themes). Node labels wrap
+with `<br/>` per the preset's anti-overflow rules, and unused classDefs are
+dropped. Do not restyle renderer output by hand; if the style must change,
+change the renderer so it stays aligned with the preset.
 
 ## Reporting rules
 

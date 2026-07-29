@@ -96,7 +96,7 @@ Any post-approval change to nodes, edges, scopes, risk, budgets, verifier oracle
 
 Render every approved graph plan and every wave-status update with `scripts/render-graph.mjs`; never hand-draw diagrams.
 
-- App surfaces (Cursor preview, Claude or Kimi web, GitHub markdown): emit the Mermaid flowchart.
+- App surfaces (Cursor preview, Claude or Kimi web, GitHub markdown): emit the Mermaid flowchart. It ships pre-styled with the mermaid skill's Vivid Clay preset; do not restyle or hand-edit it.
 - CLI surfaces (Cursor CLI, Claude Code, Codex CLI, Grok CLI, Kimi CLI): emit the width-aware ASCII 3D topology view with `--format=ascii-3d`.
 - Use `--format=ascii` only for the legacy schedule-first wave list.
 - Emit both Mermaid and ASCII 3D when the surface is unknown or mixed.

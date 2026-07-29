@@ -3,6 +3,8 @@
 // Reads a graph ledger JSON file and emits a Mermaid flowchart (app surfaces),
 // an ASCII wave view (CLI surfaces), or both. No network, no timestamps:
 // identical input always produces identical output, so the output is verifiable.
+// Mermaid output follows the mermaid skill's Vivid Clay preset
+// (.vibekit/skills/mermaid/references/styling-preset.md).
 //
 // Usage:
 //   node render-graph.mjs <graph.json> [--format=mermaid|ascii|ascii-3d|both] [--width=40..160]
@@ -32,6 +34,15 @@ const STATUS_MARKER = {
   blocked: 'block',
   rejected: 'rej'
 };
+// Vivid Clay preset roles: pastel fills, 2px ink borders, ink text.
+const CLASS_STYLE = {
+  step: 'fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111',
+  success: 'fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111',
+  danger: 'fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111',
+  accent: 'fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111',
+  wave: 'fill:#FFF9DB,stroke:#444444,stroke-width:2px,color:#111111'
+};
+const MERMAID_LABEL_LINE_LENGTH = 24;
 const VALID_STATUS = new Set(Object.keys(STATUS_MARKER));
 const VALID_RISK = new Set(['R0', 'R1', 'R2']);
 const MIN_WIDTH = 40;
@@ -339,6 +350,24 @@ function renderAsciiBox(node, isCritical, depth, width) {
   ];
 }
 
+// Wrap a sanitized label into short escaped lines joined by <br/> so long
+// labels follow the preset's anti-overflow rule instead of widening the node.
+export function mermaidNodeLabel(label) {
+  const words = sanitizeLabel(label).split(' ').filter(Boolean);
+  const wrapped = [];
+  let current = '';
+  for (const word of words) {
+    if (current && current.length + 1 + word.length > MERMAID_LABEL_LINE_LENGTH) {
+      wrapped.push(current);
+      current = word;
+    } else {
+      current = current ? `${current} ${word}` : word;
+    }
+  }
+  if (current) wrapped.push(current);
+  return wrapped.map((line) => escapeMermaidText(line)).join('<br/>');
+}
+
 export function renderMermaid(ledger) {
   const lines = [
     '---',
@@ -348,6 +377,13 @@ export function renderMermaid(ledger) {
     '  themeVariables:',
     '    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace',
     '    fontSize: 15px',
+    '    primaryColor: "#8ECAFF"',
+    '    primaryTextColor: "#111111"',
+    '    primaryBorderColor: "#444444"',
+    '    secondaryColor: "#FFD43B"',
+    '    secondaryBorderColor: "#444444"',
+    '    tertiaryColor: "#FFF9DB"',
+    '    tertiaryBorderColor: "#444444"',
     '    lineColor: "#444444"',
     '    textColor: "#111111"',
     '    edgeLabelBackground: "#FFFFFF"',
@@ -362,32 +398,34 @@ export function renderMermaid(ledger) {
     lines.push(`    subgraph Wave${wave}["Wave ${wave}"]`);
     for (const node of ledger.nodes.filter((n) => n.wave === wave).sort((a, b) => a.id.localeCompare(b.id))) {
       inWave.add(node.id);
-      lines.push(`        ${sanitizeId(node.id)}["${escapeMermaidText(node.label)}"]`);
+      lines.push(`        ${sanitizeId(node.id)}("${mermaidNodeLabel(node.label)}")`);
     }
     lines.push('    end');
   }
   for (const node of ledger.nodes.filter((n) => !inWave.has(n.id))) {
-    lines.push(`    ${sanitizeId(node.id)}["${escapeMermaidText(node.label)}"]`);
+    lines.push(`    ${sanitizeId(node.id)}("${mermaidNodeLabel(node.label)}")`);
   }
   for (const edge of sortedEdges(ledger.edges)) {
     const label = edge.artifact ? `|"${escapeMermaidText(edge.artifact)}"|` : '';
     lines.push(`    ${sanitizeId(edge.from)} -->${label} ${sanitizeId(edge.to)}`);
   }
-  lines.push(
-    '    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111',
-    '    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111',
-    '    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111',
-    '    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111'
-  );
   const byClass = new Map();
   for (const node of ledger.nodes) {
     const cls = STATUS_CLASS[node.status];
     if (!byClass.has(cls)) byClass.set(cls, []);
     byClass.get(cls).push(sanitizeId(node.id));
   }
+  // Emit only assigned classDefs, then inline class and link styling so the
+  // look survives hosts that ignore frontmatter themeVariables.
+  for (const cls of [...byClass.keys()].sort()) {
+    lines.push(`    classDef ${cls} ${CLASS_STYLE[cls]}`);
+  }
+  if (waves.length) lines.push(`    classDef wave ${CLASS_STYLE.wave}`);
+  if (ledger.edges.length) lines.push('    linkStyle default stroke:#444444,stroke-width:1.5px');
   for (const [cls, ids] of [...byClass.entries()].sort()) {
     lines.push(`    class ${ids.sort().join(',')} ${cls}`);
   }
+  if (waves.length) lines.push(`    class ${waves.map((wave) => `Wave${wave}`).join(',')} wave`);
   return lines.join('\n');
 }
 
