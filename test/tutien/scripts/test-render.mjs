@@ -9,6 +9,7 @@ import { detectProblems } from '../../../.vibekit/skills/tutien/scripts/catalog.
 import { buildReportModel, renderMarkdown, resolveLanguage } from '../../../.vibekit/skills/tutien/scripts/render-report.mjs';
 import { parseInvocation, resolveTone } from '../../../.vibekit/skills/tutien/scripts/command.mjs';
 import { buildResponseBrief } from '../../../.vibekit/skills/tutien/scripts/response-brief.mjs';
+import { responseShapeDifference } from '../../../.vibekit/skills/tutien/scripts/response-shape.mjs';
 
 const fixtures = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'fixtures');
 const fx = (name) => path.join(fixtures, name);
@@ -40,12 +41,13 @@ check('command: /tutien off is a mode toggle', () => {
 });
 check('command: /tutien on is a mode toggle', () =>
   assert.equal(parseInvocation('on').isModeToggle, true));
-check('command: options parse (language, tone, villains, score, living chronicle)', () => {
-  const c = parseInvocation('analyze language=en tone=spirited villains=off score=show story=on story-language=zh story-style=web-serial story-focus=sect-politics output=ledger');
+check('command: options parse (language, tone, villains, banter, score, living chronicle)', () => {
+  const c = parseInvocation('analyze language=en tone=spirited villains=off banter=duel score=show story=on story-language=zh story-style=web-serial story-focus=sect-politics output=ledger');
   assert.equal(c.action, 'analyze');
   assert.equal(c.options.language, 'en');
   assert.equal(c.options.tone, 'spirited');
   assert.equal(c.options.villains, 'off');
+  assert.equal(c.options.banter, 'duel');
   assert.equal(c.options.score, 'show');
   assert.equal(c.options.story, 'on');
   assert.equal(c.options.storyLanguage, 'zh');
@@ -54,6 +56,8 @@ check('command: options parse (language, tone, villains, score, living chronicle
   assert.equal(c.options.output, 'ledger');
   assert.ok(c.providedOptions.includes('story-language'));
 });
+check('command: unknown banter values fail closed to flaw targeting', () =>
+  assert.equal(parseInvocation('preview banter=<script>').options.banter, 'flaw'));
 check('command: spirited is opt-in, legacy aliases normalize, and sensitive is neutral', () => {
   assert.equal(resolveTone('spirited'), 'spirited');
   assert.equal(resolveTone('spicy'), 'spirited');
@@ -125,7 +129,11 @@ const enMd = renderMarkdown(modelLoop, 'en');
 check('render: model declares the wholesome, isolated Tu Tiên experience', () => {
   assert.equal(modelLoop.experience.kind, 'wholesome-coding-classification-game');
   assert.equal(modelLoop.experience.purpose, 'stress-relief-and-mindful-reflection');
-  assert.equal(modelLoop.experience.narrativeStyle, 'refined-mystical-xianxia');
+  assert.equal(modelLoop.experience.narrativeStyle, 'immersive-adaptive-xianxia');
+  assert.equal(modelLoop.experience.responseScope, 'all-user-facing-replies-while-active');
+  assert.equal(modelLoop.experience.languageMode, 'match-current-user-request');
+  assert.equal(modelLoop.experience.villainVoice, 'cutting-sarcastic-mockery');
+  assert.equal(modelLoop.experience.banterTarget, 'opt-in-evidenced-action-only');
   assert.equal(modelLoop.experience.semanticNamespace, 'tutien-coding-cultivation-v1');
   assert.equal(modelLoop.composition.finalResponse, 'agent-authored');
   assert.equal(modelLoop.composition.ledgerRole, 'evidence-scaffold-only');
@@ -195,23 +203,83 @@ check('brief: preserves facts and project anchors without stock prose or raw eve
   assert.deepEqual(brief.project.stack, ['react', 'material-ui', 'vite']);
   assert.deepEqual(brief.project.validationCommands, ['yarn lint', 'yarn build']);
   assert.equal(brief.composition.evidenceLedgerIsNotFinalResponse, true);
+  assert.equal(brief.composition.mustComposeFromBrief, true);
+  assert.equal(brief.composition.forbidDirectLedgerReuse, true);
+  assert.ok(brief.composition.forbiddenLedgerShape.includes('fixed-heading-sequence'));
+  assert.ok(brief.composition.forbiddenLedgerShape.includes('stock-ledger-closing'));
+  assert.equal(brief.composition.activeModeVoice, 'immersive-adaptive-xianxia');
+  assert.equal(brief.composition.responseScope, 'all-user-facing-replies-while-active');
+  assert.equal(brief.composition.roleAddress.scope, 'in-world-roleplay-prose');
+  assert.equal(brief.composition.roleAddress.visibleSecondPerson, 'đạo hữu');
+  assert.equal(brief.composition.roleAddress.internalTargetLabels, 'metadata-only-never-render-as-addressee');
+  assert.ok(brief.composition.roleAddress.forbiddenVisibleAddresseeLabels.includes('vai tu sĩ'));
+  assert.ok(brief.composition.roleAddress.forbiddenVisibleAddresseeLabels.includes('vai diễn hư cấu'));
+  assert.equal(brief.composition.literalTechnicalContent, 'preserve-exactly');
+  assert.equal(brief.composition.villainVoice, 'cutting-sarcastic-mockery');
+  assert.equal(brief.composition.banterMode, 'flaw');
+  assert.equal(brief.composition.banterContract.target, 'evidenced-flaw');
+  assert.equal(brief.composition.banterContract.safetyBoundary, 'never-person');
+  assert.equal(brief.composition.responseShape.kind, 'abstract-composition-guidance');
+  assert.equal(brief.composition.responseShape.containsProse, false);
+  assert.equal(brief.composition.responseShape.containsUserText, false);
+  assert.equal(brief.composition.shapeSignature, brief.composition.responseShape.shapeSignature);
   assert.equal(brief.composition.vietnameseEndingIntent, 'Kết cà khịa, luôn giáo huấn, không tâng bốc và kéo dài dư âm vai diễn.');
+  const villainFinding = brief.findings.find((finding) => finding.villain);
+  assert.equal(villainFinding?.villain.voice, 'cutting-sarcastic-mockery');
   const serialized = JSON.stringify(brief);
   assert.ok(!serialized.includes('Mist drifts past the mountain gate'));
   assert.ok(!serialized.includes('Closing the Dao Record'));
   assert.ok(!serialized.includes('eventIds'));
   assert.ok(!serialized.includes('evt-'));
 });
+check('brief: adjacent shapes vary while evidence remains identical', () => {
+  const first = buildResponseBrief(modelLoop, { language: 'vi', shapeSequence: 1 });
+  const second = buildResponseBrief(modelLoop, {
+    language: 'vi',
+    shapeSequence: 2,
+    priorShapeSignature: first.composition.shapeSignature
+  });
+  assert.ok(responseShapeDifference(first.composition.shapeSignature, second.composition.shapeSignature) >= 2);
+  assert.deepEqual(first.evidence, second.evidence);
+  assert.deepEqual(first.findings, second.findings);
+});
+check('brief: explicit duel targets an evidenced action without redefining the person', () => {
+  const duelModel = buildReportModel(loop, { tone: 'spirited', banter: 'duel' });
+  const duelBrief = buildResponseBrief(duelModel, { language: 'vi' });
+  assert.equal(duelBrief.composition.banterMode, 'duel');
+  assert.equal(duelBrief.composition.banterContract.consent, 'explicit');
+  assert.equal(duelBrief.composition.banterContract.target, 'evidenced-action');
+  assert.equal(duelBrief.composition.banterContract.safetyBoundary, 'never-person');
+  assert.ok(duelBrief.findings.some((finding) => finding.villain?.duel?.enabled));
+});
+check('brief: duel fails closed whenever no safe action villain survives', () => {
+  const cases = [
+    buildReportModel(clean, { banter: 'duel' }),
+    buildReportModel(loop, { banter: 'duel', villains: 'off' }),
+    buildReportModel(loop, { banter: 'duel', signals: { secretExposure: true } }),
+    buildReportModel(conflict, { banter: 'duel', tone: 'spirited' })
+  ];
+  for (const model of cases) {
+    assert.equal(model.banterMode, 'flaw');
+    const safeBrief = buildResponseBrief(model, { language: 'vi' });
+    assert.equal(safeBrief.composition.banterMode, 'flaw');
+    assert.equal(safeBrief.composition.banterContract.target, 'evidenced-flaw');
+    assert.ok(!safeBrief.findings.some((finding) => finding.villain?.duel?.enabled));
+  }
+});
 check('render: neutral context pauses theatrical prose', () => {
   const neutral = renderMarkdown(buildReportModel(conflict, { tone: 'spirited' }), 'en');
   assert.match(neutral, /cultivation theatrics are paused/);
   assert.ok(!neutral.includes('jade bell'));
 });
-check('skill contract names namespace isolation and normal-style restoration', () => {
+check('skill contract names persistent voice, namespace isolation, and normal-style restoration', () => {
   const skill = fs.readFileSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../.vibekit/skills/tutien/SKILL.md'), 'utf8');
   assert.match(skill, /tutien-coding-cultivation-v1/);
   assert.match(skill, /unrelated support\/companion features/);
   assert.match(skill, /normal writing style/);
+  assert.match(skill, /every reply uses the cultivation voice/i);
+  assert.match(skill, /ordinary follow-up requests keep the cultivation voice/i);
+  assert.doesNotMatch(skill, /Only `\/tutien` responses use the cultivation voice/);
   assert.match(skill, /vi-style-guide\.md/);
   assert.match(skill, /adaptive-response\.md/);
   assert.match(skill, /never paste its fixed section order or stock prose unchanged/i);
@@ -220,12 +288,23 @@ check('skill contract names namespace isolation and normal-style restoration', (
 check('skill: adaptive response is project-specific and ending intent is not a fixed formula', () => {
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../.vibekit/skills/tutien');
   const adaptive = fs.readFileSync(path.join(root, 'references/adaptive-response.md'), 'utf8');
+  const voice = fs.readFileSync(path.join(root, 'references/voice-and-mode.md'), 'utf8');
   const viStyle = fs.readFileSync(path.join(root, 'references/vi-style-guide.md'), 'utf8');
   assert.match(adaptive, /current user request/i);
   assert.match(adaptive, /distinctive about this repository/i);
   assert.match(adaptive, /not a response template/i);
+  assert.match(adaptive, /including ordinary requests that do not repeat `\/tutien`/i);
+  assert.match(adaptive, /literal islands exact/i);
+  assert.match(adaptive, /sarcasm and mockery are its default characterization/i);
+  assert.match(adaptive, /Role-address presentation firewall/i);
+  assert.match(adaptive, /Never surface them as the noun referring to the reader inside a scene/i);
+  assert.match(voice, /every reply uses this namespace and voice/i);
+  assert.match(voice, /cutting sarcasm, and mocking confidence/i);
   assert.match(adaptive, /Kết cà khịa, luôn giáo huấn, không tâng bốc và kéo dài dư âm vai diễn\./);
+  assert.match(viStyle, /mọi phản hồi bằng tiếng Việt khi chế độ Tutien đang bật/i);
   assert.match(viStyle, /hiệu quả cần đạt, không phải câu mẫu/);
+  assert.match(viStyle, /mặc định gọi người đọc là `đạo hữu`/i);
+  assert.match(viStyle, /`vai tu sĩ`.+không được dùng làm cách gọi người đọc/i);
 });
 
 check('render: model is language-neutral (same facts feed both languages)', () => {

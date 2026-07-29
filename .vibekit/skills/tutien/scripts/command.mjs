@@ -3,7 +3,9 @@
 // typed /tutien. `off`/`on` toggle the session mode; a report action only
 // runs when the mode is on.
 
-const ACTIONS = new Set(['on', 'off', 'status', 'preview', 'analyze', 'compare', 'explain', 'classify']);
+import { normalizeHumiliationLevel } from './humiliation.mjs';
+
+const ACTIONS = new Set(['on', 'off', 'status', 'levels', 'preview', 'analyze', 'compare', 'explain', 'classify']);
 const TONE_ALIASES = new Map([
   ['serene', 'serene'],
   ['spirited', 'spirited'],
@@ -16,16 +18,23 @@ const TONE_ALIASES = new Map([
 const STORY_LANGUAGES = new Set(['auto', 'vi', 'en', 'zh']);
 const STORY_STYLES = new Set(['auto', 'classic-quest', 'web-serial', 'daily-life', 'clan-epic', 'comic-adventure']);
 const STORY_FOCUSES = new Set(['balanced', 'project', 'characters', 'world', 'sect-politics']);
+const BANTER_MODES = new Set(['flaw', 'duel']);
 
 const allowedOr = (value, allowed, fallback) => allowed.has(String(value).toLowerCase()) ? String(value).toLowerCase() : fallback;
 export const normalizeStoryLanguage = (value) => allowedOr(value, STORY_LANGUAGES, 'auto');
 export const normalizeStoryStyle = (value) => allowedOr(value, STORY_STYLES, 'auto');
 export const normalizeStoryFocus = (value) => allowedOr(value, STORY_FOCUSES, 'balanced');
+export const normalizeBanterMode = (value) => allowedOr(value, BANTER_MODES, 'flaw');
 
 export const TUTIEN_EXPERIENCE = Object.freeze({
   kind: 'wholesome-coding-classification-game',
   purpose: 'stress-relief-and-mindful-reflection',
-  narrativeStyle: 'refined-mystical-xianxia',
+  narrativeStyle: 'immersive-adaptive-xianxia',
+  responseScope: 'all-user-facing-replies-while-active',
+  languageMode: 'match-current-user-request',
+  villainVoice: 'cutting-sarcastic-mockery',
+  banterTarget: 'opt-in-evidenced-action-only',
+  humiliationControl: 'explicit-revocable-fictional-avatar-level-0-through-10',
   semanticNamespace: 'tutien-coding-cultivation-v1'
 });
 
@@ -53,6 +62,8 @@ export function parseInvocation(argsString = '') {
     language: 'auto',
     tone: 'serene',
     villains: 'on',
+    banter: 'flaw',
+    humiliation: 0,
     score: 'hidden',
     includeExcerpts: false,
     range: 'all',
@@ -85,6 +96,8 @@ export function parseInvocation(argsString = '') {
       case 'language': providedOptions.add(key); options.language = value; break;
       case 'tone': providedOptions.add(key); options.tone = normalizeTone(value); break;
       case 'villains': providedOptions.add(key); options.villains = value === 'off' ? 'off' : 'on'; break;
+      case 'banter': providedOptions.add(key); options.banter = normalizeBanterMode(value); break;
+      case 'humiliation': providedOptions.add(key); options.humiliation = normalizeHumiliationLevel(value); break;
       case 'score': providedOptions.add(key); options.score = value === 'show' ? 'show' : 'hidden'; break;
       case 'scope': providedOptions.add(key); options.scope = value; break;
       case 'privacy': providedOptions.add(key); options.privacy = value; break;

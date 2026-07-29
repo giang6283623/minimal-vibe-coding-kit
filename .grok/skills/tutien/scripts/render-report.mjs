@@ -10,6 +10,7 @@ import { detectProblems } from './catalog.mjs';
 import { buildVillains } from './villains.mjs';
 import { classifyProject, localizeRationale, progressionMetrics, PROGRESSION } from './classify.mjs';
 import { resolveTone, TUTIEN_EXPERIENCE } from './command.mjs';
+import { humiliationProfile } from './humiliation.mjs';
 
 // A context is sensitive (humor forced neutral) when unrecovered failures or
 // conflicts are present, or when the caller passes an emergency signal
@@ -62,12 +63,16 @@ export function buildReportModel(analysis, options = {}) {
   const { villains } = buildVillains(rawProblems, {
     tone,
     villains: options.villains ?? 'on',
+    banter: options.banter ?? 'flaw',
+    humiliation: options.humiliation ?? 0,
     threshold: options.villainThreshold,
     emergency: sensitive,
     seedInputs: options.seedInputs,
     context: options.context,
     priorVillains: options.priorVillains
   });
+  const effectiveBanterMode = villains.some((villain) => villain.actionDuel) ? 'duel' : 'flaw';
+  const effectiveHumiliationLevel = Math.max(0, ...villains.map((villain) => villain.humiliation?.level ?? 0));
   const villainByProblem = new Map(villains.map((v) => [v.problemId, v]));
 
   // Recommendations and antagonist framing are part of the game layer. A
@@ -103,6 +108,9 @@ export function buildReportModel(analysis, options = {}) {
       vary: ['structure', 'opening', 'scene', 'pacing', 'dialogue', 'technical-density', 'closing-image']
     },
     tone,
+    banterMode: effectiveBanterMode,
+    humiliationLevel: effectiveHumiliationLevel,
+    humiliationProfile: humiliationProfile(effectiveHumiliationLevel),
     villainsShown: villains.length,
     villainCards: villains,
     cultivation,
@@ -141,7 +149,15 @@ export function buildReportModel(analysis, options = {}) {
         projectHelp: resolveProjectHelp(p.meta.projectHelp, options.profile),
         microQuest: p.meta.microQuest,
         victory: p.meta.victory,
-        villain: v ? { name: v.archetype.name, gloss: v.archetype.gloss, role: v.role, tone: v.tone, challenge: v.challenge } : null
+        villain: v ? {
+          name: v.archetype.name,
+          gloss: v.archetype.gloss,
+          role: v.role,
+          tone: v.tone,
+          challenge: v.challenge,
+          humiliation: v.humiliation,
+          actionDuel: v.actionDuel
+        } : null
       };
     }),
     ifThen,
@@ -434,6 +450,7 @@ export function renderMarkdown(model, language = 'en') {
           const label = lang === 'vi' ? p.villain.name : `${p.villain.name} - ${p.villain.gloss}`;
           out.push(`### ${label} (${localized(t.roleLabels, p.villain.role)}, ${t.confidence} ${p.confidence})`);
           out.push(`> ${pick(p.villain.challenge, lang)}`);
+          if (p.villain.actionDuel) out.push(`> ${pick(p.villain.actionDuel, lang)}`);
         } else {
           out.push(`### ${localized(t.problemLabels, p.problemType)} (${t.confidence} ${p.confidence})`);
         }
