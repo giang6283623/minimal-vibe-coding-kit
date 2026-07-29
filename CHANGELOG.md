@@ -2,15 +2,13 @@
 
 ## Unreleased
 
-### Changed
-
-- The graph renderer's Mermaid output now follows the mermaid skill's Vivid Clay preset instead of a partial theme block (all mirrors): full universal frontmatter (primary/secondary/tertiary tokens), rounded status-colored nodes, a paper-tint `wave` class on wave clusters, `linkStyle default` edge styling, `<br/>` wrapping for labels longer than 24 characters, and only the classDefs that are actually assigned. Inline class and link styling keeps diagrams legible on hosts that ignore frontmatter themeVariables, such as forced dark themes. `references/graph-visualization.md` and the skill's visualize section now name the preset as the style source; renderer checks grew from 39 to 41.
-
-## 0.5.4 - 2026-07-28
+## 0.5.4 - 2026-07-29
 
 ### Added
 
 - Added `the-creator` across Claude, Cursor, Codex, Grok, and Kimi. Its ten cumulative creativity levels each relax one additional 10% category of eligible conventions for art, design, interfaces, methods, processes, systems, and other invention, while an immutable floor preserves instruction precedence, safety, authorization, evidence, accessibility, validation, and functional acceptance.
+- Added explicit `humiliation=0..10` control to `/tutien` across all mirrors. Level 0 disables fictional humiliation; levels 1-10 progressively increase directness, sarcasm, fictional status pressure, defeat, and loss of face for the cultivation role. Nonzero levels imply the direct duel register, require revocable session consent, and fail closed under neutral tone, sensitive context, non-clear policy, disabled villains, insufficient evidence, invalid input, or Tutien exit.
+- Added abstract response-shape guidance to `/tutien`, varying seven composition dimensions without storing user text or reusable prose. Adjacent briefs must differ in at least two dimensions while preserving facts, policy, privacy, literal technical content, and chronicle continuity.
 - Added a width-aware `--format=ascii-3d` graph view for Cursor CLI, Claude Code, Codex CLI, Grok CLI, Kimi CLI, and plain terminals. It derives topological depth, renders portable pseudo-3D node boxes, numbers every artifact edge, marks the structural critical path, explains blockers, escapes unsafe terminal labels, rejects unknown state, and falls back to a wrapped compact ledger on narrow or dense graphs. Mermaid output separately encodes graph delimiters, removes bidi controls, and pins strict security mode.
 - Added a native Kimi Code CLI surface: `.kimi-code/skills/` mirrors all 18 skills (Kimi Code's project-level brand skills directory per the official `kimi-code` discovery order, with the generic `.agents/skills/` also discovered), `.kimi-code/README.md`, a `kimi` install/update profile in `mvck.mjs` (included in `all`), and registration across `skills-manifest.json`, `validate-kit.mjs`, `test-install.mjs`, `backbone.yml` `agent_surfaces`, npm package files, and the English, Vietnamese, and Chinese docs. Kimi Code already loads the root `AGENTS.md` at project level, so existing installs keep working without changes.
 - Added a deterministic graph renderer to `graph-engineering-verified-orchestration` (all mirrors): `scripts/render-graph.mjs` turns a graph ledger JSON into a styled Mermaid flowchart for app surfaces or ASCII views for CLI terminals, with schema, duplicate-id, unknown-edge, and cycle validation plus a deterministic critical path. `references/graph-visualization.md` documents the rendering contract; 39 offline checks cover the renderer.
@@ -20,6 +18,8 @@
 
 ### Changed
 
+- `/tutien` now keeps an unmistakable, language-matched cultivation-novel voice across every user-facing reply while active, including ordinary coding work and progress updates. Eligible villains use cutting, evidence-bound sarcasm automatically; final responses remain agent-authored from project facts and may not reuse the deterministic ledger's fixed structure or prose.
+- The graph renderer's Mermaid output now follows the mermaid skill's Vivid Clay preset instead of a partial theme block (all mirrors): full universal frontmatter (primary/secondary/tertiary tokens), rounded status-colored nodes, a paper-tint `wave` class on wave clusters, `linkStyle default` edge styling, `<br/>` wrapping for labels longer than 24 characters, and only the classDefs that are actually assigned. Inline class and link styling keeps diagrams legible on hosts that ignore frontmatter themeVariables, such as forced dark themes. `references/graph-visualization.md` and the skill's visualize section now name the preset as the style source; renderer checks grew from 39 to 41.
 - The graph renderer's default `--format=both` output now pairs Mermaid with ASCII 3D instead of the legacy ASCII wave list. Consumers that require the previous schedule-first text can request `--format=ascii` explicitly.
 - `validate-kit.mjs` now derives mirror surface directories and the frontmatter scan list from the manifest's own `surfaces` map instead of hardcoded lists, so a surface registered in `skills-manifest.json` cannot drift from mirror validation.
 - `mvck doctor` is now read-only by default: it no longer executes `validate-kit.mjs` or the AgentShield probe from the target repository unless the new `--run-repo-checks` flag is passed. The report and the JSON output mark the checks as present but not executed.
@@ -28,13 +28,14 @@
 
 ### Fixed
 
+- Fixed `/tutien` leaking internal consent labels such as `vai tu sĩ`, `vai diễn hư cấu`, or `avatar` into Vietnamese role-play. The response brief now marks those labels as metadata-only and uses `đạo hữu` as the default visible second-person address, while allowing an already-established in-world title.
 - The graph renderer rejects node ids that collide after Mermaid id sanitization (for example `A-B` and `A_B` both became `A_B` and collapsed into one rendered node).
 - The graph cycle CLI test writes its fixture to a unique temporary directory instead of overwriting and permanently deleting the fixed path `fixtures/cyclic-graph.json`.
 - `.cursor/cli.json` ships a read-only `permissions.allow` list next to the existing `deny` list so non-interactive Cursor CLI runs can execute read-only commands without prompting.
 
 ### Validation
 
-- `npm run validate:all` passed with zero validator failures or warnings, all 39 graph renderer checks, a clean deterministic AgentShield probe, and all 752 skill files on disk included in a package tarball of 849 files.
+- `npm run validate:all` passed with zero validator failures or warnings, all 177 Tutien checks, all 41 graph renderer checks, a clean deterministic AgentShield probe, and all 770 skill files on disk included in a package tarball of 867 files.
 - Synchronized release version `0.5.4` across package metadata, Codex plugin metadata, and all three README badges.
 
 ## 0.5.3 - 2026-07-27
