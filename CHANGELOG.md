@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+## 0.5.5 - 2026-07-30
+
+### Added
+
+- Added append-only result lineage and bounded context-projection guidance to `graph-engineering-verified-orchestration` across all agent mirrors. Provenance relations remain separate from scheduling dependencies, while reduced worker context must retain authority, scopes, gates, budgets, verifier contracts, conflicts, and known uncertainty.
+- Added deterministic regression coverage that compares the optimized critical-path traversal with a brute-force oracle across 200 generated DAGs.
+
+### Changed
+
+- Optimized graph critical-path traversal to store path lengths and parent links, and reused one deterministic wave grouping helper across Mermaid, ASCII, and ASCII 3D rendering.
+- Documented renderer performance diagnosis, format selection, cache identity, and the requirement to validate the canonical ledger before mutable execution.
+- Codex install and update now assign MVCK-owned manifests a normalized project-scoped plugin name. Long and non-ASCII folder names receive bounded deterministic names that remain valid under Codex's 64-character plugin-name limit.
+
+### Fixed
+
+- Preserved unrelated project-owned `.codex-plugin/plugin.json` files during install and update. Install replaces one only when `--force` is explicit, while MVCK-owned manifests still migrate automatically and are backed up during update.
+- Added validation that Codex plugin names are bounded lowercase hyphen-case and that package, Codex plugin, and README badge versions remain synchronized.
+
+### Validation
+
+- `npm run validate:all` passed with zero validator failures or warnings, all 177 Tutien checks, all 42 graph renderer checks, a clean deterministic AgentShield probe, and all 770 on-disk skill files included in an 867-file npm tarball.
+
 ## 0.5.4 - 2026-07-29
 
 ### Added

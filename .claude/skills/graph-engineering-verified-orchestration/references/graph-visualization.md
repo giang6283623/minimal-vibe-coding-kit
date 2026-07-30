@@ -56,6 +56,21 @@ all hosts. Without it, a TTY uses its bounded column count and non-TTY output
 uses 80 columns. ASCII 3D falls back to the compact topology ledger below 64
 columns, above 24 nodes, or above 8 nodes in one layer.
 
+## Performance and reuse
+
+- Request only the format required by the known surface. Use `both` only when
+  the destination is genuinely unknown or mixed, because it doubles renderer
+  output and host-side layout work.
+- A caller may reuse a disposable render only when the canonical ledger digest,
+  renderer digest, format, and resolved width all match. Any change to one of
+  those inputs requires regeneration.
+- Reuse applies only to the view. Validate the full canonical ledger before
+  mutable execution, and never treat cached output as the source of truth.
+- Diagnose latency in separate layers: process startup, JSON parsing and graph
+  validation, renderer CPU time, output bytes, transport, and host-side Mermaid
+  layout. Optimize the measured bottleneck and retain a byte-stable output
+  fingerprint as the correctness oracle.
+
 The script validates before rendering and exits non-zero with a named error when:
 
 - the JSON is malformed or `nodes` is missing or empty;

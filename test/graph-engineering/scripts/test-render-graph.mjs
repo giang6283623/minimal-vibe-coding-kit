@@ -83,6 +83,54 @@ check('criticalPath: ties use the node id sequence without concatenation collisi
   assert.deepEqual(criticalPath(nodes, edges), ['A', 'BC']);
   assert.deepEqual(criticalPath([...nodes].reverse(), [...edges].reverse()), ['A', 'BC']);
 });
+check('criticalPath: optimized traversal matches a brute-force oracle across deterministic DAGs', () => {
+  const comparePaths = (left, right) => {
+    const count = Math.min(left.length, right.length);
+    for (let index = 0; index < count; index += 1) {
+      if (left[index] < right[index]) return -1;
+      if (left[index] > right[index]) return 1;
+    }
+    return left.length - right.length;
+  };
+  const bruteCriticalPath = (nodes, edges) => {
+    const adjacency = new Map(nodes.map((node) => [node.id, []]));
+    for (const edge of edges) adjacency.get(edge.from).push(edge.to);
+    for (const targets of adjacency.values()) targets.sort();
+    let best = [];
+    const visit = (id, path) => {
+      const nextPath = [...path, id];
+      if (nextPath.length > best.length
+          || (nextPath.length === best.length && comparePaths(nextPath, best) < 0)) {
+        best = nextPath;
+      }
+      for (const next of adjacency.get(id)) visit(next, nextPath);
+    };
+    for (const node of nodes) visit(node.id, []);
+    return best;
+  };
+  let randomState = 0x9e3779b9;
+  const random = () => {
+    randomState = (Math.imul(randomState, 1664525) + 1013904223) >>> 0;
+    return randomState / 0x100000000;
+  };
+  for (let caseIndex = 0; caseIndex < 200; caseIndex += 1) {
+    const nodeCount = 2 + (caseIndex % 7);
+    const nodes = Array.from({ length: nodeCount }, (_, index) => ({
+      id: String.fromCharCode(65 + index)
+    }));
+    const edges = [];
+    for (let from = 0; from < nodeCount; from += 1) {
+      for (let to = from + 1; to < nodeCount; to += 1) {
+        if (random() < 0.32) edges.push({ from: nodes[from].id, to: nodes[to].id });
+      }
+    }
+    assert.deepEqual(
+      criticalPath(nodes, edges),
+      bruteCriticalPath(nodes, edges),
+      `critical path mismatch in deterministic DAG case ${caseIndex}`
+    );
+  }
+});
 check('topologicalLayers: derives deterministic dependency depth', () =>
   assert.deepEqual(topologicalLayers(ledger.nodes, ledger.edges), [
     ['N1'],

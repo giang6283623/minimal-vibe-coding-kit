@@ -77,6 +77,21 @@ Record global and per-node concurrency, token, time, retry, and cost limits plus
 
 Use only runtime constraints already visible in the active environment; never inspect secrets or account data to discover limits. If required controls or limits are unavailable, run sequentially or remain plan-only. Do not hardcode promotional or vendor-specific caps.
 
+### 8. Preserve lineage without inventing dependencies
+
+For multi-round or cross-session work, record stable result/run IDs, artifact
+digests, parent results, evaluator/rubric identities, sources, and supersession
+links in the result envelope. Keep this work lineage separate from scheduling:
+relations such as `PRODUCED`, `SUPPORTED_BY`, `EVALUATED_BY`, `DERIVED_FROM`,
+and `SUPERSEDES` are provenance, not dependency edges, unless a downstream
+node actually consumes the named artifact.
+
+When a worker does not need the full graph, define a bounded context projection
+with seed IDs, allowed relation types, maximum hops, token or byte cap, source
+graph digest, and projection digest. Context reduction must still include the
+node's authority, scopes, gates, budgets, verifier contract, conflicts, and
+known uncertainty.
+
 ## Execute and merge
 
 1. Validate that the graph is acyclic. Convert genuine iterative discovery into a bounded loop with maximum nodes, maximum rounds, a deduplication key, and an exit condition.
