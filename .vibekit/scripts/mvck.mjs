@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
@@ -123,6 +124,74 @@ function copyDirSafe(srcRel, destRel, target, { force = false, dryRun = false, e
   copyRecursive(src, destRoot);
   const action = force ? 'merge-replace' : copied > 0 && skipped > 0 ? 'merge-copy-missing' : copied > 0 ? 'copy-dir' : 'skip-dir';
   return { action: `${action} (${copied} copied, ${skipped} skipped)`, path: destRel ?? srcRel };
+}
+
+// Codex registers every project plugin under its manifest name, so two projects
+// with the same name become indistinguishable duplicate rows in the skill picker.
+// Each install therefore gets a project-scoped plugin identity derived from the
+// target folder name. The kit source repo keeps the canonical name.
+function projectScopedCodexPluginName(target) {
+  const prefix = 'mvck-';
+  const maxLength = 64;
+  const projectName = path.basename(target);
+  const slug = projectName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  if (slug && prefix.length + slug.length <= maxLength) return `${prefix}${slug}`;
+  const digest = createHash('sha256').update(projectName).digest('hex').slice(0, 8);
+  if (!slug) return `${prefix}project-${digest}`;
+  const suffix = `-${digest}`;
+  const available = maxLength - prefix.length - suffix.length;
+  return `${prefix}${slug.slice(0, available).replace(/-+$/g, '')}${suffix}`;
+}
+
+function isMvckCodexPlugin(plugin) {
+  if (!plugin || typeof plugin !== 'object' || Array.isArray(plugin)) return false;
+  if (plugin.skills !== './.vibekit/skills/') return false;
+  if (plugin.name !== 'minimal-vibe-coding-kit' && !/^mvck-[a-z0-9-]+$/.test(plugin.name || '')) return false;
+  const author = plugin.author?.name;
+  return author === 'Minimal Vibe Coding Kit' || (typeof author === 'string' && author.startsWith('MVCK ('));
+}
+
+function personalizeCodexPlugin(target, { dryRun = false, backup = null, force = false } = {}) {
+  const rel = '.codex-plugin/plugin.json';
+  const sameAsKit = fs.existsSync(target)
+    ? fs.realpathSync(target) === fs.realpathSync(kitRoot)
+    : path.resolve(target) === kitRoot;
+  if (sameAsKit) return { action: 'skip', path: rel };
+  const projectName = path.basename(target);
+  const plugin = JSON.parse(fs.readFileSync(path.join(kitRoot, rel), 'utf8'));
+  plugin.name = projectScopedCodexPluginName(target);
+  plugin.description = `MVCK vibe coding skills for the ${projectName} project.`;
+  if (plugin.author && typeof plugin.author.name === 'string') {
+    plugin.author.name = `MVCK (${projectName})`;
+  }
+  const dest = path.join(target, rel);
+  const next = `${JSON.stringify(plugin, null, 2)}\n`;
+  if (!fs.existsSync(dest)) {
+    if (!dryRun) {
+      fs.mkdirSync(path.dirname(dest), { recursive: true });
+      fs.writeFileSync(dest, next);
+    }
+    return { action: 'add', path: rel };
+  }
+  const current = fs.readFileSync(dest, 'utf8');
+  if (current === next) return { action: 'unchanged', path: rel };
+  let currentPlugin = null;
+  try {
+    currentPlugin = JSON.parse(current);
+  } catch {}
+  if (!force && !isMvckCodexPlugin(currentPlugin)) {
+    return { action: 'skip-existing', path: rel };
+  }
+  if (!dryRun) {
+    if (backup) {
+      const backupPath = path.join(backup.dir, rel);
+      fs.mkdirSync(path.dirname(backupPath), { recursive: true });
+      fs.copyFileSync(dest, backupPath);
+      backup.count += 1;
+    }
+    fs.writeFileSync(dest, next);
+  }
+  return { action: isMvckCodexPlugin(currentPlugin) ? 'personalize' : 'replace', path: rel };
 }
 
 function appendManagedBlock(file, block, begin, end, { dryRun = false } = {}) {
@@ -264,8 +333,9 @@ function install() {
   }
   if (profiles.has('codex')) {
     for (const dir of CODEX_DIRS) {
-      actions.push(copyDirSafe(dir, dir, target, opts));
+      actions.push(copyDirSafe(dir, dir, target, dir === '.codex-plugin' ? { ...opts, exclude: ['plugin.json'] } : opts));
     }
+    actions.push(personalizeCodexPlugin(target, opts));
   }
   if (profiles.has('grok')) {
     for (const dir of GROK_DIRS) {
@@ -409,7 +479,8 @@ function update() {
     for (const skill of CURSOR_SKILLS) actions.push(...updateDirSafe(`.cursor/skills/${skill}`, target, opts));
   }
   if (profiles.has('codex')) {
-    for (const dir of CODEX_DIRS) actions.push(...updateDirSafe(dir, target, opts));
+    for (const dir of CODEX_DIRS) actions.push(...updateDirSafe(dir, target, dir === '.codex-plugin' ? { ...opts, exclude: ['plugin.json'] } : opts));
+    actions.push(personalizeCodexPlugin(target, opts));
   }
   if (profiles.has('grok')) {
     // .grok/config.toml holds user-editable permission rules; seed it below instead of overwriting.

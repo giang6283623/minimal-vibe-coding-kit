@@ -205,6 +205,35 @@ residual_risks: []
 retry_count: 0
 ```
 
+For multi-round or cross-session work, extend the envelope with append-only
+lineage and a bounded context projection:
+
+```yaml
+lineage:
+  result_id: Stable unique result identity
+  run_id: Authoring execution identity
+  artifact_digest: Exact output digest
+  producer: Named agent, harness, or person
+  derived_from_results: []
+  source_locators: []
+  evidence_kind: observed | inference | mixed
+  evaluation_id: Stable evaluator decision identity
+  rubric_digest: Protected evaluator rubric digest
+  supersedes: []
+context_projection:
+  seed_ids: []
+  allowed_relation_types: []
+  maximum_hops: Positive integer
+  token_or_byte_cap: Positive bounded limit
+  source_graph_digest: Exact canonical source digest
+  projection_digest: Exact serialized projection digest
+```
+
+Lineage relations record provenance and history. They do not become scheduling
+edges unless a downstream node consumes the named artifact. A context
+projection may reduce working evidence, but it must not omit authority, scopes,
+gates, budgets, verifier contracts, conflicts, or known uncertainty.
+
 The merge owner accepts only artifacts whose required verifier passed and whose cleanup state is safe. The merge owner may edit only its declared scope; conflict edits require re-verification. After merging, run final uniqueness, semantic-invariant, and graph-level integration checks.
 
 For irreversible R2 actions, set `reversible: false`, provide the exact preview, minimize or canary the scope, record acknowledgement of irreversibility, and place a single-use human gate immediately before the action. A recovery or compensating mitigation is not rollback.

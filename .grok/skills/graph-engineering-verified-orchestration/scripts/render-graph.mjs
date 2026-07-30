@@ -201,26 +201,50 @@ export function criticalPath(nodes, edges) {
   }
   for (const list of adjacency.values()) list.sort();
   const queue = nodes.map((node) => node.id).filter((id) => indegree.get(id) === 0).sort();
-  const best = new Map(nodes.map((node) => [node.id, [node.id]]));
-  const order = [];
+  const bestLength = new Map(nodes.map((node) => [node.id, 1]));
+  const bestParent = new Map(nodes.map((node) => [node.id, null]));
+  const pathCache = new Map();
+  // Only call pathFor on nodes already dequeued (their parent chain is final); earlier calls would cache stale paths.
+  const pathFor = (id) => {
+    if (pathCache.has(id)) return pathCache.get(id);
+    const path = [];
+    let current = id;
+    while (current !== null) {
+      path.push(current);
+      current = bestParent.get(current);
+    }
+    path.reverse();
+    pathCache.set(id, path);
+    return path;
+  };
   while (queue.length) {
     const id = queue.shift();
-    order.push(id);
     for (const next of adjacency.get(id)) {
-      const candidate = best.get(id).concat(next);
-      const current = best.get(next);
-      if (candidate.length > current.length || (candidate.length === current.length && compareIdPaths(candidate, current) < 0)) {
-        best.set(next, candidate);
+      const candidateLength = bestLength.get(id) + 1;
+      const currentLength = bestLength.get(next);
+      if (candidateLength > currentLength) {
+        bestLength.set(next, candidateLength);
+        bestParent.set(next, id);
+      } else if (candidateLength === currentLength) {
+        const currentParent = bestParent.get(next);
+        if (currentParent === null || compareIdPaths(pathFor(id), pathFor(currentParent)) < 0) {
+          bestParent.set(next, id);
+        }
       }
       indegree.set(next, indegree.get(next) - 1);
       if (indegree.get(next) === 0) queue.push(next);
     }
   }
-  let result = [];
-  for (const path of best.values()) {
-    if (path.length > result.length || (path.length === result.length && compareIdPaths(path, result) < 0)) result = path;
+  let resultId = null;
+  for (const node of nodes) {
+    if (resultId === null
+        || bestLength.get(node.id) > bestLength.get(resultId)
+        || (bestLength.get(node.id) === bestLength.get(resultId)
+          && compareIdPaths(pathFor(node.id), pathFor(resultId)) < 0)) {
+      resultId = node.id;
+    }
   }
-  return result;
+  return resultId === null ? [] : pathFor(resultId);
 }
 
 export function topologicalLayers(nodes, edges) {
@@ -298,6 +322,19 @@ function sortedEdges(edges) {
     const rightKey = `${right.from}\u0000${right.to}\u0000${right.artifact}`;
     return leftKey.localeCompare(rightKey);
   });
+}
+
+function groupedWaveNodes(nodes) {
+  const groups = new Map();
+  for (const node of nodes) {
+    if (node.wave === null) continue;
+    if (!groups.has(node.wave)) groups.set(node.wave, []);
+    groups.get(node.wave).push(node);
+  }
+  for (const group of groups.values()) {
+    group.sort((left, right) => left.id.localeCompare(right.id));
+  }
+  return [...groups.entries()].sort(([left], [right]) => left - right);
 }
 
 function wrapAsciiLine(text, width, continuation = '  ') {
@@ -392,11 +429,12 @@ export function renderMermaid(ledger) {
     '---',
     'flowchart TD'
   ];
-  const waves = [...new Set(ledger.nodes.filter((n) => n.wave !== null).map((n) => n.wave))].sort((a, b) => a - b);
+  const waveGroups = groupedWaveNodes(ledger.nodes);
+  const waves = waveGroups.map(([wave]) => wave);
   const inWave = new Set();
-  for (const wave of waves) {
+  for (const [wave, nodes] of waveGroups) {
     lines.push(`    subgraph Wave${wave}["Wave ${wave}"]`);
-    for (const node of ledger.nodes.filter((n) => n.wave === wave).sort((a, b) => a.id.localeCompare(b.id))) {
+    for (const node of nodes) {
       inWave.add(node.id);
       lines.push(`        ${sanitizeId(node.id)}("${mermaidNodeLabel(node.label)}")`);
     }
@@ -433,11 +471,11 @@ export function renderAscii(ledger) {
   const lines = [];
   if (ledger.goal) lines.push(`goal: ${toAsciiText(ledger.goal)}`);
   lines.push(`graph: ${toAsciiText(ledger.version)} nodes=${ledger.nodes.length} edges=${ledger.edges.length}`);
-  const waves = [...new Set(ledger.nodes.filter((n) => n.wave !== null).map((n) => n.wave))].sort((a, b) => a - b);
+  const waveGroups = groupedWaveNodes(ledger.nodes);
   const inWave = new Set();
-  for (const wave of waves) {
+  for (const [wave, nodes] of waveGroups) {
     lines.push('', `wave ${wave}`);
-    for (const node of ledger.nodes.filter((n) => n.wave === wave).sort((a, b) => a.id.localeCompare(b.id))) {
+    for (const node of nodes) {
       inWave.add(node.id);
       const marker = STATUS_MARKER[node.status];
       const risk = node.risk ? ` ${node.risk}` : '';
@@ -465,16 +503,11 @@ export function renderAscii(ledger) {
 }
 
 function appendAscii3dSummary(lines, ledger, width, critical) {
-  const waves = [...new Set(ledger.nodes.filter((node) => node.wave !== null).map((node) => node.wave))]
-    .sort((left, right) => left - right);
+  const waveGroups = groupedWaveNodes(ledger.nodes);
   lines.push('', 'schedule waves');
-  if (waves.length === 0) lines.push('  none assigned');
-  for (const wave of waves) {
-    const ids = ledger.nodes
-      .filter((node) => node.wave === wave)
-      .map((node) => node.id)
-      .sort()
-      .join(', ');
+  if (waveGroups.length === 0) lines.push('  none assigned');
+  for (const [wave, nodes] of waveGroups) {
+    const ids = nodes.map((node) => node.id).join(', ');
     lines.push(...wrapAsciiLine(`  W${wave}: ${ids}`, width, '      '));
   }
 

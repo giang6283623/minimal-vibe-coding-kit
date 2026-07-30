@@ -688,6 +688,25 @@ for (const rel of ['package.json', '.claude/settings.json', '.cursor/settings.js
 }
 
 const pkg = exists('package.json') ? readJson('package.json') : null;
+const codexPlugin = exists('.codex-plugin/plugin.json') ? readJson('.codex-plugin/plugin.json') : null;
+if (codexPlugin) {
+  const pluginName = codexPlugin.name;
+  if (typeof pluginName === 'string' && pluginName.length <= 64 && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(pluginName)) {
+    ok('Codex plugin name is lowercase hyphen-case and at most 64 characters');
+  } else {
+    fail('Codex plugin name must be lowercase hyphen-case and at most 64 characters');
+  }
+}
+if (isKitSourceRepo && pkg?.version) {
+  if (codexPlugin?.version === pkg.version) ok(`Codex plugin version matches package version ${pkg.version}`);
+  else fail(`Codex plugin version ${codexPlugin?.version || 'missing'} differs from package version ${pkg.version}`);
+  for (const rel of ['README.md', 'docs/README.vi.md', 'docs/README.zh-CN.md']) {
+    if (!exists(rel)) continue;
+    read(rel).includes(`version-${pkg.version}-`)
+      ? ok(`${rel} version badge matches package version ${pkg.version}`)
+      : fail(`${rel} version badge differs from package version ${pkg.version}`);
+  }
+}
 if (pkg?.bin && typeof pkg.bin === 'object') {
   for (const [name, target] of Object.entries(pkg.bin)) {
     if (typeof target !== 'string') { fail(`package bin ${name} target must be a string`); continue; }

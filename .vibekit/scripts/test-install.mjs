@@ -65,6 +65,13 @@ try {
   assert(!fs.existsSync(path.join(clean, '.vibekit/docs/RESEARCH_NOTES.md')), 'clean install omits maintainer RESEARCH_NOTES.md');
   assert(!fs.existsSync(path.join(clean, '.vibekit/docs/AUTORESEARCH_LEDGER.md')), 'clean install omits maintainer AUTORESEARCH_LEDGER.md');
   assert(fs.existsSync(path.join(clean, '.vibekit/docs/INSTALL.md')), 'clean install keeps end-user docs like INSTALL.md');
+  const cleanSlug = path.basename(clean).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const cleanPlugin = JSON.parse(fs.readFileSync(path.join(clean, '.codex-plugin/plugin.json'), 'utf8'));
+  assert(cleanPlugin.name === `mvck-${cleanSlug}`, 'install writes a project-scoped Codex plugin name');
+  assert(cleanPlugin.name.length <= 64 && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(cleanPlugin.name), 'install writes a bounded valid Codex plugin name');
+  assert(cleanPlugin.description.includes(path.basename(clean)), 'install writes a project-scoped Codex plugin description');
+  const sourcePlugin = JSON.parse(fs.readFileSync(path.join(kitRoot, '.codex-plugin/plugin.json'), 'utf8'));
+  assert(sourcePlugin.name === 'minimal-vibe-coding-kit', 'kit source repo keeps the canonical Codex plugin name');
   run(['.vibekit/scripts/mvck.mjs', 'install', clean, '--profile', 'bogus'], { expect: 1 });
   assert(true, 'install rejects an unknown --profile value');
 
@@ -97,6 +104,36 @@ try {
   const parsed = JSON.parse(jsonPlan.stdout);
   assert(parsed.status === 'dry-run' && parsed.dryRun === true, 'install --dry-run --json returns machine-readable plan');
 
+  const longName = tempDir(`plugin-${'a'.repeat(80)}`);
+  run(['.vibekit/scripts/mvck.mjs', 'install', longName, '--profile', 'codex']);
+  const longPlugin = JSON.parse(fs.readFileSync(path.join(longName, '.codex-plugin/plugin.json'), 'utf8'));
+  assert(longPlugin.name.length === 64 && /^mvck-[a-z0-9-]+-[a-f0-9]{8}$/.test(longPlugin.name), 'long project folders get bounded deterministic plugin names');
+
+  const unicodeParent = tempDir('unicode-plugin');
+  const unicodeTarget = path.join(unicodeParent, '项目');
+  fs.mkdirSync(unicodeTarget);
+  run(['.vibekit/scripts/mvck.mjs', 'install', unicodeTarget, '--profile', 'codex']);
+  const unicodePlugin = JSON.parse(fs.readFileSync(path.join(unicodeTarget, '.codex-plugin/plugin.json'), 'utf8'));
+  assert(/^mvck-project-[a-f0-9]{8}$/.test(unicodePlugin.name), 'non-ASCII project folders get deterministic plugin names');
+
+  const customPluginTarget = tempDir('custom-plugin');
+  const customPluginDir = path.join(customPluginTarget, '.codex-plugin');
+  fs.mkdirSync(customPluginDir);
+  const customPluginText = '{\n  "name": "project-owned-plugin",\n  "version": "1.0.0"\n}\n';
+  fs.writeFileSync(path.join(customPluginDir, 'plugin.json'), customPluginText);
+  run(['.vibekit/scripts/mvck.mjs', 'install', customPluginTarget, '--profile', 'codex']);
+  assert(fs.readFileSync(path.join(customPluginDir, 'plugin.json'), 'utf8') === customPluginText, 'install preserves a project-owned Codex plugin manifest');
+  run(['.vibekit/scripts/mvck.mjs', 'update', customPluginTarget, '--profile', 'codex']);
+  assert(fs.readFileSync(path.join(customPluginDir, 'plugin.json'), 'utf8') === customPluginText, 'update preserves a project-owned Codex plugin manifest');
+
+  const forcedPluginTarget = tempDir('forced-plugin');
+  const forcedPluginDir = path.join(forcedPluginTarget, '.codex-plugin');
+  fs.mkdirSync(forcedPluginDir);
+  fs.writeFileSync(path.join(forcedPluginDir, 'plugin.json'), customPluginText);
+  run(['.vibekit/scripts/mvck.mjs', 'install', forcedPluginTarget, '--profile', 'codex', '--force']);
+  const forcedPlugin = JSON.parse(fs.readFileSync(path.join(forcedPluginDir, 'plugin.json'), 'utf8'));
+  assert(forcedPlugin.name.startsWith('mvck-'), 'install --force may replace a project-owned Codex plugin manifest');
+
   const upd = tempDir('update');
   run(['.vibekit/scripts/mvck.mjs', 'install', upd, '--profile', 'all']);
   assert(fs.existsSync(path.join(upd, '.vibekit/KIT_VERSION')), 'install stamps .vibekit/KIT_VERSION');
@@ -104,12 +141,21 @@ try {
   fs.writeFileSync(path.join(upd, '.vibekit/skills/memento/SKILL.md'), '# stale kit file\n');
   fs.rmSync(path.join(upd, '.claude/skills/coding-level'), { recursive: true, force: true });
 
+  fs.writeFileSync(path.join(upd, '.codex-plugin/plugin.json'), `${JSON.stringify(sourcePlugin, null, 2)}\n`);
+
   run(['.vibekit/scripts/mvck.mjs', 'update', upd]);
   assert(fs.readFileSync(path.join(upd, '.vibekit/skills/memento/SKILL.md'), 'utf8').includes('name: memento'), 'update refreshes stale kit files');
+  const updSlug = path.basename(upd).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const updPlugin = JSON.parse(fs.readFileSync(path.join(upd, '.codex-plugin/plugin.json'), 'utf8'));
+  assert(updPlugin.name === `mvck-${updSlug}`, 'update re-applies the project-scoped Codex plugin name');
   assert(fs.existsSync(path.join(upd, '.claude/skills/coding-level/SKILL.md')), 'update re-adds missing kit skill mirrors');
   assert(fs.readFileSync(path.join(upd, 'backbone.yml'), 'utf8').includes('# user-custom-line'), 'update preserves user-modified backbone.yml');
   const backupRoot = path.join(upd, '.vibekit', 'update-backup');
   assert(fs.existsSync(backupRoot) && fs.readdirSync(backupRoot).length >= 1, 'update backs up replaced kit files');
+  assert(
+    fs.readdirSync(backupRoot).some((stamp) => fs.existsSync(path.join(backupRoot, stamp, '.codex-plugin/plugin.json'))),
+    'update backs up a replaced MVCK Codex plugin manifest'
+  );
   run(['.vibekit/scripts/validate-kit.mjs', upd]);
 
   const updAgents = fs.readFileSync(path.join(upd, 'AGENTS.md'), 'utf8');

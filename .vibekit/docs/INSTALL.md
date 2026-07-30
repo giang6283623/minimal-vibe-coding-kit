@@ -28,7 +28,7 @@ Profiles:
 
 - `claude`: `CLAUDE.md`, `.claude/`, Claude skills, agents, commands, rules, deny-list settings.
 - `cursor`: `.cursor/rules`, `.cursor/commands`, `.cursor/cli.json` CLI permissions, Cursor skill entrypoints.
-- `codex`: `AGENTS.md`, `.agents/skills`, `.codex/rules` execution-policy rules, `.codex-plugin`, `.codex` examples.
+- `codex`: `AGENTS.md`, `.agents/skills`, `.codex/rules` execution-policy rules, `.codex-plugin`, `.codex` examples. Install and update give MVCK-owned manifests a project-scoped plugin name (`mvck-<folder-name>`) so Codex skill pickers can distinguish different projects. Names are normalized and capped at 64 characters, with a short stable hash for long or non-ASCII folder names. Existing project-owned plugin manifests are preserved unless install is explicitly run with `--force`; projects that share a folder name can still collide, so rename one folder if that happens.
 - `grok`: `AGENTS.md`, `.grok/rules`, `.grok/skills`, `.grok/config.toml` permission rules, user config example.
 - `kimi`: `AGENTS.md`, `.kimi-code/README.md`, and the full `.kimi-code/skills` mirror.
 - `all`: every profile.
