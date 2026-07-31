@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.5-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.6-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -341,7 +341,7 @@ flowchart LR
 
 ## Skills
 
-Cả 18 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex, Grok và Kimi mirror đủ 18; Cursor mirror 13 skill tương tác. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
+Cả 19 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex, Grok và Kimi mirror đủ 19; Cursor mirror 14 skill tương tác. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
 
 ```mermaid
 ---
@@ -378,11 +378,12 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("18 skill"))
+  root(("19 skill"))
     setup("Thiết lập và an toàn")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
       s3("path-sensitive-<br/>shell-safety")
+      s4("threat-model-<br/>security-review")
     think("Tư duy và kế hoạch")
       t1("clearthought")
       t2("sequential-thinking")
@@ -412,6 +413,7 @@ mindmap
 | `parallel-analysis`           | Câu hỏi toàn repo, review diff lớn, audit tính nhất quán.                                                                                                                                                                                              | "Use parallel-analysis: where is auth handled and what depends on it?"                  |
 | `graph-engineering-verified-orchestration` | Công việc phức tạp có các nhánh thực sự độc lập và cần dependency rõ ràng, cô lập, budget, xác minh khách quan, rollback và merge gate có giới hạn. | "Use graph-engineering-verified-orchestration to design a safe task graph for this migration." |
 | `agentshield-security-review` | Audit config agent, skills, hooks, MCP, commands trước khi merge.                                                                                                                                                                                      | "Use agentshield-security-review on .claude/** and .vibekit/skills/**."                 |
+| `threat-model-security-review` | Review source ứng dụng, API, authentication, authorization, đường input, trust boundary và diff nhạy cảm về bảo mật với bằng chứng và coverage rõ ràng. | "Use threat-model-security-review on this repository. Stay read-only and report proof gaps." |
 | `autoresearch-coding`         | Cải tiến repo qua các thử nghiệm đo được.                                                                                                                                                                                                              | "Use autoresearch-coding. Metric: `npm test`. Direction: higher. Budget: 3."            |
 | `daily-workflow-curator`      | Tune-up định kỳ cho rules, skills, workflows (chỉ đề xuất).                                                                                                                                                                                            | "Use daily-workflow-curator and propose today's improvements."                          |
 | `path-sensitive-shell-safety` | Trước khi sửa logic shell/installer/deploy có biến path hoặc `rm`/`mv`/`rsync`.                                                                                                                                                                        | "Use path-sensitive-shell-safety before changing this cleanup script."                  |

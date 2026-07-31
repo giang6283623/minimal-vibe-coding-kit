@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.5-2ea44f.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.6-2ea44f.svg)](CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -341,7 +341,7 @@ flowchart LR
 
 ## Skills
 
-All 18 skills live canonically in `.vibekit/skills/`. Claude, Codex, Grok, and Kimi mirror all 18; Cursor mirrors the 13 interactive ones. Invoke them by name ("Use the X skill…") or via the commands above.
+All 19 skills live canonically in `.vibekit/skills/`. Claude, Codex, Grok, and Kimi mirror all 19; Cursor mirrors the 14 interactive ones. Invoke them by name ("Use the X skill…") or via the commands above.
 
 ```mermaid
 ---
@@ -378,11 +378,12 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("18 skills"))
+  root(("19 skills"))
     setup("Setup and safety")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
       s3("path-sensitive-<br/>shell-safety")
+      s4("threat-model-<br/>security-review")
     think("Think and plan")
       t1("clearthought")
       t2("sequential-thinking")
@@ -412,6 +413,7 @@ mindmap
 | `parallel-analysis`           | Repo-wide questions, large diff reviews, consistency audits.                                                                                                                                                                             | "Use parallel-analysis: where is auth handled and what depends on it?"                                |
 | `graph-engineering-verified-orchestration` | Complex work has genuinely independent branches and needs explicit dependencies, isolation, budgets, objective verification, rollback, and bounded merge gates. | "Use graph-engineering-verified-orchestration to design a safe task graph for this migration." |
 | `agentshield-security-review` | Auditing agent config, skills, hooks, MCP, commands before merge.                                                                                                                                                                        | "Use agentshield-security-review on .claude/** and .vibekit/skills/**."                               |
+| `threat-model-security-review` | Reviewing application source, APIs, authentication, authorization, input paths, trust boundaries, and security-sensitive diffs with explicit evidence and coverage. | "Use threat-model-security-review on this repository. Stay read-only and report proof gaps." |
 | `autoresearch-coding`         | Improving the repo through measured experiments.                                                                                                                                                                                         | "Use autoresearch-coding. Metric: `npm test`. Direction: higher. Budget: 3."                          |
 | `daily-workflow-curator`      | Periodic tune-up of rules, skills, and workflows (propose-only).                                                                                                                                                                         | "Use daily-workflow-curator and propose today's improvements."                                        |
 | `path-sensitive-shell-safety` | Before editing shell/installer/deploy logic with path variables or `rm`/`mv`/`rsync`.                                                                                                                                                    | "Use path-sensitive-shell-safety before changing this cleanup script."                                |

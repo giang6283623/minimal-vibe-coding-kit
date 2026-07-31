@@ -134,11 +134,12 @@ The installer also includes `visual-design-loop` for Claude, Codex, Grok, and Ki
 
 ## User-invoked utility skills
 
-Eight user-invoked skills install across Claude, Codex, Cursor, Grok, and Kimi surfaces:
+Nine user-invoked skills install across Claude, Codex, Cursor, Grok, and Kimi surfaces:
 
 - `memento`: write a `MEMENTO.md` working note before closing a multi-day task (`/memento`), then resume from it in the next session (`/memento resume`).
 - `coding-level`: set the explanation register from 0 (ELI5) to 5 (expert peer) with `/coding-level N`; stays active until reinvoked.
 - `graph-engineering-verified-orchestration`: design and optionally execute a bounded dependency graph with explicit artifacts, enforceable isolation, objective verification, budgets, rollback, and human gates; unresolved controls force plan-only mode.
+- `threat-model-security-review`: review application source or security-sensitive diffs with a repository-specific threat model, explicit coverage, source-to-sink evidence, safe validation statuses, and one-finding-at-a-time remediation. It does not install or invoke an external scanner.
 - `prompt-sharpener`: sharpen a rough prompt into a precise one with `/prompt-sharpener <rough prompt>`, then execute the sharpened version immediately in the same turn.
 - `claim`: vet a request to bring something new into the repo with `/claim <request>` - validate URLs and references against official sources, check fit with existing rules and skills, confirm anything unclear, then integrate and document it.
 - `tutien`: turn Git history and explicitly supplied AI-chat exports into a private xianxia coding-reflection mode with `/tutien` (realm, token use, workflow habits, evidence-bound suggestions). Once enabled, every reply keeps an adaptive cultivation-novel voice in the user's language, activation asks for an optional fictional-avatar `humiliation=0..10` level, analysis remains read-only and aggregate-only by default, and `/tutien off` disables the mode.

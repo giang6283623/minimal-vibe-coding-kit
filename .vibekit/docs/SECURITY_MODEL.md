@@ -1,5 +1,30 @@
 # Security model
 
+## Two review layers
+
+The kit keeps two security-review domains separate:
+
+- `threat-model-security-review` covers application source, APIs, authentication,
+  authorization, parsers, storage, network access, trust boundaries, and code diffs.
+- `agentshield-security-review` covers agent instructions, skills, permissions, hooks,
+  MCP servers, commands, plugin manifests, installers, and other agent execution surfaces.
+
+When a change crosses both domains, run both workflows and label the source of each finding.
+AgentShield probe output is not an application vulnerability finding.
+
+## Application security workflow
+
+Invoke `threat-model-security-review` for a read-only repository, component, diff, or
+vulnerability-claim review. It builds a repository-specific threat model, records explicit
+coverage, traces attacker-controlled sources through controls to sensitive sinks, and assigns
+an evidence status to every candidate.
+
+Remediation requires separate write authority. Fix one accepted finding at a time, add focused
+regression evidence, and revalidate the original attack path plus legitimate behavior.
+
+This is a dependency-free kit workflow built on standard threat-model and validation concepts.
+It does not install, invoke, or bundle an external scanner.
+
 ## Agent surfaces
 
 Review these before merging changes:

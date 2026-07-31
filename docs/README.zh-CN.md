@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.5-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.6-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -341,7 +341,7 @@ flowchart LR
 
 ## 技能
 
-全部 18 个技能的规范版本位于 `.vibekit/skills/`。Claude、Codex、Grok 和 Kimi 镜像全部 18 个技能；Cursor 镜像其中 13 个交互式技能。可以直接按名称调用（例如“Use the X skill…”），也可以使用上面的命令。
+全部 19 个技能的规范版本位于 `.vibekit/skills/`。Claude、Codex、Grok 和 Kimi 镜像全部 19 个技能；Cursor 镜像其中 14 个交互式技能。可以直接按名称调用（例如“Use the X skill…”），也可以使用上面的命令。
 
 ```mermaid
 ---
@@ -378,11 +378,12 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("18 个技能"))
+  root(("19 个技能"))
     setup("设置与安全")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
       s3("path-sensitive-<br/>shell-safety")
+      s4("threat-model-<br/>security-review")
     think("思考与规划")
       t1("clearthought")
       t2("sequential-thinking")
@@ -412,6 +413,7 @@ mindmap
 | `parallel-analysis`             | 全仓库问题、大型差异审查、一致性审计。                                                               | "Use parallel-analysis: where is auth handled and what depends on it?"                                |
 | `graph-engineering-verified-orchestration` | 复杂工作包含真正独立的分支，并且需要明确依赖、隔离、预算、客观验证、回滚和有界合并门。 | "Use graph-engineering-verified-orchestration to design a safe task graph for this migration." |
 | `agentshield-security-review`   | 合并前审计 Agent 配置、技能、hook、MCP 和命令。                                                       | "Use agentshield-security-review on .claude/** and .vibekit/skills/**."                               |
+| `threat-model-security-review`  | 使用明确的证据和覆盖范围审查应用源码、API、身份验证、授权、输入路径、信任边界以及安全敏感差异。       | "Use threat-model-security-review on this repository. Stay read-only and report proof gaps."          |
 | `autoresearch-coding`           | 通过可衡量的实验持续改进仓库。                                                                       | "Use autoresearch-coding. Metric: `npm test`. Direction: higher. Budget: 3."                          |
 | `daily-workflow-curator`        | 定期调整规则、技能和工作流（仅提案）。                                                               | "Use daily-workflow-curator and propose today's improvements."                                        |
 | `path-sensitive-shell-safety`   | 修改包含路径变量或 `rm`/`mv`/`rsync` 的 shell、安装或部署逻辑之前。                                  | "Use path-sensitive-shell-safety before changing this cleanup script."                                |

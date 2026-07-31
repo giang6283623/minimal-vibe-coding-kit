@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+## 0.5.6 - 2026-07-31
+
+### Added
+
+- Added the dependency-free `threat-model-security-review` skill across Claude, Cursor, Codex, Grok, and Kimi. It reviews application source and diffs through repository-specific threat models, explicit coverage, source-to-sink attack paths, evidence statuses, bounded severity and confidence, proof gaps, and one-finding-at-a-time remediation.
+- Added reusable threat-model, finding-report, and runtime-validation-safety references. The workflow is dependency-free and does not install or invoke external security scanners, plugins, CLIs, SDKs, MCP servers, containers, or cloud services.
+
+### Changed
+
+- Documented separate application-security and agent-surface review domains. `threat-model-security-review` handles application code, while `agentshield-security-review` remains the workflow for agent configuration and execution surfaces.
+- Added deterministic validation for the new skill's five-surface resource parity, domain boundary, evidence statuses, review-time execution limits, remediation discipline, and package discovery.
+- Updated `the-creator` across Claude, Cursor, Codex, Grok, and Kimi to begin every invocation respectfully with the attributed Pablo Picasso quotation, then continue immediately with the selected workflow.
+
+### Fixed
+
+- Made explicit Creator levels strict inputs: invalid, fractional, ambiguous, or conflicting levels now require clarification instead of being silently changed, while valid explicit levels are preserved unless the user approves a lower level.
+- Added deterministic validation for the Creator opening quotation, attribution, ordering, and explicit-level handling.
+
+### Validation
+
+- `npm run validate:all` passed with zero validator failures or warnings, every install profile, all 177 Tutien checks, all 42 graph renderer checks, a clean deterministic AgentShield probe, and all 800 on-disk skill files included in an 897-file npm tarball.
+
 ## 0.5.5 - 2026-07-30
 
 ### Added

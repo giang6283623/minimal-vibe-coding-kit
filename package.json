@@ -1,6 +1,6 @@
 {
   "name": "minimal-vibe-coding-kit",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "description": "Project-agnostic AI coding workflow kit for Claude Code, Cursor, Codex, Grok, and Kimi with AgentShield security review.",
   "type": "module",
   "bin": {
@@ -50,6 +50,7 @@
     ".claude/settings.json",
     ".claude/skills/autoresearch-coding/",
     ".claude/skills/agentshield-security-review/",
+    ".claude/skills/threat-model-security-review/",
     ".claude/skills/daily-workflow-curator/",
     ".claude/skills/vibekit-init/",
     ".claude/skills/clearthought/",
@@ -83,6 +84,7 @@
     ".cursor/skills/tutien/",
     ".cursor/skills/the-creator/",
     ".cursor/skills/mermaid/",
+    ".cursor/skills/threat-model-security-review/",
     ".agents/",
     ".grok/",
     ".kimi-code/",
