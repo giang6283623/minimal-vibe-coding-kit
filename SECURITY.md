@@ -15,6 +15,17 @@ Include:
 - reproduction steps that do not expose credentials;
 - expected security boundary.
 
+## Application-source review
+
+Use `threat-model-security-review` for application code, APIs, authentication, authorization,
+input handling, storage, network paths, or security-sensitive diffs. Start read-only, define the
+authorization boundary and security invariants, report explicit coverage and proof gaps, and keep
+severity separate from confidence.
+
+The workflow does not install or invoke an external scanner. Runtime tests,
+fuzzing, credentials, external targets, and state-changing proof of concept work require separate
+explicit authorization.
+
 ## Agent-surface safety
 
 This kit treats agent instructions, skills, hooks, MCP config, installer scripts, and CI as security-sensitive surfaces. Before release, run:

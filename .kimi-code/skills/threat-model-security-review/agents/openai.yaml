@@ -1,0 +1,4 @@
+interface:
+  display_name: "Threat Model Security Review"
+  short_description: "Threat-model-led application security review"
+  default_prompt: "Use $threat-model-security-review to review this repository for evidence-backed application security vulnerabilities."

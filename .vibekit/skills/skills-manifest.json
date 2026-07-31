@@ -11,6 +11,7 @@
   "skills": [
     { "name": "autoresearch-coding", "surfaces": ["claude", "codex", "grok", "kimi"] },
     { "name": "agentshield-security-review", "surfaces": ["claude", "codex", "grok", "kimi"] },
+    { "name": "threat-model-security-review", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
     { "name": "daily-workflow-curator", "surfaces": ["claude", "codex", "grok", "kimi"] },
     { "name": "vibekit-init", "surfaces": ["claude", "codex", "grok", "kimi"] },
     { "name": "visual-design-loop", "surfaces": ["claude", "codex", "grok", "kimi"] },

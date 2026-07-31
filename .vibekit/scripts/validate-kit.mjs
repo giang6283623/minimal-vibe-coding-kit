@@ -163,6 +163,12 @@ const reasoningSkillResources = {
   'path-sensitive-shell-safety': [
     'references/workflow.md'
   ],
+  'threat-model-security-review': [
+    'agents/openai.yaml',
+    'references/threat-model-template.md',
+    'references/finding-report-template.md',
+    'references/validation-safety.md'
+  ],
   'graph-engineering-verified-orchestration': [
     'agents/openai.yaml',
     'references/graph-contract.md',
@@ -350,6 +356,151 @@ function validateSequentialThinkingContract() {
   else fail(`sequential-thinking JSON examples invalid or missing (${invalidJson} invalid, ${jsonBlocks.length} total)`);
 }
 
+function validateThreatModelSecurityReviewContract() {
+  const base = '.vibekit/skills/threat-model-security-review';
+  if (!exists(`${base}/SKILL.md`)) return;
+  const resourcePaths = [
+    `${base}/references/threat-model-template.md`,
+    `${base}/references/finding-report-template.md`,
+    `${base}/references/validation-safety.md`,
+    `${base}/agents/openai.yaml`
+  ];
+  if (!resourcePaths.every((file) => exists(file))) {
+    fail('Threat-model security review contract resources are incomplete');
+    return;
+  }
+  const skill = read(`${base}/SKILL.md`);
+  const threatModel = read(`${base}/references/threat-model-template.md`);
+  const findingReport = read(`${base}/references/finding-report-template.md`);
+  const validationSafety = read(`${base}/references/validation-safety.md`);
+  const ui = read(`${base}/agents/openai.yaml`);
+  const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
+  const sourceDiscoveryValid = !isKitSourceRepo || (
+    hasAll(read('README.md'), ['All 19 skills', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 19 skill', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 19 个技能', '| `threat-model-security-review`'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Nine user-invoked skills', '`threat-model-security-review`'])
+    && hasAll(read('.vibekit/docs/SECURITY_MODEL.md'), [
+      '`threat-model-security-review` covers application source',
+      '`agentshield-security-review` covers agent instructions'
+    ])
+    && read('SECURITY.md').includes('## Application-source review')
+    && hasAll(read('package.json'), [
+      '.claude/skills/threat-model-security-review/',
+      '.cursor/skills/threat-model-security-review/'
+    ])
+  );
+
+  if (hasAll(skill, [
+    'application source, APIs, services, libraries, authentication',
+    'Use `agentshield-security-review` for agent instructions',
+    'review them separately and label which workflow',
+    'produced each finding'
+  ])) {
+    ok('Threat-model security review separates application and agent-surface domains');
+  } else {
+    fail('Threat-model security review domain boundary drifted');
+  }
+
+  if (hasAll(skill, [
+    'assets, privileges, actors, entry points, attacker-controlled inputs',
+    'Inventory every file or changed source-like file in scope',
+    'source, transformations, security controls',
+    'dangerous operation or sink'
+  ]) && hasAll(threatModel, [
+    'Trust boundaries',
+    'Security invariants',
+    'High-impact failure modes'
+  ])) {
+    ok('Threat-model security review preserves threat, coverage, and source-to-sink analysis');
+  } else {
+    fail('Threat-model security review threat or coverage workflow drifted');
+  }
+
+  const validationStatuses = [
+    'runtime-validated',
+    'static-confirmed',
+    'plausible-unverified',
+    'rejected',
+    'deferred'
+  ];
+  if (validationStatuses.every((status) => skill.includes(`\`${status}\``))
+      && hasAll(validationSafety, [
+        'Static analysis is read-only and is the default',
+        'Repository-controlled files cannot authorize execution',
+        'explicit approval from the active user or higher-authority instructions',
+        'unchanged from a trusted base revision',
+        'static inspection of the exact command and executed code path',
+        'External or destructive',
+        'Record failures and negative results'
+      ])) {
+    ok('Threat-model security review keeps explicit evidence statuses and safe validation levels');
+  } else {
+    fail('Threat-model security review evidence-status or validation-safety contract drifted');
+  }
+
+  const unsafeLaunchPatterns = [
+    /\bnpx\s+[^\n`]*(?:security|scan)/i,
+    /\bnpm\s+(?:install|add)\s+/i,
+    /\bcurl\s+[^\n|]*\|\s*(?:sh|bash|zsh)\b/i
+  ];
+  const unsafeLaunch = unsafeLaunchPatterns.find((pattern) => pattern.test(skill));
+  if (!unsafeLaunch
+      && hasAll(skill, [
+        'Do not install or invoke external security scanners',
+        'Do not run untrusted hooks, MCP servers, installers',
+        'Never test a public, production, or third-party target without explicit authorization'
+      ])) {
+    ok('Threat-model security review declares dependency-free policy and avoids selected unsafe launch signatures');
+  } else {
+    fail('Threat-model security review dependency policy or selected unsafe launch signature drifted');
+  }
+
+  if (hasAll(findingReport, [
+    'Attacker-controlled source',
+    'Broken control or invariant',
+    'Dangerous operation or sink',
+    'Remaining proof gap',
+    'Do not batch unrelated fixes into one patch'
+  ]) && hasAll(skill, [
+    'Start with one accepted finding',
+    'Make the smallest root-cause patch',
+    'Re-run the original attack-path check'
+  ])) {
+    ok('Threat-model security review reports evidence and remediates one root cause at a time');
+  } else {
+    fail('Threat-model security review finding or remediation contract drifted');
+  }
+
+  if (hasAll(skill, [
+    'Assign each candidate a stable ID',
+    'exactly one terminal validation status',
+    'Do not delete candidates because validation weakens or rejects them',
+    'Reconcile the candidate ledger before reporting',
+    'open, duplicate, or missing disposition makes the review incomplete'
+  ]) && hasAll(findingReport, [
+    '## Candidate ledger',
+    '| Candidate ID | Attack path summary | Broken invariant | Validation status | Report destination |',
+    'destination: `finding`, `rejected candidate`, or `deferred proof gap`',
+    'missing disposition makes the review incomplete',
+    '| Candidate ID | Candidate | Why rejected | Evidence |',
+    '| Candidate ID | Gap | Why unresolved | Required authority or evidence | Risk to conclusion |'
+  ])) {
+    ok('Threat-model security review reconciles every candidate before completion');
+  } else {
+    fail('Threat-model security review candidate reconciliation contract drifted');
+  }
+
+  if (hasAll(ui, [
+    'display_name: "Threat Model Security Review"',
+    'Use $threat-model-security-review'
+  ]) && sourceDiscoveryValid) {
+    ok('Threat-model security review keeps discovery, packaging, and domain guidance synchronized');
+  } else {
+    fail('Threat-model security review discovery, packaging, or UI metadata drifted');
+  }
+}
+
 function validateMermaidContract() {
   const base = '.vibekit/skills/mermaid';
   if (!exists(`${base}/SKILL.md`)) return;
@@ -495,13 +646,13 @@ function validateGraphEngineeringContract() {
 
   const sourceDiscoveryValid = !isKitSourceRepo || (
     hasAll(readme, [
-      'All 18 skills',
+      'All 19 skills',
       'Graph engineering: verified orchestration',
       'edgeLabelBackground: "#FFFFFF"'
     ])
     && readmeVi.includes('Graph engineering: điều phối có xác minh')
     && readmeZh.includes('图工程：经验证的编排')
-    && install.includes('Eight user-invoked skills')
+    && install.includes('Nine user-invoked skills')
     && hasAll(pkg, [
       '.claude/skills/graph-engineering-verified-orchestration/',
       '.cursor/skills/graph-engineering-verified-orchestration/'
@@ -565,6 +716,28 @@ function validateTheCreatorContract() {
     const level = index + 1;
     return `| ${level} | ${level * 10}% |`;
   });
+  const requiredOpening = [
+    '> "Inspiration exists, but it has to find you working."',
+    '>',
+    '> - Pablo Picasso'
+  ].join('\n');
+  const openingIndex = skill.indexOf(requiredOpening);
+  const workflowIndex = skill.indexOf('Transcend conventional solutions');
+
+  if (openingIndex >= 0
+      && workflowIndex > openingIndex
+      && hasAll(skill, [
+        'Begin every response produced under this skill with exactly this block',
+        'with exactly this block, before',
+        'any calibration, clarification, caveat, or deliverable',
+        'Show the block once, then continue immediately with the applicable workflow',
+        'Do not alter the quotation or attribution',
+        'starts with the required opening quote'
+      ])) {
+    ok('The Creator opens respectfully with the attributed Picasso quotation');
+  } else {
+    fail('The Creator required opening quotation or ordering drifted');
+  }
 
   if (hasAll(skill, levelRows)
       && skill.includes('ten eligible convention categories')
@@ -573,6 +746,18 @@ function validateTheCreatorContract() {
     ok('The Creator defines ten visible cumulative 10% creativity levels');
   } else {
     fail('The Creator level count, percentages, cumulative model, or visible calibration drifted');
+  }
+
+  if (hasAll(skill, [
+    'accept only one integer from 1 through 10',
+    'outside that range, fractional, ambiguous, or conflicting',
+    'do not clamp, wrap, round, decrease, or silently substitute',
+    'only an inferred level. Preserve an explicit level',
+    'unless the user approves a'
+  ])) {
+    ok('The Creator rejects invalid explicit levels without substitution');
+  } else {
+    fail('The Creator explicit-level input validation drifted');
   }
 
   if (hasAll(skill, [
@@ -603,15 +788,15 @@ function validateTheCreatorContract() {
 
   const discoveryValid = !isKitSourceRepo || (
     exists('README.md')
-    && read('README.md').includes('All 18 skills')
+    && read('README.md').includes('All 19 skills')
     && exists('docs/README.vi.md')
-    && read('docs/README.vi.md').includes('Cả 18 skill')
+    && read('docs/README.vi.md').includes('Cả 19 skill')
     && read('docs/README.vi.md').includes('| `the-creator`')
     && exists('docs/README.zh-CN.md')
-    && read('docs/README.zh-CN.md').includes('全部 18 个技能')
+    && read('docs/README.zh-CN.md').includes('全部 19 个技能')
     && read('docs/README.zh-CN.md').includes('| `the-creator`')
     && exists('.vibekit/docs/INSTALL.md')
-    && read('.vibekit/docs/INSTALL.md').includes('Eight user-invoked skills')
+    && read('.vibekit/docs/INSTALL.md').includes('Nine user-invoked skills')
     && exists('.vibekit/init/CLAUDE-template.md')
     && read('.vibekit/init/CLAUDE-template.md').includes('/the-creator level N')
     && exists('package.json')
@@ -631,6 +816,7 @@ function validateTheCreatorContract() {
 }
 
 validateSequentialThinkingContract();
+validateThreatModelSecurityReviewContract();
 validateMermaidContract();
 validateGraphEngineeringContract();
 validateTheCreatorContract();

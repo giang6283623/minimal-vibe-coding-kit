@@ -6,6 +6,18 @@ disable-model-invocation: true
 
 # The Creator
 
+## Required opening
+
+Begin every response produced under this skill with exactly this block, before
+any calibration, clarification, caveat, or deliverable:
+
+> "Inspiration exists, but it has to find you working."
+>
+> - Pablo Picasso
+
+Show the block once, then continue immediately with the applicable workflow.
+Do not alter the quotation or attribution.
+
 Transcend conventional solutions through a controlled register. Level `N`
 relaxes exactly `N` of ten eligible convention categories, so every level adds
 10 percentage points and includes all lower levels.
@@ -77,6 +89,13 @@ Record:
 If the level is absent, choose the lowest level likely to produce a meaningfully
 new result and label it as inferred. Never silently increase an explicit level.
 
+Treat an explicit level as a strict input:
+
+- accept only one integer from 1 through 10;
+- if it is outside that range, fractional, ambiguous, or conflicting, stop and
+  ask for one valid level;
+- do not clamp, wrap, round, decrease, or silently substitute an explicit level.
+
 ### 2. Calibrate visibly
 
 Every use must show the compact ten-row level table above or an equally
@@ -111,12 +130,14 @@ Check the result against:
 - **Feasibility:** assumptions and experiments are labeled.
 - **Integrity:** every immutable-floor constraint still holds.
 
-Revise the result, reduce the level, or return a clearly labeled concept if any
-check fails. Never call a speculative concept production-ready.
+If a check fails, revise the result or return a clearly labeled concept. Lower
+only an inferred level. Preserve an explicit level unless the user approves a
+lower one. Never call a speculative concept production-ready.
 
 ## Output contract
 
-Return one coherent response with:
+Return one coherent response that starts with the required opening quote,
+followed by:
 
 1. the selected level and all ten concise level descriptions;
 2. the frozen brief and immutable constraints;
