@@ -1,12 +1,12 @@
 <div align="center">
 
-**Read in:** **English** · [Tiếng Việt](docs/README.vi.md) · [简体中文](docs/README.zh-CN.md)
+**Read in:** **English** · [Tiếng Việt](docs/README.vi.md) · [简体中文](docs/README.zh-CN.md) · [日本語](docs/README.ja.md)
 
 # Minimal Vibe Coding Kit
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.6-2ea44f.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.7-2ea44f.svg)](CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -335,13 +335,14 @@ flowchart LR
 | `/daily-enhance`       | Propose-only report to improve rules, skills, and workflows.                | `/daily-enhance` - review the proposed diff, then approve.         |
 | `/autoresearch-coding` | Metric-driven experiment loop with baseline and budget.                     | `/autoresearch-coding` Goal: fewer lint errors. Budget: 3.         |
 | `/council`             | Coordinates reviewer/researcher/analyst agents into one merged plan.        | `/council` on this branch diff.                                    |
+| `/proofline`           | Governs bounded roles, independent challenge, typed signals, and proof.     | `/proofline` Goal: harden auth. Done signal: targeted tests pass.  |
 | `/vibe-finalize`       | Graduate the project: move one-time bootstrap files to `_vibekit-cleanup/`. | `/vibe-finalize` - preview first, apply after approval.            |
 
 </details>
 
 ## Skills
 
-All 19 skills live canonically in `.vibekit/skills/`. Claude, Codex, Grok, and Kimi mirror all 19; Cursor mirrors the 14 interactive ones. Invoke them by name ("Use the X skill…") or via the commands above.
+All 20 skills live canonically in `.vibekit/skills/`. Claude, Codex, Grok, and Kimi mirror all 20; Cursor mirrors the 15 interactive ones. Invoke them by name ("Use the X skill…") or via the commands above.
 
 ```mermaid
 ---
@@ -378,7 +379,7 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("19 skills"))
+  root(("20 skills"))
     setup("Setup and safety")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
@@ -391,6 +392,7 @@ mindmap
       t4("reviewing-4p-priorities")
       t5("graph-engineering-<br/>verified-orchestration")
       t6("the-creator")
+      t7("proofline-<br/>orchestration")
     analyze("Analyze and improve")
       a1("parallel-analysis")
       a2("autoresearch-coding")
@@ -412,6 +414,7 @@ mindmap
 | `vibekit-init`                | First-time setup, or `backbone.yml` / managed blocks need repair.                                                                                                                                                                        | "Use the vibekit-init skill. Propose one diff and wait for my yes."                                   |
 | `parallel-analysis`           | Repo-wide questions, large diff reviews, consistency audits.                                                                                                                                                                             | "Use parallel-analysis: where is auth handled and what depends on it?"                                |
 | `graph-engineering-verified-orchestration` | Complex work has genuinely independent branches and needs explicit dependencies, isolation, budgets, objective verification, rollback, and bounded merge gates. | "Use graph-engineering-verified-orchestration to design a safe task graph for this migration." |
+| `proofline-orchestration`     | Complex work benefits from explicit governance, bounded implementation, an empowered independent challenger, typed escalation signals, and evidence-bound acceptance. | "Use proofline-orchestration to govern this migration and preserve dissent." |
 | `agentshield-security-review` | Auditing agent config, skills, hooks, MCP, commands before merge.                                                                                                                                                                        | "Use agentshield-security-review on .claude/** and .vibekit/skills/**."                               |
 | `threat-model-security-review` | Reviewing application source, APIs, authentication, authorization, input paths, trust boundaries, and security-sensitive diffs with explicit evidence and coverage. | "Use threat-model-security-review on this repository. Stay read-only and report proof gaps." |
 | `autoresearch-coding`         | Improving the repo through measured experiments.                                                                                                                                                                                         | "Use autoresearch-coding. Metric: `npm test`. Direction: higher. Budget: 3."                          |
@@ -430,6 +433,152 @@ mindmap
 | `mermaid`                     | Generating styled Mermaid diagrams (31 types) with coding-level-aware density. Offers to illustrate generated docs, and draws debug workflow charts with the risky zones highlighted red.                                                                | "Use the mermaid skill. Draw this deploy pipeline as a flowchart."                                    |
 
 With `story=on` (default), approved analysis prepares `.vibekit/reports/tutien/story/`: `plot.md` is the evolving world/plot bible, `story-state.json` preserves continuity, and `chapters/NNNN-<xianxia-title>.md` stores one chapter per save. Story prose is agent-authored from aggregate evidence rather than a fixed sentence bank; character names and dialogue follow `story-language=vi|en|zh` naturally.
+
+</details>
+
+### Proofline: stop AI from grading its own work
+
+**In one sentence:** Proofline organizes several AI workers into a team with separate responsibilities for doing the work, challenging it, testing it, and recording whether it is ready. This reduces the chance that one AI chooses an approach, changes the code, and then declares its own work correct.
+
+Think about renovating a house. You would not want the same electrician to install the wiring, perform the independent safety inspection, and sign the final certificate. Important code deserves the same separation of responsibility.
+
+#### What does each role resemble?
+
+| Role | Real-world analogy | Responsibility |
+| --- | --- | --- |
+| `Owner` | Homeowner or product owner | States the desired outcome and keeps final authority |
+| `Wayfinder` | Site manager | Splits the work, assigns boundaries, and combines results |
+| `Maker` | Skilled worker | Completes one assigned piece of work |
+| `Countervoice` | Independent inspector | Looks for false assumptions, gaps, and conflicting evidence |
+| `Verifier` | Test engineer | Runs objective tests or measurements |
+| `Keeper` | Acceptance checklist custodian | Records completion only when every gate is satisfied |
+
+These are responsibilities, not seniority levels. `Countervoice` may conclude that the original plan is wrong even when `Wayfinder` is more experienced.
+
+#### Practical benefits
+
+- **Fewer confidently wrong results:** the implementer does not get the final word without challenge and tests.
+- **Bad foundations are caught early:** the reviewer may reject the premise or architecture instead of polishing the wrong solution.
+- **Fewer accidental edits:** each worker receives a bounded area while important tests and files remain protected.
+- **A result you can audit:** the handback names changed files, tests, unresolved objections, and remaining limits.
+- **Safe stopping:** missing authority, unreliable tests, or exhausted budgets stop the workflow instead of triggering guesses.
+
+#### When should you use it?
+
+| Use Proofline | A simpler workflow is enough |
+| --- | --- |
+| Authentication, permissions, payments, or sensitive data | A typo or copy-only edit |
+| Data migrations, major refactors, or architecture changes | A small, reversible one-file change |
+| Several agents or branches working in parallel | One implementer with a clear test is enough |
+| Failure could cause data loss, excessive access, or downtime | The task only needs ideas and has no objective verifier |
+
+#### Where does it run?
+
+Proofline runs inside a repository that uses Minimal Vibe Coding Kit, with Codex, Claude Code, Cursor, Grok, or Kimi. It works best for coding tasks with named files, explicit boundaries, and a measurable test. Paseo is an optional adapter for coordinating several sessions; Proofline does not require Paseo.
+
+```mermaid
+---
+config:
+  securityLevel: strict
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    primaryColor: "#8ECAFF"
+    primaryTextColor: "#111111"
+    primaryBorderColor: "#444444"
+    secondaryColor: "#FFD43B"
+    secondaryBorderColor: "#444444"
+    tertiaryColor: "#FFF9DB"
+    tertiaryBorderColor: "#444444"
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+    clusterBkg: "#FFF9DB"
+    clusterBorder: "#444444"
+---
+flowchart TD
+    Request([Owner states the outcome]) --> Plan(Wayfinder splits the work)
+    Plan --> Work(Maker implements)
+    Work --> Review(Countervoice looks for faults)
+    Review --> Test(Verifier runs tests)
+    Test --> Gate{Enough evidence?}
+    Gate -->|not yet| Stop([Revise or stop safely])
+    Gate -->|yes| Ready([Keeper records completion])
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF;
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111;
+    class Request terminal;
+    class Plan,Work,Test step;
+    class Gate decision;
+    class Ready success;
+    class Stop danger;
+    class Review accent;
+    linkStyle default stroke:#444444,stroke-width:1.5px;
+```
+
+#### The simplest way to start
+
+You do not need to understand digests, leases, or gateways. Describe these five things:
+
+```text
+/proofline
+Goal: make unknown login roles fail closed.
+May edit: src/auth-policy.mjs
+Must not edit: test/auth-policy.test.mjs
+Done when: the authentication tests pass.
+Limits: keep the API unchanged and install no packages.
+```
+
+The kit chooses the smallest useful workflow:
+
+- Small task: one sequential worker, without unnecessary ceremony.
+- Task needs challenge: add `Countervoice` for an independent check.
+- Complex task with separate pieces: use bounded parallel lanes.
+- Missing authority or trustworthy tests: return a plan or stop safely.
+
+#### Real example: changing login permissions
+
+Assume only `admin` and `editor` may enter, while every unknown role must be denied:
+
+1. `Wayfinder` assigns `src/auth-policy.mjs` to `Maker` and protects the test.
+2. `Maker` changes the policy to an explicit allowlist.
+3. `Countervoice` looks for dangerous gaps, such as `unknown` becoming allowed.
+4. `Verifier` tests `admin`, `editor`, and `unknown`.
+5. `Keeper` records completion only after the tests pass and every challenge is answered.
+
+The result is more useful than "done". It includes the code change, tests, review evidence, remaining risk, and a clear reason if the workflow had to stop.
+
+<details>
+<summary>Technical terms and ledger validation</summary>
+
+| Term | Plain meaning |
+| --- | --- |
+| Scope | The area a worker may touch |
+| Digest | A fingerprint that changes when a file or state changes |
+| Grant | Permission for one actor, action, target, and time window |
+| Lease | A temporary key that allows only one integration owner |
+| Proof Return | A handback containing the change and verification evidence |
+| Seal | A record that gates passed; it is not deploy permission |
+| Gateway | A guard that rechecks permission before a consequential action |
+
+Run the deterministic example:
+
+```bash
+npm run test:proofline
+node .vibekit/skills/proofline-orchestration/scripts/run-proofline-sandbox.mjs \
+  .vibekit/skills/proofline-orchestration/examples/auth-migration-case.json
+```
+
+See the [skill contract](.vibekit/skills/proofline-orchestration/SKILL.md), [control matrix](.vibekit/skills/proofline-orchestration/references/control-matrix.md), and [authentication example](.vibekit/skills/proofline-orchestration/examples/auth-migration-case.json).
+
+The bundled validator and gateway simulate policy inside the current process. They do not prove that the OS, provider, MCP server, or an external system enforced every boundary. A real merge, deployment, or external mutation still needs fresh `Owner` authority and an external gateway with durable shared state.
+
+The [Paseo adapter](.vibekit/skills/proofline-orchestration/references/paseo-adapter.md) is optional and useful only when coordinating several sessions. Proofline does not install Paseo, store credentials, or edit user-level configuration.
 
 </details>
 

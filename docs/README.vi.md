@@ -1,12 +1,12 @@
 <div align="center">
 
-**Đọc bằng:** [English](../README.md) · **Tiếng Việt** · [简体中文](README.zh-CN.md)
+**Đọc bằng:** [English](../README.md) · **Tiếng Việt** · [简体中文](README.zh-CN.md) · [日本語](README.ja.md)
 
 # Minimal Vibe Coding Kit
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.6-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.7-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -335,13 +335,14 @@ flowchart LR
 | `/daily-enhance`       | Báo cáo chỉ-đề-xuất để cải tiến rules, skills, workflows.                  | `/daily-enhance` - review diff đề xuất rồi duyệt.                   |
 | `/autoresearch-coding` | Vòng lặp thử nghiệm theo metric với baseline và budget.                    | `/autoresearch-coding` Goal: giảm lỗi lint. Budget: 3.              |
 | `/council`             | Phối hợp các agent reviewer/researcher/analyst thành một kế hoạch gộp.     | `/council` trên diff của branch này.                                |
+| `/proofline`           | Điều phối vai trò có giới hạn, phản biện độc lập, tín hiệu và bằng chứng.  | `/proofline` Goal: harden auth. Done signal: targeted tests pass.   |
 | `/vibe-finalize`       | Tốt nghiệp project: chuyển file bootstrap một lần vào `_vibekit-cleanup/`. | `/vibe-finalize` - xem trước, áp dụng sau khi duyệt.                |
 
 </details>
 
 ## Skills
 
-Cả 19 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex, Grok và Kimi mirror đủ 19; Cursor mirror 14 skill tương tác. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
+Cả 20 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex, Grok và Kimi mirror đủ 20; Cursor mirror 15 skill tương tác. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
 
 ```mermaid
 ---
@@ -378,7 +379,7 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("19 skill"))
+  root(("20 skill"))
     setup("Thiết lập và an toàn")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
@@ -391,6 +392,7 @@ mindmap
       t4("reviewing-4p-priorities")
       t5("graph-engineering-<br/>verified-orchestration")
       t6("the-creator")
+      t7("proofline-<br/>orchestration")
     analyze("Phân tích và cải tiến")
       a1("parallel-analysis")
       a2("autoresearch-coding")
@@ -412,6 +414,7 @@ mindmap
 | `vibekit-init`                | Setup lần đầu, hoặc `backbone.yml` / managed blocks cần sửa.                                                                                                                                                                                           | "Use the vibekit-init skill. Propose one diff and wait for my yes."                     |
 | `parallel-analysis`           | Câu hỏi toàn repo, review diff lớn, audit tính nhất quán.                                                                                                                                                                                              | "Use parallel-analysis: where is auth handled and what depends on it?"                  |
 | `graph-engineering-verified-orchestration` | Công việc phức tạp có các nhánh thực sự độc lập và cần dependency rõ ràng, cô lập, budget, xác minh khách quan, rollback và merge gate có giới hạn. | "Use graph-engineering-verified-orchestration to design a safe task graph for this migration." |
+| `proofline-orchestration`     | Công việc phức tạp cần governance rõ ràng, implementation có giới hạn, một bên phản biện độc lập có thực quyền, tín hiệu escalation có kiểu và acceptance dựa trên bằng chứng. | "Use proofline-orchestration để điều phối migration này và giữ nguyên dissent." |
 | `agentshield-security-review` | Audit config agent, skills, hooks, MCP, commands trước khi merge.                                                                                                                                                                                      | "Use agentshield-security-review on .claude/** and .vibekit/skills/**."                 |
 | `threat-model-security-review` | Review source ứng dụng, API, authentication, authorization, đường input, trust boundary và diff nhạy cảm về bảo mật với bằng chứng và coverage rõ ràng. | "Use threat-model-security-review on this repository. Stay read-only and report proof gaps." |
 | `autoresearch-coding`         | Cải tiến repo qua các thử nghiệm đo được.                                                                                                                                                                                                              | "Use autoresearch-coding. Metric: `npm test`. Direction: higher. Budget: 3."            |
@@ -430,6 +433,152 @@ mindmap
 | `mermaid`                     | Sinh sơ đồ Mermaid có style (31 loại) với độ chi tiết theo coding level. Chủ động hỏi có muốn thêm sơ đồ khi viết tài liệu, và khi debug có thể vẽ workflow tô đỏ vùng nghi là nguyên nhân bug.                                                        | "Use the mermaid skill. Vẽ flowchart cho pipeline deploy này."                          |
 
 Với `story=on` (mặc định), sau khi phân tích được duyệt, chế độ chuẩn bị `.vibekit/reports/tutien/story/`: `plot.md` lưu tổng cương và thế giới quan đang phát triển, `story-state.json` giữ mạch truyện, còn `chapters/NNNN-<tên-chương-tu-tiên>.md` lưu mỗi lần đúng một chương. Văn truyện do agent sáng tác từ dữ liệu tổng hợp thay vì ghép câu cố định; tên nhân vật, xưng hô và đối thoại tự nhiên theo `story-language=vi|en|zh`.
+
+</details>
+
+### Proofline: để AI không tự làm rồi tự chấm
+
+**Nói ngắn gọn:** Proofline tổ chức nhiều AI thành một nhóm có người làm, người kiểm tra và người giữ điều kiện nghiệm thu. Mục tiêu là giảm tình huống một AI tự chọn cách làm, tự sửa code rồi tự kết luận rằng mọi thứ đã đúng.
+
+Hãy hình dung bạn sửa một căn nhà. Bạn không muốn người thợ vừa thi công điện, vừa tự kiểm tra an toàn, vừa tự ký biên bản nghiệm thu. Với việc code quan trọng cũng vậy: người làm và người phản biện nên có trách nhiệm khác nhau.
+
+#### Mỗi vai trò giống ai ngoài đời?
+
+| Vai trò | Ví dụ ngoài đời | Trách nhiệm |
+| --- | --- | --- |
+| `Owner` | Chủ nhà hoặc chủ sản phẩm | Nói rõ cần gì và giữ quyền quyết định cuối cùng |
+| `Wayfinder` | Quản lý công trình | Chia việc, giao phạm vi và ghép kết quả |
+| `Maker` | Người thợ | Thực hiện đúng phần việc được giao |
+| `Countervoice` | Giám sát độc lập | Tìm giả định sai, lỗ hổng và bằng chứng mâu thuẫn |
+| `Verifier` | Người đo kiểm | Chạy test hoặc phép đo khách quan |
+| `Keeper` | Người giữ checklist nghiệm thu | Chỉ ghi nhận hoàn tất khi đủ điều kiện |
+
+Các tên trên là trách nhiệm, không phải cấp bậc. `Countervoice` được phép nói rằng kế hoạch ban đầu sai, kể cả khi `Wayfinder` có nhiều kinh nghiệm hơn.
+
+#### Lợi ích thực tế
+
+- **Ít lỗi "AI tự tin nhưng sai":** kết luận của người làm phải qua phản biện và test.
+- **Phát hiện sai từ gốc:** `Countervoice` có thể chỉ ra rằng yêu cầu, kiến trúc hoặc cách đặt câu hỏi đang sai, thay vì chỉ vá phần ngọn.
+- **Giảm sửa nhầm:** mỗi người chỉ được chạm vào phạm vi đã giao; test và file quan trọng được bảo vệ.
+- **Dễ kiểm tra lại:** kết quả đi kèm file đã đổi, test đã chạy, điểm còn nghi ngờ và giới hạn chưa giải quyết.
+- **Biết lúc nào nên dừng:** thiếu quyền, thiếu test hoặc hết ngân sách thì workflow dừng an toàn, không đoán mò.
+
+#### Khi nào nên dùng?
+
+| Nên dùng Proofline | Không cần dùng Proofline |
+| --- | --- |
+| Đăng nhập, phân quyền, thanh toán hoặc dữ liệu nhạy cảm | Sửa typo hoặc đổi một câu chữ |
+| Migration dữ liệu, refactor lớn hoặc thay đổi kiến trúc | Thay đổi nhỏ trong một file, dễ hoàn tác |
+| Nhiều AI hoặc nhiều nhánh đang làm song song | Một người làm và test rõ ràng đã đủ |
+| Sai sót có thể gây mất dữ liệu, lộ quyền hoặc downtime | Không có cách kiểm tra khách quan và việc chỉ cần ý tưởng |
+
+#### Dùng ở đâu?
+
+Proofline dùng ngay trong repository có Minimal Vibe Coding Kit, với Codex, Claude Code, Cursor, Grok hoặc Kimi. Nó phù hợp nhất cho task code có file, phạm vi và cách kiểm tra rõ ràng. Paseo chỉ là adapter tùy chọn để điều phối nhiều phiên làm việc; bạn không cần cài Paseo để dùng Proofline.
+
+```mermaid
+---
+config:
+  securityLevel: strict
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    primaryColor: "#8ECAFF"
+    primaryTextColor: "#111111"
+    primaryBorderColor: "#444444"
+    secondaryColor: "#FFD43B"
+    secondaryBorderColor: "#444444"
+    tertiaryColor: "#FFF9DB"
+    tertiaryBorderColor: "#444444"
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+    clusterBkg: "#FFF9DB"
+    clusterBorder: "#444444"
+---
+flowchart TD
+    Request([Owner nêu việc cần làm]) --> Plan(Wayfinder chia việc)
+    Plan --> Work(Maker thực hiện)
+    Work --> Review(Countervoice tìm điểm sai)
+    Review --> Test(Verifier chạy kiểm thử)
+    Test --> Gate{Đủ bằng chứng?}
+    Gate -->|chưa| Stop([Sửa tiếp hoặc dừng])
+    Gate -->|rồi| Ready([Keeper ghi nhận hoàn tất])
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF;
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111;
+    class Request terminal;
+    class Plan,Work,Test step;
+    class Gate decision;
+    class Ready success;
+    class Stop danger;
+    class Review accent;
+    linkStyle default stroke:#444444,stroke-width:1.5px;
+```
+
+#### Cách bắt đầu đơn giản nhất
+
+Bạn không cần biết `digest`, `lease` hay `gateway` để bắt đầu. Hãy mô tả năm điều sau:
+
+```text
+/proofline
+Mục tiêu: sửa phân quyền đăng nhập để role lạ luôn bị từ chối.
+Được phép sửa: src/auth-policy.mjs
+Không được sửa: test/auth-policy.test.mjs
+Hoàn tất khi: test đăng nhập chạy thành công.
+Giới hạn: không đổi API và không cài thêm package.
+```
+
+Kit sẽ tự chọn cách chạy phù hợp:
+
+- Việc nhỏ: một luồng tuần tự, không dựng cả nhóm không cần thiết.
+- Việc cần phản biện: thêm `Countervoice` để kiểm tra độc lập.
+- Việc phức tạp và có thể chia nhỏ: dùng nhiều lane có phạm vi rõ ràng.
+- Không đủ quyền hoặc không có test đáng tin: chỉ lập kế hoạch hoặc dừng an toàn.
+
+#### Ví dụ thực tế: sửa quyền đăng nhập
+
+Giả sử hệ thống chỉ cho `admin` và `editor` truy cập, còn role lạ phải bị từ chối:
+
+1. `Wayfinder` giao `src/auth-policy.mjs` cho `Maker`, nhưng bảo vệ file test.
+2. `Maker` đổi logic sang danh sách role được phép.
+3. `Countervoice` thử tìm lỗi nguy hiểm, ví dụ role `unknown` vô tình được cho qua.
+4. `Verifier` chạy test cho `admin`, `editor` và `unknown`.
+5. `Keeper` chỉ ghi nhận hoàn tất nếu test đạt và mọi phản biện đã được trả lời.
+
+Kết quả bạn nhận không chỉ là "đã xong". Nó gồm code đã đổi, test đã chạy, bằng chứng kiểm tra, điều còn rủi ro và lý do workflow dừng nếu chưa đủ an toàn.
+
+<details>
+<summary>Dành cho người muốn hiểu thuật ngữ và kiểm tra ledger</summary>
+
+| Thuật ngữ | Hiểu đơn giản |
+| --- | --- |
+| Scope | Khu vực được phép chạm vào |
+| Digest | Dấu vân tay của file hoặc trạng thái; file đổi thì dấu đổi |
+| Grant | Giấy phép cho đúng người, đúng việc và đúng thời hạn |
+| Lease | Chìa khóa tạm thời để chỉ một người được tích hợp |
+| Proof Return | Phiếu bàn giao gồm thay đổi và bằng chứng kiểm tra |
+| Seal | Biên bản ghi nhận đã đủ điều kiện; không tự động cho phép deploy |
+| Gateway | Chốt bảo vệ kiểm tra lại quyền trước hành động quan trọng |
+
+Để chạy ví dụ xác định đi kèm:
+
+```bash
+npm run test:proofline
+node .vibekit/skills/proofline-orchestration/scripts/run-proofline-sandbox.mjs \
+  .vibekit/skills/proofline-orchestration/examples/auth-migration-case.json
+```
+
+Xem thêm [hợp đồng skill](../.vibekit/skills/proofline-orchestration/SKILL.md), [control matrix](../.vibekit/skills/proofline-orchestration/references/control-matrix.md) và [ví dụ authentication](../.vibekit/skills/proofline-orchestration/examples/auth-migration-case.json).
+
+Validator và gateway đi kèm là công cụ mô phỏng policy trong máy hiện tại. Chúng không chứng minh OS, provider, MCP server hoặc hệ thống bên ngoài đã thực sự cưỡng chế mọi quyền. Merge, deploy hoặc thay đổi hệ thống thật vẫn cần quyền mới của `Owner` và một gateway bên ngoài có bộ đếm dùng chung, bền vững.
+
+[Adapter Paseo](../.vibekit/skills/proofline-orchestration/references/paseo-adapter.md) là tùy chọn, chỉ dùng khi bạn muốn điều phối nhiều phiên làm việc. Proofline không tự cài Paseo, không lưu credential và không sửa cấu hình user-level.
 
 </details>
 

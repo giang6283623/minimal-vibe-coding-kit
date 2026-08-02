@@ -1,0 +1,408 @@
+{
+  "schemaVersion": "proofline-sandbox-v1",
+  "lifecycle": "closed",
+  "validationTime": "2026-08-02T04:00:00.000Z",
+  "mode": "countercheck",
+  "risk": "high",
+  "contract": {
+    "taskId": "auth-policy-migration",
+    "version": 1,
+    "goal": "Move authentication policy to an explicit allowlist without weakening protected tests",
+    "doneSignal": "The protected verifier passes on the exact integrated tree",
+    "editablePaths": [
+      "src/auth-policy.mjs"
+    ],
+    "protectedPaths": [
+      "test/auth-policy.test.mjs",
+      ".vibekit/skills/proofline-orchestration"
+    ],
+    "inputManifest": {
+      "capturedAt": "2026-08-02T03:55:00.000Z",
+      "maxAgeSeconds": 3600,
+      "entries": [
+        {
+          "kind": "source",
+          "path": "src/auth-policy.mjs",
+          "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "version": "fixture-before"
+        },
+        {
+          "kind": "oracle",
+          "path": "test/auth-policy.test.mjs",
+          "digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "version": "fixture-protected"
+        },
+        {
+          "kind": "governance",
+          "path": ".vibekit/skills/proofline-orchestration",
+          "digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "version": "proofline-sandbox-v1"
+        }
+      ],
+      "digest": "468f7cf39743a93ccfc7de6b36e18fc5460cc36b34d71942b82dcc9cc5dd26de"
+    },
+    "inputDigest": "468f7cf39743a93ccfc7de6b36e18fc5460cc36b34d71942b82dcc9cc5dd26de",
+    "budgets": {
+      "maxWallSeconds": 600,
+      "maxTokens": 12000,
+      "maxToolCalls": 40,
+      "maxCostUnits": 100,
+      "maxAgents": 5,
+      "maxConcurrency": 3,
+      "maxRetries": 2,
+      "maxRounds": 3,
+      "verificationReserveTools": 8,
+      "perLane": {
+        "keeper-auth": { "maxWallSeconds": 180, "maxTokens": 2500, "maxToolCalls": 8, "maxCostUnits": 20, "maxRetries": 1 },
+        "wayfinder-auth": { "maxWallSeconds": 300, "maxTokens": 4000, "maxToolCalls": 12, "maxCostUnits": 30, "maxRetries": 1 },
+        "countervoice-auth": { "maxWallSeconds": 240, "maxTokens": 3000, "maxToolCalls": 10, "maxCostUnits": 25, "maxRetries": 1 },
+        "maker-auth": { "maxWallSeconds": 300, "maxTokens": 4000, "maxToolCalls": 10, "maxCostUnits": 30, "maxRetries": 1 }
+      }
+    },
+    "digest": "701f8ff2662e1454a92f63d41622389f886c7b0ef47d9911f8cf341c928476f3"
+  },
+  "mutationGrant": {
+    "grantId": "mutation-auth-001",
+    "grantorIdentity": "owner:local-fixture",
+    "identityEvidenceDigest": "9999999999999999999999999999999999999999999999999999999999999999",
+    "actorId": "maker-auth",
+    "action": "write-auth-policy",
+    "target": "workspace",
+    "scope": ["src/auth-policy.mjs"],
+    "taskId": "auth-policy-migration",
+    "contractVersion": 1,
+    "contractDigest": "701f8ff2662e1454a92f63d41622389f886c7b0ef47d9911f8cf341c928476f3",
+    "inputDigest": "468f7cf39743a93ccfc7de6b36e18fc5460cc36b34d71942b82dcc9cc5dd26de",
+    "issuedAt": "2026-08-02T03:55:05.000Z",
+    "expiresAt": "2026-08-02T05:00:00.000Z",
+    "useLimit": 1,
+    "usesRecorded": 1,
+    "lastUsedAt": "2026-08-02T03:57:05.000Z",
+    "revokedAt": "2026-08-02T03:57:05.000Z"
+  },
+  "authorityGrant": {
+    "grantId": "grant-auth-001",
+    "grantorIdentity": "owner:local-fixture",
+    "identityEvidenceDigest": "9999999999999999999999999999999999999999999999999999999999999999",
+    "action": "integrate-auth-policy",
+    "target": "auth-policy-release",
+    "scope": ["src/auth-policy.mjs"],
+    "taskId": "auth-policy-migration",
+    "contractVersion": 1,
+    "contractDigest": "701f8ff2662e1454a92f63d41622389f886c7b0ef47d9911f8cf341c928476f3",
+    "inputDigest": "468f7cf39743a93ccfc7de6b36e18fc5460cc36b34d71942b82dcc9cc5dd26de",
+    "artifactDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "treeDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "issuedAt": "2026-08-02T03:59:25.000Z",
+    "expiresAt": "2026-08-02T06:00:00.000Z",
+    "useLimit": 1,
+    "usesRecorded": 0,
+    "revokedAt": null
+  },
+  "roles": [
+    {
+      "role": "Keeper",
+      "actorId": "keeper-auth",
+      "contextId": "ctx-keeper-auth",
+      "parentContextId": "ctx-owner-auth",
+      "promptDigest": "1111111111111111111111111111111111111111111111111111111111111111",
+      "provider": "local-harness",
+      "model": "deterministic-fixture",
+      "access": "read-only",
+      "assignedPaths": [],
+      "contractDigest": "701f8ff2662e1454a92f63d41622389f886c7b0ef47d9911f8cf341c928476f3",
+      "inputDigest": "468f7cf39743a93ccfc7de6b36e18fc5460cc36b34d71942b82dcc9cc5dd26de",
+      "enforcementManifest": {
+        "filesystem": "enforced", "semantic": "enforced", "credentials": "enforced",
+        "network": "enforced", "api": "enforced", "delegation": "enforced", "verifier": "enforced"
+      },
+      "capabilityProbe": {
+        "filesystemMutationDenied": true, "mcpMutationDenied": true, "apiMutationDenied": true,
+        "networkMutationDenied": true, "credentialMutationDenied": true, "delegationMutationDenied": true
+      },
+      "laneLease": {
+        "issuedAt": "2026-08-02T03:55:05.000Z", "expiresAt": "2026-08-02T05:00:00.000Z",
+        "heartbeatAt": "2026-08-02T03:59:00.000Z", "maxHeartbeatAgeSeconds": 600
+      }
+    },
+    {
+      "role": "Wayfinder",
+      "actorId": "wayfinder-auth",
+      "contextId": "ctx-wayfinder-auth",
+      "parentContextId": "ctx-owner-auth",
+      "promptDigest": "2222222222222222222222222222222222222222222222222222222222222222",
+      "provider": "local-harness",
+      "model": "deterministic-fixture",
+      "access": "workspace-write",
+      "assignedPaths": ["src/auth-policy.mjs"],
+      "contractDigest": "701f8ff2662e1454a92f63d41622389f886c7b0ef47d9911f8cf341c928476f3",
+      "inputDigest": "468f7cf39743a93ccfc7de6b36e18fc5460cc36b34d71942b82dcc9cc5dd26de",
+      "enforcementManifest": {
+        "filesystem": "enforced", "semantic": "enforced", "credentials": "enforced",
+        "network": "enforced", "api": "enforced", "delegation": "enforced", "verifier": "enforced"
+      },
+      "capabilityProbe": {
+        "outOfScopeWriteDenied": true, "protectedWriteDenied": true, "externalMutationDenied": true
+      },
+      "laneLease": {
+        "issuedAt": "2026-08-02T03:55:05.000Z", "expiresAt": "2026-08-02T05:00:00.000Z",
+        "heartbeatAt": "2026-08-02T03:59:00.000Z", "maxHeartbeatAgeSeconds": 600
+      }
+    },
+    {
+      "role": "Countervoice",
+      "actorId": "countervoice-auth",
+      "contextId": "ctx-countervoice-auth",
+      "parentContextId": "ctx-owner-auth",
+      "promptDigest": "3333333333333333333333333333333333333333333333333333333333333333",
+      "provider": "local-harness",
+      "model": "deterministic-fixture",
+      "access": "read-only",
+      "assignedPaths": [],
+      "contractDigest": "701f8ff2662e1454a92f63d41622389f886c7b0ef47d9911f8cf341c928476f3",
+      "inputDigest": "468f7cf39743a93ccfc7de6b36e18fc5460cc36b34d71942b82dcc9cc5dd26de",
+      "enforcementManifest": {
+        "filesystem": "enforced", "semantic": "enforced", "credentials": "enforced",
+        "network": "enforced", "api": "enforced", "delegation": "enforced", "verifier": "enforced"
+      },
+      "capabilityProbe": {
+        "filesystemMutationDenied": true, "mcpMutationDenied": true, "apiMutationDenied": true,
+        "networkMutationDenied": true, "credentialMutationDenied": true, "delegationMutationDenied": true
+      },
+      "laneLease": {
+        "issuedAt": "2026-08-02T03:55:05.000Z", "expiresAt": "2026-08-02T05:00:00.000Z",
+        "heartbeatAt": "2026-08-02T03:59:00.000Z", "maxHeartbeatAgeSeconds": 600
+      }
+    },
+    {
+      "role": "Maker",
+      "actorId": "maker-auth",
+      "contextId": "ctx-maker-auth",
+      "parentContextId": "ctx-wayfinder-auth",
+      "promptDigest": "4444444444444444444444444444444444444444444444444444444444444444",
+      "provider": "local-harness",
+      "model": "deterministic-fixture",
+      "access": "workspace-write",
+      "assignedPaths": ["src/auth-policy.mjs"],
+      "contractDigest": "701f8ff2662e1454a92f63d41622389f886c7b0ef47d9911f8cf341c928476f3",
+      "inputDigest": "468f7cf39743a93ccfc7de6b36e18fc5460cc36b34d71942b82dcc9cc5dd26de",
+      "enforcementManifest": {
+        "filesystem": "enforced", "semantic": "enforced", "credentials": "enforced",
+        "network": "enforced", "api": "enforced", "delegation": "enforced", "verifier": "enforced"
+      },
+      "capabilityProbe": {
+        "outOfScopeWriteDenied": true, "protectedWriteDenied": true, "externalMutationDenied": true
+      },
+      "laneLease": {
+        "issuedAt": "2026-08-02T03:55:05.000Z", "expiresAt": "2026-08-02T05:00:00.000Z",
+        "heartbeatAt": "2026-08-02T03:59:00.000Z", "maxHeartbeatAgeSeconds": 600
+      }
+    }
+  ],
+  "verifier": {
+    "actorId": "verifier-auth",
+    "contextId": "ctx-verifier-auth",
+    "protectedPaths": ["test/auth-policy.test.mjs"],
+    "receipt": {
+      "receiptId": "auth-policy",
+      "ownerId": "verifier-auth",
+      "argv": ["node", "test/auth-policy.test.mjs"],
+      "cwd": ".",
+      "exitCode": 0,
+      "toolVersions": { "node": "fixture-v1" },
+      "treeDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "artifactDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "oracleDigest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "outputDigest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "finishedAt": "2026-08-02T03:59:20.000Z"
+    }
+  },
+  "usage": {
+    "wallSeconds": 180, "tokens": 6000, "toolCalls": 21, "costUnits": 40,
+    "agents": 5, "concurrency": 3, "retries": 0, "rounds": 2,
+    "verificationReserveRemaining": 4,
+    "perLane": {
+      "keeper-auth": { "wallSeconds": 60, "tokens": 1200, "toolCalls": 3, "costUnits": 8, "retries": 0 },
+      "wayfinder-auth": { "wallSeconds": 100, "tokens": 2000, "toolCalls": 6, "costUnits": 12, "retries": 0 },
+      "countervoice-auth": { "wallSeconds": 90, "tokens": 1500, "toolCalls": 5, "costUnits": 10, "retries": 0 },
+      "maker-auth": { "wallSeconds": 110, "tokens": 2200, "toolCalls": 7, "costUnits": 14, "retries": 0 }
+    }
+  },
+  "integrationLease": {
+    "active": false,
+    "holderId": "wayfinder-auth",
+    "epoch": 1,
+    "fencingToken": "auth-fence-token-0001",
+    "scope": ["src/auth-policy.mjs"],
+    "checkpointDigest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "issuedAt": "2026-08-02T03:55:05.000Z",
+    "expiresAt": "2026-08-02T05:00:00.000Z",
+    "revokedAt": "2026-08-02T03:59:10.000Z",
+    "revokedEpochs": [],
+    "successor": null,
+    "contractDigest": "701f8ff2662e1454a92f63d41622389f886c7b0ef47d9911f8cf341c928476f3",
+    "inputDigest": "468f7cf39743a93ccfc7de6b36e18fc5460cc36b34d71942b82dcc9cc5dd26de"
+  },
+  "signals": [
+    {
+      "signalId": "sig-001", "sequence": 1, "type": "FRAME_CHALLENGE",
+      "senderRole": "Countervoice", "targetRole": "Wayfinder",
+      "taskId": "auth-policy-migration", "contractVersion": 1,
+      "senderActorId": "countervoice-auth", "senderAuthenticated": true,
+      "claim": "The migration could silently make unknown roles permissive",
+      "evidence": ["test/auth-policy.test.mjs#unknown-role"],
+      "requestedAction": "Preserve deny-by-default behavior", "scopeEffect": "none",
+      "issuedAt": "2026-08-02T03:56:00.000Z", "expiresAt": "2026-08-02T05:00:00.000Z",
+      "dedupeKey": "ecbe163d824ed572089a21dc46866c009b54efe24570f24e1696e71e45c1a089", "status": "accepted",
+      "acknowledgedAt": "2026-08-02T03:56:30.000Z", "dispositionBy": "wayfinder-auth",
+      "contractDigest": "701f8ff2662e1454a92f63d41622389f886c7b0ef47d9911f8cf341c928476f3",
+      "inputDigest": "468f7cf39743a93ccfc7de6b36e18fc5460cc36b34d71942b82dcc9cc5dd26de"
+    },
+    {
+      "signalId": "sig-002", "sequence": 2, "type": "PROOF_RETURN",
+      "senderRole": "Maker", "targetRole": "Wayfinder",
+      "taskId": "auth-policy-migration", "contractVersion": 1,
+      "senderActorId": "maker-auth", "senderAuthenticated": true,
+      "claim": "The bounded auth artifact is ready for independent verification",
+      "evidence": ["proof-return:auth-policy-artifact"],
+      "requestedAction": "Run protected verifier", "scopeEffect": "none",
+      "issuedAt": "2026-08-02T03:57:00.000Z", "expiresAt": "2026-08-02T05:00:00.000Z",
+      "dedupeKey": "155bdfc091c88a85924e1cb5e357223f6cbc434937ffb207d6c949afb86f03d4", "status": "accepted",
+      "acknowledgedAt": "2026-08-02T03:57:30.000Z", "dispositionBy": "wayfinder-auth",
+      "contractDigest": "701f8ff2662e1454a92f63d41622389f886c7b0ef47d9911f8cf341c928476f3",
+      "inputDigest": "468f7cf39743a93ccfc7de6b36e18fc5460cc36b34d71942b82dcc9cc5dd26de"
+    },
+    {
+      "signalId": "sig-003", "sequence": 3, "type": "SEAL_PROPOSAL",
+      "senderRole": "Wayfinder", "targetRole": "Keeper",
+      "taskId": "auth-policy-migration", "contractVersion": 1,
+      "senderActorId": "wayfinder-auth", "senderAuthenticated": true,
+      "claim": "The exact integrated tree satisfies the frozen contract",
+      "evidence": ["verifier-receipt:auth-policy"],
+      "requestedAction": "Evaluate seal gates", "scopeEffect": "none",
+      "issuedAt": "2026-08-02T03:59:22.000Z", "expiresAt": "2026-08-02T05:00:00.000Z",
+      "dedupeKey": "0380d9f10e2a63769faf3aa344d609813840fcaa1470e9820d57e1c272108471", "status": "accepted",
+      "acknowledgedAt": "2026-08-02T03:59:23.000Z", "dispositionBy": "keeper-auth",
+      "contractDigest": "701f8ff2662e1454a92f63d41622389f886c7b0ef47d9911f8cf341c928476f3",
+      "inputDigest": "468f7cf39743a93ccfc7de6b36e18fc5460cc36b34d71942b82dcc9cc5dd26de"
+    },
+    {
+      "signalId": "sig-004", "sequence": 4, "type": "SEAL_GRANTED",
+      "senderRole": "Keeper", "targetRole": "Owner",
+      "taskId": "auth-policy-migration", "contractVersion": 1,
+      "senderActorId": "keeper-auth", "senderAuthenticated": true,
+      "claim": "All frozen gates are satisfied for the exact artifact",
+      "evidence": ["owner-grant:grant-auth-001", "verifier-receipt:auth-policy"],
+      "requestedAction": "Record seal only", "scopeEffect": "none",
+      "issuedAt": "2026-08-02T03:59:30.000Z", "expiresAt": "2026-08-02T05:00:00.000Z",
+      "dedupeKey": "9d4254bd7f38baab7f8df7556b4797435f197e3aa29a75d8cd9b8dc574161816", "status": "accepted",
+      "acknowledgedAt": "2026-08-02T03:59:35.000Z", "dispositionBy": "owner:local-fixture",
+      "contractDigest": "701f8ff2662e1454a92f63d41622389f886c7b0ef47d9911f8cf341c928476f3",
+      "inputDigest": "468f7cf39743a93ccfc7de6b36e18fc5460cc36b34d71942b82dcc9cc5dd26de"
+    }
+  ],
+  "proofReturns": [
+    {
+      "artifactId": "auth-policy-artifact",
+      "actorId": "maker-auth",
+      "contextId": "ctx-maker-auth",
+      "parentContextId": "ctx-wayfinder-auth",
+      "promptDigest": "4444444444444444444444444444444444444444444444444444444444444444",
+      "contractDigest": "701f8ff2662e1454a92f63d41622389f886c7b0ef47d9911f8cf341c928476f3",
+      "inputDigest": "468f7cf39743a93ccfc7de6b36e18fc5460cc36b34d71942b82dcc9cc5dd26de",
+      "inputSnapshot": {
+        "digest": "468f7cf39743a93ccfc7de6b36e18fc5460cc36b34d71942b82dcc9cc5dd26de",
+        "capturedAt": "2026-08-02T03:55:00.000Z"
+      },
+      "freshnessCheckedAt": "2026-08-02T03:58:50.000Z",
+      "scopeAssigned": ["src/auth-policy.mjs"],
+      "scopeUsed": ["src/auth-policy.mjs"],
+      "changes": ["Replace implicit authentication behavior with an explicit role allowlist"],
+      "enforcementManifest": {
+        "filesystem": "enforced", "semantic": "enforced", "credentials": "enforced",
+        "network": "enforced", "api": "enforced", "delegation": "enforced", "verifier": "enforced"
+      },
+      "budgetUsed": {
+        "wallSeconds": 110, "tokens": 2200, "toolCalls": 7, "costUnits": 14, "retries": 0
+      },
+      "artifactDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "treeDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "oracleDigest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "outputDigest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "validation": {
+        "ownerId": "verifier-auth", "argv": ["node", "test/auth-policy.test.mjs"], "cwd": ".",
+        "exitCode": 0, "toolVersions": { "node": "fixture-v1" },
+        "treeDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "artifactDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "oracleDigest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "outputDigest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      },
+      "evidence": [
+        { "kind": "reference", "ref": "test/auth-policy.test.mjs#protected-verifier" },
+        { "kind": "reference", "ref": "receipt:auth-policy-output" }
+      ],
+      "evidencePolicy": {
+        "classification": "internal", "allowedReaders": ["Owner", "Keeper", "Wayfinder", "Countervoice"],
+        "allowSecretValues": false, "deleteAfter": "2026-08-09T00:00:00.000Z"
+      },
+      "oracleIntegrity": "protected",
+      "rollback": "Restore the prior src/auth-policy.mjs artifact from the frozen input snapshot",
+      "signalsOpen": [],
+      "residualRisk": ["local policy simulation does not prove external runtime enforcement"],
+      "cleanupStatus": "clean",
+      "status": "accepted"
+    }
+  ],
+  "challengePlan": {
+    "separateContext": true,
+    "reviewClassification": "independent",
+    "parentContextId": "ctx-owner-auth",
+    "evidenceSources": ["repository:protected-test", "primary:auth-policy-contract"],
+    "externalOracle": { "ownerId": "verifier-auth", "deterministic": true },
+    "irreducibleLimits": [
+      "correlated-model-failure", "flawed-oracle", "compromised-infrastructure",
+      "unavailable-dependencies", "coordination-cost"
+    ]
+  },
+  "observedState": {
+    "treeDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "artifactDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "oracleDigest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "outputDigest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "controlPlaneDigest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+  },
+  "runtimeAttestation": {
+    "controlPlaneDigest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "executable": "/usr/bin/node",
+    "version": "fixture-v1",
+    "profileDigest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "executableDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "effectiveConfigDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "probeOutputDigest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "governancePathsProtected": true,
+    "verifierPathsProtected": true,
+    "hooksReviewed": true,
+    "scopeGateway": "proofline-policy-simulator-v1",
+    "effectiveProbe": "verified",
+    "gatewayAttestation": "local-process-only",
+    "providerSmoke": "local-harness-only"
+  },
+  "seal": {
+    "state": "granted",
+    "proposedBy": "wayfinder-auth",
+    "recordedBy": "keeper-auth",
+    "authorityGrantId": "grant-auth-001",
+    "integrationEpoch": 1,
+    "fencingToken": "auth-fence-token-0001",
+    "artifactDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "treeDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "oracleDigest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "outputDigest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "issuedAt": "2026-08-02T03:59:30.000Z",
+    "expiresAt": "2026-08-02T05:00:00.000Z",
+    "protectedActionGateway": "policy-simulator",
+    "contractDigest": "701f8ff2662e1454a92f63d41622389f886c7b0ef47d9911f8cf341c928476f3",
+    "inputDigest": "468f7cf39743a93ccfc7de6b36e18fc5460cc36b34d71942b82dcc9cc5dd26de"
+  },
+  "ledgerClosedAt": "2026-08-02T03:59:40.000Z"
+}

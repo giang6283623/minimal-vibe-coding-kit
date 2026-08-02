@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+## 0.5.7 - 2026-08-03
+
+### Added
+
+- Added `proofline-orchestration` across Claude, Cursor, Codex, Grok, and Kimi with the original `Keeper`, `Wayfinder`, `Countervoice`, and `Maker` vocabulary. The workflow gives independent challenge an explicit evidence contract, typed signals, preserved dissent, protected acceptance oracles, and auditable Proof Returns.
+- Added `/proofline`, four project-scoped Codex custom agents, and four optional Codex profile templates. The templates declare conservative sandboxes, while effective runtime probes decide whether role boundaries are enforceable.
+- Added an optional, manual Paseo custom-provider fragment with official-source compatibility notes and security caveats. The kit does not install Paseo, pin models, store credentials, or edit user-level runtime configuration automatically.
+- Added a dependency-free Proofline ledger validator, fenced scope and protected-action policy simulators, a bound authentication example, and an adversarial sandbox harness covering authority, replay, role transitions, budgets, liveness, safe non-final states, protected oracles, evidence safety, post-verification drift, and shared-state seal consumption.
+- Added a localized Vivid Clay Mermaid workflow and step-by-step Proofline guide to all four READMEs.
+- Added complete Japanese documentation in `docs/README.ja.md`, with localized diagrams, synchronized language navigation, validator coverage, and npm package inclusion.
+
+### Changed
+
+- Reworked the localized Proofline README guide around a house-renovation analogy, practical benefits, clear use and skip criteria, a copy-ready first prompt, one authentication example, a short glossary, and a smaller eight-node workflow diagram for technical and non-technical readers.
+- Hardened Proofline with separate mutation and final-action grants, unsigned-only contract freezing, canonical timestamps, authenticated signal chains, immutable manifests, independent verifier ownership, command and tree digests, capability canaries, bounded deliberation, typed per-lane budgets, fenced integration, safe-stop rules, sensitive-evidence policy, runtime attestations, trusted validator controls, and explicit irreducible limits.
+- Clarified that profile sandbox declarations are not runtime proof. Effective probes must fail closed, and unavailable controls force sequential or plan-only operation.
+- Updated skill discovery, five-surface mirrors, package contents, localized documentation, and deterministic validation for 20 canonical skills and 15 Cursor skills.
+
+### Validation
+
+- `npm test` passed with every install profile, zero kit-validator failures or warnings, all 177 Tutien checks, all 42 graph-renderer checks, and all 37 Proofline sandbox checks. The install harness also proves target-modified Proofline and AgentShield scripts are rejected without execution. The deterministic AgentShield probe found no built-in suspicious markers, and the package dry-run included all 884 on-disk skill files in a 989-file tarball.
+
 ## 0.5.6 - 2026-07-31
 
 ### Added

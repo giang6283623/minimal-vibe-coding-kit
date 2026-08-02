@@ -1,0 +1,4 @@
+interface:
+  display_name: "Proofline Orchestration"
+  short_description: "Govern role-separated work with evidence and dissent"
+  default_prompt: "Use $proofline-orchestration to freeze this outcome, assign bounded roles, preserve independent challenge, and return a verified Proofline ledger."
