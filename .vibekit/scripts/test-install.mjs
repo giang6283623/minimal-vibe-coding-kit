@@ -46,6 +46,22 @@ try {
   const clean = tempDir('clean');
   run(['.vibekit/scripts/mvck.mjs', 'install', clean, '--profile', 'all']);
   run(['.vibekit/scripts/validate-kit.mjs', clean]);
+  const cleanProbePath = path.join(clean, '.vibekit/scripts/agentshield-probe.mjs');
+  const cleanProbeOriginal = fs.readFileSync(cleanProbePath, 'utf8');
+  const probeSentinel = path.join(clean, 'target-probe-executed');
+  fs.writeFileSync(cleanProbePath, `import fs from 'node:fs';\nfs.writeFileSync(${JSON.stringify(probeSentinel)}, 'unsafe');\n`);
+  run(['.vibekit/scripts/validate-kit.mjs', clean], { expect: 1 });
+  assert(!fs.existsSync(probeSentinel), 'validator rejects but never executes a target-modified AgentShield probe');
+  fs.writeFileSync(cleanProbePath, cleanProbeOriginal);
+  run(['.vibekit/scripts/validate-kit.mjs', clean]);
+  const cleanRunnerPath = path.join(clean, '.vibekit/skills/proofline-orchestration/scripts/run-proofline-sandbox.mjs');
+  const cleanRunnerOriginal = fs.readFileSync(cleanRunnerPath, 'utf8');
+  const runnerSentinel = path.join(clean, 'target-runner-executed');
+  fs.writeFileSync(cleanRunnerPath, `import fs from 'node:fs';\nfs.writeFileSync(${JSON.stringify(runnerSentinel)}, 'unsafe');\n`);
+  run(['.vibekit/scripts/validate-kit.mjs', clean], { expect: 1 });
+  assert(!fs.existsSync(runnerSentinel), 'validator rejects but never executes a target-modified Proofline runner');
+  fs.writeFileSync(cleanRunnerPath, cleanRunnerOriginal);
+  run(['.vibekit/scripts/validate-kit.mjs', clean]);
   assert(fs.existsSync(path.join(clean, 'AGENTS.md')), 'clean install creates AGENTS.md');
   assert(fs.existsSync(path.join(clean, '.vibekit/commands')), 'clean install creates .vibekit/commands');
   assert(fs.existsSync(path.join(clean, '.vibekit/scripts')), 'clean install creates .vibekit/scripts');
@@ -54,6 +70,14 @@ try {
   assert(!fs.existsSync(path.join(clean, 'scripts')), 'clean install does not create root scripts');
   assert(!fs.existsSync(path.join(clean, 'docs')), 'clean install does not create root docs');
   assert(fs.existsSync(path.join(clean, '.vibekit/skills/vibekit-init/SKILL.md')), 'clean install creates .vibekit/skills');
+  assert(fs.existsSync(path.join(clean, '.vibekit/skills/proofline-orchestration/scripts/run-proofline-sandbox.mjs')), 'clean install includes the canonical Proofline sandbox validator');
+  assert(fs.existsSync(path.join(clean, '.vibekit/skills/proofline-orchestration/examples/auth-migration-case.json')), 'clean install includes the Proofline authentication case');
+  for (const mirror of ['.claude', '.cursor', '.agents', '.grok', '.kimi-code']) {
+    assert(
+      fs.existsSync(path.join(clean, mirror, 'skills/proofline-orchestration/scripts/run-proofline-sandbox.mjs')),
+      `clean install includes the Proofline sandbox validator in ${mirror}`
+    );
+  }
   assert(fs.existsSync(path.join(clean, '.vibekit/init/FIRST_TIME_INIT.md')), 'clean install seeds init files under .vibekit/init');
   assert(!fs.existsSync(path.join(clean, 'skills')), 'clean install does not create root skills');
   assert(!fs.existsSync(path.join(clean, '.vbkit-scripts')), 'clean install does not create legacy .vbkit-scripts');

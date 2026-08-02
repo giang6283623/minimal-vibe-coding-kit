@@ -134,14 +134,27 @@ The installer also includes `visual-design-loop` for Claude, Codex, Grok, and Ki
 
 ## User-invoked utility skills
 
-Nine user-invoked skills install across Claude, Codex, Cursor, Grok, and Kimi surfaces:
+Ten user-invoked skills install across Claude, Codex, Cursor, Grok, and Kimi surfaces:
 
 - `memento`: write a `MEMENTO.md` working note before closing a multi-day task (`/memento`), then resume from it in the next session (`/memento resume`).
 - `coding-level`: set the explanation register from 0 (ELI5) to 5 (expert peer) with `/coding-level N`; stays active until reinvoked.
 - `graph-engineering-verified-orchestration`: design and optionally execute a bounded dependency graph with explicit artifacts, enforceable isolation, objective verification, budgets, rollback, and human gates; unresolved controls force plan-only mode.
+- `proofline-orchestration`: govern complex work through the original Keeper, Wayfinder, Countervoice, and Maker roles, with expiring authority, effective capability probes, typed signals, evidence-bound Proof Returns, protected acceptance oracles, fenced integration, an executable sandbox ledger, and an optional manual Paseo adapter.
 - `threat-model-security-review`: review application source or security-sensitive diffs with a repository-specific threat model, explicit coverage, source-to-sink evidence, safe validation statuses, and one-finding-at-a-time remediation. It does not install or invoke an external scanner.
 - `prompt-sharpener`: sharpen a rough prompt into a precise one with `/prompt-sharpener <rough prompt>`, then execute the sharpened version immediately in the same turn.
 - `claim`: vet a request to bring something new into the repo with `/claim <request>` - validate URLs and references against official sources, check fit with existing rules and skills, confirm anything unclear, then integrate and document it.
 - `tutien`: turn Git history and explicitly supplied AI-chat exports into a private xianxia coding-reflection mode with `/tutien` (realm, token use, workflow habits, evidence-bound suggestions). Once enabled, every reply keeps an adaptive cultivation-novel voice in the user's language, activation asks for an optional fictional-avatar `humiliation=0..10` level, analysis remains read-only and aggregate-only by default, and `/tutien off` disables the mode.
 - `the-creator`: create original but workable art, designs, interfaces, methods, processes, or systems with `/the-creator level N`; each level cumulatively relaxes 10% of eligible conventions while preserving safety, logic, authorization, and functional acceptance.
 - `mermaid`: generate styled diagrams across 31 Mermaid types, adapt density to `/coding-level`, and optionally visualize multi-step documentation or debugging flows.
+
+### Proofline sandbox ledger
+
+Start with the installed authentication case, replace every fixture value with evidence from the current task, then validate the exact contract and run the repository harness when available:
+
+```bash
+node .vibekit/skills/proofline-orchestration/scripts/run-proofline-sandbox.mjs \
+  .vibekit/skills/proofline-orchestration/examples/auth-migration-case.json
+npm run test:proofline
+```
+
+The validator is dependency-free and tests declared policy, digest binding, signal transitions, replay rejection, scope, budgets, liveness, fencing, protected verification, evidence handling, safe non-final states, and shared-state seal consumption. Its gateway is an in-process policy simulator, not durable cross-process enforcement. It does not prove that a live agent runtime, OS sandbox, MCP server, Paseo daemon, or provider enforced the declared boundaries. Missing effective capability probes force sequential or plan-only operation.

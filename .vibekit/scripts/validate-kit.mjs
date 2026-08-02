@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(process.argv[2] || process.cwd());
+const validatorRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 let failures = 0;
 let warnings = 0;
 
@@ -174,6 +177,21 @@ const reasoningSkillResources = {
     'references/graph-contract.md',
     'references/graph-visualization.md',
     'scripts/render-graph.mjs'
+  ],
+  'proofline-orchestration': [
+    'agents/openai.yaml',
+    'references/role-contract.md',
+    'references/signal-protocol.md',
+    'references/proof-return-schema.md',
+    'references/control-matrix.md',
+    'references/paseo-adapter.md',
+    'scripts/run-proofline-sandbox.mjs',
+    'examples/auth-migration-case.json',
+    'assets/paseo-config.fragment.json',
+    'assets/codex-profiles/proofline-keeper.config.toml',
+    'assets/codex-profiles/proofline-wayfinder.config.toml',
+    'assets/codex-profiles/proofline-countervoice.config.toml',
+    'assets/codex-profiles/proofline-maker.config.toml'
   ],
   'the-creator': [
     'agents/openai.yaml'
@@ -376,10 +394,11 @@ function validateThreatModelSecurityReviewContract() {
   const ui = read(`${base}/agents/openai.yaml`);
   const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
   const sourceDiscoveryValid = !isKitSourceRepo || (
-    hasAll(read('README.md'), ['All 19 skills', '| `threat-model-security-review`'])
-    && hasAll(read('docs/README.vi.md'), ['Cả 19 skill', '| `threat-model-security-review`'])
-    && hasAll(read('docs/README.zh-CN.md'), ['全部 19 个技能', '| `threat-model-security-review`'])
-    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Nine user-invoked skills', '`threat-model-security-review`'])
+    hasAll(read('README.md'), ['All 20 skills', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 20 skill', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 20 个技能', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.ja.md'), ['20 個すべてのスキル', '| `threat-model-security-review`'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Ten user-invoked skills', '`threat-model-security-review`'])
     && hasAll(read('.vibekit/docs/SECURITY_MODEL.md'), [
       '`threat-model-security-review` covers application source',
       '`agentshield-security-review` covers agent instructions'
@@ -578,6 +597,7 @@ function validateGraphEngineeringContract() {
   const readme = exists('README.md') ? read('README.md') : '';
   const readmeVi = exists('docs/README.vi.md') ? read('docs/README.vi.md') : '';
   const readmeZh = exists('docs/README.zh-CN.md') ? read('docs/README.zh-CN.md') : '';
+  const readmeJa = exists('docs/README.ja.md') ? read('docs/README.ja.md') : '';
   const install = exists('.vibekit/docs/INSTALL.md') ? read('.vibekit/docs/INSTALL.md') : '';
   const pkg = exists('package.json') ? read('package.json') : '';
 
@@ -646,13 +666,14 @@ function validateGraphEngineeringContract() {
 
   const sourceDiscoveryValid = !isKitSourceRepo || (
     hasAll(readme, [
-      'All 19 skills',
+      'All 20 skills',
       'Graph engineering: verified orchestration',
       'edgeLabelBackground: "#FFFFFF"'
     ])
     && readmeVi.includes('Graph engineering: điều phối có xác minh')
     && readmeZh.includes('图工程：经验证的编排')
-    && install.includes('Nine user-invoked skills')
+    && readmeJa.includes('Graph engineering：検証付き orchestration')
+    && install.includes('Ten user-invoked skills')
     && hasAll(pkg, [
       '.claude/skills/graph-engineering-verified-orchestration/',
       '.cursor/skills/graph-engineering-verified-orchestration/'
@@ -703,6 +724,361 @@ function validateGraphEngineeringContract() {
     ok('Graph engineering visualization contract, deterministic renderer, and tests stay synchronized');
   } else {
     fail('Graph engineering visualization contract, renderer, or test drifted');
+  }
+}
+
+function validateProoflineContract() {
+  const base = '.vibekit/skills/proofline-orchestration';
+  if (!exists(`${base}/SKILL.md`)) return;
+
+  const skill = read(`${base}/SKILL.md`);
+  const roles = read(`${base}/references/role-contract.md`);
+  const signals = read(`${base}/references/signal-protocol.md`);
+  const handback = read(`${base}/references/proof-return-schema.md`);
+  const controls = read(`${base}/references/control-matrix.md`);
+  const adapter = read(`${base}/references/paseo-adapter.md`);
+  const runner = read(`${base}/scripts/run-proofline-sandbox.mjs`);
+  const ui = read(`${base}/agents/openai.yaml`);
+  const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
+
+  if (hasAll(skill, [
+    'The human `Owner` stays outside the agent hierarchy',
+    '`Keeper`: holds the mandate, budgets, process memory, gates, and escalation record',
+    '`Wayfinder`: plans the work, assigns bounded scopes, integrates accepted artifacts',
+    '`Countervoice`: independently challenges premises, evidence, architecture, verification',
+    '`Maker`: implements one bounded artifact and returns reproducible proof',
+    'Distinct labels inside one context are not independent actors'
+  ]) && hasAll(roles, [
+    'Default access: read-only',
+    'Majority vote is advisory',
+    'One actor may cover multiple roles only in sequential mode'
+  ])) {
+    ok('Proofline separates authority, planning, challenge, and implementation without fake independence');
+  } else {
+    fail('Proofline role authority or independence contract drifted');
+  }
+
+  const signalNames = [
+    'FRAME_CHALLENGE',
+    'NEED_SIGNAL',
+    'HOLD_NOTICE',
+    'ASSEMBLY_CALL',
+    'PROOF_RETURN',
+    'SEAL_PROPOSAL',
+    'SEAL_GRANTED',
+    'SEAL_DENIED'
+  ];
+  if (signalNames.every((name) => signals.includes(`\`${name}\``))
+      && hasAll(signals, [
+        'Signals are typed coordination messages. They do not create authority.',
+        'contract_version: exact version or digest',
+        'Do not repeat an unchanged signal to simulate progress.'
+      ])) {
+    ok(`Proofline signal allowlist is complete and non-authorizing (${signalNames.length} signals)`);
+  } else {
+    fail('Proofline signal allowlist or authority boundary drifted');
+  }
+
+  if (hasAll(handback, [
+    'scope_assigned: exact files, systems, or semantic resources',
+    'scope_used: exact files, systems, or semantic resources actually touched',
+    'oracle_integrity: protected | changed-with-approval | unresolved',
+    'cleanup_status: clean | quarantined | failed | not-applicable'
+  ]) && skill.includes("A model's confidence or agreement is not an objective oracle")) {
+    ok('Proofline handbacks bind artifacts to scope, oracle integrity, cleanup, and reproducible proof');
+  } else {
+    fail('Proofline Proof Return evidence contract drifted');
+  }
+
+  if (hasAll(skill, [
+    'grant id, grantor, exact action, target, scope, issue time, expiry or single-use limit, revocation state',
+    'Recheck the grant immediately before each mutation and before seal'
+  ]) && hasAll(signals, [
+    'Consequential approval is a separate data object, never a role signal',
+    'If identity cannot be authenticated or any binding is stale, the grant cannot authorize mutation or sealing.'
+  ]) && hasAll(controls, [
+    '## Safe stop and resume',
+    'freeze dispatch, integration, and sealing, then revoke every writer lease'
+  ])) {
+    ok('Proofline authority grants expire, bind exact actions, and fail closed through a reproducible safe stop');
+  } else {
+    fail('Proofline authority-expiry or safe-stop controls drifted');
+  }
+
+  if (hasAll(skill, [
+    'Set lane heartbeats, lease expiries, hard deadlines, retry caps',
+    'reserve verification capacity before dispatch and debit actual use'
+  ]) && hasAll(signals, [
+    'non-monotonic sequence values',
+    'signals sent after the contract is closed',
+    'closing sequence'
+  ]) && hasAll(handback, [
+    'immutable manifest of scoped repository state',
+    'artifact_digest: canonical digest of the exact artifact or diff',
+    'tree_digest: canonical digest of the exact tree that was verified'
+  ])) {
+    ok('Proofline freshness, replay, liveness, budget, and exact-tree evidence controls are explicit');
+  } else {
+    fail('Proofline freshness, replay, liveness, budget, or exact-tree controls drifted');
+  }
+
+  if (hasAll(skill, [
+    'require a denied write canary outside the assigned scope',
+    'A recorded seal is not itself a deploy or merge permission',
+    'Correlated model bias, unavailable humans, external runtime compromise'
+  ]) && hasAll(roles, [
+    'Shared context or inherited conclusions automatically downgrade the result to self-review',
+    'Never auto-fail over write authority.'
+  ]) && hasAll(controls, [
+    'classification, least-reader access, redaction, retention/deletion rule',
+    '## Irreducible limits'
+  ])) {
+    ok('Proofline runtime probes, review provenance, privacy, fenced failover, and irreducible limits stay visible');
+  } else {
+    fail('Proofline runtime, bias, privacy, failover, or residual-limit controls drifted');
+  }
+
+  if (hasAll(runner, [
+    'export function canonicalize',
+    'export function computeContractDigest',
+    'const SIGNAL_SENDERS',
+    'SIGNAL_REPLAY',
+    'OPEN_BLOCKER',
+    'PROOF_SECRET'
+  ])) {
+    ok('Proofline executable ledger validates canonical bindings, sender transitions, replay, blockers, and evidence safety');
+  } else {
+    fail('Proofline executable ledger state-machine contract drifted');
+  }
+
+  if (hasAll(runner, [
+    'export function authorizeScopedWrite',
+    'export function createFencedLeaseGateway',
+    'export function createGatewayState',
+    'export function createProtectedActionGatewaySimulator',
+    'stale integration fence',
+    'grant use limit is exhausted'
+  ])) {
+    ok('Proofline scope, fencing, and protected-action policy simulators stay available for deterministic tests');
+  } else {
+    fail('Proofline deterministic policy-simulator contract drifted');
+  }
+
+  const examplePath = path.join(root, `${base}/examples/auth-migration-case.json`);
+  const targetRunnerPath = path.join(root, `${base}/scripts/run-proofline-sandbox.mjs`);
+  const trustedRunnerPath = path.join(validatorRoot, `${base}/scripts/run-proofline-sandbox.mjs`);
+  let runnerMatches = false;
+  try {
+    runnerMatches = fs.readFileSync(targetRunnerPath).equals(fs.readFileSync(trustedRunnerPath));
+  } catch {}
+  runnerMatches ? ok('Proofline target runner matches the trusted bundled runner byte for byte') : fail('Proofline target runner differs from the trusted validator runner');
+
+  const exampleRun = spawnSync(process.execPath, [trustedRunnerPath, examplePath], {
+    cwd: root,
+    encoding: 'utf8',
+    timeout: 5000,
+    windowsHide: true
+  });
+  let exampleValid = false;
+  try {
+    const parsed = JSON.parse(exampleRun.stdout);
+    exampleValid = exampleRun.status === 0 && parsed.valid === true && parsed.sealEligible === true && parsed.checks >= 240;
+  } catch {}
+  if (exampleValid) {
+    ok('Proofline bundled authentication case passes the trusted executable sandbox ledger');
+  } else {
+    fail('Proofline bundled authentication case is stale or invalid');
+  }
+
+  let negativeValid = false;
+  let tempRoot = null;
+  try {
+    tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'proofline-validator-'));
+    const baseScenario = JSON.parse(fs.readFileSync(examplePath, 'utf8'));
+    const cases = [
+      ['missing-signal-chain', 'SIGNAL_CHAIN', (scenario) => { scenario.signals = []; }],
+      ['active-plan-only', 'SAFE_PLAN_LIFECYCLE', (scenario) => {
+        scenario.mode = 'plan-only';
+        scenario.lifecycle = 'active';
+        scenario.seal.state = 'not-eligible';
+        scenario.integrationLease.active = false;
+        scenario.signals = [];
+      }],
+      ['withdrawn-final-signal', 'SIGNAL_CHAIN_STATUS', (scenario) => { scenario.signals.at(-1).status = 'withdrawn'; }],
+      ['early-seal-proposal', 'SEAL_ORDER', (scenario) => {
+        scenario.signals.find((entry) => entry.type === 'SEAL_PROPOSAL').issuedAt = '2026-08-02T03:59:19.000Z';
+      }]
+    ];
+    negativeValid = cases.every(([name, expectedCode, mutate]) => {
+      const invalidScenario = JSON.parse(JSON.stringify(baseScenario));
+      mutate(invalidScenario);
+      const invalidPath = path.join(tempRoot, `${name}.json`);
+      fs.writeFileSync(invalidPath, JSON.stringify(invalidScenario), { encoding: 'utf8', mode: 0o600 });
+      const invalidRun = spawnSync(process.execPath, [trustedRunnerPath, invalidPath], {
+        cwd: root,
+        encoding: 'utf8',
+        timeout: 5000,
+        windowsHide: true
+      });
+      const parsed = JSON.parse(invalidRun.stdout);
+      return invalidRun.status === 1 && parsed.valid === false && parsed.sealEligible === false
+        && parsed.errors.some((entry) => entry.code === expectedCode);
+    });
+  } catch {}
+  finally {
+    if (tempRoot) fs.rmSync(tempRoot, { recursive: true, force: true });
+  }
+  negativeValid ? ok('Proofline trusted negative controls reject signal, safe-mode, status, and timeline bypasses') : fail('Proofline trusted negative controls did not fail closed');
+
+  const packageJson = readJson('package.json');
+  const sourceHarnessValid = !isKitSourceRepo || (
+    exists('test/proofline/scripts/test-run-proofline-sandbox.mjs')
+    && hasAll(read('test/proofline/scripts/test-run-proofline-sandbox.mjs'), [
+      'real sandbox case: authorized source edit passes an unchanged protected oracle',
+      'safe states: plan-only, sequential, hold, and denial never become seal-eligible',
+      'shared state prevents double consume across instances'
+    ])
+    && packageJson?.scripts?.['test:proofline'] === 'node test/proofline/scripts/test-run-proofline-sandbox.mjs'
+    && packageJson?.scripts?.test?.includes('npm run test:proofline')
+    && packageJson?.scripts?.['check:syntax']?.includes('node --check .vibekit/skills/proofline-orchestration/scripts/run-proofline-sandbox.mjs')
+  );
+  if (sourceHarnessValid) {
+    ok('Proofline adversarial sandbox harness and package validation wiring stay synchronized');
+  } else {
+    fail('Proofline adversarial sandbox harness or package wiring drifted');
+  }
+
+  const providerConfig = readJson(`${base}/assets/paseo-config.fragment.json`);
+  const providers = providerConfig?.agents?.providers ?? {};
+  const providerIds = ['proofline-keeper', 'proofline-wayfinder', 'proofline-countervoice', 'proofline-maker'];
+  const providersValid = providerIds.every((id) => {
+    const entry = providers[id];
+    return entry?.extends === 'codex'
+      && typeof entry.label === 'string'
+      && JSON.stringify(entry.command) === JSON.stringify(['codex', '--profile', id]);
+  });
+  if (providersValid && hasAll(adapter, [
+    'https://paseo.sh/docs/custom-providers',
+    'https://paseo.sh/docs/orchestration',
+    'https://paseo.sh/docs/worktrees',
+    'https://paseo.sh/docs/security',
+    'Proofline never performs these global writes automatically',
+    'A worktree separates Git branch and directory state. It does not isolate OS user credentials'
+  ])) {
+    ok('Proofline Paseo adapter is source-linked, optional, manual, and explicit about worktree limits');
+  } else {
+    fail('Proofline Paseo adapter compatibility or security contract drifted');
+  }
+
+  const roleModes = {
+    keeper: 'read-only',
+    wayfinder: 'workspace-write',
+    countervoice: 'read-only',
+    maker: 'workspace-write'
+  };
+  const profilesValid = Object.entries(roleModes).every(([role, mode]) => {
+    const rel = `${base}/assets/codex-profiles/proofline-${role}.config.toml`;
+    if (!exists(rel)) return false;
+    const text = read(rel);
+    return text.includes(`sandbox_mode = "${mode}"`)
+      && text.includes('approval_policy = ')
+      && text.includes('developer_instructions = """')
+      && !/^model\s*=/m.test(text);
+  });
+  const projectAgentsValid = !surfacePresent.codex || Object.entries(roleModes).every(([role, mode]) => {
+    const rel = `.codex/agents/proofline-${role}.toml`;
+    if (!exists(rel)) return false;
+    const text = read(rel);
+    return text.includes(`name = "proofline_${role}"`)
+      && text.includes('description = ')
+      && text.includes(`sandbox_mode = "${mode}"`)
+      && text.includes('developer_instructions = """')
+      && !/^model\s*=/m.test(text);
+  });
+  if (profilesValid && projectAgentsValid) {
+    ok('Proofline Codex profiles and project agents declare role-appropriate sandboxes without pinning models');
+  } else {
+    fail('Proofline Codex profile or project-agent contract drifted');
+  }
+
+  const sourceDiscoveryValid = !isKitSourceRepo || (
+    hasAll(read('README.md'), ['All 20 skills', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 20 skill', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 20 个技能', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('docs/README.ja.md'), ['20 個すべてのスキル', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Ten user-invoked skills', '`proofline-orchestration`'])
+    && hasAll(read('package.json'), [
+      '.claude/skills/proofline-orchestration/',
+      '.cursor/skills/proofline-orchestration/'
+    ])
+    && hasAll(read('.codex/README.md'), ['proofline_keeper', 'proofline_countervoice'])
+  );
+  if (hasAll(ui, [
+    'display_name: "Proofline Orchestration"',
+    'Use $proofline-orchestration'
+  ]) && sourceDiscoveryValid) {
+    ok('Proofline discovery, localization, UI metadata, Codex roles, and packaging stay synchronized');
+  } else {
+    fail('Proofline discovery, localization, UI metadata, Codex roles, or packaging drifted');
+  }
+
+  const prooflineReadmes = ['README.md', 'docs/README.vi.md', 'docs/README.zh-CN.md', 'docs/README.ja.md'];
+  const diagramsValid = !isKitSourceRepo || prooflineReadmes.every((rel) => hasAll(read(rel), [
+    'securityLevel: strict',
+    'flowchart TD',
+    'Request([',
+    'Work --> Review',
+    'Review --> Test',
+    'Test --> Gate',
+    'class Ready success;',
+    'class Review accent;',
+    'linkStyle default stroke:#444444,stroke-width:1.5px;'
+  ]));
+  if (diagramsValid) {
+    ok('Proofline localized Mermaid workflows use strict Vivid Clay styling and explicit fail-closed gates');
+  } else {
+    fail('Proofline localized Mermaid workflow or styling drifted');
+  }
+
+  const guidesValid = !isKitSourceRepo || (
+    prooflineReadmes.every((rel) => hasAll(read(rel), [
+      'run-proofline-sandbox.mjs',
+      'auth-migration-case.json',
+      'npm run test:proofline'
+    ]))
+    && hasAll(read('README.md'), [
+      'stop AI from grading its own work',
+      '#### Practical benefits',
+      '#### The simplest way to start',
+      '#### Real example: changing login permissions'
+    ])
+    && hasAll(read('docs/README.vi.md'), [
+      'để AI không tự làm rồi tự chấm',
+      '#### Lợi ích thực tế',
+      '#### Cách bắt đầu đơn giản nhất',
+      '#### Ví dụ thực tế: sửa quyền đăng nhập'
+    ])
+    && hasAll(read('docs/README.zh-CN.md'), [
+      '避免让 AI 自己给自己打分',
+      '#### 实际收益',
+      '#### 最简单的开始方式',
+      '#### 真实例子：修改登录权限'
+    ])
+    && hasAll(read('docs/README.ja.md'), [
+      'AI に自己採点させないための仕組み',
+      '#### 実際の利点',
+      '#### 最も簡単な始め方',
+      '#### 実例：ログイン権限の変更'
+    ])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), [
+      '### Proofline sandbox ledger',
+      'Missing effective capability probes force sequential or plan-only operation.'
+    ])
+  );
+  if (guidesValid) {
+    ok('Proofline step-by-step usage, executable example, and runtime-limit guidance stay localized');
+  } else {
+    fail('Proofline localized usage or runtime-limit guidance drifted');
   }
 }
 
@@ -788,15 +1164,18 @@ function validateTheCreatorContract() {
 
   const discoveryValid = !isKitSourceRepo || (
     exists('README.md')
-    && read('README.md').includes('All 19 skills')
+    && read('README.md').includes('All 20 skills')
     && exists('docs/README.vi.md')
-    && read('docs/README.vi.md').includes('Cả 19 skill')
+    && read('docs/README.vi.md').includes('Cả 20 skill')
     && read('docs/README.vi.md').includes('| `the-creator`')
     && exists('docs/README.zh-CN.md')
-    && read('docs/README.zh-CN.md').includes('全部 19 个技能')
+    && read('docs/README.zh-CN.md').includes('全部 20 个技能')
     && read('docs/README.zh-CN.md').includes('| `the-creator`')
+    && exists('docs/README.ja.md')
+    && read('docs/README.ja.md').includes('20 個すべてのスキル')
+    && read('docs/README.ja.md').includes('| `the-creator`')
     && exists('.vibekit/docs/INSTALL.md')
-    && read('.vibekit/docs/INSTALL.md').includes('Nine user-invoked skills')
+    && read('.vibekit/docs/INSTALL.md').includes('Ten user-invoked skills')
     && exists('.vibekit/init/CLAUDE-template.md')
     && read('.vibekit/init/CLAUDE-template.md').includes('/the-creator level N')
     && exists('package.json')
@@ -819,6 +1198,7 @@ validateSequentialThinkingContract();
 validateThreatModelSecurityReviewContract();
 validateMermaidContract();
 validateGraphEngineeringContract();
+validateProoflineContract();
 validateTheCreatorContract();
 
 function parseFrontmatter(text) {
@@ -886,12 +1266,23 @@ if (codexPlugin) {
 if (isKitSourceRepo && pkg?.version) {
   if (codexPlugin?.version === pkg.version) ok(`Codex plugin version matches package version ${pkg.version}`);
   else fail(`Codex plugin version ${codexPlugin?.version || 'missing'} differs from package version ${pkg.version}`);
-  for (const rel of ['README.md', 'docs/README.vi.md', 'docs/README.zh-CN.md']) {
+  for (const rel of ['README.md', 'docs/README.vi.md', 'docs/README.zh-CN.md', 'docs/README.ja.md']) {
     if (!exists(rel)) continue;
     read(rel).includes(`version-${pkg.version}-`)
       ? ok(`${rel} version badge matches package version ${pkg.version}`)
       : fail(`${rel} version badge differs from package version ${pkg.version}`);
   }
+
+  const localizedReadmeNavigationValid = (
+    read('README.md').includes('[日本語](docs/README.ja.md)')
+    && read('docs/README.vi.md').includes('[日本語](README.ja.md)')
+    && read('docs/README.zh-CN.md').includes('[日本語](README.ja.md)')
+    && ['[English](../README.md)', '[Tiếng Việt](README.vi.md)', '[简体中文](README.zh-CN.md)', '**日本語**']
+      .every((token) => read('docs/README.ja.md').includes(token))
+  );
+  localizedReadmeNavigationValid
+    ? ok('English, Vietnamese, Chinese, and Japanese README navigation stays synchronized')
+    : fail('Localized README navigation drifted');
 }
 if (pkg?.bin && typeof pkg.bin === 'object') {
   for (const [name, target] of Object.entries(pkg.bin)) {
@@ -1147,11 +1538,19 @@ unpinnedScannerFiles.length === 0
 requireText('.vibekit/skills/agentshield-security-review/scripts/agentshield_repo_probe.py', '".html"', 'AgentShield probe scans executable HTML surfaces');
 requireText('.vibekit/skills/agentshield-security-review/scripts/agentshield_repo_probe.py', '"npx" + " ecc-agentshield "', 'AgentShield probe flags unpinned scanner execution');
 
-const probe = path.join(root, '.vibekit/scripts/agentshield-probe.mjs');
-if (fs.existsSync(probe)) {
-  const result = spawnSync(process.execPath, [probe, root, '--json'], { encoding: 'utf8' });
-  if (result.status === 0) ok('AgentShield repo probe runs');
-  else warn(`AgentShield probe did not run: ${result.stderr || result.stdout}`);
+const targetProbe = path.join(root, '.vibekit/scripts/agentshield-probe.mjs');
+const trustedProbe = path.join(validatorRoot, '.vibekit/scripts/agentshield-probe.mjs');
+if (fs.existsSync(targetProbe)) {
+  let probeMatches = false;
+  try { probeMatches = fs.readFileSync(targetProbe).equals(fs.readFileSync(trustedProbe)); } catch {}
+  probeMatches ? ok('AgentShield target probe matches the trusted bundled probe byte for byte') : fail('AgentShield target probe differs from the trusted validator probe');
+  const result = spawnSync(process.execPath, [trustedProbe, root, '--json'], {
+    encoding: 'utf8',
+    timeout: 5000,
+    windowsHide: true
+  });
+  if (result.status === 0) ok('Trusted AgentShield repo probe runs against the target');
+  else warn(`Trusted AgentShield probe did not run: ${result.stderr || result.stdout}`);
 }
 
 console.log(`\nValidation summary: ${failures} failures, ${warnings} warnings.`);

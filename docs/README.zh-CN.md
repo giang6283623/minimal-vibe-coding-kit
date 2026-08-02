@@ -1,12 +1,12 @@
 <div align="center">
 
-**阅读语言：** [English](../README.md) · [Tiếng Việt](README.vi.md) · **简体中文**
+**阅读语言：** [English](../README.md) · [Tiếng Việt](README.vi.md) · **简体中文** · [日本語](README.ja.md)
 
 # Minimal Vibe Coding Kit
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.6-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.7-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -335,13 +335,14 @@ flowchart LR
 | `/daily-enhance`         | 生成仅供提案的规则、技能和工作流改进报告。                         | `/daily-enhance`，审核提出的差异后再批准。                         |
 | `/autoresearch-coding`   | 带基线、指标和预算的实验循环。                                     | `/autoresearch-coding` Goal: fewer lint errors. Budget: 3.         |
 | `/council`               | 协调 reviewer、researcher 和 analyst Agent，形成一个统一计划。      | `/council` on this branch diff.                                    |
+| `/proofline`             | 用有界角色、独立质疑、类型化信号和证据治理复杂工作。               | `/proofline` Goal: harden auth. Done signal: targeted tests pass.  |
 | `/vibe-finalize`         | 让项目完成引导：将一次性文件移到 `_vibekit-cleanup/`。              | `/vibe-finalize`，先预览，批准后再应用。                           |
 
 </details>
 
 ## 技能
 
-全部 19 个技能的规范版本位于 `.vibekit/skills/`。Claude、Codex、Grok 和 Kimi 镜像全部 19 个技能；Cursor 镜像其中 14 个交互式技能。可以直接按名称调用（例如“Use the X skill…”），也可以使用上面的命令。
+全部 20 个技能的规范版本位于 `.vibekit/skills/`。Claude、Codex、Grok 和 Kimi 镜像全部 20 个技能；Cursor 镜像其中 15 个交互式技能。可以直接按名称调用（例如“Use the X skill…”），也可以使用上面的命令。
 
 ```mermaid
 ---
@@ -378,7 +379,7 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("19 个技能"))
+  root(("20 个技能"))
     setup("设置与安全")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
@@ -391,6 +392,7 @@ mindmap
       t4("reviewing-4p-priorities")
       t5("graph-engineering-<br/>verified-orchestration")
       t6("the-creator")
+      t7("proofline-<br/>orchestration")
     analyze("分析与改进")
       a1("parallel-analysis")
       a2("autoresearch-coding")
@@ -412,6 +414,7 @@ mindmap
 | `vibekit-init`                  | 首次设置，或需要修复 `backbone.yml` / 受管理区块。                                                   | "Use the vibekit-init skill. Propose one diff and wait for my yes."                                   |
 | `parallel-analysis`             | 全仓库问题、大型差异审查、一致性审计。                                                               | "Use parallel-analysis: where is auth handled and what depends on it?"                                |
 | `graph-engineering-verified-orchestration` | 复杂工作包含真正独立的分支，并且需要明确依赖、隔离、预算、客观验证、回滚和有界合并门。 | "Use graph-engineering-verified-orchestration to design a safe task graph for this migration." |
+| `proofline-orchestration`       | 复杂工作需要明确治理、有界实现、具备实际质疑权的独立检查者、类型化升级信号和基于证据的验收。 | "Use proofline-orchestration to govern this migration and preserve dissent." |
 | `agentshield-security-review`   | 合并前审计 Agent 配置、技能、hook、MCP 和命令。                                                       | "Use agentshield-security-review on .claude/** and .vibekit/skills/**."                               |
 | `threat-model-security-review`  | 使用明确的证据和覆盖范围审查应用源码、API、身份验证、授权、输入路径、信任边界以及安全敏感差异。       | "Use threat-model-security-review on this repository. Stay read-only and report proof gaps."          |
 | `autoresearch-coding`           | 通过可衡量的实验持续改进仓库。                                                                       | "Use autoresearch-coding. Metric: `npm test`. Direction: higher. Budget: 3."                          |
@@ -430,6 +433,152 @@ mindmap
 | `mermaid`                       | 生成带样式的 Mermaid 图表（31 种），密度随 coding level 自适应。写文档时会主动询问是否配图；调试时可以生成用红色高亮可疑风险区的流程图。 | "Use the mermaid skill. 把这个部署流程画成流程图。"                                                    |
 
 `story=on`（默认）时，获批分析会准备 `.vibekit/reports/tutien/story/`：`plot.md` 保存持续演化的总纲与世界设定，`story-state.json` 保存连续性，`chapters/NNNN-<修仙章名>.md` 每次只保存一个章节。故事由 Agent 根据聚合证据原创，而不是拼接固定句子；人物姓名、称谓和对白会自然遵循 `story-language=vi|en|zh`。
+
+</details>
+
+### Proofline：避免让 AI 自己给自己打分
+
+**一句话说明：** Proofline 把多个 AI 组织成一个职责分开的团队，分别负责执行、质疑、测试和记录验收结果。这样可以减少同一个 AI 自己选方案、自己改代码、最后又自己宣布正确的情况。
+
+可以把它想成装修房子。你不会希望同一个电工既安装线路，又独立检查安全，最后还自己签验收单。重要代码也需要类似的职责分离。
+
+#### 每个角色像现实中的谁？
+
+| 角色 | 现实类比 | 责任 |
+| --- | --- | --- |
+| `Owner` | 房主或产品负责人 | 说明目标并保留最终决定权 |
+| `Wayfinder` | 工程经理 | 拆分任务、限定范围并整合结果 |
+| `Maker` | 施工人员 | 完成被分配的一项工作 |
+| `Countervoice` | 独立监理 | 寻找错误假设、漏洞和矛盾证据 |
+| `Verifier` | 检测人员 | 运行客观测试或测量 |
+| `Keeper` | 验收清单保管人 | 只有全部条件满足时才记录完成 |
+
+这些名称表示责任，不表示级别。即使 `Wayfinder` 更有经验，`Countervoice` 仍然可以指出原计划本身是错的。
+
+#### 实际收益
+
+- **减少自信但错误的结果：** 实现者必须经过质疑和测试，不能自己下最终结论。
+- **更早发现基础错误：** 审查者可以否定错误前提或架构，而不是继续美化错误方案。
+- **减少误改：** 每个参与者只能操作明确范围，重要测试和文件保持受保护。
+- **结果可追溯：** 交付中包含修改文件、测试、未解决异议和剩余限制。
+- **知道何时停止：** 权限不足、测试不可信或预算用尽时安全停止，而不是猜测继续。
+
+#### 什么时候适合使用？
+
+| 适合 Proofline | 简单流程已经足够 |
+| --- | --- |
+| 登录、权限、支付或敏感数据 | 修正拼写或文案 |
+| 数据迁移、大型重构或架构变化 | 小型、易回滚的单文件修改 |
+| 多个 Agent 或分支并行工作 | 一个实现者加明确测试已经足够 |
+| 错误可能导致数据丢失、越权或停机 | 任务只需要想法，而且没有客观验证方式 |
+
+#### 在哪里使用？
+
+Proofline 运行在安装了 Minimal Vibe Coding Kit 的代码仓库中，可配合 Codex、Claude Code、Cursor、Grok 或 Kimi。它最适合有明确文件、操作范围和验收测试的编码任务。Paseo 只是协调多个会话的可选适配器，使用 Proofline 不需要安装 Paseo。
+
+```mermaid
+---
+config:
+  securityLevel: strict
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    primaryColor: "#8ECAFF"
+    primaryTextColor: "#111111"
+    primaryBorderColor: "#444444"
+    secondaryColor: "#FFD43B"
+    secondaryBorderColor: "#444444"
+    tertiaryColor: "#FFF9DB"
+    tertiaryBorderColor: "#444444"
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+    clusterBkg: "#FFF9DB"
+    clusterBorder: "#444444"
+---
+flowchart TD
+    Request([Owner 说明目标]) --> Plan(Wayfinder 拆分任务)
+    Plan --> Work(Maker 执行修改)
+    Work --> Review(Countervoice 查找问题)
+    Review --> Test(Verifier 运行测试)
+    Test --> Gate{证据足够吗?}
+    Gate -->|还不够| Stop([继续修改或安全停止])
+    Gate -->|足够| Ready([Keeper 记录完成])
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF;
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef accent fill:#D0BFFF,stroke:#444444,stroke-width:2px,color:#111111;
+    class Request terminal;
+    class Plan,Work,Test step;
+    class Gate decision;
+    class Ready success;
+    class Stop danger;
+    class Review accent;
+    linkStyle default stroke:#444444,stroke-width:1.5px;
+```
+
+#### 最简单的开始方式
+
+你不需要先理解 digest、lease 或 gateway，只要说明五件事：
+
+```text
+/proofline
+目标：让未知登录角色默认被拒绝。
+允许修改：src/auth-policy.mjs
+禁止修改：test/auth-policy.test.mjs
+完成条件：身份验证测试全部通过。
+限制：不改变 API，也不安装新 package。
+```
+
+Kit 会选择最小且有用的流程：
+
+- 小任务：使用一个顺序执行者，不增加多余流程。
+- 需要质疑：加入 `Countervoice` 做独立检查。
+- 可以拆分的复杂任务：使用范围明确的并行任务道。
+- 权限不足或没有可信测试：只返回计划或安全停止。
+
+#### 真实例子：修改登录权限
+
+假设只有 `admin` 和 `editor` 可以进入，任何未知角色都必须被拒绝：
+
+1. `Wayfinder` 把 `src/auth-policy.mjs` 分配给 `Maker`，并保护测试文件。
+2. `Maker` 把策略改为明确的允许列表。
+3. `Countervoice` 寻找危险漏洞，例如 `unknown` 被意外放行。
+4. `Verifier` 测试 `admin`、`editor` 和 `unknown`。
+5. `Keeper` 只有在测试通过且所有质疑都被回答后才记录完成。
+
+最终结果不只是“完成”。它还包含代码修改、测试、审查证据、剩余风险，以及流程停止时的明确原因。
+
+<details>
+<summary>技术术语和账本验证</summary>
+
+| 术语 | 简单理解 |
+| --- | --- |
+| Scope | 参与者被允许操作的范围 |
+| Digest | 文件或状态的指纹，内容变化时指纹也变化 |
+| Grant | 对特定人、操作、目标和时间段的许可 |
+| Lease | 只允许一个集成负责人使用的临时钥匙 |
+| Proof Return | 包含修改和验证证据的交付单 |
+| Seal | 条件已满足的记录，不等于部署许可 |
+| Gateway | 重要操作前重新检查权限的保护关卡 |
+
+运行附带的确定性示例：
+
+```bash
+npm run test:proofline
+node .vibekit/skills/proofline-orchestration/scripts/run-proofline-sandbox.mjs \
+  .vibekit/skills/proofline-orchestration/examples/auth-migration-case.json
+```
+
+继续阅读[技能契约](../.vibekit/skills/proofline-orchestration/SKILL.md)、[控制矩阵](../.vibekit/skills/proofline-orchestration/references/control-matrix.md)和[认证示例](../.vibekit/skills/proofline-orchestration/examples/auth-migration-case.json)。
+
+附带的 validator 和 gateway 只在当前进程中模拟 policy。它们不能证明操作系统、provider、MCP server 或外部系统真的执行了全部边界。真实 merge、deploy 或外部修改仍然需要 `Owner` 的新授权，以及具有持久共享状态的外部 gateway。
+
+[Paseo 适配器](../.vibekit/skills/proofline-orchestration/references/paseo-adapter.md)是可选项，只在需要协调多个会话时使用。Proofline 不会自动安装 Paseo、保存凭据或修改用户级配置。
 
 </details>
 

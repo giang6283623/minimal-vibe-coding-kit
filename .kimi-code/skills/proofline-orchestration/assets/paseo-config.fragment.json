@@ -1,0 +1,26 @@
+{
+  "agents": {
+    "providers": {
+      "proofline-keeper": {
+        "extends": "codex",
+        "label": "Proofline Keeper",
+        "command": ["codex", "--profile", "proofline-keeper"]
+      },
+      "proofline-wayfinder": {
+        "extends": "codex",
+        "label": "Proofline Wayfinder",
+        "command": ["codex", "--profile", "proofline-wayfinder"]
+      },
+      "proofline-countervoice": {
+        "extends": "codex",
+        "label": "Proofline Countervoice",
+        "command": ["codex", "--profile", "proofline-countervoice"]
+      },
+      "proofline-maker": {
+        "extends": "codex",
+        "label": "Proofline Maker",
+        "command": ["codex", "--profile", "proofline-maker"]
+      }
+    }
+  }
+}
