@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.7-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.8-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -334,15 +334,22 @@ flowchart LR
 | `/security-scan` | Agent サーフェスに対する読み取り専用 AgentShield probe と任意の scanner。 | `.claude/**` や skills をマージする前に `/security-scan`。 |
 | `/daily-enhance` | rules、skills、workflows の改善案だけを作るレポート。 | `/daily-enhance` の差分案を確認して承認する。 |
 | `/autoresearch-coding` | baseline と budget を持つ metric 駆動の実験 loop。 | `/autoresearch-coding` Goal: lint errors を減らす。Budget: 3。 |
-| `/council` | reviewer、researcher、analyst Agent を 1 つの統合計画へまとめます。 | この branch diff に `/council` を使う。 |
+| `/clean-delivery` | 1 つの behavior を 6 つの適度な craftsmanship gate で届ける。 | `/clean-delivery` Goal: rate limiting を追加。Risk: medium. |
+| `/council` | Provider mode を解決し、task に必要な role だけを調整する。 | この branch diff に `/council` を使う。 |
 | `/proofline` | 範囲付きの役割、独立した反論、型付き signal、証拠を管理します。 | `/proofline` Goal: auth を強化。Done signal: 対象 test が成功。 |
 | `/vibe-finalize` | プロジェクトを通常運用へ移し、1 回限りの bootstrap ファイルを `_vibekit-cleanup/` へ移動します。 | `/vibe-finalize` で preview し、承認後に適用。 |
 
 </details>
 
+### Multi-agent mode の選択
+
+最初の child agent または multi-agent lane を dispatch する直前に、parent は利用可能なら現在の provider の native structured-question tool を使い、Default、Auto、Custom を尋ねます。Default は現在の provider と default model を維持します。Auto は ready な adapter だけを対象に bounded lane を route し、task の品質と安全性の下限を満たす最小コストの model を選びます。Custom は role ごとに検証済み provider と model を指定できます。
+
+"Don't show again" を選ぶと、その mode を .vibekit/preferences.json に保存します。Child agent は user に直接質問せず、parent に needs_user_input を返します。Coding level は説明量と推奨 option だけに影響し、model の品質や安全性を下げません。詳しくは [.vibekit/docs/ORCHESTRATION_MODES.md](../.vibekit/docs/ORCHESTRATION_MODES.md) を参照してください。
+
 ## スキル
 
-20 個すべてのスキルの正本は `.vibekit/skills/` にあります。Claude、Codex、Grok、Kimi は 20 個すべてをミラーし、Cursor は対話型の 15 個をミラーします。名前で指定（「Use the X skill」）するか、上記のコマンドから呼び出します。
+21 個すべてのスキルの正本は `.vibekit/skills/` にあります。Claude、Codex、Grok、Kimi は 21 個すべてをミラーし、Cursor は対話型の 16 個をミラーします。名前で指定（「Use the X skill」）するか、上記のコマンドから呼び出します。
 
 ```mermaid
 ---
@@ -379,7 +386,7 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("20 skills"))
+  root(("21 skills"))
     setup("セットアップと安全")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
@@ -393,6 +400,7 @@ mindmap
       t5("graph-engineering-<br/>verified-orchestration")
       t6("the-creator")
       t7("proofline-<br/>orchestration")
+      t8("clean-delivery")
     analyze("分析と改善")
       a1("parallel-analysis")
       a2("autoresearch-coding")
@@ -414,6 +422,7 @@ mindmap
 | `vibekit-init` | 初回セットアップ、または `backbone.yml` や管理対象ブロックの修復。 | "Use the vibekit-init skill. Propose one diff and wait for my yes." |
 | `parallel-analysis` | リポジトリ全体の質問、大きな diff review、整合性 audit。 | "Use parallel-analysis: where is auth handled and what depends on it?" |
 | `graph-engineering-verified-orchestration` | 複雑な作業に本当に独立した branch があり、明示的な依存関係、分離、budget、客観的検証、rollback、範囲付き merge gate が必要なとき。 | "Use graph-engineering-verified-orchestration to design a safe task graph for this migration." |
+| `clean-delivery` | 1 つの behavior slice を、適度な TDD と再現可能な証拠を伴う Specify、Code、Clean、Architect、Harden、Verify gate で届けるとき。 | "Use clean-delivery to implement this behavior with extreme craftsmanship." |
 | `proofline-orchestration` | 複雑な作業に明示的な統治、範囲付き実装、権限を持つ独立した反論者、型付き escalation signal、証拠に基づく受け入れが必要なとき。 | "Use proofline-orchestration to govern this migration and preserve dissent." |
 | `agentshield-security-review` | マージ前に Agent config、skills、hooks、MCP、commands を監査するとき。 | "Use agentshield-security-review on .claude/** and .vibekit/skills/**." |
 | `threat-model-security-review` | application source、API、authentication、authorization、input path、trust boundary、security-sensitive diff を明示的な証拠と coverage でレビューするとき。 | "Use threat-model-security-review on this repository. Stay read-only and report proof gaps." |

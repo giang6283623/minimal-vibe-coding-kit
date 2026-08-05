@@ -9,6 +9,8 @@ Turn a large task into a small, inspectable execution graph. Optimize for verifi
 
 Read [references/graph-contract.md](references/graph-contract.md) completely before designing or executing a graph.
 
+Before dispatching the first graph node or verifier agent, follow .vibekit/docs/ORCHESTRATION_MODES.md in the parent session. Default, Auto, and Custom select provider routing only. They never change plan-only or execute authority, isolation, budgets, gates, or proof requirements.
+
 ## Choose the operating mode
 
 - **Plan-only:** Produce the graph contract without dispatching work. Use when required inputs, authorization, budgets, runtime limits, isolation, rollback, or objective verifiers are unresolved; protected paths are involved without approval; or expected benefit does not exceed coordination overhead.

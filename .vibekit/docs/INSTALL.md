@@ -88,6 +88,24 @@ The updater preserves unrelated Codex settings and backs up an existing `.codex/
 
 Note: run the updater from a newer kit (npx or a local clone), not via the project's own `.vibekit/scripts/mvck.mjs` copy - source and target would be the same files.
 
+### Multi-agent orchestration preference
+
+Before the first child agent or multi-agent lane is dispatched, the parent follows .vibekit/docs/ORCHESTRATION_MODES.md. It prefers the active provider's native structured-question tool and falls back to one concise parent-conversation question at a time when that tool is unavailable.
+
+- Default preserves the active provider's normal behavior and default model.
+- Auto inventories ready Codex, Claude, Cursor, Grok, and Kimi adapters, then chooses the lowest-cost capable model above the task's safety and quality floor.
+- Custom lets the user bind verified providers and models to named roles or lanes.
+
+The user may apply the choice once or select Don't show again to remember it in the existing project-local .vibekit/preferences.json. Child agents return needs_user_input to the parent instead of asking the user directly. .vibekit/parallel-analysis.json remains a separate executor-detail cache and cannot override the global mode.
+
+Inspect, remember, or reset the local choice with:
+
+~~~bash
+node .vibekit/scripts/orchestration-preference.mjs show .
+node .vibekit/scripts/orchestration-preference.mjs remember auto .
+node .vibekit/scripts/orchestration-preference.mjs forget .
+~~~
+
 ## After install
 
 Paste the universal prompt from `.vibekit/init/FIRST_PROMPT.md`, or run:
@@ -146,11 +164,12 @@ The installer also includes `visual-design-loop` for Claude, Codex, Grok, and Ki
 
 ## User-invoked utility skills
 
-Ten user-invoked skills install across Claude, Codex, Cursor, Grok, and Kimi surfaces:
+Eleven user-invoked skills install across Claude, Codex, Cursor, Grok, and Kimi surfaces:
 
 - `memento`: write a `MEMENTO.md` working note before closing a multi-day task (`/memento`), then resume from it in the next session (`/memento resume`).
 - `coding-level`: set the explanation register from 0 (ELI5) to 5 (expert peer) with `/coding-level N`; stays active until reinvoked.
 - `graph-engineering-verified-orchestration`: design and optionally execute a bounded dependency graph with explicit artifacts, enforceable isolation, objective verification, budgets, rollback, and human gates; unresolved controls force plan-only mode.
+- `clean-delivery`: deliver one observable behavior through Specify, Code, Clean, Architect, Harden, and Verify gates, with a validated story, protected verifier assets, proportional TDD, architecture review, and reproducible proof (`/clean-delivery`).
 - `proofline-orchestration`: govern complex work through the original Keeper, Wayfinder, Countervoice, and Maker roles, with expiring authority, effective capability probes, typed signals, evidence-bound Proof Returns, protected acceptance oracles, fenced integration, an executable sandbox ledger, and an optional manual Paseo adapter.
 - `threat-model-security-review`: review application source or security-sensitive diffs with a repository-specific threat model, explicit coverage, source-to-sink evidence, safe validation statuses, and one-finding-at-a-time remediation. It does not install or invoke an external scanner.
 - `prompt-sharpener`: sharpen a rough prompt into a precise one with `/prompt-sharpener <rough prompt>`, then execute the sharpened version immediately in the same turn.

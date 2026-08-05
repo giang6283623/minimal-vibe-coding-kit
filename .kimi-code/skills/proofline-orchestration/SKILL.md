@@ -7,6 +7,8 @@ description: Govern complex agent work with an original four-role contract, inde
 
 Proofline separates authority, planning, challenge, and implementation so that agreement is earned through evidence instead of role hierarchy.
 
+Before dispatching the first Proofline role, follow .vibekit/docs/ORCHESTRATION_MODES.md in the parent session. Provider routing is independent of Proofline's plan-only, sequential, countercheck, or verified-graph topology and cannot grant role authority.
+
 Read these references before using the workflow:
 
 - [Role contract](references/role-contract.md)

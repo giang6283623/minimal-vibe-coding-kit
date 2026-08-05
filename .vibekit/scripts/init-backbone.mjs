@@ -249,7 +249,22 @@ function projectType(files = []) {
 function commands(pm, lang) {
   const pkg = readJson(path.join(target, 'package.json'));
   const prefix = pm === 'pnpm' ? 'pnpm' : pm === 'yarn' ? 'yarn' : pm === 'bun' ? 'bun' : 'npm run';
-  const c = { install: null, test: null, lint: null, typecheck: null, build: null, validate: null };
+  const c = {
+    install: null,
+    test: null,
+    lint: null,
+    typecheck: null,
+    build: null,
+    validate: null,
+    verification: {
+      unit: null,
+      acceptance: null,
+      architecture: null,
+      property: null,
+      mutation: null,
+      e2e: null
+    }
+  };
   if (pkg?.scripts) {
     c.install = pm === 'pnpm' ? 'pnpm install' : pm === 'yarn' ? 'yarn install' : pm === 'bun' ? 'bun install' : 'npm install';
     if (pkg.scripts.test) c.test = pm === 'npm' ? 'npm test' : `${prefix} test`;
@@ -267,6 +282,24 @@ function commands(pm, lang) {
     c.build = fileExists('pom.xml') ? 'mvn package' : 'gradle build';
   }
   c.validate = c.test || c.build || c.lint || 'echo "No validation command detected"';
+  c.verification.unit = c.test;
+  if (pkg?.scripts) {
+    const scriptCommand = (name) => pm === 'npm'
+      ? (name === 'test' ? 'npm test' : 'npm run ' + name)
+      : (pm === 'unknown' ? 'npm run ' + name : pm + ' ' + name);
+    const aliases = {
+      unit: ['test:unit', 'unit'],
+      acceptance: ['test:acceptance', 'acceptance'],
+      architecture: ['test:architecture', 'architecture'],
+      property: ['test:property', 'property'],
+      mutation: ['test:mutation', 'mutation'],
+      e2e: ['test:e2e', 'e2e']
+    };
+    for (const [name, candidates] of Object.entries(aliases)) {
+      const match = candidates.find((candidate) => pkg.scripts[candidate]);
+      if (match) c.verification[name] = scriptCommand(match);
+    }
+  }
   return c;
 }
 
@@ -351,13 +384,19 @@ function applyPreset(data, presetName) {
     process.exit(1);
   }
 
+  const mergedCommands = {
+    ...data.commands,
+    ...selected.commands
+  };
+  mergedCommands.verification = {
+    ...data.commands.verification,
+    unit: data.commands.verification?.unit || mergedCommands.test || null
+  };
+
   return {
     ...data,
     ...selected,
-    commands: {
-      ...data.commands,
-      ...selected.commands
-    }
+    commands: mergedCommands
   };
 }
 
@@ -553,7 +592,7 @@ function detectContext() {
 function render(data) {
   const cmd = data.commands;
   const rules = data.conventions;
-  return `# Minimal Vibe Coding Kit backbone. See .vibekit/docs/BACKBONE_REFERENCE.md for details.\nversion: 2\nmeta:\n  template_status: initialized\n  initialized_at: ${yamlString(data.initializedAt)}\n  template_source: minimal-vibe-coding-kit\n  schema_version: 3\n  init_runbook: .vibekit/init/FIRST_TIME_INIT.md\n  init_done_marker: .vibekit/INIT_DONE\n\nproject:\n  name: ${yamlString(data.name)}\n  description: ${yamlString(data.description)}\n  type: ${data.type}\n  primary_language: ${data.language}\n  package_manager: ${data.packageManager}\n  mode: ${data.mode}\n  prd: ${yamlString(data.prd)}\n  context: ${yamlString(data.context)}\n\npaths:\n  root: .\n  apps:${yamlList(data.appPaths, 4)}\n  source: ${JSON.stringify(data.sourcePaths)}\n  tests: ${JSON.stringify(data.testPaths)}\n  docs: [README.md, .vibekit/docs/]\n  generated: [node_modules/, dist/, build/, coverage/]\n\nconventions:\n  review_required_before_write: true\n  scope: ${yamlString(rules.scope)}\n  naming:\n    files: ${yamlString(rules.naming.files)}\n    directories: ${yamlString(rules.naming.directories)}\n    symbols: follow existing language and framework conventions in nearby code\n    evidence:${yamlList(rules.naming.evidence, 6)}\n  architecture:\n    detected:${yamlList(rules.architecture.detected, 6)}\n    rule: ${yamlString(rules.architecture.rule)}\n  resources:\n    detected_asset_roots:${yamlList(rules.resources.assetRoots, 6)}\n    detected_registries:${yamlList(rules.resources.registries, 6)}\n    rule: ${yamlString(rules.resources.rule)}\n  localization:\n    detected_catalogs:${yamlList(rules.localization.catalogs, 6)}\n    detected_accessors:${yamlList(rules.localization.accessors, 6)}\n    rule: ${yamlString(rules.localization.rule)}\n  custom_rules:\n    - Add team-specific rules here during init review; future agents must follow them.\n    - "Writing style: no emoji and no em/en dashes in generated prose unless the user explicitly asks; use ASCII punctuation and keep existing characters in files whose established style already uses them."\n\ncommands:\n  install: ${yamlString(cmd.install)}\n  test: ${yamlString(cmd.test)}\n  lint: ${yamlString(cmd.lint)}\n  typecheck: ${yamlString(cmd.typecheck)}\n  build: ${yamlString(cmd.build)}\n  validate: ${yamlString(cmd.validate)}\n\npolicy:\n  default_branch: main\n  branch_naming: "feat/<short-topic>"\n  commit_style: conventional\n  editable_paths: [.]\n  protected_paths:\n    - .git/\n    - .env*\n    - "**/*secret*"\n    - "**/*token*"\n    - "**/migrations/**"\n    - "**/node_modules/**"\n    - "**/dist/**"\n    - "**/build/**"\n    - "**/coverage/**"\n    - "**/*lock*"\n\nagent_surfaces:\n  claude: .claude/\n  cursor: .cursor/\n  codex: .agents/\n  codex_plugin: .codex-plugin/plugin.json\n  shared_skills: .vibekit/skills/\n  shared_commands: .vibekit/commands/\n\nautomation:\n  autoresearch:\n    results_file: results.tsv\n    logs_dir: .autoresearch/logs\n    default_budget: 3\n    default_timeout_seconds: 600\n  daily_enhance:\n    report_dir: .vibekit/reports\n    write_mode: propose_only\n  finalize:\n    cleanup_dir: _vibekit-cleanup\n    marker: .vibekit/FINALIZE_DONE\n    one_time_files: [.vibekit/init/FIRST_TIME_INIT.md, .vibekit/init/FIRST_PROMPT.md, .vibekit/init/PUSH_TO_GITHUB.md, .vibekit/init/CLAUDE-template.md]\n  security:\n    probe: node .vibekit/scripts/agentshield-probe.mjs .\n    scan: npx ecc-agentshield@1.4.0 scan --path . --format text --min-severity medium\n`;
+  return `# Minimal Vibe Coding Kit backbone. See .vibekit/docs/BACKBONE_REFERENCE.md for details.\nversion: 2\nmeta:\n  template_status: initialized\n  initialized_at: ${yamlString(data.initializedAt)}\n  template_source: minimal-vibe-coding-kit\n  schema_version: 4\n  init_runbook: .vibekit/init/FIRST_TIME_INIT.md\n  init_done_marker: .vibekit/INIT_DONE\n\nproject:\n  name: ${yamlString(data.name)}\n  description: ${yamlString(data.description)}\n  type: ${data.type}\n  primary_language: ${data.language}\n  package_manager: ${data.packageManager}\n  mode: ${data.mode}\n  prd: ${yamlString(data.prd)}\n  context: ${yamlString(data.context)}\n\npaths:\n  root: .\n  apps:${yamlList(data.appPaths, 4)}\n  source: ${JSON.stringify(data.sourcePaths)}\n  tests: ${JSON.stringify(data.testPaths)}\n  docs: [README.md, .vibekit/docs/]\n  generated: [node_modules/, dist/, build/, coverage/]\n\nconventions:\n  review_required_before_write: true\n  scope: ${yamlString(rules.scope)}\n  naming:\n    files: ${yamlString(rules.naming.files)}\n    directories: ${yamlString(rules.naming.directories)}\n    symbols: follow existing language and framework conventions in nearby code\n    evidence:${yamlList(rules.naming.evidence, 6)}\n  architecture:\n    detected:${yamlList(rules.architecture.detected, 6)}\n    rule: ${yamlString(rules.architecture.rule)}\n  resources:\n    detected_asset_roots:${yamlList(rules.resources.assetRoots, 6)}\n    detected_registries:${yamlList(rules.resources.registries, 6)}\n    rule: ${yamlString(rules.resources.rule)}\n  localization:\n    detected_catalogs:${yamlList(rules.localization.catalogs, 6)}\n    detected_accessors:${yamlList(rules.localization.accessors, 6)}\n    rule: ${yamlString(rules.localization.rule)}\n  custom_rules:\n    - Add team-specific rules here during init review; future agents must follow them.\n    - "Writing style: no emoji and no em/en dashes in generated prose unless the user explicitly asks; use ASCII punctuation and keep existing characters in files whose established style already uses them."\n\ncommands:\n  install: ${yamlString(cmd.install)}\n  test: ${yamlString(cmd.test)}\n  lint: ${yamlString(cmd.lint)}\n  typecheck: ${yamlString(cmd.typecheck)}\n  build: ${yamlString(cmd.build)}\n  validate: ${yamlString(cmd.validate)}\n  verification:\n    unit: ${yamlString(cmd.verification?.unit)}\n    acceptance: ${yamlString(cmd.verification?.acceptance)}\n    architecture: ${yamlString(cmd.verification?.architecture)}\n    property: ${yamlString(cmd.verification?.property)}\n    mutation: ${yamlString(cmd.verification?.mutation)}\n    e2e: ${yamlString(cmd.verification?.e2e)}\n\npolicy:\n  default_branch: main\n  branch_naming: "feat/<short-topic>"\n  commit_style: conventional\n  editable_paths: [.]\n  protected_paths:\n    - .git/\n    - .env*\n    - "**/*secret*"\n    - "**/*token*"\n    - "**/migrations/**"\n    - "**/node_modules/**"\n    - "**/dist/**"\n    - "**/build/**"\n    - "**/coverage/**"\n    - "**/*lock*"\n\nagent_surfaces:\n  claude: .claude/\n  cursor: .cursor/\n  codex: .agents/\n  codex_plugin: .codex-plugin/plugin.json\n  shared_skills: .vibekit/skills/\n  shared_commands: .vibekit/commands/\n\nautomation:\n  autoresearch:\n    results_file: results.tsv\n    logs_dir: .autoresearch/logs\n    default_budget: 3\n    default_timeout_seconds: 600\n  daily_enhance:\n    report_dir: .vibekit/reports\n    write_mode: propose_only\n  finalize:\n    cleanup_dir: _vibekit-cleanup\n    marker: .vibekit/FINALIZE_DONE\n    one_time_files: [.vibekit/init/FIRST_TIME_INIT.md, .vibekit/init/FIRST_PROMPT.md, .vibekit/init/PUSH_TO_GITHUB.md, .vibekit/init/CLAUDE-template.md]\n  security:\n    probe: node .vibekit/scripts/agentshield-probe.mjs .\n    scan: npx ecc-agentshield@1.4.0 scan --path . --format text --min-severity medium\n`;
 }
 
 function inferPaths(files) {
@@ -605,7 +644,7 @@ if (shouldWrite) {
   fs.writeFileSync(backbonePath, out);
   const marker = path.join(target, '.vibekit', 'INIT_DONE');
   fs.mkdirSync(path.dirname(marker), { recursive: true });
-  fs.writeFileSync(marker, `initialized_at: ${inferred.initializedAt}\nschema_version: 3\ntool: minimal-vibe-coding-kit\n`);
+  fs.writeFileSync(marker, `initialized_at: ${inferred.initializedAt}\nschema_version: 4\ntool: minimal-vibe-coding-kit\n`);
   console.log(`Initialized backbone.yml at ${inferred.initializedAt}`);
 } else {
   console.log('Requirements detected:');

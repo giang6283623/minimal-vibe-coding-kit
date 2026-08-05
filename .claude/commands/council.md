@@ -1,7 +1,7 @@
 ---
-description: Coordinate relevant agents: research-coordinator, security-reviewer, code-reviewer, and results-analyst. Return one merged plan and one validation summary.
+description: Coordinate a proportionate provider-aware council and preserve dissent
 ---
 
 # council
 
-Coordinate relevant agents: research-coordinator, security-reviewer, code-reviewer, and results-analyst. Return one merged plan and one validation summary.
+Before dispatching a council member, follow .vibekit/docs/ORCHESTRATION_MODES.md in the parent session. Coordinate only the roles the task actually needs, preserve independent disagreement, and return one merged plan plus one validation summary. Default, Auto, or Custom provider routing never grants mutation or final-acceptance authority.

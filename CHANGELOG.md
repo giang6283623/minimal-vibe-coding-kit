@@ -2,6 +2,31 @@
 
 ## Unreleased
 
+## 0.5.8 - 2026-08-05
+
+### Added
+
+- Added `clean-delivery` across Claude, Cursor, Codex, Grok, and Kimi. The optional workflow treats Specify, Code, Clean, Architect, Harden, and Verify as proportional craftsmanship gates rather than mandatory agents, with a deterministic story validator, protected verification assets, risk-tier evidence, and Proofline-compatible returns.
+- Added a provider-neutral Default, Auto, and Custom orchestration preference contract. Parent agents prefer native structured questions, child agents return `needs_user_input`, remembered choices reuse `.vibekit/preferences.json`, and a dependency-free helper validates project-local assignments without probing credentials or executing providers.
+- Added an optional `commands.verification` contract to backbone schema version 4 with named unit, acceptance, architecture, property, mutation, and e2e command-or-null fields. Initializers infer existing scripts only, old schema version 3 backbones remain valid, and null never means passed or triggers tool installation.
+
+### Changed
+
+- Updated skill discovery, five-surface mirrors, commands, package contents, localized documentation, and deterministic validation for 21 canonical skills and 16 Cursor skills.
+- Reworked `parallel-analysis`, graph orchestration, Proofline, autoresearch delegation, Clean Delivery, and `/council` to separate provider routing from plan-only, sequential, countercheck, or verified-graph safety topology. Auto mode routes only across ready adapters and never guesses model aliases, authentication, prices, or availability.
+
+### Fixed
+
+- Required autoresearch metrics to parse as finite numbers before ledger writes, rejecting NaN, infinities, overflow, and arbitrary text without mutating existing results.
+- Rejected shell operators, expansion markers, globs, and leading environment assignments in legacy autoresearch command strings with an argv migration message, preventing silent changes to metric semantics.
+- Hardened Clean Delivery story validation against duplicate required headings, untouched template placeholders, placeholder proof commands, and unconfigured red evidence.
+- Made Autoresearch and Clean Delivery resource validation report incomplete installations through the normal failure summary instead of uncaught filesystem exceptions.
+- Synchronized all four README skill mindmaps with the documented 21-skill catalog and added `clean-delivery`.
+
+### Validation
+
+- `npm run validate:all` passed with zero validator failures or warnings, the complete install matrix, 32 Autoresearch checks, 7 Clean Delivery story checks, all 177 Tutien checks, all 42 graph-renderer checks, all 37 Proofline sandbox checks, and no built-in suspicious AgentShield markers. The package dry-run included all 926 on-disk skill files in a 1,036-file tarball.
+
 ## 0.5.7 - 2026-08-03
 
 ### Added

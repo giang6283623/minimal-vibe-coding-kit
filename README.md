@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.7-2ea44f.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.8-2ea44f.svg)](CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -334,15 +334,22 @@ flowchart LR
 | `/security-scan`       | Read-only AgentShield probe + optional scanner over agent surfaces.         | `/security-scan` before merging changes to `.claude/**` or skills. |
 | `/daily-enhance`       | Propose-only report to improve rules, skills, and workflows.                | `/daily-enhance` - review the proposed diff, then approve.         |
 | `/autoresearch-coding` | Metric-driven experiment loop with baseline and budget.                     | `/autoresearch-coding` Goal: fewer lint errors. Budget: 3.         |
-| `/council`             | Coordinates reviewer/researcher/analyst agents into one merged plan.        | `/council` on this branch diff.                                    |
+| `/clean-delivery`      | Delivers one behavior through six proportional craftsmanship gates.          | `/clean-delivery` Goal: add rate limiting. Risk: medium.              |
+| `/council`             | Resolves provider mode, then coordinates only the roles the task needs.       | `/council` on this branch diff.                                    |
 | `/proofline`           | Governs bounded roles, independent challenge, typed signals, and proof.     | `/proofline` Goal: harden auth. Done signal: targeted tests pass.  |
 | `/vibe-finalize`       | Graduate the project: move one-time bootstrap files to `_vibekit-cleanup/`. | `/vibe-finalize` - preview first, apply after approval.            |
 
 </details>
 
+### Multi-agent choice
+
+Immediately before the first child agent or multi-agent lane is dispatched, the parent asks for Default, Auto, or Custom with the active provider's native structured-question tool when available. Default preserves the current provider and default model. Auto routes bounded lanes only across ready adapters and chooses the lowest-cost model above the task's quality and safety floor. Custom lets you assign a verified provider and model per role.
+
+Choose "Don't show again" to remember that exact mode in .vibekit/preferences.json. Child agents return needs_user_input to the parent instead of questioning you directly. Coding level changes explanation detail and the recommended option, never model quality or safety. See [.vibekit/docs/ORCHESTRATION_MODES.md](.vibekit/docs/ORCHESTRATION_MODES.md).
+
 ## Skills
 
-All 20 skills live canonically in `.vibekit/skills/`. Claude, Codex, Grok, and Kimi mirror all 20; Cursor mirrors the 15 interactive ones. Invoke them by name ("Use the X skill…") or via the commands above.
+All 21 skills live canonically in `.vibekit/skills/`. Claude, Codex, Grok, and Kimi mirror all 21; Cursor mirrors the 16 interactive ones. Invoke them by name ("Use the X skill…") or via the commands above.
 
 ```mermaid
 ---
@@ -379,7 +386,7 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("20 skills"))
+  root(("21 skills"))
     setup("Setup and safety")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
@@ -393,6 +400,7 @@ mindmap
       t5("graph-engineering-<br/>verified-orchestration")
       t6("the-creator")
       t7("proofline-<br/>orchestration")
+      t8("clean-delivery")
     analyze("Analyze and improve")
       a1("parallel-analysis")
       a2("autoresearch-coding")
@@ -414,6 +422,7 @@ mindmap
 | `vibekit-init`                | First-time setup, or `backbone.yml` / managed blocks need repair.                                                                                                                                                                        | "Use the vibekit-init skill. Propose one diff and wait for my yes."                                   |
 | `parallel-analysis`           | Repo-wide questions, large diff reviews, consistency audits.                                                                                                                                                                             | "Use parallel-analysis: where is auth handled and what depends on it?"                                |
 | `graph-engineering-verified-orchestration` | Complex work has genuinely independent branches and needs explicit dependencies, isolation, budgets, objective verification, rollback, and bounded merge gates. | "Use graph-engineering-verified-orchestration to design a safe task graph for this migration." |
+| `clean-delivery` | A behavior slice needs disciplined Specify, Code, Clean, Architect, Harden, and Verify gates with proportional TDD and reproducible evidence. | "Use clean-delivery to implement this behavior with extreme craftsmanship." |
 | `proofline-orchestration`     | Complex work benefits from explicit governance, bounded implementation, an empowered independent challenger, typed escalation signals, and evidence-bound acceptance. | "Use proofline-orchestration to govern this migration and preserve dissent." |
 | `agentshield-security-review` | Auditing agent config, skills, hooks, MCP, commands before merge.                                                                                                                                                                        | "Use agentshield-security-review on .claude/** and .vibekit/skills/**."                               |
 | `threat-model-security-review` | Reviewing application source, APIs, authentication, authorization, input paths, trust boundaries, and security-sensitive diffs with explicit evidence and coverage. | "Use threat-model-security-review on this repository. Stay read-only and report proof gaps." |

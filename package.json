@@ -1,6 +1,6 @@
 {
   "name": "minimal-vibe-coding-kit",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "description": "Project-agnostic AI coding workflow kit for Claude Code, Cursor, Codex, Grok, and Kimi with AgentShield security review.",
   "type": "module",
   "bin": {
@@ -13,9 +13,9 @@
     "init:backbone": "node .vibekit/scripts/init-backbone.mjs . --propose",
     "doctor": "node .vibekit/scripts/doctor.mjs .",
     "daily": "node .vibekit/scripts/daily-enhance.mjs . --write-report",
-    "check:syntax": "node --check .vibekit/scripts/mvck.mjs && node --check .vibekit/scripts/init-backbone.mjs && node --check .vibekit/scripts/daily-enhance.mjs && node --check .vibekit/scripts/validate-kit.mjs && node --check .vibekit/scripts/doctor.mjs && node --check .vibekit/scripts/test-install.mjs && node --check .vibekit/scripts/agentshield-probe.mjs && node --check .vibekit/scripts/pack-dry-run.mjs && node --check .vibekit/scripts/vibekit-finalize.mjs && node --check .vibekit/skills/graph-engineering-verified-orchestration/scripts/render-graph.mjs && node --check .vibekit/skills/proofline-orchestration/scripts/run-proofline-sandbox.mjs && node --check bin/mvck.js && node --check bin/vibe-kit.js",
+    "check:syntax": "node --check .vibekit/scripts/mvck.mjs && node --check .vibekit/scripts/init-backbone.mjs && node --check .vibekit/scripts/daily-enhance.mjs && node --check .vibekit/scripts/validate-kit.mjs && node --check .vibekit/scripts/doctor.mjs && node --check .vibekit/scripts/test-install.mjs && node --check .vibekit/scripts/agentshield-probe.mjs && node --check .vibekit/scripts/orchestration-preference.mjs && node --check .vibekit/scripts/pack-dry-run.mjs && node --check .vibekit/scripts/vibekit-finalize.mjs && node --check .vibekit/skills/clean-delivery/scripts/validate-story.mjs && node --check .vibekit/skills/graph-engineering-verified-orchestration/scripts/render-graph.mjs && node --check .vibekit/skills/proofline-orchestration/scripts/run-proofline-sandbox.mjs && node --check bin/mvck.js && node --check bin/vibe-kit.js",
     "test:install": "node .vibekit/scripts/test-install.mjs",
-    "test": "npm run check:syntax && npm run test:install && npm run validate && npm run test:tutien && npm run test:graph && npm run test:proofline",
+    "test": "npm run check:syntax && npm run test:install && npm run validate && npm run test:autoresearch && npm run test:clean-delivery && npm run test:orchestration && npm run test:tutien && npm run test:graph && npm run test:proofline",
     "validate": "node .vibekit/scripts/validate-kit.mjs .",
     "security:probe": "node .vibekit/scripts/agentshield-probe.mjs .",
     "pack:dry-run": "node .vibekit/scripts/pack-dry-run.mjs",
@@ -23,7 +23,10 @@
     "pack:repo": "node .vibekit/scripts/validate-kit.mjs . && npm pack",
     "test:tutien": "node test/tutien/scripts/test-analyzer.mjs && node test/tutien/scripts/test-profile.mjs && node test/tutien/scripts/test-render.mjs && node test/tutien/scripts/test-villains.mjs && node test/tutien/scripts/test-snapshot.mjs && node test/tutien/scripts/test-classify.mjs && node test/tutien/scripts/test-story.mjs && node test/tutien/scripts/test-adversarial.mjs && node test/tutien/scripts/test-e2e.mjs && node test/tutien/scripts/test-humiliation.mjs",
     "test:graph": "node test/graph-engineering/scripts/test-render-graph.mjs",
-    "test:proofline": "node test/proofline/scripts/test-run-proofline-sandbox.mjs"
+    "test:clean-delivery": "node test/clean-delivery/scripts/test-story-contract.mjs",
+    "test:orchestration": "node test/orchestration/scripts/test-preference.mjs",
+    "test:proofline": "node test/proofline/scripts/test-run-proofline-sandbox.mjs",
+    "test:autoresearch": "node test/autoresearch/scripts/test-contract.mjs"
   },
   "keywords": [
     "vibe-coding",
@@ -63,6 +66,7 @@
     ".claude/skills/coding-level/",
     ".claude/skills/parallel-analysis/",
     ".claude/skills/graph-engineering-verified-orchestration/",
+    ".claude/skills/clean-delivery/",
     ".claude/skills/proofline-orchestration/",
     ".claude/skills/prompt-sharpener/",
     ".claude/skills/claim/",
@@ -81,6 +85,7 @@
     ".cursor/skills/coding-level/",
     ".cursor/skills/parallel-analysis/",
     ".cursor/skills/graph-engineering-verified-orchestration/",
+    ".cursor/skills/clean-delivery/",
     ".cursor/skills/proofline-orchestration/",
     ".cursor/skills/prompt-sharpener/",
     ".cursor/skills/claim/",

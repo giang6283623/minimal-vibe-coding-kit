@@ -23,6 +23,7 @@
     { "name": "coding-level", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
     { "name": "parallel-analysis", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
     { "name": "graph-engineering-verified-orchestration", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
+    { "name": "clean-delivery", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
     { "name": "proofline-orchestration", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
     { "name": "prompt-sharpener", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
     { "name": "claim", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },

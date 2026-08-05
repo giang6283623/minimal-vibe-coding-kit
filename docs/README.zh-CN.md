@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.7-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.8-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -334,15 +334,22 @@ flowchart LR
 | `/security-scan`         | 对 Agent 表面执行只读 AgentShield 探针和可选完整扫描。              | 修改 `.claude/**` 或技能后，在合并前运行 `/security-scan`。         |
 | `/daily-enhance`         | 生成仅供提案的规则、技能和工作流改进报告。                         | `/daily-enhance`，审核提出的差异后再批准。                         |
 | `/autoresearch-coding`   | 带基线、指标和预算的实验循环。                                     | `/autoresearch-coding` Goal: fewer lint errors. Budget: 3.         |
-| `/council`               | 协调 reviewer、researcher 和 analyst Agent，形成一个统一计划。      | `/council` on this branch diff.                                    |
+| `/clean-delivery`      | 通过六个适度的 craftsmanship gate 交付一个行为。                            | `/clean-delivery` Goal: 添加 rate limiting。Risk: medium。            |
+| `/council`             | 解析 provider mode，然后只协调任务真正需要的 role。                        | `/council` 检查当前 branch diff。                                  |
 | `/proofline`             | 用有界角色、独立质疑、类型化信号和证据治理复杂工作。               | `/proofline` Goal: harden auth. Done signal: targeted tests pass.  |
 | `/vibe-finalize`         | 让项目完成引导：将一次性文件移到 `_vibekit-cleanup/`。              | `/vibe-finalize`，先预览，批准后再应用。                           |
 
 </details>
 
+### 多 Agent 模式选择
+
+在分派第一个子 Agent 或多 Agent lane 之前，父 Agent 会优先使用当前 provider 的原生结构化提问工具，让你选择 Default、Auto 或 Custom。Default 保留当前 provider 和默认 model。Auto 只在 ready adapter 之间路由有边界的 lane，并选择满足任务质量与安全下限的最低成本 model。Custom 允许你为每个 role 指定已验证的 provider 和 model。
+
+选择 "Don't show again" 会把该模式保存在 .vibekit/preferences.json。子 Agent 不会直接询问用户，而是向父 Agent 返回 needs_user_input。Coding level 只影响说明密度和推荐选项，不会降低 model 质量或安全要求。参见 [.vibekit/docs/ORCHESTRATION_MODES.md](../.vibekit/docs/ORCHESTRATION_MODES.md)。
+
 ## 技能
 
-全部 20 个技能的规范版本位于 `.vibekit/skills/`。Claude、Codex、Grok 和 Kimi 镜像全部 20 个技能；Cursor 镜像其中 15 个交互式技能。可以直接按名称调用（例如“Use the X skill…”），也可以使用上面的命令。
+全部 21 个技能的规范版本位于 `.vibekit/skills/`。Claude、Codex、Grok 和 Kimi 镜像全部 21 个技能；Cursor 镜像其中 16 个交互式技能。可以直接按名称调用（例如“Use the X skill…”），也可以使用上面的命令。
 
 ```mermaid
 ---
@@ -379,7 +386,7 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("20 个技能"))
+  root(("21 个技能"))
     setup("设置与安全")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
@@ -393,6 +400,7 @@ mindmap
       t5("graph-engineering-<br/>verified-orchestration")
       t6("the-creator")
       t7("proofline-<br/>orchestration")
+      t8("clean-delivery")
     analyze("分析与改进")
       a1("parallel-analysis")
       a2("autoresearch-coding")
@@ -414,6 +422,7 @@ mindmap
 | `vibekit-init`                  | 首次设置，或需要修复 `backbone.yml` / 受管理区块。                                                   | "Use the vibekit-init skill. Propose one diff and wait for my yes."                                   |
 | `parallel-analysis`             | 全仓库问题、大型差异审查、一致性审计。                                                               | "Use parallel-analysis: where is auth handled and what depends on it?"                                |
 | `graph-engineering-verified-orchestration` | 复杂工作包含真正独立的分支，并且需要明确依赖、隔离、预算、客观验证、回滚和有界合并门。 | "Use graph-engineering-verified-orchestration to design a safe task graph for this migration." |
+| `clean-delivery` | 一个行为切片需要严格的 Specify、Code、Clean、Architect、Harden 和 Verify 门，并配合适度的 TDD 与可复现证据。 | "Use clean-delivery to implement this behavior with extreme craftsmanship." |
 | `proofline-orchestration`       | 复杂工作需要明确治理、有界实现、具备实际质疑权的独立检查者、类型化升级信号和基于证据的验收。 | "Use proofline-orchestration to govern this migration and preserve dissent." |
 | `agentshield-security-review`   | 合并前审计 Agent 配置、技能、hook、MCP 和命令。                                                       | "Use agentshield-security-review on .claude/** and .vibekit/skills/**."                               |
 | `threat-model-security-review`  | 使用明确的证据和覆盖范围审查应用源码、API、身份验证、授权、输入路径、信任边界以及安全敏感差异。       | "Use threat-model-security-review on this repository. Stay read-only and report proof gaps."          |

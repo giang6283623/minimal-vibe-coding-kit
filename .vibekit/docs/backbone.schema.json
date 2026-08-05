@@ -63,7 +63,20 @@
       "type": "object",
       "required": ["validate"],
       "properties": {
-        "validate": { "type": ["string", "null"] }
+        "validate": { "type": ["string", "null"] },
+        "verification": {
+          "type": "object",
+          "required": ["unit", "acceptance", "architecture", "property", "mutation", "e2e"],
+          "additionalProperties": false,
+          "properties": {
+            "unit": { "type": ["string", "null"] },
+            "acceptance": { "type": ["string", "null"] },
+            "architecture": { "type": ["string", "null"] },
+            "property": { "type": ["string", "null"] },
+            "mutation": { "type": ["string", "null"] },
+            "e2e": { "type": ["string", "null"] }
+          }
+        }
       }
     },
     "policy": {

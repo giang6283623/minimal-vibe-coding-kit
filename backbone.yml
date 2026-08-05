@@ -4,7 +4,7 @@ meta:
   template_status: initialized
   initialized_at: 2026-05-27T01:36:21.898Z
   template_source: minimal-vibe-coding-kit
-  schema_version: 3
+  schema_version: 4
   init_runbook: .vibekit/init/FIRST_TIME_INIT.md
   init_done_marker: .vibekit/INIT_DONE
 
@@ -64,6 +64,13 @@ commands:
   typecheck: null
   build: null
   validate: npm test
+  verification:
+    unit: npm run test:clean-delivery
+    acceptance: npm run test:install
+    architecture: node .vibekit/scripts/validate-kit.mjs .
+    property: null
+    mutation: null
+    e2e: null
 
 policy:
   default_branch: main

@@ -117,7 +117,8 @@ for (const skill of KIT_SKILLS) {
 const required = [
   'AGENTS.md', '.vibekit/init/CLAUDE-template.md', '.vibekit/init/FIRST_TIME_INIT.md', '.vibekit/init/FIRST_PROMPT.md', 'backbone.yml',
   '.vibekit/scripts/mvck.mjs', '.vibekit/scripts/init-backbone.mjs', '.vibekit/scripts/daily-enhance.mjs', '.vibekit/scripts/validate-kit.mjs',
-  '.vibekit/scripts/doctor.mjs', '.vibekit/scripts/agentshield-probe.mjs', '.vibekit/scripts/vibekit-finalize.mjs',
+  '.vibekit/scripts/doctor.mjs', '.vibekit/scripts/agentshield-probe.mjs', '.vibekit/scripts/orchestration-preference.mjs',
+  '.vibekit/scripts/vibekit-finalize.mjs', '.vibekit/docs/ORCHESTRATION_MODES.md',
   ...KIT_SKILLS.map((skill) => `.vibekit/skills/${skill}/SKILL.md`),
   '.vibekit/docs/templates/PRD_TEMPLATE.md', '.vibekit/docs/templates/CONTEXT_TEMPLATE.md'
 ];
@@ -177,6 +178,14 @@ const reasoningSkillResources = {
     'references/graph-contract.md',
     'references/graph-visualization.md',
     'scripts/render-graph.mjs'
+  ],
+  'clean-delivery': [
+    'agents/openai.yaml',
+    'references/story-template.md',
+    'references/verification-tiers.md',
+    'references/architecture-contract.md',
+    'references/proof-return-mapping.md',
+    'scripts/validate-story.mjs'
   ],
   'proofline-orchestration': [
     'agents/openai.yaml',
@@ -332,6 +341,84 @@ for (const [skill, mirrors] of Object.entries(skillMirrors)) {
   }
 }
 
+function validateAutoresearchContract() {
+  const base = '.vibekit/skills/autoresearch-coding';
+  if (!exists(`${base}/SKILL.md`)) return;
+  const resources = [
+    'README.md',
+    'references/experiment-contract.md',
+    'references/metric-extraction.md',
+    'references/result-ledger.md',
+    'scripts/run_logged.py',
+    'scripts/log_result.py'
+  ];
+  const missingResources = resources.filter((file) => !exists(`${base}/${file}`));
+  if (missingResources.length > 0) {
+    fail(`Autoresearch canonical resources are incomplete: ${missingResources.join(', ')}`);
+    return;
+  }
+  ok('Autoresearch canonical contract, references, and helpers are present');
+
+  const skill = read(`${base}/SKILL.md`);
+  const runner = read(`${base}/scripts/run_logged.py`);
+  const ledger = read(`${base}/scripts/log_result.py`);
+  const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
+
+  if (hasAll(skill, [
+    'argument vector',
+    'minimum meaningful delta',
+    'report variance',
+    'oracle assets',
+    'baseline fingerprint',
+    'experiment-owned trial delta',
+    'exact integrated tree',
+    'Delegate only'
+  ])) {
+    ok('Autoresearch contract protects measurement validity, rollback, and oracle integrity');
+  } else {
+    fail('Autoresearch experiment safety or measurement contract drifted');
+  }
+
+  if (hasAll(runner, [
+    'subprocess.Popen',
+    'start_new_session',
+    'max_log_bytes',
+    '[REDACTED]',
+    'os.replace',
+    'shell syntax is not supported in legacy command strings'
+  ]) && !runner.includes('shell=True')) {
+    ok('Autoresearch runner uses bounded argv execution without a shell');
+  } else {
+    fail('Autoresearch runner shell, timeout, redaction, or log boundary drifted');
+  }
+
+  if (hasAll(ledger, [
+    'os.O_NOFOLLOW',
+    'LOCK_EX',
+    'os.fchmod',
+    'os.fsync',
+    'unsupported header',
+    'control characters',
+    'metric must be a finite number'
+  ])) {
+    ok('Autoresearch ledger validates and serializes owner-only result rows');
+  } else {
+    fail('Autoresearch ledger path, row, permission, or locking contract drifted');
+  }
+
+  const packageJson = readJson('package.json');
+  const sourceTestsValid = !isKitSourceRepo || (
+    exists('test/autoresearch/scripts/test-contract.mjs')
+    && packageJson?.scripts?.['test:autoresearch'] === 'node test/autoresearch/scripts/test-contract.mjs'
+    && packageJson?.scripts?.test?.includes('npm run test:autoresearch')
+  );
+  if (sourceTestsValid) {
+    ok('Autoresearch source contract test is wired into the repository suite');
+  } else {
+    fail('Autoresearch source contract test or package wiring drifted');
+  }
+}
+
 function validateSequentialThinkingContract() {
   const base = '.vibekit/skills/sequential-thinking';
   if (!exists(`${base}/SKILL.md`)) return;
@@ -394,11 +481,11 @@ function validateThreatModelSecurityReviewContract() {
   const ui = read(`${base}/agents/openai.yaml`);
   const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
   const sourceDiscoveryValid = !isKitSourceRepo || (
-    hasAll(read('README.md'), ['All 20 skills', '| `threat-model-security-review`'])
-    && hasAll(read('docs/README.vi.md'), ['Cả 20 skill', '| `threat-model-security-review`'])
-    && hasAll(read('docs/README.zh-CN.md'), ['全部 20 个技能', '| `threat-model-security-review`'])
-    && hasAll(read('docs/README.ja.md'), ['20 個すべてのスキル', '| `threat-model-security-review`'])
-    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Ten user-invoked skills', '`threat-model-security-review`'])
+    hasAll(read('README.md'), ['All 21 skills', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 21 skill', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 21 个技能', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.ja.md'), ['21 個すべてのスキル', '| `threat-model-security-review`'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Eleven user-invoked skills', '`threat-model-security-review`'])
     && hasAll(read('.vibekit/docs/SECURITY_MODEL.md'), [
       '`threat-model-security-review` covers application source',
       '`agentshield-security-review` covers agent instructions'
@@ -517,6 +604,233 @@ function validateThreatModelSecurityReviewContract() {
     ok('Threat-model security review keeps discovery, packaging, and domain guidance synchronized');
   } else {
     fail('Threat-model security review discovery, packaging, or UI metadata drifted');
+  }
+}
+
+function validateCleanDeliveryContract() {
+  const base = '.vibekit/skills/clean-delivery';
+  if (!exists(base + '/SKILL.md')) return;
+  const resources = [
+    'scripts/validate-story.mjs',
+    'references/story-template.md',
+    'references/verification-tiers.md',
+    'references/architecture-contract.md',
+    'references/proof-return-mapping.md',
+    'agents/openai.yaml'
+  ];
+  const missingResources = resources.filter((file) => !exists(`${base}/${file}`));
+  if (missingResources.length > 0) {
+    fail(`Clean Delivery canonical resources are incomplete: ${missingResources.join(', ')}`);
+    return;
+  }
+  ok('Clean Delivery canonical contract, references, and validator are present');
+
+  const skill = read(base + '/SKILL.md');
+  const validator = read(base + '/scripts/validate-story.mjs');
+  const story = read(base + '/references/story-template.md');
+  const tiers = read(base + '/references/verification-tiers.md');
+  const architecture = read(base + '/references/architecture-contract.md');
+  const proofReturn = read(base + '/references/proof-return-mapping.md');
+  const ui = read(base + '/agents/openai.yaml');
+  const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
+
+  if (hasAll(skill, [
+    'The six stages are quality gates, not six mandatory agents.',
+    '### 1. Specify',
+    '### 2. Code',
+    '### 3. Clean',
+    '### 4. Architect',
+    '### 5. Harden',
+    '### 6. Verify',
+    'Never auto-install a missing test tool'
+  ])) {
+    ok('Clean Delivery defines six proportional craftsmanship gates without mandatory agent fan-out');
+  } else {
+    fail('Clean Delivery gate or proportionality contract drifted');
+  }
+
+  if (hasAll(story, [
+    '## Out of scope',
+    '## Protected verifier assets',
+    '## Red evidence',
+    '## Proof commands'
+  ]) && hasAll(tiers, [
+    '| Critical |',
+    'not-configured means no verifier exists',
+    'Do not auto-install'
+  ]) && hasAll(architecture, [
+    'extends the repository',
+    'conventions.architecture',
+    'not equivalent to an executed architecture command'
+  ]) && hasAll(proofReturn, [
+    '| Red evidence | Pre-change evidence |',
+    'Do not duplicate the Proofline ledger'
+  ])) {
+    ok('Clean Delivery freezes scope, protects oracles, scales proof, and reuses Proof Returns');
+  } else {
+    fail('Clean Delivery story, verification, architecture, or Proof Return resources drifted');
+  }
+
+  if (hasAll(validator, [
+    'readFileSync',
+    'missing or empty section:',
+    'duplicate section:',
+    'template placeholder remains:',
+    'Unit proof must name an executable deterministic check',
+    'Risk must be exactly low, medium, high, or critical'
+  ]) && !/(node:child_process|\beval\s*\(|\bexecSync\s*\(|\bspawnSync\s*\()/.test(validator)) {
+    ok('Clean Delivery story validator is dependency-free and does not execute story commands');
+  } else {
+    fail('Clean Delivery story validator safety or discrimination contract drifted');
+  }
+
+  const discoveryValid = !isKitSourceRepo || (
+    hasAll(read('README.md'), ['All 21 skills', 'clean-delivery'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 21 skill', 'clean-delivery'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 21 个技能', 'clean-delivery'])
+    && hasAll(read('docs/README.ja.md'), ['21 個すべてのスキル', 'clean-delivery'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Eleven user-invoked skills', 'clean-delivery'])
+    && hasAll(read('package.json'), [
+      'test:clean-delivery',
+      '.claude/skills/clean-delivery/',
+      '.cursor/skills/clean-delivery/'
+    ])
+    && exists('test/clean-delivery/scripts/test-story-contract.mjs')
+  );
+  if (hasAll(ui, [
+    'display_name: "Clean Delivery"',
+    'Use $clean-delivery'
+  ]) && discoveryValid) {
+    ok('Clean Delivery discovery, localization, packaging, UI metadata, and tests stay synchronized');
+  } else {
+    fail('Clean Delivery discovery, localization, packaging, UI metadata, or tests drifted');
+  }
+}
+
+function validateOrchestrationModeContract() {
+  const contractPath = '.vibekit/docs/ORCHESTRATION_MODES.md';
+  const scriptPath = '.vibekit/scripts/orchestration-preference.mjs';
+  if (!exists(contractPath) || !exists(scriptPath)) return;
+  const contract = read(contractPath);
+  const preferenceScript = read(scriptPath);
+  const agents = read('AGENTS.md');
+  const council = read('.vibekit/commands/council.md');
+  const parallel = read('.vibekit/skills/parallel-analysis/SKILL.md');
+  const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
+
+  if (hasAll(contract, [
+    '## First question: mode',
+    '| Default |',
+    '| Auto |',
+    '| Custom |',
+    '## Second question: persistence',
+    'needs_user_input',
+    'lowest-cost capable model',
+    'installed-unverified',
+    'The orchestration preference and the safety topology are independent axes'
+  ])) {
+    ok('Orchestration contract defines provider-native questions, three modes, persistence, readiness, and separate safety topology');
+  } else {
+    fail('Orchestration mode, question, persistence, readiness, or topology contract drifted');
+  }
+
+  if (hasAll(contract, [
+    'Coding level changes explanation density',
+    'never lowers model capability, safety, verification, or authorization',
+    'Auto routes only to ready adapters',
+    'never guesses credentials, model aliases, prices, context limits, or availability'
+  ])) {
+    ok('Orchestration routing preserves quality and safety floors without guessing provider state');
+  } else {
+    fail('Orchestration quality floor or provider-readiness contract drifted');
+  }
+
+  if (hasAll(preferenceScript, [
+    'const MODES = new Set(["default", "auto", "custom"])',
+    'const PROVIDERS = new Set(["current", "codex", "claude", "cursor", "grok", "kimi"])',
+    'refusing symlinked project preference file',
+    'custom mode requires at least one --assign',
+    'delete preferences.orchestration'
+  ]) && !/(node:child_process|\beval\s*\(|\bexecSync\s*\(|\bspawnSync\s*\()/.test(preferenceScript)) {
+    ok('Orchestration preference helper validates bounded local state without invoking providers');
+  } else {
+    fail('Orchestration preference helper schema, path safety, or execution boundary drifted');
+  }
+
+  const integrationValid = hasAll(agents, [
+    '### Orchestration preference',
+    'native structured-question tool',
+    'Child agents never ask the end user directly'
+  ]) && hasAll(council, [
+    'ORCHESTRATION_MODES.md',
+    'only the roles the task actually needs'
+  ]) && hasAll(parallel, [
+    'Orchestration preference and executor setup',
+    'global project state',
+    'installed-unverified',
+    'Existing version 1 executor'
+  ]) && [
+    'autoresearch-coding',
+    'graph-engineering-verified-orchestration',
+    'proofline-orchestration',
+    'clean-delivery'
+  ].every((skill) => read('.vibekit/skills/' + skill + '/SKILL.md').includes('ORCHESTRATION_MODES.md'));
+  if (integrationValid) {
+    ok('Orchestration preference gate is wired into root rules, council, and multi-agent skills');
+  } else {
+    fail('Orchestration preference root, command, or skill integration drifted');
+  }
+
+  const sourceValid = !isKitSourceRepo || (
+    exists('test/orchestration/scripts/test-preference.mjs')
+    && hasAll(read('package.json'), ['test:orchestration', 'orchestration-preference.mjs'])
+    && ['README.md', 'docs/README.vi.md', 'docs/README.zh-CN.md', 'docs/README.ja.md']
+      .every((file) => read(file).includes('ORCHESTRATION_MODES.md'))
+    && read('.vibekit/docs/INSTALL.md').includes('Multi-agent orchestration preference')
+  );
+  if (sourceValid) {
+    ok('Orchestration preference tests, package scripts, installation docs, and localization stay synchronized');
+  } else {
+    fail('Orchestration preference tests, packaging, installation docs, or localization drifted');
+  }
+}
+
+function validateNamedVerificationContract() {
+  const schemaPath = '.vibekit/docs/backbone.schema.json';
+  const referencePath = '.vibekit/docs/BACKBONE_REFERENCE.md';
+  if (!exists(schemaPath) || !exists(referencePath)) return;
+  const schema = readJson(schemaPath);
+  const verification = schema?.properties?.commands?.properties?.verification;
+  const expected = ['unit', 'acceptance', 'architecture', 'property', 'mutation', 'e2e'];
+  const propertyNames = Object.keys(verification?.properties || {}).sort();
+  const requiredNames = [...(verification?.required || [])].sort();
+  const expectedNames = [...expected].sort();
+  const typesValid = expected.every((name) => {
+    const types = verification?.properties?.[name]?.type;
+    return Array.isArray(types) && types.includes('string') && types.includes('null');
+  });
+  if (verification?.type === 'object'
+      && verification?.additionalProperties === false
+      && JSON.stringify(propertyNames) === JSON.stringify(expectedNames)
+      && JSON.stringify(requiredNames) === JSON.stringify(expectedNames)
+      && typesValid) {
+    ok('Backbone schema defines exactly six optional string-or-null named verifiers');
+  } else {
+    fail('Backbone named verification JSON schema drifted');
+  }
+
+  const reference = read(referencePath);
+  const init = read('.vibekit/scripts/init-backbone.mjs');
+  if (reference.includes('optional for backward compatibility')
+      && reference.includes('Null means no verifier is configured')
+      && reference.includes('extend conventions.architecture')
+      && reference.includes('never authorizes an agent to install')
+      && expected.every((name) => init.includes(name + ':'))
+      && init.includes('schema_version: 4')
+      && init.includes("['test:architecture', 'architecture']")) {
+    ok('Backbone reference and initializer preserve null semantics, architecture ownership, and backward compatibility');
+  } else {
+    fail('Backbone named verification reference or initializer contract drifted');
   }
 }
 
@@ -666,14 +980,14 @@ function validateGraphEngineeringContract() {
 
   const sourceDiscoveryValid = !isKitSourceRepo || (
     hasAll(readme, [
-      'All 20 skills',
+      'All 21 skills',
       'Graph engineering: verified orchestration',
       'edgeLabelBackground: "#FFFFFF"'
     ])
     && readmeVi.includes('Graph engineering: điều phối có xác minh')
     && readmeZh.includes('图工程：经验证的编排')
     && readmeJa.includes('Graph engineering：検証付き orchestration')
-    && install.includes('Ten user-invoked skills')
+    && install.includes('Eleven user-invoked skills')
     && hasAll(pkg, [
       '.claude/skills/graph-engineering-verified-orchestration/',
       '.cursor/skills/graph-engineering-verified-orchestration/'
@@ -1002,11 +1316,11 @@ function validateProoflineContract() {
   }
 
   const sourceDiscoveryValid = !isKitSourceRepo || (
-    hasAll(read('README.md'), ['All 20 skills', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('docs/README.vi.md'), ['Cả 20 skill', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('docs/README.zh-CN.md'), ['全部 20 个技能', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('docs/README.ja.md'), ['20 個すべてのスキル', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Ten user-invoked skills', '`proofline-orchestration`'])
+    hasAll(read('README.md'), ['All 21 skills', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 21 skill', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 21 个技能', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('docs/README.ja.md'), ['21 個すべてのスキル', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Eleven user-invoked skills', '`proofline-orchestration`'])
     && hasAll(read('package.json'), [
       '.claude/skills/proofline-orchestration/',
       '.cursor/skills/proofline-orchestration/'
@@ -1164,18 +1478,18 @@ function validateTheCreatorContract() {
 
   const discoveryValid = !isKitSourceRepo || (
     exists('README.md')
-    && read('README.md').includes('All 20 skills')
+    && read('README.md').includes('All 21 skills')
     && exists('docs/README.vi.md')
-    && read('docs/README.vi.md').includes('Cả 20 skill')
+    && read('docs/README.vi.md').includes('Cả 21 skill')
     && read('docs/README.vi.md').includes('| `the-creator`')
     && exists('docs/README.zh-CN.md')
-    && read('docs/README.zh-CN.md').includes('全部 20 个技能')
+    && read('docs/README.zh-CN.md').includes('全部 21 个技能')
     && read('docs/README.zh-CN.md').includes('| `the-creator`')
     && exists('docs/README.ja.md')
-    && read('docs/README.ja.md').includes('20 個すべてのスキル')
+    && read('docs/README.ja.md').includes('21 個すべてのスキル')
     && read('docs/README.ja.md').includes('| `the-creator`')
     && exists('.vibekit/docs/INSTALL.md')
-    && read('.vibekit/docs/INSTALL.md').includes('Ten user-invoked skills')
+    && read('.vibekit/docs/INSTALL.md').includes('Eleven user-invoked skills')
     && exists('.vibekit/init/CLAUDE-template.md')
     && read('.vibekit/init/CLAUDE-template.md').includes('/the-creator level N')
     && exists('package.json')
@@ -1194,8 +1508,12 @@ function validateTheCreatorContract() {
   }
 }
 
+validateAutoresearchContract();
 validateSequentialThinkingContract();
 validateThreatModelSecurityReviewContract();
+validateCleanDeliveryContract();
+validateOrchestrationModeContract();
+validateNamedVerificationContract();
 validateMermaidContract();
 validateGraphEngineeringContract();
 validateProoflineContract();
@@ -1459,12 +1777,29 @@ function validateBackboneSchema(text) {
   else fail(`backbone template_status must be initialized or uninitialized, got ${templateStatus || 'empty'}`);
 
   const schemaVersion = values.get('meta.schema_version');
-  if (/^\d+$/.test(schemaVersion || '')) ok(`backbone schema_version is ${schemaVersion}`);
+  if (/^\d+$/.test(schemaVersion || '') && (!isKitSourceRepo || Number(schemaVersion) >= 4)) ok(`backbone schema_version is ${schemaVersion}`);
   else fail(`backbone schema_version must be numeric, got ${schemaVersion || 'empty'}`);
 
   const validateCommand = values.get('commands.validate');
   if (validateCommand && validateCommand !== 'null') ok('backbone commands.validate is set');
   else fail('backbone commands.validate is empty');
+
+  const verificationFields = ['unit', 'acceptance', 'architecture', 'property', 'mutation', 'e2e'];
+  const hasVerification = keys.has('commands.verification');
+  if (!hasVerification) {
+    if (isKitSourceRepo) fail('kit-source backbone missing commands.verification');
+    else ok('backbone commands.verification is absent and remains backward compatible');
+  } else {
+    let valid = true;
+    for (const field of verificationFields) {
+      const key = 'commands.verification.' + field;
+      const value = values.get(key);
+      if (!keys.has(key) || value === '' || /^(?:true|false|\[\]|\{\})$/.test(value || '')) valid = false;
+    }
+    valid
+      ? ok('backbone commands.verification defines six command-or-null fields')
+      : fail('backbone commands.verification must define unit, acceptance, architecture, property, mutation, and e2e as command strings or null');
+  }
 
   hasListItems(text, 'policy.protected_paths') ? ok('backbone protected_paths is non-empty') : fail('backbone protected_paths must be non-empty');
 
