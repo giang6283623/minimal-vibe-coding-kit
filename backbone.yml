@@ -4,7 +4,7 @@ meta:
   template_status: initialized
   initialized_at: 2026-05-27T01:36:21.898Z
   template_source: minimal-vibe-coding-kit
-  schema_version: 3
+  schema_version: 4
   init_runbook: .vibekit/init/FIRST_TIME_INIT.md
   init_done_marker: .vibekit/INIT_DONE
 
@@ -55,7 +55,7 @@ conventions:
     - Writing style: no emoji and no em/en dashes in generated prose unless explicitly requested; keep existing characters in files whose established style uses them. See .cursor/rules/050-writing-style.mdc.
     - Response format: lead with the outcome; use decision tables (Option, What it does, Cost, Risk, Recommended) when the user must choose; end multi-step work with a Done / Next / Decision needed status block. See .claude/rules/response-format.md.
     - Proportional effort: triage tasks as trivial/small/medium/large and match process weight; score the visual/e2e gate 0-6 and require user approval before visual-design-loop or e2e runs. See .claude/rules/proportional-effort.md.
-    - README dedication lines in README.md, docs/README.vi.md, docs/README.zh-CN.md, and docs/README.ja.md keep the author's Vietnam flag emoji; user-authored content, exempt from the writing-style emoji rule.
+    - README dedication lines in README.md and every docs/README.*.md localization keep the author's Vietnam flag emoji; user-authored content, exempt from the writing-style emoji rule.
 
 commands:
   install: npm install
@@ -64,6 +64,13 @@ commands:
   typecheck: null
   build: null
   validate: npm test
+  verification:
+    unit: npm run test:clean-delivery
+    acceptance: npm run test:install
+    architecture: node .vibekit/scripts/validate-kit.mjs .
+    property: null
+    mutation: null
+    e2e: null
 
 policy:
   default_branch: main

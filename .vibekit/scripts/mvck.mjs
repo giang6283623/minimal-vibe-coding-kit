@@ -226,7 +226,8 @@ const KIT_SHARED_DIRS = ['.vibekit/skills', '.vibekit/commands', '.vibekit/docs'
 const KIT_DOC_EXCLUDES = ['RESEARCH_NOTES.md', 'AUTORESEARCH_LEDGER.md'];
 const KIT_SCRIPTS = [
   '.vibekit/scripts/mvck.mjs', '.vibekit/scripts/init-backbone.mjs', '.vibekit/scripts/daily-enhance.mjs', '.vibekit/scripts/validate-kit.mjs',
-  '.vibekit/scripts/doctor.mjs', '.vibekit/scripts/agentshield-probe.mjs', '.vibekit/scripts/vibekit-finalize.mjs'
+  '.vibekit/scripts/doctor.mjs', '.vibekit/scripts/agentshield-probe.mjs', '.vibekit/scripts/orchestration-preference.mjs',
+  '.vibekit/scripts/vibekit-finalize.mjs'
 ];
 const VALID_PROFILES = new Set(['claude', 'cursor', 'codex', 'grok', 'kimi']);
 
@@ -247,7 +248,7 @@ const CURSOR_SKILLS = skillsManifest.skills.filter((s) => (s.surfaces || []).inc
 const CODEX_DIRS = ['.agents', '.codex', '.codex-plugin'];
 const GROK_DIRS = ['.grok'];
 const KIMI_DIRS = ['.kimi-code'];
-const GITIGNORE_BLOCK = `# BEGIN: minimal-vibe-coding-kit\n.autoresearch/\nresults.tsv\n.vibekit/INIT_DONE\n.vibekit/FINALIZE_DONE\n.vibekit/preferences.json\n.vibekit/reports/\n.vibekit/update-backup/\n_vibekit-cleanup/\nCLAUDE.local.md\n# END: minimal-vibe-coding-kit`;
+const GITIGNORE_BLOCK = `# BEGIN: minimal-vibe-coding-kit\n.autoresearch/\nresults.tsv\n.vibekit/INIT_DONE\n.vibekit/FINALIZE_DONE\n.vibekit/preferences.json\n.vibekit/parallel-analysis.json\n.vibekit/reports/\n.vibekit/update-backup/\n_vibekit-cleanup/\nCLAUDE.local.md\n# END: minimal-vibe-coding-kit`;
 const CODEX_CONFIG_REL = '.codex/config.toml';
 const CODEX_PREFERENCES_REL = '.vibekit/preferences.json';
 const CODEX_DEFAULT_MODE_KEY = 'default_mode_request_user_input';

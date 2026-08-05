@@ -117,7 +117,8 @@ for (const skill of KIT_SKILLS) {
 const required = [
   'AGENTS.md', '.vibekit/init/CLAUDE-template.md', '.vibekit/init/FIRST_TIME_INIT.md', '.vibekit/init/FIRST_PROMPT.md', 'backbone.yml',
   '.vibekit/scripts/mvck.mjs', '.vibekit/scripts/init-backbone.mjs', '.vibekit/scripts/daily-enhance.mjs', '.vibekit/scripts/validate-kit.mjs',
-  '.vibekit/scripts/doctor.mjs', '.vibekit/scripts/agentshield-probe.mjs', '.vibekit/scripts/vibekit-finalize.mjs',
+  '.vibekit/scripts/doctor.mjs', '.vibekit/scripts/agentshield-probe.mjs', '.vibekit/scripts/orchestration-preference.mjs',
+  '.vibekit/scripts/vibekit-finalize.mjs', '.vibekit/docs/ORCHESTRATION_MODES.md',
   ...KIT_SKILLS.map((skill) => `.vibekit/skills/${skill}/SKILL.md`),
   '.vibekit/docs/templates/PRD_TEMPLATE.md', '.vibekit/docs/templates/CONTEXT_TEMPLATE.md'
 ];
@@ -177,6 +178,14 @@ const reasoningSkillResources = {
     'references/graph-contract.md',
     'references/graph-visualization.md',
     'scripts/render-graph.mjs'
+  ],
+  'clean-delivery': [
+    'agents/openai.yaml',
+    'references/story-template.md',
+    'references/verification-tiers.md',
+    'references/architecture-contract.md',
+    'references/proof-return-mapping.md',
+    'scripts/validate-story.mjs'
   ],
   'proofline-orchestration': [
     'agents/openai.yaml',
@@ -332,6 +341,84 @@ for (const [skill, mirrors] of Object.entries(skillMirrors)) {
   }
 }
 
+function validateAutoresearchContract() {
+  const base = '.vibekit/skills/autoresearch-coding';
+  if (!exists(`${base}/SKILL.md`)) return;
+  const resources = [
+    'README.md',
+    'references/experiment-contract.md',
+    'references/metric-extraction.md',
+    'references/result-ledger.md',
+    'scripts/run_logged.py',
+    'scripts/log_result.py'
+  ];
+  const missingResources = resources.filter((file) => !exists(`${base}/${file}`));
+  if (missingResources.length > 0) {
+    fail(`Autoresearch canonical resources are incomplete: ${missingResources.join(', ')}`);
+    return;
+  }
+  ok('Autoresearch canonical contract, references, and helpers are present');
+
+  const skill = read(`${base}/SKILL.md`);
+  const runner = read(`${base}/scripts/run_logged.py`);
+  const ledger = read(`${base}/scripts/log_result.py`);
+  const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
+
+  if (hasAll(skill, [
+    'argument vector',
+    'minimum meaningful delta',
+    'report variance',
+    'oracle assets',
+    'baseline fingerprint',
+    'experiment-owned trial delta',
+    'exact integrated tree',
+    'Delegate only'
+  ])) {
+    ok('Autoresearch contract protects measurement validity, rollback, and oracle integrity');
+  } else {
+    fail('Autoresearch experiment safety or measurement contract drifted');
+  }
+
+  if (hasAll(runner, [
+    'subprocess.Popen',
+    'start_new_session',
+    'max_log_bytes',
+    '[REDACTED]',
+    'os.replace',
+    'shell syntax is not supported in legacy command strings'
+  ]) && !runner.includes('shell=True')) {
+    ok('Autoresearch runner uses bounded argv execution without a shell');
+  } else {
+    fail('Autoresearch runner shell, timeout, redaction, or log boundary drifted');
+  }
+
+  if (hasAll(ledger, [
+    'os.O_NOFOLLOW',
+    'LOCK_EX',
+    'os.fchmod',
+    'os.fsync',
+    'unsupported header',
+    'control characters',
+    'metric must be a finite number'
+  ])) {
+    ok('Autoresearch ledger validates and serializes owner-only result rows');
+  } else {
+    fail('Autoresearch ledger path, row, permission, or locking contract drifted');
+  }
+
+  const packageJson = readJson('package.json');
+  const sourceTestsValid = !isKitSourceRepo || (
+    exists('test/autoresearch/scripts/test-contract.mjs')
+    && packageJson?.scripts?.['test:autoresearch'] === 'node test/autoresearch/scripts/test-contract.mjs'
+    && packageJson?.scripts?.test?.includes('npm run test:autoresearch')
+  );
+  if (sourceTestsValid) {
+    ok('Autoresearch source contract test is wired into the repository suite');
+  } else {
+    fail('Autoresearch source contract test or package wiring drifted');
+  }
+}
+
 function validateSequentialThinkingContract() {
   const base = '.vibekit/skills/sequential-thinking';
   if (!exists(`${base}/SKILL.md`)) return;
@@ -394,11 +481,11 @@ function validateThreatModelSecurityReviewContract() {
   const ui = read(`${base}/agents/openai.yaml`);
   const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
   const sourceDiscoveryValid = !isKitSourceRepo || (
-    hasAll(read('README.md'), ['All 20 skills', '| `threat-model-security-review`'])
-    && hasAll(read('docs/README.vi.md'), ['Cả 20 skill', '| `threat-model-security-review`'])
-    && hasAll(read('docs/README.zh-CN.md'), ['全部 20 个技能', '| `threat-model-security-review`'])
-    && hasAll(read('docs/README.ja.md'), ['20 個すべてのスキル', '| `threat-model-security-review`'])
-    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Ten user-invoked skills', '`threat-model-security-review`'])
+    hasAll(read('README.md'), ['All 21 skills', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 21 skill', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 21 个技能', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.ja.md'), ['21 個すべてのスキル', '| `threat-model-security-review`'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Eleven user-invoked skills', '`threat-model-security-review`'])
     && hasAll(read('.vibekit/docs/SECURITY_MODEL.md'), [
       '`threat-model-security-review` covers application source',
       '`agentshield-security-review` covers agent instructions'
@@ -520,6 +607,353 @@ function validateThreatModelSecurityReviewContract() {
   }
 }
 
+function validateCleanDeliveryContract() {
+  const base = '.vibekit/skills/clean-delivery';
+  if (!exists(base + '/SKILL.md')) return;
+  const resources = [
+    'scripts/validate-story.mjs',
+    'references/story-template.md',
+    'references/verification-tiers.md',
+    'references/architecture-contract.md',
+    'references/proof-return-mapping.md',
+    'agents/openai.yaml'
+  ];
+  const missingResources = resources.filter((file) => !exists(`${base}/${file}`));
+  if (missingResources.length > 0) {
+    fail(`Clean Delivery canonical resources are incomplete: ${missingResources.join(', ')}`);
+    return;
+  }
+  ok('Clean Delivery canonical contract, references, and validator are present');
+
+  const skill = read(base + '/SKILL.md');
+  const validator = read(base + '/scripts/validate-story.mjs');
+  const story = read(base + '/references/story-template.md');
+  const tiers = read(base + '/references/verification-tiers.md');
+  const architecture = read(base + '/references/architecture-contract.md');
+  const proofReturn = read(base + '/references/proof-return-mapping.md');
+  const ui = read(base + '/agents/openai.yaml');
+  const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
+
+  if (hasAll(skill, [
+    'The six stages are quality gates, not six mandatory agents.',
+    '### 1. Specify',
+    '### 2. Code',
+    '### 3. Clean',
+    '### 4. Architect',
+    '### 5. Harden',
+    '### 6. Verify',
+    'Never auto-install a missing test tool'
+  ])) {
+    ok('Clean Delivery defines six proportional craftsmanship gates without mandatory agent fan-out');
+  } else {
+    fail('Clean Delivery gate or proportionality contract drifted');
+  }
+
+  if (hasAll(story, [
+    '## Out of scope',
+    '## Protected verifier assets',
+    '## Red evidence',
+    '## Proof commands'
+  ]) && hasAll(tiers, [
+    '| Critical |',
+    'not-configured means no verifier exists',
+    'Do not auto-install'
+  ]) && hasAll(architecture, [
+    'extends the repository',
+    'conventions.architecture',
+    'not equivalent to an executed architecture command'
+  ]) && hasAll(proofReturn, [
+    '| Red evidence | Pre-change evidence |',
+    'Do not duplicate the Proofline ledger'
+  ])) {
+    ok('Clean Delivery freezes scope, protects oracles, scales proof, and reuses Proof Returns');
+  } else {
+    fail('Clean Delivery story, verification, architecture, or Proof Return resources drifted');
+  }
+
+  if (hasAll(validator, [
+    'readFileSync',
+    'missing or empty section:',
+    'duplicate section:',
+    'template placeholder remains:',
+    'Unit proof must name an executable deterministic check',
+    'Risk must be exactly low, medium, high, or critical'
+  ]) && !/(node:child_process|\beval\s*\(|\bexecSync\s*\(|\bspawnSync\s*\()/.test(validator)) {
+    ok('Clean Delivery story validator is dependency-free and does not execute story commands');
+  } else {
+    fail('Clean Delivery story validator safety or discrimination contract drifted');
+  }
+
+  const discoveryValid = !isKitSourceRepo || (
+    hasAll(read('README.md'), ['All 21 skills', 'clean-delivery'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 21 skill', 'clean-delivery'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 21 个技能', 'clean-delivery'])
+    && hasAll(read('docs/README.ja.md'), ['21 個すべてのスキル', 'clean-delivery'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Eleven user-invoked skills', 'clean-delivery'])
+    && hasAll(read('package.json'), [
+      'test:clean-delivery',
+      '.claude/skills/clean-delivery/',
+      '.cursor/skills/clean-delivery/'
+    ])
+    && exists('test/clean-delivery/scripts/test-story-contract.mjs')
+  );
+  const cleanDeliveryReadmes = [
+    'README.md',
+    'docs/README.vi.md',
+    'docs/README.zh-CN.md',
+    'docs/README.ja.md',
+    'docs/README.ko.md',
+    'docs/README.de.md',
+    'docs/README.bg.md'
+  ];
+  const guideMarkers = [
+    '### Clean Delivery',
+    '| `Specify`',
+    '| `Code`',
+    '| `Clean`',
+    '| `Architect`',
+    '| `Harden`',
+    '| `Verify`',
+    'securityLevel: strict',
+    'Specify --> Code',
+    'Code --> Clean',
+    'Clean --> Architect',
+    'Architect --> Harden',
+    'Harden --> Verify',
+    'Revise --> Specify',
+    'Specify -.-> Story',
+    'Code -.-> RedGreen',
+    'Clean -.-> CleanProof',
+    'Architect -.-> Boundary',
+    'Harden -.-> RiskProof',
+    'Verify -.-> FinalProof',
+    'classDef data fill:#63E6BE',
+    'class Ready success;',
+    'class Revise danger;',
+    'class Story,RedGreen,CleanProof,Boundary,RiskProof,FinalProof data;',
+    'linkStyle default stroke:#444444,stroke-width:1.5px;',
+    '/clean-delivery',
+    'Risk: medium.',
+    'Protected verifier asset',
+    'not-configured',
+    'validate-story.mjs',
+    'npm run test:clean-delivery'
+  ];
+  const guidesValid = !isKitSourceRepo || cleanDeliveryReadmes.every((rel) => (
+    exists(rel) && hasAll(read(rel), guideMarkers)
+  ));
+  const localizedGuideMarkers = {
+    'README.md': [
+      '### Clean Delivery: one small change, six checks',
+      '#### What happens when a gate fails?',
+      '**Clean Delivery is not a server, background application, or external service.**',
+      '#### Full flow and evidence from every gate',
+      '**How to read the diagram:**',
+      '**Diagram takeaway:**',
+      '#### How does risk change verification?',
+      '#### Terms used in this section'
+    ],
+    'docs/README.vi.md': [
+      '### Clean Delivery: một thay đổi nhỏ, sáu lần kiểm tra',
+      '#### Nếu một cổng chưa đạt thì sao?',
+      '**Clean Delivery không phải server, ứng dụng nền hay dịch vụ bên ngoài.**',
+      '#### Luồng đầy đủ và bằng chứng của từng cổng',
+      '**Cách đọc sơ đồ:**',
+      '**Kết luận của sơ đồ:**',
+      '#### Mức rủi ro thay đổi cách kiểm tra thế nào?',
+      '#### Từ khó trong phần này'
+    ],
+    'docs/README.zh-CN.md': [
+      '### Clean Delivery：一个小改动，六次检查',
+      '#### 如果某道门没有通过怎么办？',
+      '**Clean Delivery 不是 server、后台应用或外部服务。**',
+      '#### 完整流程和每道门的证据',
+      '**如何阅读这张图：**',
+      '**图的结论：**',
+      '#### 风险如何改变验证强度？',
+      '#### 本节术语'
+    ],
+    'docs/README.ja.md': [
+      '### Clean Delivery：1 つの小さな変更、6 回の確認',
+      '#### Gate を通過できない場合',
+      '**Clean Delivery は server、background application、外部 service ではありません。**',
+      '#### 全体の流れと各 gate の証拠',
+      '**図の読み方：**',
+      '**図の要点：**',
+      '#### Risk によって検証はどう変わるか？',
+      '#### この節で使う用語'
+    ],
+    'docs/README.ko.md': [
+      '### Clean Delivery: 하나의 작은 변경, 여섯 번의 확인',
+      '#### 게이트를 통과하지 못하면 어떻게 하나요?',
+      '**Clean Delivery는 server, background application 또는 외부 service가 아닙니다.**',
+      '#### 전체 흐름과 각 게이트의 증거',
+      '**다이어그램 읽는 방법:**',
+      '**다이어그램의 결론:**',
+      '#### 위험에 따라 검증은 어떻게 달라지나요?',
+      '#### 이 절에서 사용하는 용어'
+    ],
+    'docs/README.de.md': [
+      '### Clean Delivery: eine kleine Änderung, sechs Prüfungen',
+      '#### Was passiert, wenn ein Gate nicht besteht?',
+      '**Clean Delivery ist kein Server, keine Hintergrundanwendung und kein externer Dienst.**',
+      '#### Vollständiger Ablauf und Nachweise je Gate',
+      '**So liest du das Diagramm:**',
+      '**Kernaussage:**',
+      '#### Wie verändert das Risiko die Prüfung?',
+      '#### Begriffe in diesem Abschnitt'
+    ],
+    'docs/README.bg.md': [
+      '### Clean Delivery: една малка промяна, шест проверки',
+      '#### Какво става, ако gate не премине?',
+      '**Clean Delivery не е server, background application или външна услуга.**',
+      '#### Пълният поток и доказателството от всеки gate',
+      '**Как да четете диаграмата:**',
+      '**Извод от диаграмата:**',
+      '#### Как рискът променя проверката?',
+      '#### Термини в този раздел'
+    ]
+  };
+  const localizedGuidesValid = !isKitSourceRepo || Object.entries(localizedGuideMarkers).every(
+    ([rel, markers]) => exists(rel) && hasAll(read(rel), markers)
+  );
+  if (hasAll(ui, [
+    'display_name: "Clean Delivery"',
+    'Use $clean-delivery'
+  ]) && discoveryValid && guidesValid && localizedGuidesValid) {
+    ok('Clean Delivery discovery, seven-language guide, packaging, UI metadata, and tests stay synchronized');
+  } else {
+    fail('Clean Delivery discovery, seven-language guide, packaging, UI metadata, or tests drifted');
+  }
+}
+
+function validateOrchestrationModeContract() {
+  const contractPath = '.vibekit/docs/ORCHESTRATION_MODES.md';
+  const scriptPath = '.vibekit/scripts/orchestration-preference.mjs';
+  if (!exists(contractPath) || !exists(scriptPath)) return;
+  const contract = read(contractPath);
+  const preferenceScript = read(scriptPath);
+  const agents = read('AGENTS.md');
+  const council = read('.vibekit/commands/council.md');
+  const parallel = read('.vibekit/skills/parallel-analysis/SKILL.md');
+  const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
+
+  if (hasAll(contract, [
+    '## First question: mode',
+    '| Default |',
+    '| Auto |',
+    '| Custom |',
+    '## Second question: persistence',
+    'needs_user_input',
+    'lowest-cost capable model',
+    'installed-unverified',
+    'The orchestration preference and the safety topology are independent axes'
+  ])) {
+    ok('Orchestration contract defines provider-native questions, three modes, persistence, readiness, and separate safety topology');
+  } else {
+    fail('Orchestration mode, question, persistence, readiness, or topology contract drifted');
+  }
+
+  if (hasAll(contract, [
+    'Coding level changes explanation density',
+    'never lowers model capability, safety, verification, or authorization',
+    'Auto routes only to ready adapters',
+    'never guesses credentials, model aliases, prices, context limits, or availability'
+  ])) {
+    ok('Orchestration routing preserves quality and safety floors without guessing provider state');
+  } else {
+    fail('Orchestration quality floor or provider-readiness contract drifted');
+  }
+
+  if (hasAll(preferenceScript, [
+    'const MODES = new Set(["default", "auto", "custom"])',
+    'const PROVIDERS = new Set(["current", "codex", "claude", "cursor", "grok", "kimi"])',
+    'refusing symlinked project preference file',
+    'custom mode requires at least one --assign',
+    'delete preferences.orchestration'
+  ]) && !/(node:child_process|\beval\s*\(|\bexecSync\s*\(|\bspawnSync\s*\()/.test(preferenceScript)) {
+    ok('Orchestration preference helper validates bounded local state without invoking providers');
+  } else {
+    fail('Orchestration preference helper schema, path safety, or execution boundary drifted');
+  }
+
+  const integrationValid = hasAll(agents, [
+    '### Orchestration preference',
+    'native structured-question tool',
+    'Child agents never ask the end user directly'
+  ]) && hasAll(council, [
+    'ORCHESTRATION_MODES.md',
+    'only the roles the task actually needs'
+  ]) && hasAll(parallel, [
+    'Orchestration preference and executor setup',
+    'global project state',
+    'installed-unverified',
+    'Existing version 1 executor'
+  ]) && [
+    'autoresearch-coding',
+    'graph-engineering-verified-orchestration',
+    'proofline-orchestration',
+    'clean-delivery'
+  ].every((skill) => read('.vibekit/skills/' + skill + '/SKILL.md').includes('ORCHESTRATION_MODES.md'));
+  if (integrationValid) {
+    ok('Orchestration preference gate is wired into root rules, council, and multi-agent skills');
+  } else {
+    fail('Orchestration preference root, command, or skill integration drifted');
+  }
+
+  const sourceValid = !isKitSourceRepo || (
+    exists('test/orchestration/scripts/test-preference.mjs')
+    && hasAll(read('package.json'), ['test:orchestration', 'orchestration-preference.mjs'])
+    && ['README.md', 'docs/README.vi.md', 'docs/README.zh-CN.md', 'docs/README.ja.md']
+      .every((file) => read(file).includes('ORCHESTRATION_MODES.md'))
+    && read('.vibekit/docs/INSTALL.md').includes('Multi-agent orchestration preference')
+  );
+  if (sourceValid) {
+    ok('Orchestration preference tests, package scripts, installation docs, and localization stay synchronized');
+  } else {
+    fail('Orchestration preference tests, packaging, installation docs, or localization drifted');
+  }
+}
+
+function validateNamedVerificationContract() {
+  const schemaPath = '.vibekit/docs/backbone.schema.json';
+  const referencePath = '.vibekit/docs/BACKBONE_REFERENCE.md';
+  if (!exists(schemaPath) || !exists(referencePath)) return;
+  const schema = readJson(schemaPath);
+  const verification = schema?.properties?.commands?.properties?.verification;
+  const expected = ['unit', 'acceptance', 'architecture', 'property', 'mutation', 'e2e'];
+  const propertyNames = Object.keys(verification?.properties || {}).sort();
+  const requiredNames = [...(verification?.required || [])].sort();
+  const expectedNames = [...expected].sort();
+  const typesValid = expected.every((name) => {
+    const types = verification?.properties?.[name]?.type;
+    return Array.isArray(types) && types.includes('string') && types.includes('null');
+  });
+  if (verification?.type === 'object'
+      && verification?.additionalProperties === false
+      && JSON.stringify(propertyNames) === JSON.stringify(expectedNames)
+      && JSON.stringify(requiredNames) === JSON.stringify(expectedNames)
+      && typesValid) {
+    ok('Backbone schema defines exactly six optional string-or-null named verifiers');
+  } else {
+    fail('Backbone named verification JSON schema drifted');
+  }
+
+  const reference = read(referencePath);
+  const init = read('.vibekit/scripts/init-backbone.mjs');
+  if (reference.includes('optional for backward compatibility')
+      && reference.includes('Null means no verifier is configured')
+      && reference.includes('extend conventions.architecture')
+      && reference.includes('never authorizes an agent to install')
+      && expected.every((name) => init.includes(name + ':'))
+      && init.includes('schema_version: 4')
+      && init.includes("['test:architecture', 'architecture']")) {
+    ok('Backbone reference and initializer preserve null semantics, architecture ownership, and backward compatibility');
+  } else {
+    fail('Backbone named verification reference or initializer contract drifted');
+  }
+}
+
 function validateMermaidContract() {
   const base = '.vibekit/skills/mermaid';
   if (!exists(`${base}/SKILL.md`)) return;
@@ -534,6 +968,70 @@ function validateMermaidContract() {
     .map((file) => read(`${base}/references/${file}`))
     .join('\n');
 
+  const duplicateFrontmatterKeys = (diagram) => {
+    const lines = diagram.split(/\r?\n/);
+    if (lines[0]?.trim() !== '---') return [];
+    const closingDelimiter = lines.findIndex((line, index) => index > 0 && line.trim() === '---');
+    if (closingDelimiter < 0) return [];
+
+    const parents = [];
+    const seen = new Set();
+    const duplicates = [];
+    for (let index = 1; index < closingDelimiter; index += 1) {
+      const match = lines[index].match(/^(\s*)([A-Za-z_][A-Za-z0-9_-]*):(?:\s*(.*))?$/);
+      if (!match) continue;
+
+      const indent = match[1].length;
+      const key = match[2];
+      const value = match[3] ?? '';
+      while (parents.length && parents.at(-1).indent >= indent) parents.pop();
+      const parentPath = parents.map((parent) => parent.key).join('.');
+      const qualifiedKey = parentPath ? `${parentPath}.${key}` : key;
+      const identity = `${indent}:${qualifiedKey}`;
+      if (seen.has(identity)) duplicates.push({ key: qualifiedKey, line: index + 1 });
+      else seen.add(identity);
+      if (value.trim() === '') parents.push({ indent, key });
+    }
+    return duplicates;
+  };
+
+  const authoredMermaidFiles = [
+    `${base}/SKILL.md`,
+    `${base}/references/kit-examples.md`,
+    `${base}/references/styling-preset.md`,
+    `${base}/references/debug-heatmap.md`,
+    ...(isKitSourceRepo ? [
+      'README.md',
+      'docs/README.vi.md',
+      'docs/README.zh-CN.md',
+      'docs/README.ja.md',
+      'docs/README.ko.md',
+      'docs/README.de.md',
+      'docs/README.bg.md'
+    ] : [])
+  ];
+  const duplicateKeyFailures = [];
+  for (const rel of authoredMermaidFiles) {
+    if (!exists(rel)) continue;
+    const blocks = [...read(rel).matchAll(/```mermaid\s*\n([\s\S]*?)\n```/g)].map((match) => match[1]);
+    blocks.forEach((diagram, blockIndex) => {
+      duplicateFrontmatterKeys(diagram).forEach(({ key, line }) => {
+        duplicateKeyFailures.push(`${rel} diagram ${blockIndex + 1} line ${line}: ${key}`);
+      });
+    });
+  }
+  const duplicateKeyCanary = duplicateFrontmatterKeys([
+    '---',
+    'config:',
+    '  themeVariables:',
+    '    fontSize: 15px',
+    '  themeVariables:',
+    '    lineColor: "#444444"',
+    '---',
+    'flowchart TD',
+    '  A --> B'
+  ].join('\n'));
+
   const diagrams = [...examples.matchAll(/```mermaid\s*\n([\s\S]*?)\n```/g)].map((match) => match[1]);
   const distinctCases = ['Safe configuration promotion', 'Repository safety evolution', 'Localization release board', 'Validation feedback time', 'Duplicate webhook investigation'];
   if (diagrams.length === 5
@@ -542,6 +1040,26 @@ function validateMermaidContract() {
     ok('Mermaid maintains five strict kit-native examples');
   } else {
     fail('Mermaid kit-native example set, strict security, or distinct cases drifted');
+  }
+
+  if (skill.includes('never paste a second mapping with either key')
+      && skill.includes('every YAML frontmatter key is unique within its mapping scope')
+      && skill.includes('at most one `themeVariables` mapping')) {
+    ok('Mermaid skill requires unique frontmatter keys and merged configuration mappings');
+  } else {
+    fail('Mermaid skill duplicate-frontmatter-key guidance drifted');
+  }
+
+  if (duplicateKeyCanary.length === 1 && duplicateKeyCanary[0].key === 'config.themeVariables') {
+    ok('Mermaid duplicate-frontmatter-key regression detector rejects its canary');
+  } else {
+    fail('Mermaid duplicate-frontmatter-key regression detector did not reject its canary');
+  }
+
+  if (duplicateKeyFailures.length === 0) {
+    ok(`Mermaid frontmatter keys are unique across ${authoredMermaidFiles.length} authored Markdown files`);
+  } else {
+    fail(`Mermaid frontmatter contains duplicate mapping keys: ${duplicateKeyFailures.join('; ')}`);
   }
 
   if (preview.includes('mermaid@11.16.0/dist/mermaid.esm.min.mjs')
@@ -666,14 +1184,14 @@ function validateGraphEngineeringContract() {
 
   const sourceDiscoveryValid = !isKitSourceRepo || (
     hasAll(readme, [
-      'All 20 skills',
+      'All 21 skills',
       'Graph engineering: verified orchestration',
       'edgeLabelBackground: "#FFFFFF"'
     ])
     && readmeVi.includes('Graph engineering: điều phối có xác minh')
     && readmeZh.includes('图工程：经验证的编排')
     && readmeJa.includes('Graph engineering：検証付き orchestration')
-    && install.includes('Ten user-invoked skills')
+    && install.includes('Eleven user-invoked skills')
     && hasAll(pkg, [
       '.claude/skills/graph-engineering-verified-orchestration/',
       '.cursor/skills/graph-engineering-verified-orchestration/'
@@ -1002,11 +1520,11 @@ function validateProoflineContract() {
   }
 
   const sourceDiscoveryValid = !isKitSourceRepo || (
-    hasAll(read('README.md'), ['All 20 skills', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('docs/README.vi.md'), ['Cả 20 skill', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('docs/README.zh-CN.md'), ['全部 20 个技能', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('docs/README.ja.md'), ['20 個すべてのスキル', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Ten user-invoked skills', '`proofline-orchestration`'])
+    hasAll(read('README.md'), ['All 21 skills', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 21 skill', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 21 个技能', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('docs/README.ja.md'), ['21 個すべてのスキル', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Eleven user-invoked skills', '`proofline-orchestration`'])
     && hasAll(read('package.json'), [
       '.claude/skills/proofline-orchestration/',
       '.cursor/skills/proofline-orchestration/'
@@ -1164,18 +1682,18 @@ function validateTheCreatorContract() {
 
   const discoveryValid = !isKitSourceRepo || (
     exists('README.md')
-    && read('README.md').includes('All 20 skills')
+    && read('README.md').includes('All 21 skills')
     && exists('docs/README.vi.md')
-    && read('docs/README.vi.md').includes('Cả 20 skill')
+    && read('docs/README.vi.md').includes('Cả 21 skill')
     && read('docs/README.vi.md').includes('| `the-creator`')
     && exists('docs/README.zh-CN.md')
-    && read('docs/README.zh-CN.md').includes('全部 20 个技能')
+    && read('docs/README.zh-CN.md').includes('全部 21 个技能')
     && read('docs/README.zh-CN.md').includes('| `the-creator`')
     && exists('docs/README.ja.md')
-    && read('docs/README.ja.md').includes('20 個すべてのスキル')
+    && read('docs/README.ja.md').includes('21 個すべてのスキル')
     && read('docs/README.ja.md').includes('| `the-creator`')
     && exists('.vibekit/docs/INSTALL.md')
-    && read('.vibekit/docs/INSTALL.md').includes('Ten user-invoked skills')
+    && read('.vibekit/docs/INSTALL.md').includes('Eleven user-invoked skills')
     && exists('.vibekit/init/CLAUDE-template.md')
     && read('.vibekit/init/CLAUDE-template.md').includes('/the-creator level N')
     && exists('package.json')
@@ -1194,8 +1712,12 @@ function validateTheCreatorContract() {
   }
 }
 
+validateAutoresearchContract();
 validateSequentialThinkingContract();
 validateThreatModelSecurityReviewContract();
+validateCleanDeliveryContract();
+validateOrchestrationModeContract();
+validateNamedVerificationContract();
 validateMermaidContract();
 validateGraphEngineeringContract();
 validateProoflineContract();
@@ -1266,23 +1788,96 @@ if (codexPlugin) {
 if (isKitSourceRepo && pkg?.version) {
   if (codexPlugin?.version === pkg.version) ok(`Codex plugin version matches package version ${pkg.version}`);
   else fail(`Codex plugin version ${codexPlugin?.version || 'missing'} differs from package version ${pkg.version}`);
-  for (const rel of ['README.md', 'docs/README.vi.md', 'docs/README.zh-CN.md', 'docs/README.ja.md']) {
-    if (!exists(rel)) continue;
+  const readmeNavigationContracts = [
+    {
+      rel: 'README.md',
+      tokens: [
+        '**English**',
+        '[Tiếng Việt](docs/README.vi.md)',
+        '[简体中文](docs/README.zh-CN.md)',
+        '[日本語](docs/README.ja.md)',
+        '[한국어](docs/README.ko.md)',
+        '[Deutsch](docs/README.de.md)',
+        '[Български](docs/README.bg.md)'
+      ],
+      starRequest: 'If you use this kit and it actually helps you, drop a star. It tells me it’s useful to one more person and gives me the energy to keep improving it'
+    },
+    {
+      rel: 'docs/README.vi.md',
+      tokens: ['[English](../README.md)', '**Tiếng Việt**', '[简体中文](README.zh-CN.md)', '[日本語](README.ja.md)', '[한국어](README.ko.md)', '[Deutsch](README.de.md)', '[Български](README.bg.md)'],
+      starRequest: 'Nếu bộ kit này thực sự giúp ích cho bạn, hãy tặng repo một Star. Điều đó cho tôi biết nó hữu ích thêm với một người nữa và tiếp thêm năng lượng để tôi tiếp tục cải thiện nó.'
+    },
+    {
+      rel: 'docs/README.zh-CN.md',
+      tokens: ['[English](../README.md)', '[Tiếng Việt](README.vi.md)', '**简体中文**', '[日本語](README.ja.md)', '[한국어](README.ko.md)', '[Deutsch](README.de.md)', '[Български](README.bg.md)'],
+      starRequest: '如果这个工具包确实对你有帮助，请点个 Star。这会让我知道它又帮助了一个人，也会给我继续改进它的动力。'
+    },
+    {
+      rel: 'docs/README.ja.md',
+      tokens: ['[English](../README.md)', '[Tiếng Việt](README.vi.md)', '[简体中文](README.zh-CN.md)', '**日本語**', '[한국어](README.ko.md)', '[Deutsch](README.de.md)', '[Български](README.bg.md)'],
+      starRequest: 'このキットが実際に役立ったなら、ぜひ Star を付けてください。もう一人の役に立てたと分かり、改善を続ける力になります。'
+    },
+    {
+      rel: 'docs/README.ko.md',
+      tokens: ['[English](../README.md)', '[Tiếng Việt](README.vi.md)', '[简体中文](README.zh-CN.md)', '[日本語](README.ja.md)', '**한국어**', '[Deutsch](README.de.md)', '[Български](README.bg.md)'],
+      starRequest: '이 키트가 실제로 도움이 되었다면 Star를 눌러 주세요. 한 사람에게 더 유용했다는 것을 알 수 있고, 계속 개선할 힘이 됩니다.'
+    },
+    {
+      rel: 'docs/README.de.md',
+      tokens: ['[English](../README.md)', '[Tiếng Việt](README.vi.md)', '[简体中文](README.zh-CN.md)', '[日本語](README.ja.md)', '[한국어](README.ko.md)', '**Deutsch**', '[Български](README.bg.md)'],
+      starRequest: 'Wenn dir dieses Kit wirklich hilft, gib dem Repository bitte einen Star. So weiß ich, dass es einem weiteren Menschen nützt, und bekomme neue Energie, es weiter zu verbessern.'
+    },
+    {
+      rel: 'docs/README.bg.md',
+      tokens: ['[English](../README.md)', '[Tiếng Việt](README.vi.md)', '[简体中文](README.zh-CN.md)', '[日本語](README.ja.md)', '[한국어](README.ko.md)', '[Deutsch](README.de.md)', '**Български**'],
+      starRequest: 'Ако този комплект наистина ви помага, дайте звезда на хранилището. Така разбирам, че е полезен за още един човек, и получавам енергия да продължа да го подобрявам.'
+    }
+  ];
+  for (const { rel, starRequest } of readmeNavigationContracts) {
+    if (!exists(rel)) {
+      fail(`${rel} localized README is missing`);
+      continue;
+    }
     read(rel).includes(`version-${pkg.version}-`)
       ? ok(`${rel} version badge matches package version ${pkg.version}`)
       : fail(`${rel} version badge differs from package version ${pkg.version}`);
+    read(rel).includes(`\n\n${starRequest}\n\n</div>`)
+      ? ok(`${rel} places the author star request directly below the introductory tagline`)
+      : fail(`${rel} is missing the author star request below the introductory tagline`);
   }
 
-  const localizedReadmeNavigationValid = (
-    read('README.md').includes('[日本語](docs/README.ja.md)')
-    && read('docs/README.vi.md').includes('[日本語](README.ja.md)')
-    && read('docs/README.zh-CN.md').includes('[日本語](README.ja.md)')
-    && ['[English](../README.md)', '[Tiếng Việt](README.vi.md)', '[简体中文](README.zh-CN.md)', '**日本語**']
-      .every((token) => read('docs/README.ja.md').includes(token))
-  );
+  const localizedReadmeNavigationValid = readmeNavigationContracts.every(({ rel, tokens }) => (
+    exists(rel) && tokens.every((token) => read(rel).includes(token))
+  ));
   localizedReadmeNavigationValid
-    ? ok('English, Vietnamese, Chinese, and Japanese README navigation stays synchronized')
+    ? ok('Seven-language README navigation stays synchronized')
     : fail('Localized README navigation drifted');
+
+  const translatedReadmeContracts = [
+    { rel: 'docs/README.ko.md', markers: ['## 빠른 시작', '전체 21개 스킬', '## 고급 사용', '## 기여', '## 라이선스'] },
+    { rel: 'docs/README.de.md', markers: ['## Schnellstart', 'Alle 21 Skills', '## Erweitert', '## Mitwirken', '## Lizenz'] },
+    { rel: 'docs/README.bg.md', markers: ['## Бърз старт', 'Всички 21 умения', '## Разширена употреба', '## Принос', '## Лиценз'] }
+  ];
+  const sharedCoverage = [
+    '`/init-vibe`',
+    '`/security-scan`',
+    '`/clean-delivery`',
+    '`/proofline`',
+    'ORCHESTRATION_MODES.md',
+    'npm run test:proofline',
+    'graph-engineering-verified-orchestration',
+    'agentshield-probe.mjs',
+    'npm run validate:all'
+  ];
+  const translatedCoverageValid = translatedReadmeContracts.every(({ rel, markers }) => {
+    if (!exists(rel)) return false;
+    const text = read(rel);
+    return [...markers, ...sharedCoverage, ...KIT_SKILLS.map((skill) => `| \`${skill}\``)]
+      .every((token) => text.includes(token));
+  });
+  translatedCoverageValid
+    ? ok('Korean, German, and Bulgarian READMEs cover setup, commands, all skills, orchestration, security, and release validation')
+    : fail('Korean, German, or Bulgarian README coverage drifted');
 }
 if (pkg?.bin && typeof pkg.bin === 'object') {
   for (const [name, target] of Object.entries(pkg.bin)) {
@@ -1459,12 +2054,29 @@ function validateBackboneSchema(text) {
   else fail(`backbone template_status must be initialized or uninitialized, got ${templateStatus || 'empty'}`);
 
   const schemaVersion = values.get('meta.schema_version');
-  if (/^\d+$/.test(schemaVersion || '')) ok(`backbone schema_version is ${schemaVersion}`);
+  if (/^\d+$/.test(schemaVersion || '') && (!isKitSourceRepo || Number(schemaVersion) >= 4)) ok(`backbone schema_version is ${schemaVersion}`);
   else fail(`backbone schema_version must be numeric, got ${schemaVersion || 'empty'}`);
 
   const validateCommand = values.get('commands.validate');
   if (validateCommand && validateCommand !== 'null') ok('backbone commands.validate is set');
   else fail('backbone commands.validate is empty');
+
+  const verificationFields = ['unit', 'acceptance', 'architecture', 'property', 'mutation', 'e2e'];
+  const hasVerification = keys.has('commands.verification');
+  if (!hasVerification) {
+    if (isKitSourceRepo) fail('kit-source backbone missing commands.verification');
+    else ok('backbone commands.verification is absent and remains backward compatible');
+  } else {
+    let valid = true;
+    for (const field of verificationFields) {
+      const key = 'commands.verification.' + field;
+      const value = values.get(key);
+      if (!keys.has(key) || value === '' || /^(?:true|false|\[\]|\{\})$/.test(value || '')) valid = false;
+    }
+    valid
+      ? ok('backbone commands.verification defines six command-or-null fields')
+      : fail('backbone commands.verification must define unit, acceptance, architecture, property, mutation, and e2e as command strings or null');
+  }
 
   hasListItems(text, 'policy.protected_paths') ? ok('backbone protected_paths is non-empty') : fail('backbone protected_paths must be non-empty');
 

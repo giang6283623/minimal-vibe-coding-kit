@@ -1,0 +1,4 @@
+interface:
+  display_name: "Clean Delivery"
+  short_description: "Deliver one behavior through six craftsmanship gates"
+  default_prompt: "Use $clean-delivery to freeze one observable story, implement it with proportional TDD and architecture checks, and return reproducible proof."

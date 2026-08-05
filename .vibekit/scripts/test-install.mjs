@@ -46,6 +46,31 @@ try {
   const clean = tempDir('clean');
   run(['.vibekit/scripts/mvck.mjs', 'install', clean, '--profile', 'all']);
   run(['.vibekit/scripts/validate-kit.mjs', clean]);
+  for (const [resource, expected, label] of [
+    [
+      '.vibekit/skills/autoresearch-coding/scripts/run_logged.py',
+      'Autoresearch canonical resources are incomplete: scripts/run_logged.py',
+      'validator reports an incomplete Autoresearch install without an uncaught exception'
+    ],
+    [
+      '.vibekit/skills/clean-delivery/references/story-template.md',
+      'Clean Delivery canonical resources are incomplete: references/story-template.md',
+      'validator reports an incomplete Clean Delivery install without an uncaught exception'
+    ]
+  ]) {
+    const resourcePath = path.join(clean, resource);
+    const heldPath = path.join(clean, '.vibekit', `held-${path.basename(resource)}`);
+    fs.renameSync(resourcePath, heldPath);
+    const incomplete = run(['.vibekit/scripts/validate-kit.mjs', clean], { expect: 1 });
+    assert(
+      incomplete.stdout.includes(expected)
+        && incomplete.stdout.includes('Validation summary:')
+        && !/(?:ENOENT|node:fs)/.test(incomplete.stderr),
+      label
+    );
+    fs.renameSync(heldPath, resourcePath);
+  }
+  run(['.vibekit/scripts/validate-kit.mjs', clean]);
   const cleanProbePath = path.join(clean, '.vibekit/scripts/agentshield-probe.mjs');
   const cleanProbeOriginal = fs.readFileSync(cleanProbePath, 'utf8');
   const probeSentinel = path.join(clean, 'target-probe-executed');
@@ -66,6 +91,14 @@ try {
   assert(fs.existsSync(path.join(clean, '.vibekit/commands')), 'clean install creates .vibekit/commands');
   assert(fs.existsSync(path.join(clean, '.vibekit/scripts')), 'clean install creates .vibekit/scripts');
   assert(fs.existsSync(path.join(clean, '.vibekit/docs')), 'clean install creates .vibekit/docs');
+  assert(
+    fs.existsSync(path.join(clean, '.vibekit/scripts/orchestration-preference.mjs')),
+    'clean install includes the orchestration preference helper'
+  );
+  assert(
+    fs.existsSync(path.join(clean, '.vibekit/docs/ORCHESTRATION_MODES.md')),
+    'clean install includes the orchestration mode contract'
+  );
   assert(!fs.existsSync(path.join(clean, 'commands')), 'clean install does not create root commands');
   assert(!fs.existsSync(path.join(clean, 'scripts')), 'clean install does not create root scripts');
   assert(!fs.existsSync(path.join(clean, 'docs')), 'clean install does not create root docs');
@@ -89,7 +122,11 @@ try {
   );
   assert(
     fs.readFileSync(path.join(clean, '.gitignore'), 'utf8').includes('.vibekit/preferences.json'),
-    'clean install ignores the local Codex preference state'
+    'clean install ignores local project preference state'
+  );
+  assert(
+    fs.readFileSync(path.join(clean, '.gitignore'), 'utf8').includes('.vibekit/parallel-analysis.json'),
+    'clean install ignores the parallel-analysis adapter cache'
   );
   assert(!fs.existsSync(path.join(clean, 'skills')), 'clean install does not create root skills');
   assert(!fs.existsSync(path.join(clean, '.vbkit-scripts')), 'clean install does not create legacy .vbkit-scripts');
@@ -101,6 +138,17 @@ try {
   assert(!fs.existsSync(path.join(clean, '.vibekit/docs/RESEARCH_NOTES.md')), 'clean install omits maintainer RESEARCH_NOTES.md');
   assert(!fs.existsSync(path.join(clean, '.vibekit/docs/AUTORESEARCH_LEDGER.md')), 'clean install omits maintainer AUTORESEARCH_LEDGER.md');
   assert(fs.existsSync(path.join(clean, '.vibekit/docs/INSTALL.md')), 'clean install keeps end-user docs like INSTALL.md');
+
+  const legacyVerification = tempDir('legacy-verification');
+  run(['.vibekit/scripts/mvck.mjs', 'install', legacyVerification, '--profile', 'all']);
+  const legacyBackbonePath = path.join(legacyVerification, 'backbone.yml');
+  const legacyBackbone = fs.readFileSync(legacyBackbonePath, 'utf8')
+    .replace('schema_version: 4', 'schema_version: 3')
+    .replace(/\n  verification:\n(?:    (?:unit|acceptance|architecture|property|mutation|e2e):.*\n){6}/, '\n');
+  fs.writeFileSync(legacyBackbonePath, legacyBackbone);
+  run(['.vibekit/scripts/validate-kit.mjs', legacyVerification]);
+  assert(true, 'schema version 3 backbone without commands.verification remains valid');
+
   const cleanSlug = path.basename(clean).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   const cleanPlugin = JSON.parse(fs.readFileSync(path.join(clean, '.codex-plugin/plugin.json'), 'utf8'));
   assert(cleanPlugin.name === `mvck-${cleanSlug}`, 'install writes a project-scoped Codex plugin name');
@@ -135,6 +183,14 @@ try {
   assert(proposed.stdout.includes('  grok: .grok/'), 'generated backbone registers the Grok surface');
   assert(proposed.stdout.includes('  kimi: .kimi-code/'), 'generated backbone registers the Kimi surface');
   assert(proposed.stdout.includes('Writing style: no emoji'), 'generated backbone seeds the writing-style rule');
+  assert(proposed.stdout.includes('  schema_version: 4'), 'generated backbone uses schema version 4');
+  assert(proposed.stdout.includes('  verification:'), 'generated backbone includes the named verification contract');
+  for (const verifier of ['unit', 'acceptance', 'architecture', 'property', 'mutation', 'e2e']) {
+    assert(
+      new RegExp('^    ' + verifier + ': (?:null|.+)$', 'm').test(proposed.stdout),
+      'generated backbone names the ' + verifier + ' verifier as a command or null'
+    );
+  }
 
   const jsonPlan = run(['.vibekit/scripts/mvck.mjs', 'install', clean, '--dry-run', '--json']);
   const parsed = JSON.parse(jsonPlan.stdout);

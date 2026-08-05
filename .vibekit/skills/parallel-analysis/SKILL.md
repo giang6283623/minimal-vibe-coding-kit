@@ -1,6 +1,6 @@
 ---
 name: parallel-analysis
-description: Fan out 2-5 independent read-only analysis lanes across the repo using your configured executor (Cursor CLI Composer, Claude subagents, or Codex CLI), then merge the lane reports and verify them with a refutation pass. Use for repo-wide questions, large uncommitted-diff reviews, multi-doc reading, impact analysis, or consistency audits. On first use it asks which provider/model to use and saves the answer so it never asks again.
+description: Fan out 2-5 independent read-only analysis lanes across the repo using provider-ready native subagents or configured adapters, then merge the lane reports and verify them with a refutation pass. Use for repo-wide questions, large uncommitted-diff reviews, multi-doc reading, impact analysis, or consistency audits. Before dispatch, resolve the project's Default, Auto, or Custom orchestration preference.
 argument-hint: "<analysis question, diff, or review target>"
 user-invocable: true
 effort: medium
@@ -9,7 +9,7 @@ effort: medium
 # Parallel Analysis (Multi-Agent Fan-Out)
 
 Split a large analysis into independent read-only lanes, run them concurrently
-with the configured executor, merge the lane reports, and verify merged claims
+with the resolved ready adapters, merge the lane reports, and verify merged claims
 with a skeptical refutation pass. One round of parallel lanes replaces slow
 serial reading; the verification lane replaces manual double-checking.
 
@@ -28,64 +28,56 @@ installed, using that repo's `backbone.yml` (if present) for boundaries.
 
 Do NOT use for single-file questions or quick lookups; direct reads are faster.
 
-## Executor Setup (first use only)
+## Orchestration preference and executor setup
 
-Lane execution is delegated to ONE configured executor. The choice is stored
-in `.vibekit/parallel-analysis.json`; while that file exists and its preflight
-passes, NEVER ask again.
+Immediately before the first lane dispatch, follow .vibekit/docs/ORCHESTRATION_MODES.md in the parent session. Resolve Default, Auto, or Custom before selecting executors. The preference is global project state; .vibekit/parallel-analysis.json stores only skill-specific adapter details.
 
-1. **If `.vibekit/parallel-analysis.json` exists**: read it, run the matching
-   preflight below, and proceed silently on success. If preflight fails
-   (binary missing, logged out), tell the user what broke, offer to re-run
-   setup, and update the file with their answer.
-2. **If it does not exist**: detect what is available, then ask the user ONE
-   question - "Which provider should run parallel analysis lanes?" - using the
-   harness-native prompt (AskUserQuestion in Claude Code; a plain chat
-   question in Cursor/Codex). Offer, in this order:
-   - **Cursor CLI + Composer 2.5 Fast (recommended)** - fastest lane executor;
-     requires `cursor-agent` installed and logged in.
-   - **Claude subagents** - no extra install; lanes run as read-only Claude
-     Code subagents (Explore/general-purpose). Choose this automatically if
-     the user declines external CLIs.
-   - **Codex CLI** - lanes run via `codex exec` in a read-only sandbox with
-     the best available Codex model.
-3. **Resolve the model** for the chosen provider (see per-executor notes),
-   confirm the resolved value in one line, and write the config file. Include
-   a fallback executor so lanes still run when the primary is unavailable.
+1. Read a remembered orchestration preference when present. If it is not remembered, use the parent runtime's native structured-question tool or its plain parent-conversation fallback.
+2. Inspect .vibekit/parallel-analysis.json when present. Reuse only adapters whose non-mutating preflight still passes. A stale executor cache never suppresses an unresolved global mode question.
+3. Build a bounded inventory of the active provider plus Codex, Claude, Cursor, Grok, and Kimi adapters that are already installed or exposed.
+4. Classify every candidate as ready, installed-unverified, or unavailable using the shared contract. Auto uses ready adapters only.
+5. Apply the selected mode:
+   - Default: use the active provider's native child-agent facility and default model. If the host exposes no such facility, run the lanes sequentially in the current parent; do not switch providers.
+   - Auto: split the independent lanes first, then route each lane to the lowest-cost ready model that satisfies context, tool, risk, and verification requirements. A heterogeneous set is allowed.
+   - Custom: validate the user's role or lane assignments against the ready inventory. Ask in batches of at most three native questions when an assignment is missing.
 
-### Preflights and model resolution
+### Readiness and model resolution
 
-- `cursor-cli`: `cursor-agent status` must report logged in (otherwise the
-  user runs `cursor-agent login` once). Resolve the model with
-  `cursor-agent --list-models` and prefer the Composer 2.5 fast variant
-  (e.g. `composer-2.5-fast`); if absent, use the newest Composer model and
-  record what was picked.
-- `claude-subagents`: available whenever running inside Claude Code; no
-  binary needed. Use read-only subagent types only.
-- `codex-cli`: `codex --version` must succeed. Use the CLI's default/best
-  coding model unless the user names one; record the resolved model.
+- native-subagents: ready only when the active Codex, Claude, Cursor, Grok, or Kimi host exposes a child-agent API with the required read-only boundary. Use the host's default model unless the remembered Custom assignment names another verified model.
+- cursor-cli: cursor-agent must exist, report an authenticated session, expose the requested model, and support the read-only invocation below. Never assume a model alias from documentation or an old config.
+- codex-cli: codex --version must succeed and the CLI must support a read-only exec invocation. Use its configured default model unless the user chose a verified model.
+- provider CLI adapter: a Claude, Grok, or Kimi executable alone is installed-unverified. Mark it ready only when the project has a known non-interactive, read-only invocation contract plus a non-mutating authentication and model preflight.
 
-### Config file - `.vibekit/parallel-analysis.json`
+Do not run login flows, inspect credentials, install a CLI, or silently change provider configuration. If readiness cannot be proven, exclude that adapter from Auto and show it as unavailable in Custom.
 
-```json
+### Adapter cache
+
+A version 2 cache may record verified execution details:
+
+~~~json
 {
-  "executor": "cursor-cli",
-  "model": "composer-2.5-fast",
-  "fallback": "claude-subagents",
-  "configuredAt": "2026-07-16T07:30:00Z"
+  "version": 2,
+  "adapters": {
+    "current": {
+      "kind": "native-subagents",
+      "model": "provider-default",
+      "readOnly": true,
+      "status": "ready"
+    }
+  },
+  "fallback": "current",
+  "configuredAt": "2026-08-05T00:00:00Z"
 }
-```
+~~~
 
-`executor` is one of `cursor-cli` | `claude-subagents` | `codex-cli`. The file
-is local state (gitignored by default); a team may commit it deliberately to
-share a default. To change the choice later, delete the file or ask for
-"parallel-analysis setup" again.
+Never store credentials, tokens, account data, or full preflight output. Existing version 1 executor, model, and fallback files remain readable as a legacy adapter cache, but they do not choose the global orchestration mode. To change execution details, ask for parallel-analysis setup again.
 
 ## Running a lane (per executor)
 
 Every lane is READ-ONLY: search, read, summarize - never edit files, execute
 project binaries, run hooks, or trigger installs/deploys/migrations.
 
+- `native-subagents`: dispatch every lane through the active parent runtime's native child-agent facility with an explicit read-only brief. If the host cannot enforce read-only access, run sequentially in the parent instead of claiming lane isolation.
 - `cursor-cli`:
 
   ```sh
@@ -118,7 +110,7 @@ same.
 2. **Brief.** Give each lane a numbered brief: exact paths, the questions to
    answer, and the required return format ("facts only, numbered sections,
    findings as `file:line - issue - why it matters`").
-3. **Launch all lanes at once** with the configured executor.
+3. **Launch all lanes at once** with the resolved ready adapter assignments.
 4. **Prepare while waiting.** Build the merge skeleton; do not duplicate lane
    work.
 5. **Merge.** Combine lane reports into one findings list. Mark conflicts

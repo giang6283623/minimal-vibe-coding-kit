@@ -38,6 +38,13 @@ Shared instructions for Claude, Cursor, Codex, Grok, Kimi, and other coding agen
 - Triage each request in one line before working: trivial (typo, comment, one-liner: edit, validate, report), small (one file: two-line plan, edit, validate), medium (several files: short plan plus one diff self-review), large or risky (installers, validators, security, agent surfaces: full plan plus the skills and probes the security rules require).
 - Review must never cost more than the change itself. Do not launch parallel-analysis, graph orchestration, multi-agent review, visual loops, or e2e suites for trivial or small tasks unless the user asks for them.
 
+### Orchestration preference
+
+- Immediately before the first subagent, child agent, council member, or multi-agent lane is dispatched, follow `.vibekit/docs/ORCHESTRATION_MODES.md`.
+- Ask unresolved Default, Auto, or Custom choices through the active parent provider's native structured-question tool when available; otherwise ask one concise plain-text question at a time in the parent conversation.
+- Child agents never ask the end user directly. They return `needs_user_input` with bounded options and a recommendation to the parent.
+- A remembered provider preference never grants authority, makes multi-agent work proportionate, or changes plan-only, sequential, countercheck, or verified-graph safety topology.
+
 ### Visual design loop and e2e gate
 
 Do not run the `visual-design-loop` skill or full e2e suites by default. Score the need first, 0-2 per question: (1) did the change alter a user-visible surface, (2) does the outcome depend on subjective visual judgment such as layout, typography, or color, (3) could a visual regression reach end users unnoticed by existing tests. Report the score and decision in one line, for example "visual gate 2/6: skipped".

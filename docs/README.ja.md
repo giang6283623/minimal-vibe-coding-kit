@@ -1,12 +1,12 @@
 <div align="center">
 
-**言語：** [English](../README.md) · [Tiếng Việt](README.vi.md) · [简体中文](README.zh-CN.md) · **日本語**
+**言語：** [English](../README.md) · [Tiếng Việt](README.vi.md) · [简体中文](README.zh-CN.md) · **日本語** · [한국어](README.ko.md) · [Deutsch](README.de.md) · [Български](README.bg.md)
 
 # Minimal Vibe Coding Kit
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.7-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.8-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -18,6 +18,8 @@
 **Claude Code、Cursor、Codex、Grok、Kimi に対応する、あらゆるリポジトリと言語で使えるインストール型 AI コーディングワークフローキット。**
 
 インストール → プロンプトを貼り付ける → 提案を承認する → ガードレール付きでコーディングする。
+
+このキットが実際に役立ったなら、ぜひ Star を付けてください。もう一人の役に立てたと分かり、改善を続ける力になります。
 
 </div>
 
@@ -334,15 +336,22 @@ flowchart LR
 | `/security-scan` | Agent サーフェスに対する読み取り専用 AgentShield probe と任意の scanner。 | `.claude/**` や skills をマージする前に `/security-scan`。 |
 | `/daily-enhance` | rules、skills、workflows の改善案だけを作るレポート。 | `/daily-enhance` の差分案を確認して承認する。 |
 | `/autoresearch-coding` | baseline と budget を持つ metric 駆動の実験 loop。 | `/autoresearch-coding` Goal: lint errors を減らす。Budget: 3。 |
-| `/council` | reviewer、researcher、analyst Agent を 1 つの統合計画へまとめます。 | この branch diff に `/council` を使う。 |
+| `/clean-delivery` | 1 つの behavior を 6 つの適度な craftsmanship gate で届ける。 | `/clean-delivery` Goal: rate limiting を追加。Risk: medium. |
+| `/council` | Provider mode を解決し、task に必要な role だけを調整する。 | この branch diff に `/council` を使う。 |
 | `/proofline` | 範囲付きの役割、独立した反論、型付き signal、証拠を管理します。 | `/proofline` Goal: auth を強化。Done signal: 対象 test が成功。 |
 | `/vibe-finalize` | プロジェクトを通常運用へ移し、1 回限りの bootstrap ファイルを `_vibekit-cleanup/` へ移動します。 | `/vibe-finalize` で preview し、承認後に適用。 |
 
 </details>
 
+### Multi-agent mode の選択
+
+最初の child agent または multi-agent lane を dispatch する直前に、parent は利用可能なら現在の provider の native structured-question tool を使い、Default、Auto、Custom を尋ねます。Default は現在の provider と default model を維持します。Auto は ready な adapter だけを対象に bounded lane を route し、task の品質と安全性の下限を満たす最小コストの model を選びます。Custom は role ごとに検証済み provider と model を指定できます。
+
+"Don't show again" を選ぶと、その mode を .vibekit/preferences.json に保存します。Child agent は user に直接質問せず、parent に needs_user_input を返します。Coding level は説明量と推奨 option だけに影響し、model の品質や安全性を下げません。詳しくは [.vibekit/docs/ORCHESTRATION_MODES.md](../.vibekit/docs/ORCHESTRATION_MODES.md) を参照してください。
+
 ## スキル
 
-20 個すべてのスキルの正本は `.vibekit/skills/` にあります。Claude、Codex、Grok、Kimi は 20 個すべてをミラーし、Cursor は対話型の 15 個をミラーします。名前で指定（「Use the X skill」）するか、上記のコマンドから呼び出します。
+21 個すべてのスキルの正本は `.vibekit/skills/` にあります。Claude、Codex、Grok、Kimi は 21 個すべてをミラーし、Cursor は対話型の 16 個をミラーします。名前で指定（「Use the X skill」）するか、上記のコマンドから呼び出します。
 
 ```mermaid
 ---
@@ -379,7 +388,7 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("20 skills"))
+  root(("21 skills"))
     setup("セットアップと安全")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
@@ -393,6 +402,7 @@ mindmap
       t5("graph-engineering-<br/>verified-orchestration")
       t6("the-creator")
       t7("proofline-<br/>orchestration")
+      t8("clean-delivery")
     analyze("分析と改善")
       a1("parallel-analysis")
       a2("autoresearch-coding")
@@ -414,6 +424,7 @@ mindmap
 | `vibekit-init` | 初回セットアップ、または `backbone.yml` や管理対象ブロックの修復。 | "Use the vibekit-init skill. Propose one diff and wait for my yes." |
 | `parallel-analysis` | リポジトリ全体の質問、大きな diff review、整合性 audit。 | "Use parallel-analysis: where is auth handled and what depends on it?" |
 | `graph-engineering-verified-orchestration` | 複雑な作業に本当に独立した branch があり、明示的な依存関係、分離、budget、客観的検証、rollback、範囲付き merge gate が必要なとき。 | "Use graph-engineering-verified-orchestration to design a safe task graph for this migration." |
+| `clean-delivery` | 1 つの behavior slice を、適度な TDD と再現可能な証拠を伴う Specify、Code、Clean、Architect、Harden、Verify gate で届けるとき。 | "Use clean-delivery to implement this behavior with extreme craftsmanship." |
 | `proofline-orchestration` | 複雑な作業に明示的な統治、範囲付き実装、権限を持つ独立した反論者、型付き escalation signal、証拠に基づく受け入れが必要なとき。 | "Use proofline-orchestration to govern this migration and preserve dissent." |
 | `agentshield-security-review` | マージ前に Agent config、skills、hooks、MCP、commands を監査するとき。 | "Use agentshield-security-review on .claude/** and .vibekit/skills/**." |
 | `threat-model-security-review` | application source、API、authentication、authorization、input path、trust boundary、security-sensitive diff を明示的な証拠と coverage でレビューするとき。 | "Use threat-model-security-review on this repository. Stay read-only and report proof gaps." |
@@ -581,6 +592,192 @@ node .vibekit/skills/proofline-orchestration/scripts/run-proofline-sandbox.mjs \
 [Paseo adapter](../.vibekit/skills/proofline-orchestration/references/paseo-adapter.md)は任意で、複数 session を調整するときだけ有用です。Proofline は Paseo をインストールせず、credential を保存せず、user-level config を変更しません。
 
 </details>
+
+### Clean Delivery：1 つの小さな変更、6 回の確認
+
+**簡単に言うと：** Clean Delivery は、1 つの小さな変更を決まった順序で進める方法です。各 gate は 1 つの問いに答え、後から確認できる証拠を残し、条件を満たした場合だけ次へ進みます。6 つの gate は 6 回の品質確認であり、6 agent や 6 本の並列 workflow ではありません。
+
+たとえば「`NaN` を ledger に書かない」だけでは曖昧です。Clean Delivery では、非有限値を必ず書き込み前に拒否すること、エラー時に ledger が変化しないこと、有限値は引き続き受け入れることを測定可能な結果として定義します。その後、実装、読みやすさの改善、repository boundary の確認、失敗 case の検証、最終状態での再検証を順番に行います。
+
+この節でいう**証拠**とは、check command、その関連結果、exit status の組み合わせです。repository に適切な command がない場合は、範囲を明記した技術 review を使います。必須 check がない状態は `proof gap` であり、pass ではありません。
+
+#### 各 gate で実際に行うこと
+
+| Gate | 行う作業 | 次へ進める条件 |
+| --- | --- | --- |
+| `Specify` | ユーザーが観測する結果、編集可能 file、保護する file、完了条件を 1 つの story に書きます。 | Validator が story を受理し、scope が固定され、重要な test が保護対象として明記されていること。 |
+| `Code` | 先に check を実行して本当の不具合を確認し、behavior を正す最小限の code を書きます。 | 同じ check が変更前には期待した理由で失敗し、変更後には pass すること。False pass のために test を弱めていないこと。 |
+| `Clean` | 新しい behavior を追加せず、命名、読みにくい箇所、重複を改善します。 | 意味のある cleanup のたびに focused check が引き続き pass すること。 |
+| `Architect` | Module boundary、依存方向、`backbone.yml` の repository rule を確認します。 | Architecture command が pass するか、未検証 boundary と残る risk が明記されていること。 |
+| `Harden` | 境界値、権限、エラー時の no mutation、end-to-end behavior など、risk に合う failure path を試します。 | Risk tier で必須の check がすべて pass すること。利用できない check は `not-configured` であり、pass ではありません。 |
+| `Verify` | 正確な final tree で repository と story の check を再実行し、diff の scope drift を確認します。 | 必須 proof がすべて pass し、各結果が記録され、story 外の変更が残っていないこと。 |
+
+#### Gate を通過できない場合
+
+- Gate を飛ばさず、作業を完了扱いにしません。
+- Implementation の問題なら修正し、関連 check を再実行します。
+- 求める結果を変える必要があるなら `Specify` に戻り、story を固定し直します。
+- 必須 tool や proof がない場合は安全に停止し、`proof gap` とユーザーに必要な最小判断を記録します。
+- `Verify` 後の緑の branch だけが handback 可能です。
+
+#### 実際の利点
+
+- coding 前に小さな scope を固定できます。
+- 変更前の失敗を記録し、false pass のために test や validator を弱めることを防ぎます。
+- behavior が通ってから cleanup し、その後に同じ proof を再実行します。
+- 儀式ではなく実際の risk に応じて検証を増やします。
+- verifier がない場合は `not-configured` と報告し、pass 扱いしません。
+- 最終 handback に変更 file、command、結果、残る制限が含まれます。
+
+#### いつ使うべきか？
+
+| Clean Delivery を使う | より簡単な workflow で十分 |
+| --- | --- |
+| 1 つの behavior に高い信頼性と明確な acceptance criteria が必要 | typo、comment、機械的な copy edit |
+| TDD、clean code、architecture check、extreme craftsmanship が求められる | read-only 調査や brainstorming |
+| test や validator を implementation から保護する必要がある | 小さく可逆で、既存の 1 check で十分な変更 |
+
+大きな要求は、独立して検証できる複数の Clean Delivery story に分けます。独立した challenge、ownership 分離、並列作業に実益があるときだけ Proofline や graph orchestration を追加します。
+
+#### どこで動くのか？
+
+**Clean Delivery は server、background application、外部 service ではありません。** Coding agent が、現在開いている repository 内で実行する workflow です。
+
+1. 要求、repository instruction、`backbone.yml` を読みます。
+2. 小さな story を作り、scope と保護する check を固定します。
+3. `npm test` など、repository に既存の command を再利用します。
+4. 各 gate の結果とすべての `proof gap` を記録します。
+5. 他の人が再実行できる証拠とともに変更を handback します。
+
+Clean Delivery は gate を pass したように見せるために test framework を install したり、hook を有効化したり、権限を拡大したりしません。
+
+#### 全体の流れと各 gate の証拠
+
+```mermaid
+---
+config:
+  securityLevel: strict
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    primaryColor: "#8ECAFF"
+    primaryTextColor: "#111111"
+    primaryBorderColor: "#444444"
+    secondaryColor: "#FFD43B"
+    secondaryBorderColor: "#444444"
+    tertiaryColor: "#FFF9DB"
+    tertiaryBorderColor: "#444444"
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+    clusterBkg: "#FFF9DB"
+    clusterBorder: "#444444"
+---
+flowchart TD
+    Request([結果が明確な要求]) --> Specify("1 - Specify<br/>Story と範囲を定義")
+    Specify --> Code("2 - Code<br/>失敗確認後に最小修正")
+    Code --> Clean("3 - Clean<br/>Behavior を保ち読みやすく")
+    Clean --> Architect("4 - Architect<br/>Repository boundary を守る")
+    Architect --> Harden("5 - Harden<br/>Risk に応じて失敗を検証")
+    Harden --> Verify("6 - Verify<br/>Final tree を確認")
+    Verify --> Gate{必須 proof はすべて pass？}
+    Gate -->|まだ| Revise([修正するか停止し<br/>proof gap を記録])
+    Revise --> Specify
+    Gate -->|はい| Ready([File と command を<br/>結果と制限付きで handback])
+
+    Specify -.-> Story[(有効な story<br/>scope 固定済み)]
+    Code -.-> RedGreen[(変更前は正しく失敗<br/>変更後は正しく pass)]
+    Clean -.-> CleanProof[(Focused check が<br/>引き続き pass)]
+    Architect -.-> Boundary[(Boundary を遵守<br/>または risk を記録)]
+    Harden -.-> RiskProof[(必須 failure case が<br/>すべて pass)]
+    Verify -.-> FinalProof[(Command、exit status<br/>final diff)]
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF;
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef data fill:#63E6BE,stroke:#444444,stroke-width:2px,color:#111111;
+    class Request terminal;
+    class Specify,Code,Clean,Architect,Harden,Verify step;
+    class Gate decision;
+    class Ready success;
+    class Revise danger;
+    class Story,RedGreen,CleanProof,Boundary,RiskProof,FinalProof data;
+    linkStyle default stroke:#444444,stroke-width:1.5px;
+```
+
+**図の読み方：**
+
+1. 上から下へ実線矢印を追うと、6 gate の順序が分かります。
+2. 青い box は各 gate で agent が行う作業です。
+3. 点線で結ばれた青緑の cylinder は、その gate 後に保持する証拠です。
+4. 黄色の diamond は、必須 proof がすべて pass したかを問いかけます。
+5. 赤い branch は `Specify` に戻ります。修正によって scope や acceptance criteria が変わる場合があるためです。安全に修正できなければ、明確な `proof gap` を残して停止します。
+6. 緑の branch は final tree 上の check が pass した後だけ現れます。
+
+**図の要点：** `Code` で実装が終わっても、作業全体は終わりません。`Verify` が最終 repository 状態ですべての必須 proof を確認して初めて handback できます。
+
+#### 最も簡単な始め方
+
+```text
+/clean-delivery
+Goal（観測可能な結果）: ledger row を書く前に非有限 metric を拒否する。
+May edit（編集可能）: src/metric-ledger.py と focused tests。
+Must not edit（編集禁止）: 既存の acceptance fixtures と release scripts。
+Done when（検証可能な条件）: NaN と infinity は ledger を変更せず失敗し、有限値は通る。
+Risk: medium.
+```
+
+| Prompt の行 | 意味 |
+| --- | --- |
+| `Goal` | 実装方法ではなく、外部から観測できる結果。 |
+| `May edit` | Agent が変更できる file または directory。 |
+| `Must not edit` | 変更してはならない test、fixture、script、その他の領域。 |
+| `Done when` | Check で pass または fail を判断できる条件。 |
+| `Risk` | 適用する最低 verification tier。 |
+
+#### Risk によって検証はどう変わるか？
+
+| Tier | 最低限の検証 |
+| --- | --- |
+| `low` | Focused behavior check、repository validation、final diff review。 |
+| `medium` | Acceptance evidence と architecture boundary review を追加。 |
+| `high` | Security、failure path、Protected verifier asset、環境が信頼できる場合の independent verification を追加。 |
+| `critical` | Human approval、rollback evidence、independent final verifier を追加。 |
+
+#### 実例：無効な metric 値を拒否する
+
+| Gate | この例で行うこと | 保持する証拠 |
+| --- | --- | --- |
+| `Specify` | `NaN`、`Infinity`、`-Infinity`、overflow を append 前に拒否し、error 時は ledger を変えない rule を固定します。 | 編集可能 file と保護 test を明記した有効な story。 |
+| `Code` | 無効 metric case で問題を確認し、最小の finite-number check を追加します。 | 同じ case が変更前に正しく失敗し、変更後に pass。 |
+| `Clean` | 有効 metric の format を変えず、parsing と error handling を読みやすくします。 | 有限値と非有限値の check が引き続き pass。 |
+| `Architect` | Validation を caller に分散させず、metric が ledger row になる boundary に置きます。 | Boundary review または repository architecture command。 |
+| `Harden` | `NaN`、正負 infinity、overflow、任意 text、error 時の no write を試します。 | 各 case の結果と ledger が変化しない証拠。 |
+| `Verify` | Final tree で約束した command をすべて実行し、diff の scope drift を確認します。 | Command、exit status、関連結果、残る制限。 |
+
+#### この節で使う用語
+
+| 用語 | 簡単な意味 |
+| --- | --- |
+| `Story` | 1 つの成果、編集 scope、完了 check を記した小さな契約。 |
+| `Red evidence` | Implementation 前に、欠けている behavior が原因で正しく失敗する check。 |
+| `Focused check` | 変更対象の behavior を直接確認する最小の check。 |
+| `Protected verifier asset` | Implementation が弱めてはならない test、fixture、schema、snapshot、policy、benchmark input、validator。 |
+| `Proof gap` | 必須だが存在しない、実行できない、または未解決の check。 |
+| `Boundary` | Module、layer、system 間の責任範囲。 |
+| `Final tree` | Implementation と cleanup 後の完全な最終 file 状態。 |
+
+次の command で story を検証します。
+
+```bash
+node .vibekit/skills/clean-delivery/scripts/validate-story.mjs path/to/story.md
+npm run test:clean-delivery
+```
+
+`path/to/story.md` を実際の story path に置き換えてください。`null`、command 不在、`not-configured: <理由>` は verifier がないという意味であり、pass ではありません。[skill contract](../.vibekit/skills/clean-delivery/SKILL.md)、[story template](../.vibekit/skills/clean-delivery/references/story-template.md)、[verification tiers](../.vibekit/skills/clean-delivery/references/verification-tiers.md) を参照してください。
 
 ### Graph engineering：検証付き orchestration
 

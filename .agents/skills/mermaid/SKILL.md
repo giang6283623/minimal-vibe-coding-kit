@@ -15,9 +15,9 @@ Maintained by Minimal Vibe Coding Kit. Generate high-quality Mermaid diagram cod
 2. **Match the coding level**: read `references/coding-level-charts.md` and shape the diagram to the active `/coding-level` (or the `Default coding level` in `backbone.yml` `conventions.custom_rules`; level 2-3 conventions when none is set).
 3. **Read the type reference**: open the syntax reference for the chosen diagram type from the table below.
 4. **Generate code**: produce Mermaid code following that specification.
-5. **Apply styling**: read [styling-preset.md](references/styling-preset.md), find the diagram type in its coverage table, and apply exactly the mechanism that row names (universal frontmatter block plus the type's own section when it has one). Skip only if the user asks for plain output or names another theme.
+5. **Apply styling**: read [styling-preset.md](references/styling-preset.md), find the diagram type in its coverage table, and apply exactly the mechanism that row names (universal frontmatter block plus the type's own section when it has one). Merge additions into the existing `config` and `themeVariables` mappings; never paste a second mapping with either key. Skip only if the user asks for plain output or names another theme.
 6. **Apply safety defaults**: keep Mermaid's strict security mode, do not emit callbacks or remote media from untrusted input, and use only user-approved links.
-7. **Validate honestly**: parse or render when trusted tooling is available. Otherwise label the output syntax-reviewed and never claim visual verification.
+7. **Validate honestly**: before parsing, verify that every YAML frontmatter key is unique within its mapping scope, especially `config` and `themeVariables`. Treat any duplicate-key warning as a failure. Then parse or render when trusted tooling is available. Otherwise label the output syntax-reviewed and never claim visual verification.
 
 ## Kit Triggers - offer, don't assume
 
@@ -88,6 +88,7 @@ Generated Mermaid code should:
 5. Ship styled by default (Vivid Clay preset): every node classed by semantic role, ink borders, no light-on-light text; strong palette on large-area marks
 6. Never clip text or mix typefaces: default fontFamily is `cascadia mono, consolas, noto sans mono, menlo, monospace` at 15px - Vietnamese-safe on every OS (sans option and web-font mono variants per preset Typography) - and never set font-weight in classDef (bold overflows the measured node width)
 7. Match the active coding level's density and annotation rules
+8. Contain one `config` mapping and at most one `themeVariables` mapping; merge all settings into them instead of repeating a YAML key
 
 ## Example Output
 

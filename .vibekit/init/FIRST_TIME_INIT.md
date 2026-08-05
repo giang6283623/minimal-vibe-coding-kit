@@ -44,7 +44,7 @@ Prefer filesystem evidence over README claims.
 - Type: monorepo marker (`pnpm-workspace.yaml`, `turbo.json`, `nx.json`, `lerna.json`, `go.work`) means monorepo; otherwise single-repo unless multiple app roots are obvious.
 - Primary language: strongest marker or source file counts.
 - Package manager: lockfile wins.
-- Commands: infer test, lint, typecheck, build from package scripts, Makefile, Go, Python, Rust, Java, dotnet, PHP, Ruby, or existing CI.
+- Commands: infer test, lint, typecheck, build, and named unit, acceptance, architecture, property, mutation, or e2e verifiers from package scripts, Makefile, language tools, or existing CI. Store unavailable named verifiers as `null`; never install a tool or claim a null verifier passed.
 - Paths: infer source, tests, docs, config, generated output.
 - Conventions: infer naming style, folder architecture, shared resource access, localization/message access, generated-code boundaries, and per-app or per-package differences.
 - Project mode: `greenfield` when no source code exists yet, otherwise `brownfield`. Stored as `project.mode`.

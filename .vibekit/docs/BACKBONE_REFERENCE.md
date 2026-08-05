@@ -8,7 +8,7 @@
 - `project`: name, description, repo type, primary language, package manager, `mode` (greenfield/brownfield), `prd` (path or `none`), `context` (glossary path or `none`).
 - `paths`: code, tests, docs, and generated output.
 - `conventions`: user-reviewed project rules inferred from existing code.
-- `commands`: install, test, lint, typecheck, build, validate.
+- `commands`: install, test, lint, typecheck, build, validate, plus the optional named verification contract.
 - `policy`: branch, commit, editable paths, protected paths.
 - `agent_surfaces`: Claude, Cursor, Codex, Grok, Kimi, shared skills, shared commands.
 - `automation`: autoresearch, daily enhance, finalize (graduation cleanup), security.
@@ -35,6 +35,19 @@ Examples:
 - Java: `mvn test`, `gradle test`.
 
 If no command is known, leave `validate` as a safe echo and ask the user to fill it.
+
+### Named verification contract
+
+commands.verification is optional for backward compatibility. When present, it contains exactly six named commands:
+
+- unit: focused behavior checks;
+- acceptance: observable feature or contract checks;
+- architecture: dependency and boundary checks that extend conventions.architecture;
+- property: invariant or generated-input checks;
+- mutation: test-strength checks;
+- e2e: end-to-end checks, still subject to the project's visual and e2e gate.
+
+Each value is a command string or null. Null means no verifier is configured. It never means passed, and it never authorizes an agent to install a test framework or run the command automatically. Skills choose which configured commands to run according to scope, risk, user authority, and repository gates. commands.validate remains the default whole-repository check.
 
 ## Conventions
 

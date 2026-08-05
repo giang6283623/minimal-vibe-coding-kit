@@ -1,12 +1,12 @@
 <div align="center">
 
-**Read in:** **English** · [Tiếng Việt](docs/README.vi.md) · [简体中文](docs/README.zh-CN.md) · [日本語](docs/README.ja.md)
+**Read in:** **English** · [Tiếng Việt](docs/README.vi.md) · [简体中文](docs/README.zh-CN.md) · [日本語](docs/README.ja.md) · [한국어](docs/README.ko.md) · [Deutsch](docs/README.de.md) · [Български](docs/README.bg.md)
 
 # Minimal Vibe Coding Kit
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.7-2ea44f.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.8-2ea44f.svg)](CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -18,6 +18,8 @@
 **One installable AI-coding workflow kit for Claude Code, Cursor, Codex, Grok, and Kimi - any repo, any language.**
 
 Install → paste one prompt → approve the proposal → code with guardrails.
+
+If you use this kit and it actually helps you, drop a star. It tells me it’s useful to one more person and gives me the energy to keep improving it
 
 </div>
 
@@ -334,15 +336,22 @@ flowchart LR
 | `/security-scan`       | Read-only AgentShield probe + optional scanner over agent surfaces.         | `/security-scan` before merging changes to `.claude/**` or skills. |
 | `/daily-enhance`       | Propose-only report to improve rules, skills, and workflows.                | `/daily-enhance` - review the proposed diff, then approve.         |
 | `/autoresearch-coding` | Metric-driven experiment loop with baseline and budget.                     | `/autoresearch-coding` Goal: fewer lint errors. Budget: 3.         |
-| `/council`             | Coordinates reviewer/researcher/analyst agents into one merged plan.        | `/council` on this branch diff.                                    |
+| `/clean-delivery`      | Delivers one behavior through six proportional craftsmanship gates.          | `/clean-delivery` Goal: add rate limiting. Risk: medium.              |
+| `/council`             | Resolves provider mode, then coordinates only the roles the task needs.       | `/council` on this branch diff.                                    |
 | `/proofline`           | Governs bounded roles, independent challenge, typed signals, and proof.     | `/proofline` Goal: harden auth. Done signal: targeted tests pass.  |
 | `/vibe-finalize`       | Graduate the project: move one-time bootstrap files to `_vibekit-cleanup/`. | `/vibe-finalize` - preview first, apply after approval.            |
 
 </details>
 
+### Multi-agent choice
+
+Immediately before the first child agent or multi-agent lane is dispatched, the parent asks for Default, Auto, or Custom with the active provider's native structured-question tool when available. Default preserves the current provider and default model. Auto routes bounded lanes only across ready adapters and chooses the lowest-cost model above the task's quality and safety floor. Custom lets you assign a verified provider and model per role.
+
+Choose "Don't show again" to remember that exact mode in .vibekit/preferences.json. Child agents return needs_user_input to the parent instead of questioning you directly. Coding level changes explanation detail and the recommended option, never model quality or safety. See [.vibekit/docs/ORCHESTRATION_MODES.md](.vibekit/docs/ORCHESTRATION_MODES.md).
+
 ## Skills
 
-All 20 skills live canonically in `.vibekit/skills/`. Claude, Codex, Grok, and Kimi mirror all 20; Cursor mirrors the 15 interactive ones. Invoke them by name ("Use the X skill…") or via the commands above.
+All 21 skills live canonically in `.vibekit/skills/`. Claude, Codex, Grok, and Kimi mirror all 21; Cursor mirrors the 16 interactive ones. Invoke them by name ("Use the X skill…") or via the commands above.
 
 ```mermaid
 ---
@@ -379,7 +388,7 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("20 skills"))
+  root(("21 skills"))
     setup("Setup and safety")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
@@ -393,6 +402,7 @@ mindmap
       t5("graph-engineering-<br/>verified-orchestration")
       t6("the-creator")
       t7("proofline-<br/>orchestration")
+      t8("clean-delivery")
     analyze("Analyze and improve")
       a1("parallel-analysis")
       a2("autoresearch-coding")
@@ -414,6 +424,7 @@ mindmap
 | `vibekit-init`                | First-time setup, or `backbone.yml` / managed blocks need repair.                                                                                                                                                                        | "Use the vibekit-init skill. Propose one diff and wait for my yes."                                   |
 | `parallel-analysis`           | Repo-wide questions, large diff reviews, consistency audits.                                                                                                                                                                             | "Use parallel-analysis: where is auth handled and what depends on it?"                                |
 | `graph-engineering-verified-orchestration` | Complex work has genuinely independent branches and needs explicit dependencies, isolation, budgets, objective verification, rollback, and bounded merge gates. | "Use graph-engineering-verified-orchestration to design a safe task graph for this migration." |
+| `clean-delivery` | A behavior slice needs disciplined Specify, Code, Clean, Architect, Harden, and Verify gates with proportional TDD and reproducible evidence. | "Use clean-delivery to implement this behavior with extreme craftsmanship." |
 | `proofline-orchestration`     | Complex work benefits from explicit governance, bounded implementation, an empowered independent challenger, typed escalation signals, and evidence-bound acceptance. | "Use proofline-orchestration to govern this migration and preserve dissent." |
 | `agentshield-security-review` | Auditing agent config, skills, hooks, MCP, commands before merge.                                                                                                                                                                        | "Use agentshield-security-review on .claude/** and .vibekit/skills/**."                               |
 | `threat-model-security-review` | Reviewing application source, APIs, authentication, authorization, input paths, trust boundaries, and security-sensitive diffs with explicit evidence and coverage. | "Use threat-model-security-review on this repository. Stay read-only and report proof gaps." |
@@ -581,6 +592,195 @@ The bundled validator and gateway simulate policy inside the current process. Th
 The [Paseo adapter](.vibekit/skills/proofline-orchestration/references/paseo-adapter.md) is optional and useful only when coordinating several sessions. Proofline does not install Paseo, store credentials, or edit user-level configuration.
 
 </details>
+
+### Clean Delivery: one small change, six checks
+
+**Quick explanation:** Clean Delivery is a way to make one small change in a clear order. Each gate answers one question, produces evidence that another person can check, and allows the work to continue only when its condition is satisfied. The six gates are six quality checks, not six agents and not six parallel workflows.
+
+For example, "do not write `NaN` to the ledger" is still ambiguous. Clean Delivery turns it into a measurable outcome: every non-finite value must be rejected before a write, the ledger must remain unchanged after the error, and finite values must still be accepted. The implementation is then written, cleaned, checked against repository boundaries, exercised through failure cases, and verified again on the final repository state.
+
+In this guide, **evidence** means a check command with its relevant result and exit status, or a clearly scoped technical review when the repository has no suitable command. A missing required check is a `proof gap`, not a pass.
+
+#### What does each gate do?
+
+| Gate | Work to do | Continue only when |
+| --- | --- | --- |
+| `Specify` | Write one story that names the user-visible outcome, editable files, protected files, and completion criteria. | The validator accepts the story, scope is frozen, and important tests are marked as protected verifier assets. |
+| `Code` | Run a check that exposes the real defect, then write the smallest amount of code that makes the behavior correct. | The same check fails for the expected reason before the change and passes after it. No test was weakened to create a false pass. |
+| `Clean` | Improve names, split hard-to-read code, and remove duplication without adding behavior. | The focused check still passes after every meaningful cleanup. |
+| `Architect` | Check module boundaries, dependency direction, and the rules in `backbone.yml`. | The architecture command passes, or the unverified boundary and remaining risk are recorded explicitly. |
+| `Harden` | Exercise failure paths and hostile inputs that match the risk, such as boundary values, authorization, no mutation on error, or end-to-end behavior. | Every check required for the risk tier passes. An unavailable check is `not-configured`, never passed. |
+| `Verify` | Rerun repository and story checks on the exact final tree, then review the diff for scope drift. | Every required proof passes, each result is recorded, and no change remains outside the story. |
+
+#### What happens when a gate fails?
+
+- Do not skip the gate or call the work complete.
+- If the failure belongs to the implementation, repair it and rerun the relevant check.
+- If the requested outcome must change, return to `Specify` and freeze the revised story.
+- If a required tool or proof is unavailable, stop safely and record the `proof gap` plus the smallest decision needed from the user.
+- Only the green branch after `Verify` is ready for handback.
+
+#### Practical benefits
+
+- **Smaller changes:** one story freezes what is in scope and what must stay out.
+- **Tests that mean something:** the workflow captures the expected failure before implementation and protects tests from being weakened for an easy pass.
+- **Clean code without speculative refactoring:** cleanup happens only after the behavior works and is checked again afterward.
+- **Proportional rigor:** a copy change does not need the same proof as authentication or payment code.
+- **Honest gaps:** a missing tool or command is reported as `not-configured`, never silently counted as passed.
+- **A reproducible handback:** the final report names the changed files, commands, results, and remaining limits.
+
+#### When should you use it?
+
+| Use Clean Delivery | A simpler workflow is enough |
+| --- | --- |
+| One behavior needs high-confidence implementation and clear acceptance criteria | A typo, comment, or mechanical copy edit |
+| The user asks for TDD, clean code, architecture checks, or extreme craftsmanship | Read-only investigation or brainstorming |
+| Tests or validators must stay protected from the implementation | No repository change is requested |
+| Failure behavior, boundaries, or security risk matter | The change is trivial, reversible, and already covered by one existing check |
+
+For a large request, split it into several independently verifiable Clean Delivery stories. Add Proofline or graph orchestration only when independent challenge, separate ownership, or parallel work materially helps.
+
+#### Where does it run?
+
+**Clean Delivery is not a server, background application, or external service.** It is a workflow that a coding agent follows inside the open repository:
+
+1. Read the request, repository instructions, and `backbone.yml`.
+2. Create one small story, freeze its scope, and identify protected checks.
+3. Reuse existing repository commands such as `npm test`.
+4. Record the outcome of each gate and every `proof gap`.
+5. Hand back the change with evidence another person can rerun.
+
+Clean Delivery does not install a test framework, enable hooks, or expand permissions just to make a gate look successful.
+
+#### Full flow and evidence from every gate
+
+```mermaid
+---
+config:
+  securityLevel: strict
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    primaryColor: "#8ECAFF"
+    primaryTextColor: "#111111"
+    primaryBorderColor: "#444444"
+    secondaryColor: "#FFD43B"
+    secondaryBorderColor: "#444444"
+    tertiaryColor: "#FFF9DB"
+    tertiaryBorderColor: "#444444"
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+    clusterBkg: "#FFF9DB"
+    clusterBorder: "#444444"
+---
+flowchart TD
+    Request([Request with a clear outcome]) --> Specify("1 - Specify<br/>Write story and boundaries")
+    Specify --> Code("2 - Code<br/>See failure, fix minimally")
+    Code --> Clean("3 - Clean<br/>Improve clarity, preserve behavior")
+    Clean --> Architect("4 - Architect<br/>Respect repository boundaries")
+    Architect --> Harden("5 - Harden<br/>Test risk-based failures")
+    Harden --> Verify("6 - Verify<br/>Check the final tree")
+    Verify --> Gate{Every required proof passes?}
+    Gate -->|not yet| Revise([Repair or stop<br/>with a proof gap])
+    Revise --> Specify
+    Gate -->|yes| Ready([Hand back files and commands<br/>with results and limits])
+
+    Specify -.-> Story[(Valid story<br/>scope frozen)]
+    Code -.-> RedGreen[(Correct failure before<br/>correct pass after)]
+    Clean -.-> CleanProof[(Focused checks<br/>still pass)]
+    Architect -.-> Boundary[(Boundary respected<br/>or risk recorded)]
+    Harden -.-> RiskProof[(Required failure cases<br/>all pass)]
+    Verify -.-> FinalProof[(Commands, exit status<br/>and final diff)]
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF;
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef data fill:#63E6BE,stroke:#444444,stroke-width:2px,color:#111111;
+    class Request terminal;
+    class Specify,Code,Clean,Architect,Harden,Verify step;
+    class Gate decision;
+    class Ready success;
+    class Revise danger;
+    class Story,RedGreen,CleanProof,Boundary,RiskProof,FinalProof data;
+    linkStyle default stroke:#444444,stroke-width:1.5px;
+```
+
+**How to read the diagram:**
+
+1. Follow the solid arrows from top to bottom for the order of the six gates.
+2. Blue boxes show the work the agent performs at each gate.
+3. Teal cylinders connected by dotted lines show the evidence retained after that gate.
+4. The yellow diamond asks whether every required proof has passed.
+5. The red branch returns to `Specify` because a repair may change scope or acceptance criteria. If a safe repair is impossible, work stops with an explicit `proof gap`.
+6. The green branch appears only after checks pass on the final tree.
+
+**Diagram takeaway:** finishing the implementation at `Code` does not finish the work. The change becomes ready for handback only after `Verify` confirms every required proof on the final repository state.
+
+#### The simplest way to start
+
+```text
+/clean-delivery
+Goal (observable outcome): reject non-finite metrics before any ledger row is written.
+May edit (allowed files): src/metric-ledger.py and focused tests.
+Must not edit (protected files): existing acceptance fixtures or release scripts.
+Done when (testable condition): NaN and infinities fail without mutating the ledger, while finite values still pass.
+Risk: medium.
+```
+
+| Prompt line | Meaning |
+| --- | --- |
+| `Goal` | The externally observable result, not an implementation recipe. |
+| `May edit` | The files or directories the agent may change. |
+| `Must not edit` | Tests, fixtures, scripts, or other areas that must remain unchanged. |
+| `Done when` | A condition that a check can use to decide pass or fail. |
+| `Risk` | The minimum verification tier to apply. |
+
+#### How does risk change verification?
+
+| Tier | Minimum verification |
+| --- | --- |
+| `low` | Focused behavior check, repository validation, and final diff review. |
+| `medium` | Add acceptance evidence and an architecture boundary review. |
+| `high` | Add security, failure-path, protected verifier asset, and independent verification when the environment supports it reliably. |
+| `critical` | Add human approval, rollback evidence, and an independent final verifier. |
+
+#### Real example: rejecting invalid metric values
+
+| Gate | What happens in this example | Evidence to retain |
+| --- | --- | --- |
+| `Specify` | Freeze the rule that `NaN`, `Infinity`, `-Infinity`, and overflow fail before append, while the ledger stays unchanged. | Valid story with editable files and protected tests named. |
+| `Code` | Run the invalid-metric case to expose the defect, then add the smallest finite-number check. | The case fails correctly before the change and passes afterward. |
+| `Clean` | Keep parsing and error handling readable without changing valid metric formatting. | Finite and non-finite metric checks still pass. |
+| `Architect` | Keep validation at the boundary where a metric becomes a ledger row, not scattered among callers. | Boundary review or repository architecture command. |
+| `Harden` | Test `NaN`, both infinity signs, overflow, arbitrary text, and no write on error. | Results for every case plus evidence that the ledger did not mutate. |
+| `Verify` | Run every promised command on the final tree and review the diff for scope drift. | Commands, exit status, relevant output, and remaining limits. |
+
+#### Terms used in this section
+
+| Term | Plain meaning |
+| --- | --- |
+| `Story` | A small description of one deliverable outcome, editable scope, and completion test. |
+| Red evidence | A check that fails for the specific missing behavior before implementation |
+| Focused check | The smallest check aimed directly at the behavior being changed. |
+| Protected verifier asset | A test, fixture, schema, snapshot, policy, benchmark input, or validator the implementation may not weaken |
+| Proof gap | A required check that is unavailable or unresolved |
+| Boundary | The responsibility line between modules, layers, or systems. |
+| Final tree | The complete final file state after implementation and cleanup. |
+
+Validate a story with these commands:
+
+```bash
+node .vibekit/skills/clean-delivery/scripts/validate-story.mjs path/to/story.md
+npm run test:clean-delivery
+```
+
+Replace `path/to/story.md` with the real story path. `null`, an absent command, or `not-configured: <reason>` means that no verifier exists. It never means the gate passed.
+
+See the [skill contract](.vibekit/skills/clean-delivery/SKILL.md), [story template](.vibekit/skills/clean-delivery/references/story-template.md), [verification tiers](.vibekit/skills/clean-delivery/references/verification-tiers.md), and [architecture contract](.vibekit/skills/clean-delivery/references/architecture-contract.md).
 
 ### Graph engineering: verified orchestration
 
