@@ -4,6 +4,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import { createInterface } from 'node:readline/promises';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,7 +16,7 @@ function usage() {
 
 Usage:
   mvck install [target] [--profile all|claude,cursor,codex,grok,kimi] [--force] [--dry-run] [--json]
-  mvck update [target] [--profile all|claude,cursor,codex,grok,kimi] [--dry-run] [--json] [--no-backup]
+  mvck update [target] [--profile all|claude,cursor,codex,grok,kimi] [--dry-run] [--json] [--no-backup] [--codex-default-mode yes|no|never]
   mvck init [target] [--propose|--write --yes] [--preset nextjs|wordpress|python|laravel|docker]
   mvck validate [target]
   mvck doctor [target] [--write-report] [--run-repo-checks] [--json]
@@ -246,7 +247,245 @@ const CURSOR_SKILLS = skillsManifest.skills.filter((s) => (s.surfaces || []).inc
 const CODEX_DIRS = ['.agents', '.codex', '.codex-plugin'];
 const GROK_DIRS = ['.grok'];
 const KIMI_DIRS = ['.kimi-code'];
-const GITIGNORE_BLOCK = `# BEGIN: minimal-vibe-coding-kit\n.autoresearch/\nresults.tsv\n.vibekit/INIT_DONE\n.vibekit/FINALIZE_DONE\n.vibekit/reports/\n.vibekit/update-backup/\n_vibekit-cleanup/\nCLAUDE.local.md\n# END: minimal-vibe-coding-kit`;
+const GITIGNORE_BLOCK = `# BEGIN: minimal-vibe-coding-kit\n.autoresearch/\nresults.tsv\n.vibekit/INIT_DONE\n.vibekit/FINALIZE_DONE\n.vibekit/preferences.json\n.vibekit/reports/\n.vibekit/update-backup/\n_vibekit-cleanup/\nCLAUDE.local.md\n# END: minimal-vibe-coding-kit`;
+const CODEX_CONFIG_REL = '.codex/config.toml';
+const CODEX_PREFERENCES_REL = '.vibekit/preferences.json';
+const CODEX_DEFAULT_MODE_KEY = 'default_mode_request_user_input';
+const CODEX_DEFAULT_MODE_CHOICES = new Set(['yes', 'no', 'never']);
+
+function safeTargetFile(target, rel) {
+  const normalized = rel.replaceAll('\\', '/');
+  const parts = normalized.split('/');
+  if (path.isAbsolute(rel) || parts.some((part) => !part || part === '.' || part === '..')) {
+    throw new Error(`Unsafe project-relative path: ${rel}`);
+  }
+
+  const base = fs.realpathSync(target);
+  const dest = path.resolve(base, ...parts);
+  if (dest === base || !dest.startsWith(`${base}${path.sep}`)) {
+    throw new Error(`Path escapes target project: ${rel}`);
+  }
+
+  let current = base;
+  for (const part of parts) {
+    current = path.join(current, part);
+    if (fs.existsSync(current) && fs.lstatSync(current).isSymbolicLink()) {
+      throw new Error(`Refusing symlinked project path: ${rel}`);
+    }
+  }
+  return dest;
+}
+
+function plainObject(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function readCodexPreferences(target) {
+  const file = safeTargetFile(target, CODEX_PREFERENCES_REL);
+  if (!fs.existsSync(file)) return {};
+  try {
+    const parsed = JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (!plainObject(parsed)) throw new Error('root value must be an object');
+    return parsed;
+  } catch (error) {
+    throw new Error(`Cannot read ${CODEX_PREFERENCES_REL}: ${error.message}`);
+  }
+}
+
+function codexPreferenceState(target) {
+  const state = readCodexPreferences(target)?.codex?.[CODEX_DEFAULT_MODE_KEY];
+  return state === 'enabled' || state === 'dismissed' ? state : null;
+}
+
+function analyzeCodexConfig(content) {
+  const lines = content ? content.replace(/\r\n/g, '\n').replace(/\n$/, '').split('\n') : [];
+  let table = '';
+  let featuresHeader = -1;
+  let assignment = null;
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const header = line.match(/^\s*\[\[?([^\]]+)\]\]?\s*(?:#.*)?$/);
+    if (header) {
+      table = header[1].trim();
+      if (table === 'features') {
+        if (featuresHeader >= 0) throw new Error(`${CODEX_CONFIG_REL} contains duplicate [features] tables`);
+        featuresHeader = index;
+      }
+      continue;
+    }
+
+    const keyPattern = table === 'features'
+      ? new RegExp(`^(\\s*)${CODEX_DEFAULT_MODE_KEY}\\s*=\\s*([^#]+?)(\\s+#.*)?$`)
+      : table === ''
+        ? new RegExp(`^(\\s*)features\\.${CODEX_DEFAULT_MODE_KEY}\\s*=\\s*([^#]+?)(\\s+#.*)?$`)
+        : null;
+    if (!keyPattern) continue;
+    let match = line.match(keyPattern);
+    let misplaced = false;
+    if (!match && table === '') {
+      match = line.match(new RegExp(`^(\\s*)${CODEX_DEFAULT_MODE_KEY}\\s*=\\s*([^#]+?)(\\s+#.*)?$`));
+      misplaced = Boolean(match);
+    }
+    if (!match) continue;
+    if (assignment) throw new Error(`${CODEX_CONFIG_REL} contains duplicate ${CODEX_DEFAULT_MODE_KEY} assignments`);
+    const value = match[2].trim();
+    if (value !== 'true' && value !== 'false') {
+      throw new Error(`${CODEX_CONFIG_REL} must set ${CODEX_DEFAULT_MODE_KEY} to true or false`);
+    }
+    assignment = {
+      index,
+      indent: match[1],
+      comment: match[3] || '',
+      dotted: table === '',
+      enabled: value === 'true' && !misplaced
+    };
+  }
+
+  return { lines, featuresHeader, assignment };
+}
+
+function codexDefaultModeEnabled(target) {
+  const file = safeTargetFile(target, CODEX_CONFIG_REL);
+  if (!fs.existsSync(file)) return false;
+  return analyzeCodexConfig(fs.readFileSync(file, 'utf8')).assignment?.enabled === true;
+}
+
+function enableCodexDefaultMode(content) {
+  const { lines, featuresHeader, assignment } = analyzeCodexConfig(content);
+  if (assignment?.enabled) return content.endsWith('\n') ? content : `${content}\n`;
+  if (assignment) {
+    const name = assignment.dotted ? `features.${CODEX_DEFAULT_MODE_KEY}` : CODEX_DEFAULT_MODE_KEY;
+    lines[assignment.index] = `${assignment.indent}${name} = true${assignment.comment}`;
+    return `${lines.join('\n')}\n`;
+  }
+  if (featuresHeader >= 0) {
+    lines.splice(featuresHeader + 1, 0, `${CODEX_DEFAULT_MODE_KEY} = true`);
+    return `${lines.join('\n')}\n`;
+  }
+  if (lines.length === 0) return `[features]\n${CODEX_DEFAULT_MODE_KEY} = true\n`;
+
+  let insertAt = 0;
+  while (insertAt < lines.length && (lines[insertAt].trim() === '' || lines[insertAt].trim().startsWith('#'))) {
+    insertAt += 1;
+  }
+  lines.splice(insertAt, 0, `features.${CODEX_DEFAULT_MODE_KEY} = true`, '');
+  return `${lines.join('\n')}\n`;
+}
+
+function backupTargetFile(file, rel, backup) {
+  if (!backup || !fs.existsSync(file)) return;
+  const backupPath = path.join(backup.dir, rel);
+  if (fs.existsSync(backupPath)) return;
+  fs.mkdirSync(path.dirname(backupPath), { recursive: true });
+  fs.copyFileSync(file, backupPath);
+  backup.count += 1;
+}
+
+function writeCodexPreference(target, state, { dryRun = false, backup = null } = {}) {
+  const file = safeTargetFile(target, CODEX_PREFERENCES_REL);
+  const current = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
+  const preferences = readCodexPreferences(target);
+  const next = {
+    ...preferences,
+    codex: {
+      ...(plainObject(preferences.codex) ? preferences.codex : {}),
+      [CODEX_DEFAULT_MODE_KEY]: state
+    }
+  };
+  const text = `${JSON.stringify(next, null, 2)}\n`;
+  if (text === current) return { action: 'unchanged', path: CODEX_PREFERENCES_REL };
+  if (!dryRun) {
+    backupTargetFile(file, CODEX_PREFERENCES_REL, backup);
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, text);
+  }
+  return { action: `codex-preference-${state}`, path: CODEX_PREFERENCES_REL };
+}
+
+function writeCodexDefaultModeConfig(target, { dryRun = false, backup = null } = {}) {
+  const file = safeTargetFile(target, CODEX_CONFIG_REL);
+  const current = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
+  const next = enableCodexDefaultMode(current);
+  if (next === current) return { action: 'unchanged', path: CODEX_CONFIG_REL };
+  if (!dryRun) {
+    backupTargetFile(file, CODEX_CONFIG_REL, backup);
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, next);
+  }
+  return { action: 'codex-feature-enable', path: CODEX_CONFIG_REL };
+}
+
+function codexSupportsDefaultModeQuestions() {
+  const result = spawnSync('codex', ['features', 'list'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  if (result.status !== 0) return false;
+  return new RegExp(`^${CODEX_DEFAULT_MODE_KEY}\\s+`, 'm').test(result.stdout || '');
+}
+
+function parseCodexDefaultModeChoice(value) {
+  if (value === null) return null;
+  const choice = value.trim().toLowerCase();
+  if (!CODEX_DEFAULT_MODE_CHOICES.has(choice)) {
+    throw new Error('Unknown --codex-default-mode value. Use yes, no, or never.');
+  }
+  return choice;
+}
+
+async function promptCodexDefaultModeChoice() {
+  console.log('\nCodex structured questions in Default mode (recommended)');
+  console.log('Enable clear multiple-choice questions when a decision materially affects the work?');
+  console.log('1. Yes (recommended) - enable this project setting.');
+  console.log('2. No - keep it disabled now and ask again on the next init or update.');
+  console.log("3. Don't show this again - keep it disabled and stop asking in this project.");
+
+  const readline = createInterface({ input: process.stdin, output: process.stdout });
+  try {
+    while (true) {
+      const answer = (await readline.question('Choose 1, 2, or 3: ')).trim().toLowerCase();
+      if (answer === '1' || answer === 'yes' || answer === 'y') return 'yes';
+      if (answer === '2' || answer === 'no' || answer === 'n') return 'no';
+      if (answer === '3' || answer === 'never') return 'never';
+      console.log('Please choose 1, 2, or 3.');
+    }
+  } finally {
+    readline.close();
+  }
+}
+
+async function resolveCodexDefaultModeChoice(target, profiles, { dryRun = false, json = false } = {}) {
+  const explicit = parseCodexDefaultModeChoice(optionValue('--codex-default-mode'));
+  if (explicit && !profiles.has('codex')) {
+    throw new Error('--codex-default-mode requires the codex profile.');
+  }
+  if (explicit) return explicit;
+  if (!profiles.has('codex') || dryRun || json || !process.stdin.isTTY || !process.stdout.isTTY) return null;
+  if (codexPreferenceState(target) || codexDefaultModeEnabled(target)) return null;
+  if (!codexSupportsDefaultModeQuestions()) return null;
+  return promptCodexDefaultModeChoice();
+}
+
+function applyCodexDefaultModeChoice(target, choice, opts) {
+  if (!choice) return [];
+  if (choice === 'no') {
+    return [{ action: 'codex-preference-deferred', path: 'ask again on the next init or update' }];
+  }
+  if (choice === 'never') {
+    return [writeCodexPreference(target, 'dismissed', opts)];
+  }
+  return [
+    writeCodexDefaultModeConfig(target, opts),
+    writeCodexPreference(target, 'enabled', opts)
+  ];
+}
+
+function preflightCodexDefaultModeChoice(target, choice) {
+  if (choice !== 'yes' && choice !== 'never') return;
+  readCodexPreferences(target);
+  if (choice === 'yes') {
+    const config = safeTargetFile(target, CODEX_CONFIG_REL);
+    if (fs.existsSync(config)) analyzeCodexConfig(fs.readFileSync(config, 'utf8'));
+  }
+}
 
 function kitVersion() {
   try {
@@ -444,11 +683,11 @@ function updateDirSafe(srcRel, target, opts) {
   return results;
 }
 
-function update() {
+async function update() {
   const dryRun = hasFlag('--dry-run');
   const json = hasFlag('--json');
   const noBackup = hasFlag('--no-backup');
-  const target = parseTargetAndFlags('update', { valueFlags: ['--profile'] }).target;
+  const target = parseTargetAndFlags('update', { valueFlags: ['--profile', '--codex-default-mode'] }).target;
   const profiles = parseProfiles(optionValue('--profile', 'all'));
 
   if (!fs.existsSync(target)) throw new Error(`Target does not exist: ${target}`);
@@ -466,6 +705,8 @@ function update() {
   const backup = noBackup || dryRun ? null : { dir: path.join(target, '.vibekit', 'update-backup', stamp), count: 0 };
   const opts = { dryRun, backup };
   const actions = [];
+  const codexDefaultModeChoice = await resolveCodexDefaultModeChoice(target, profiles, { dryRun, json });
+  preflightCodexDefaultModeChoice(target, codexDefaultModeChoice);
 
   // Kit-owned surfaces: refresh to the running kit version, never delete extras.
   for (const dir of KIT_SHARED_DIRS) actions.push(...updateDirSafe(dir, target, dir === '.vibekit/docs' ? { ...opts, exclude: KIT_DOC_EXCLUDES } : opts));
@@ -501,13 +742,19 @@ function update() {
   }
   if (profiles.has('grok')) actions.push(copyFileSafe('.grok/config.toml', '.grok/config.toml', target, { force: false, dryRun }));
 
+  actions.push(...applyCodexDefaultModeChoice(target, codexDefaultModeChoice, opts));
+
   applyManagedBlocks(target, profiles, actions, { dryRun });
   writeKitVersion(target, dryRun);
 
   const summary = { add: 0, update: 0, unchanged: 0, skip: 0, 'managed-block': 0 };
   for (const a of actions) summary[a.action] = (summary[a.action] || 0) + 1;
   const backupInfo = backup && backup.count > 0 ? path.relative(target, backup.dir) : null;
-  const preserved = ['backbone.yml', 'CLAUDE.md', 'AGENTS.md content outside the managed block', '.claude/settings.json', '.cursor/settings.json', '.cursor/cli.json', '.grok/config.toml'];
+  const preserved = [
+    'backbone.yml', 'CLAUDE.md', 'AGENTS.md content outside the managed block', '.claude/settings.json',
+    '.cursor/settings.json', '.cursor/cli.json', '.grok/config.toml',
+    '.codex/config.toml except the explicitly approved default-mode feature', '.vibekit/preferences.json'
+  ];
 
   const legacyPaths = detectLegacyLayout(target);
   if (json) {
@@ -553,7 +800,7 @@ try {
   } else if (command === 'install') {
     install();
   } else if (command === 'update') {
-    update();
+    await update();
   } else if (command === 'init') {
     delegate('init-backbone.mjs', { valueFlags: ['--preset'] });
   } else if (command === 'validate') {

@@ -74,6 +74,18 @@ npx --yes minimal-vibe-coding-kit@latest update . --dry-run
 npx --yes minimal-vibe-coding-kit@latest update . --dry-run --json
 ```
 
+### Codex structured questions
+
+When the Codex profile is active and the installed Codex CLI lists `default_mode_request_user_input`, an interactive update recommends enabling structured questions in Default mode for that project. This lets Codex present clear multiple-choice questions when a decision materially affects the work.
+
+The choices are:
+
+- Yes: enable `default_mode_request_user_input = true` under `[features]` in `.codex/config.toml`.
+- No: keep it disabled now and ask again on the next init or update.
+- Don't show this again: keep it disabled and store a project-local dismissal in `.vibekit/preferences.json`.
+
+The updater preserves unrelated Codex settings and backs up an existing `.codex/config.toml` before changing the approved feature. It never changes `~/.codex/config.toml`. For non-interactive use, pass `--codex-default-mode yes`, `--codex-default-mode no`, or `--codex-default-mode never`. JSON and dry-run updates do not prompt unless one of these explicit choices is supplied.
+
 Note: run the updater from a newer kit (npx or a local clone), not via the project's own `.vibekit/scripts/mvck.mjs` copy - source and target would be the same files.
 
 ## After install

@@ -19,10 +19,11 @@ node .vibekit/scripts/init-backbone.mjs . --propose
 ```
 
 3. Run the project-understanding step below.
-4. Propose a unified diff for `backbone.yml`, its `conventions` rules, managed blocks, and any new `.vibekit/docs/PRD.md`.
-5. Ask: `Apply this proposed backbone and convention rules? Reply yes, edit, or abort.`
-6. Write only after explicit `yes`.
-7. Validate after writing.
+4. Run the Codex setup preference below when Codex is installed and supports it.
+5. Propose a unified diff for `backbone.yml`, its `conventions` rules, managed blocks, any new `.vibekit/docs/PRD.md`, and approved Codex preference files.
+6. Ask: `Apply this proposed backbone and convention rules? Reply yes, edit, or abort.`
+7. Write only after explicit `yes`.
+8. Validate after writing.
 
 ## Project understanding (PRD)
 
@@ -32,6 +33,10 @@ Detection reports `project.mode` (`greenfield` = no source yet, `brownfield` = e
 - If no PRD is found, propose creating `.vibekit/docs/PRD.md` from `.vibekit/docs/templates/PRD_TEMPLATE.md` using the answers, and set `project.prd` to that path.
 - If a PRD exists, read it, link it in `project.prd`, and offer to refresh it without overwriting unapproved content.
 - Keep the PRD short; it captures intent, not a full spec. Record domain terms in `.vibekit/docs/CONTEXT.md` (scaffold from `.vibekit/docs/templates/CONTEXT_TEMPLATE.md`) and link it in `project.context`.
+
+## Codex setup preference
+
+Follow the three-choice `Codex structured questions in Default mode` procedure in `.vibekit/init/FIRST_TIME_INIT.md`. Recommend Yes with its short benefit, treat No as temporary, persist Don't show this again as project-local dismissal, and never edit the user's global `~/.codex/config.toml`. Include any resulting `.codex/config.toml` or `.vibekit/preferences.json` change in the approval diff.
 
 ## Convention detection
 

@@ -19,6 +19,7 @@ coverage/
 .autoresearch/
 results.tsv
 .vibekit/INIT_DONE
+.vibekit/preferences.json
 .vibekit/reports/
 .vibekit/parallel-analysis.json
 CLAUDE.local.md
