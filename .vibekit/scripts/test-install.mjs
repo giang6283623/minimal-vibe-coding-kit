@@ -79,6 +79,18 @@ try {
     );
   }
   assert(fs.existsSync(path.join(clean, '.vibekit/init/FIRST_TIME_INIT.md')), 'clean install seeds init files under .vibekit/init');
+  assert(
+    fs.readFileSync(path.join(clean, '.vibekit/init/FIRST_TIME_INIT.md'), 'utf8').includes("3. Don't show this again"),
+    'clean install includes the three-choice Codex init preference'
+  );
+  assert(
+    fs.readFileSync(path.join(clean, '.codex/config.example.toml'), 'utf8').includes('default_mode_request_user_input = true'),
+    'clean install documents the Codex Default-mode feature'
+  );
+  assert(
+    fs.readFileSync(path.join(clean, '.gitignore'), 'utf8').includes('.vibekit/preferences.json'),
+    'clean install ignores the local Codex preference state'
+  );
   assert(!fs.existsSync(path.join(clean, 'skills')), 'clean install does not create root skills');
   assert(!fs.existsSync(path.join(clean, '.vbkit-scripts')), 'clean install does not create legacy .vbkit-scripts');
   assert(!fs.existsSync(path.join(clean, '.vbkit-commands')), 'clean install does not create legacy .vbkit-commands');
@@ -192,6 +204,105 @@ try {
   const updPlan = run(['.vibekit/scripts/mvck.mjs', 'update', upd, '--dry-run', '--json']);
   const updParsed = JSON.parse(updPlan.stdout);
   assert(updParsed.status === 'dry-run' && typeof updParsed.toVersion === 'string', 'update --dry-run --json returns machine-readable plan');
+
+  const codexNo = tempDir('codex-default-no');
+  run(['.vibekit/scripts/mvck.mjs', 'install', codexNo, '--profile', 'codex']);
+  run(['.vibekit/scripts/mvck.mjs', 'update', codexNo, '--profile', 'codex', '--codex-default-mode', 'no']);
+  assert(!fs.existsSync(path.join(codexNo, '.codex/config.toml')), 'Codex No leaves project config unchanged');
+  assert(!fs.existsSync(path.join(codexNo, '.vibekit/preferences.json')), 'Codex No does not persist a preference');
+  run(['.vibekit/scripts/mvck.mjs', 'update', codexNo, '--profile', 'codex', '--codex-default-mode', 'yes']);
+  assert(
+    fs.readFileSync(path.join(codexNo, '.codex/config.toml'), 'utf8').includes('[features]\ndefault_mode_request_user_input = true'),
+    'Codex Yes remains available after a temporary No and enables the project feature'
+  );
+  assert(
+    JSON.parse(fs.readFileSync(path.join(codexNo, '.vibekit/preferences.json'), 'utf8')).codex.default_mode_request_user_input === 'enabled',
+    'Codex Yes persists the enabled preference'
+  );
+
+  const codexDryRun = tempDir('codex-default-dry-run');
+  run(['.vibekit/scripts/mvck.mjs', 'install', codexDryRun, '--profile', 'codex']);
+  const codexDryPlan = JSON.parse(run([
+    '.vibekit/scripts/mvck.mjs', 'update', codexDryRun, '--profile', 'codex', '--dry-run', '--json', '--codex-default-mode', 'yes'
+  ]).stdout);
+  assert(
+    codexDryPlan.actions.some((action) => action.action === 'codex-feature-enable'),
+    'Codex dry-run reports the planned feature change'
+  );
+  assert(!fs.existsSync(path.join(codexDryRun, '.codex/config.toml')), 'Codex dry-run does not write project config');
+  assert(!fs.existsSync(path.join(codexDryRun, '.vibekit/preferences.json')), 'Codex dry-run does not persist a preference');
+
+  const codexDismissed = tempDir('codex-default-dismissed');
+  run(['.vibekit/scripts/mvck.mjs', 'install', codexDismissed, '--profile', 'codex']);
+  run(['.vibekit/scripts/mvck.mjs', 'update', codexDismissed, '--profile', 'codex', '--codex-default-mode', 'never']);
+  assert(!fs.existsSync(path.join(codexDismissed, '.codex/config.toml')), "Codex Don't show this again leaves the feature disabled");
+  assert(
+    JSON.parse(fs.readFileSync(path.join(codexDismissed, '.vibekit/preferences.json'), 'utf8')).codex.default_mode_request_user_input === 'dismissed',
+    "Codex Don't show this again persists the dismissal"
+  );
+  run(['.vibekit/scripts/mvck.mjs', 'update', codexDismissed, '--profile', 'codex']);
+  assert(
+    JSON.parse(fs.readFileSync(path.join(codexDismissed, '.vibekit/preferences.json'), 'utf8')).codex.default_mode_request_user_input === 'dismissed',
+    'a later update preserves the Codex dismissal'
+  );
+
+  const codexMerge = tempDir('codex-default-merge');
+  run(['.vibekit/scripts/mvck.mjs', 'install', codexMerge, '--profile', 'codex']);
+  const codexMergeConfig = [
+    'model = "gpt-test"',
+    '',
+    '[features]',
+    'shell_snapshot = true',
+    'default_mode_request_user_input = false # preserve this comment',
+    '',
+    '[[skills.config]]',
+    'path = "/tmp/example-skill/SKILL.md"',
+    'enabled = false',
+    ''
+  ].join('\n');
+  fs.writeFileSync(path.join(codexMerge, '.codex/config.toml'), codexMergeConfig);
+  run(['.vibekit/scripts/mvck.mjs', 'update', codexMerge, '--profile', 'codex', '--codex-default-mode=yes']);
+  const mergedCodexConfig = fs.readFileSync(path.join(codexMerge, '.codex/config.toml'), 'utf8');
+  assert(mergedCodexConfig.includes('model = "gpt-test"'), 'Codex enable preserves root config keys');
+  assert(mergedCodexConfig.includes('shell_snapshot = true'), 'Codex enable preserves other feature flags');
+  assert(mergedCodexConfig.includes('[[skills.config]]'), 'Codex enable preserves later TOML array tables');
+  assert(
+    mergedCodexConfig.includes('default_mode_request_user_input = true # preserve this comment'),
+    'Codex enable changes only the approved feature value'
+  );
+  const codexMergeBackupRoot = path.join(codexMerge, '.vibekit/update-backup');
+  assert(
+    fs.readdirSync(codexMergeBackupRoot).some((stamp) => fs.existsSync(path.join(codexMergeBackupRoot, stamp, '.codex/config.toml'))),
+    'Codex enable backs up an existing project config'
+  );
+
+  const codexMisplaced = tempDir('codex-default-misplaced');
+  run(['.vibekit/scripts/mvck.mjs', 'install', codexMisplaced, '--profile', 'codex']);
+  fs.writeFileSync(
+    path.join(codexMisplaced, '.codex/config.toml'),
+    'default_mode_request_user_input = true # misplaced root key\nmodel = "gpt-test"\n'
+  );
+  run(['.vibekit/scripts/mvck.mjs', 'update', codexMisplaced, '--profile', 'codex', '--codex-default-mode', 'yes']);
+  const migratedCodexConfig = fs.readFileSync(path.join(codexMisplaced, '.codex/config.toml'), 'utf8');
+  assert(
+    migratedCodexConfig.includes('features.default_mode_request_user_input = true # misplaced root key'),
+    'Codex enable corrects a misplaced root-level feature key'
+  );
+  assert(!/^default_mode_request_user_input\s*=/m.test(migratedCodexConfig), 'Codex enable removes the ineffective root-level key');
+
+  run(['.vibekit/scripts/mvck.mjs', 'update', codexMerge, '--profile', 'codex', '--codex-default-mode', 'sometimes'], { expect: 1 });
+  assert(true, 'update rejects an unknown Codex default-mode choice');
+
+  if (process.platform !== 'win32') {
+    const codexSymlink = tempDir('codex-default-symlink');
+    const codexOutside = tempDir('codex-default-outside');
+    run(['.vibekit/scripts/mvck.mjs', 'install', codexSymlink, '--profile', 'codex']);
+    const outsideConfig = path.join(codexOutside, 'config.toml');
+    fs.writeFileSync(outsideConfig, 'model = "outside"\n');
+    fs.symlinkSync(outsideConfig, path.join(codexSymlink, '.codex/config.toml'));
+    run(['.vibekit/scripts/mvck.mjs', 'update', codexSymlink, '--profile', 'codex', '--codex-default-mode', 'yes'], { expect: 1 });
+    assert(fs.readFileSync(outsideConfig, 'utf8') === 'model = "outside"\n', 'Codex enable refuses a symlinked config without changing its target');
+  }
 
   // Single-profile installs must pass validation on their own.
   for (const profile of ['claude', 'cursor', 'codex', 'grok', 'kimi']) {

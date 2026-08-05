@@ -1,6 +1,12 @@
-# Example only. Copy to ~/.codex/config.toml if you want these defaults.
+# Example only. Copy settings to a trusted project's .codex/config.toml or to
+# ~/.codex/config.toml when you intentionally want a global default.
 project_doc_max_bytes = 65536
 project_doc_fallback_filenames = ["AGENTS.md", "CLAUDE.md"]
+
+# Under-development Codex feature recommended for interactive kit use. It lets
+# Codex present structured choices in Default mode when a decision is needed.
+[features]
+# default_mode_request_user_input = true
 
 # Skills can be disabled by path if needed:
 # [[skills.config]]

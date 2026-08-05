@@ -71,7 +71,7 @@ Then:
 
 ## Setup preferences
 
-Ask these two questions right after the PRD interview. Persist both answers as `backbone.yml` `conventions.custom_rules` entries in the same proposed diff. Also record the standing writing-style default from section 3 without asking.
+Ask the two general questions and the conditional Codex question right after the PRD interview. Persist the safe-delete and coding-level answers as `backbone.yml` `conventions.custom_rules` entries in the same proposed diff. Handle the Codex preference as project-local config, then record the standing writing-style default from section 4 without asking.
 
 ### 1. Safe delete (trash instead of rm)
 
@@ -101,7 +101,32 @@ Show this table exactly and ask: "Which explanation level should I use by defaul
 
 Record the answer as a custom rule: `Default coding level: N (<Level>) - apply this explanation depth every session; change with /coding-level N.`
 
-### 3. Writing style (recorded by default, no question)
+### 3. Codex structured questions in Default mode
+
+Only offer this preference when a Codex surface is installed (`.agents/`, `.codex/`, or `.codex-plugin/`) and `codex features list` includes `default_mode_request_user_input`. The feature is under development, so skip the question when the installed Codex version does not list it.
+
+Before asking, inspect `.codex/config.toml` and `.vibekit/preferences.json`. Skip the question when the feature is already enabled or the stored preference is `enabled` or `dismissed`.
+
+Ask:
+
+```text
+Enable Codex structured questions in Default mode for this project? (recommended: yes)
+Benefit: Codex can present clear multiple-choice questions when a decision materially affects the work, reducing ambiguous back-and-forth.
+
+1. Yes - enable it for this project.
+2. No - keep it disabled now and ask again on the next init or update.
+3. Don't show this again - keep it disabled and stop asking in this project.
+```
+
+Handle the answer in the same proposed diff:
+
+- Yes: set `default_mode_request_user_input = true` under `[features]` in `.codex/config.toml`, preserving all unrelated settings, and store `enabled` at `codex.default_mode_request_user_input` in `.vibekit/preferences.json`.
+- No: make no config or preference change, so the question is eligible again on the next init or update.
+- Don't show this again: leave `.codex/config.toml` unchanged and store `dismissed` at `codex.default_mode_request_user_input` in `.vibekit/preferences.json`.
+
+`.vibekit/preferences.json` is local kit state and must stay ignored by Git. Project-scoped `.codex/config.toml` is loaded only after the user trusts the project. Never change `~/.codex/config.toml` for this preference.
+
+### 4. Writing style (recorded by default, no question)
 
 Record this custom rule in every proposed backbone without asking; the user can edit or remove it during diff review:
 
@@ -135,6 +160,7 @@ Show one unified diff for:
 - `CLAUDE.md` managed block or new file when Claude is active
 - `AGENTS.md` managed block or new file when Codex/general agent support is active
 - missing `.cursor/rules` or `.agents/skills` shims only if the installer did not add them
+- `.codex/config.toml` or `.vibekit/preferences.json` only when the user selected Yes or Don't show this again for the Codex preference
 
 Ask exactly:
 
@@ -148,9 +174,10 @@ Apply this proposed backbone and convention rules? Reply yes, edit, or abort.
 2. Set `meta.template_status: initialized`.
 3. Set `meta.initialized_at` to current UTC ISO timestamp.
 4. Create `.vibekit/INIT_DONE` with the same timestamp.
-5. Run the validation command from `backbone.yml`.
-6. Print a short completion summary.
-7. Offer graduation: once the user confirms setup is done, run the cleanup in the Graduation section below to remove one-time bootstrap files.
+5. Apply the approved Codex preference without changing global Codex configuration.
+6. Run the validation command from `backbone.yml`.
+7. Print a short completion summary.
+8. Offer graduation: once the user confirms setup is done, run the cleanup in the Graduation section below to remove one-time bootstrap files.
 
 CLI helper after approval:
 
