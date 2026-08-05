@@ -1,6 +1,6 @@
 <div align="center">
 
-**Đọc bằng:** [English](../README.md) · **Tiếng Việt** · [简体中文](README.zh-CN.md) · [日本語](README.ja.md)
+**Đọc bằng:** [English](../README.md) · **Tiếng Việt** · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Deutsch](README.de.md) · [Български](README.bg.md)
 
 # Minimal Vibe Coding Kit
 
@@ -18,6 +18,8 @@
 **Một bộ kit AI-coding cài một lần cho Claude Code, Cursor, Codex, Grok và Kimi - mọi repo, mọi ngôn ngữ.**
 
 Cài đặt → dán một prompt → duyệt đề xuất → code với guardrails.
+
+Nếu bộ kit này thực sự giúp ích cho bạn, hãy tặng repo một Star. Điều đó cho tôi biết nó hữu ích thêm với một người nữa và tiếp thêm năng lượng để tôi tiếp tục cải thiện nó.
 
 </div>
 
@@ -590,6 +592,193 @@ Validator và gateway đi kèm là công cụ mô phỏng policy trong máy hi�
 [Adapter Paseo](../.vibekit/skills/proofline-orchestration/references/paseo-adapter.md) là tùy chọn, chỉ dùng khi bạn muốn điều phối nhiều phiên làm việc. Proofline không tự cài Paseo, không lưu credential và không sửa cấu hình user-level.
 
 </details>
+
+### Clean Delivery: một thay đổi nhỏ, sáu lần kiểm tra
+
+**Hiểu nhanh:** Clean Delivery là cách làm một thay đổi nhỏ theo thứ tự rõ ràng. Mỗi cổng trả lời một câu hỏi, tạo ra một bằng chứng có thể kiểm tra lại và chỉ cho phép đi tiếp khi điều kiện của cổng đã đạt. Sáu cổng là sáu lần kiểm tra chất lượng, không phải sáu agent và cũng không phải sáu quy trình chạy song song.
+
+Ví dụ, yêu cầu "không ghi `NaN` vào ledger" vẫn còn mơ hồ. Clean Delivery biến nó thành kết quả đo được: mọi giá trị không hữu hạn phải bị từ chối trước khi ghi, ledger phải giữ nguyên khi lỗi, và giá trị hữu hạn vẫn được chấp nhận. Sau đó thay đổi được làm, làm sạch, kiểm tra ranh giới, thử các trường hợp lỗi và xác minh lại trên trạng thái cuối cùng của repo.
+
+Trong phần này, **bằng chứng** nghĩa là một lệnh kiểm tra kèm kết quả và mã thoát, hoặc một nhận xét kỹ thuật có phạm vi rõ khi repo chưa có lệnh phù hợp. Nếu thiếu kiểm tra bắt buộc, đó là `proof gap`, không phải là đã đạt.
+
+#### Mỗi cổng thực sự làm gì?
+
+| Cổng | Việc cần làm | Chỉ đi tiếp khi |
+| --- | --- | --- |
+| `Specify` | Viết một story nêu kết quả người dùng thấy, file được sửa, file không được sửa và tiêu chí hoàn tất. | Story được validator chấp nhận, phạm vi đã khóa và test quan trọng được đánh dấu là tài sản cần bảo vệ. |
+| `Code` | Chạy kiểm tra để thấy lỗi thật trước khi sửa, rồi viết lượng code nhỏ nhất làm hành vi đúng. | Cùng một kiểm tra thất bại đúng lý do trước thay đổi và đạt sau thay đổi. Không test nào bị làm yếu để tạo kết quả giả. |
+| `Clean` | Đổi tên, tách đoạn khó đọc và bỏ lặp mà không thêm hành vi mới. | Kiểm tra trọng tâm vẫn đạt sau từng lần làm sạch có ý nghĩa. |
+| `Architect` | Xem thay đổi có nằm đúng ranh giới module, đúng chiều phụ thuộc và đúng quy tắc trong `backbone.yml` hay không. | Lệnh kiểm tra kiến trúc đạt, hoặc phần chưa kiểm tra được và rủi ro còn lại được ghi rõ. |
+| `Harden` | Thử đường lỗi và dữ liệu xấu phù hợp với mức rủi ro, chẳng hạn giá trị biên, quyền truy cập, không làm thay đổi dữ liệu khi lỗi hoặc kiểm tra đầu cuối. | Mọi kiểm tra bắt buộc cho mức rủi ro đều đạt. Kiểm tra chưa có được báo là `not-configured`, không được tính là đạt. |
+| `Verify` | Chạy lại lệnh xác minh của repo và của story trên đúng cây file cuối cùng, rồi xem diff có vượt phạm vi không. | Tất cả bằng chứng bắt buộc đạt, kết quả từng lệnh được ghi lại và không còn thay đổi ngoài story. |
+
+#### Nếu một cổng chưa đạt thì sao?
+
+- Không bỏ qua cổng và không gọi công việc là hoàn tất.
+- Nếu lỗi thuộc phần đang làm, sửa rồi chạy lại từ kiểm tra liên quan.
+- Nếu yêu cầu ban đầu phải đổi, quay lại `Specify` và khóa lại story.
+- Nếu thiếu công cụ hoặc bằng chứng bắt buộc, dừng an toàn và ghi `proof gap` cùng quyết định nhỏ nhất cần người dùng đưa ra.
+- Chỉ nhánh màu xanh sau `Verify` mới là trạng thái sẵn sàng bàn giao.
+
+#### Lợi ích thực tế
+
+- Biết chính xác thay đổi này phải làm gì và không được chạm vào đâu trước khi bắt đầu code.
+- Có bằng chứng lỗi tồn tại trước khi sửa, nên một test vốn đã xanh không thể bị dùng để chứng minh sai.
+- Test, fixture và validator quan trọng không thể bị sửa yếu đi chỉ để tạo kết quả đạt giả.
+- Việc làm sạch code luôn đi kèm chạy lại kiểm tra, nên dễ phát hiện refactor làm đổi hành vi.
+- Mức kiểm tra tăng theo rủi ro thực tế. Thay đổi nhỏ không bị ép làm nghi thức của thay đổi nguy hiểm.
+- Bàn giao cuối cùng nói rõ file nào đổi, lệnh nào đã chạy, kết quả gì và giới hạn nào còn lại.
+
+#### Khi nào nên dùng?
+
+| Dùng Clean Delivery | Quy trình đơn giản hơn là đủ |
+| --- | --- |
+| Sửa hành vi đăng nhập, phân quyền, thanh toán, ghi dữ liệu hoặc validation ở ranh giới hệ thống. | Sửa chính tả, comment hoặc một câu tài liệu không đổi hành vi. |
+| Kết quả cần tiêu chí chấp nhận rõ và phải chứng minh lỗi trước khi sửa. | Chỉ phân tích, giải thích hoặc brainstorm mà không thay đổi repo. |
+| Thay đổi đi qua nhiều file, module hoặc có rủi ro làm hỏng hành vi cũ. | Thay đổi cơ học, dễ hoàn tác và đã có một kiểm tra phù hợp. |
+| Test hoặc validator phải được bảo vệ khỏi phần code đang triển khai. | Không có hành vi quan sát được để kiểm tra khách quan. |
+
+Với yêu cầu lớn, hãy chia thành nhiều story nhỏ có thể xác minh độc lập. Chỉ thêm Proofline hoặc graph orchestration khi thật sự cần người kiểm tra độc lập, quyền sở hữu tách biệt hoặc nhiều phần việc chạy song song.
+
+#### Nó chạy ở đâu?
+
+**Clean Delivery không phải server, ứng dụng nền hay dịch vụ bên ngoài.** Đây là quy trình mà coding agent thực hiện ngay trong repo đang mở:
+
+1. Đọc yêu cầu, hướng dẫn repo và `backbone.yml`.
+2. Tạo một story nhỏ, khóa phạm vi và xác định test cần bảo vệ.
+3. Dùng các lệnh kiểm tra repo đã có, chẳng hạn `npm test`.
+4. Ghi lại kết quả của từng cổng và mọi `proof gap`.
+5. Bàn giao thay đổi cùng bằng chứng có thể chạy lại.
+
+Clean Delivery không tự cài test framework, không tự bật hook và không tự mở rộng quyền chỉ để làm một cổng trông như đã đạt.
+
+#### Luồng đầy đủ và bằng chứng của từng cổng
+
+```mermaid
+---
+config:
+  securityLevel: strict
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    primaryColor: "#8ECAFF"
+    primaryTextColor: "#111111"
+    primaryBorderColor: "#444444"
+    secondaryColor: "#FFD43B"
+    secondaryBorderColor: "#444444"
+    tertiaryColor: "#FFF9DB"
+    tertiaryBorderColor: "#444444"
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+    clusterBkg: "#FFF9DB"
+    clusterBorder: "#444444"
+---
+flowchart TD
+    Request([Yêu cầu có kết quả rõ]) --> Specify("1 - Specify<br/>Viết story và giới hạn")
+    Specify --> Code("2 - Code<br/>Thấy lỗi, sửa tối thiểu")
+    Code --> Clean("3 - Clean<br/>Dễ đọc, không đổi kết quả")
+    Clean --> Architect("4 - Architect<br/>Đúng ranh giới của repo")
+    Architect --> Harden("5 - Harden<br/>Thử lỗi theo mức rủi ro")
+    Harden --> Verify("6 - Verify<br/>Kiểm tra cây file cuối")
+    Verify --> Gate{Mọi bằng chứng bắt buộc đã đạt?}
+    Gate -->|chưa| Revise([Sửa tiếp hoặc dừng<br/>và ghi proof gap])
+    Revise --> Specify
+    Gate -->|có| Ready([Bàn giao file và lệnh<br/>kèm kết quả, giới hạn])
+
+    Specify -.-> Story[(Story hợp lệ<br/>phạm vi đã khóa)]
+    Code -.-> RedGreen[(Thất bại đúng trước sửa<br/>đạt đúng sau sửa)]
+    Clean -.-> CleanProof[(Kiểm tra trọng tâm<br/>vẫn đạt)]
+    Architect -.-> Boundary[(Đúng ranh giới<br/>hoặc nêu rủi ro)]
+    Harden -.-> RiskProof[(Các tình huống lỗi<br/>bắt buộc đều đạt)]
+    Verify -.-> FinalProof[(Lệnh, mã thoát<br/>và diff cuối)]
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF;
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef data fill:#63E6BE,stroke:#444444,stroke-width:2px,color:#111111;
+    class Request terminal;
+    class Specify,Code,Clean,Architect,Harden,Verify step;
+    class Gate decision;
+    class Ready success;
+    class Revise danger;
+    class Story,RedGreen,CleanProof,Boundary,RiskProof,FinalProof data;
+    linkStyle default stroke:#444444,stroke-width:1.5px;
+```
+
+**Cách đọc sơ đồ:**
+
+1. Đi theo mũi tên liền từ trên xuống để thấy thứ tự sáu cổng.
+2. Ô xanh dương là việc agent phải làm tại mỗi cổng.
+3. Ô xanh ngọc nối bằng nét chấm là bằng chứng phải giữ lại sau cổng đó.
+4. Hình thoi màu vàng là quyết định cuối: mọi bằng chứng bắt buộc đã đạt chưa.
+5. Nhánh đỏ quay lại `Specify` vì việc sửa có thể làm thay đổi phạm vi hoặc tiêu chí ban đầu. Nếu không thể sửa an toàn, công việc dừng với `proof gap` rõ ràng.
+6. Nhánh xanh chỉ xuất hiện sau khi kiểm tra trên cây file cuối cùng đã đạt.
+
+**Kết luận của sơ đồ:** hoàn thành code ở cổng `Code` chưa có nghĩa là hoàn thành công việc. Chỉ sau `Verify`, khi mọi bằng chứng bắt buộc vẫn đạt trên trạng thái cuối cùng, thay đổi mới sẵn sàng bàn giao.
+
+#### Cách bắt đầu đơn giản nhất
+
+```text
+/clean-delivery
+Goal (kết quả cần thấy): từ chối metric không hữu hạn trước khi ghi bất kỳ dòng ledger nào.
+May edit (chỉ được sửa): src/metric-ledger.py và focused tests.
+Must not edit (không được sửa): acceptance fixtures hoặc release scripts hiện có.
+Done when (đạt khi): NaN và infinity fail mà không đổi ledger, còn giá trị hữu hạn vẫn pass.
+Risk: medium.
+```
+
+| Dòng trong prompt | Ý nghĩa |
+| --- | --- |
+| `Goal` | Kết quả bên ngoài phải quan sát được, không mô tả cách viết code. |
+| `May edit` | File hoặc thư mục agent được phép thay đổi. |
+| `Must not edit` | Test, fixture, script hoặc khu vực cần giữ nguyên. |
+| `Done when` | Điều kiện có thể chạy kiểm tra để kết luận đạt hay chưa. |
+| `Risk` | Mức kiểm tra tối thiểu cần áp dụng. |
+
+#### Mức rủi ro thay đổi cách kiểm tra thế nào?
+
+| Mức | Kiểm tra tối thiểu |
+| --- | --- |
+| `low` | Kiểm tra trọng tâm, lệnh xác minh của repo và xem diff cuối. |
+| `medium` | Thêm bằng chứng tiêu chí chấp nhận và xem lại ranh giới kiến trúc. |
+| `high` | Thêm kiểm tra bảo mật, đường lỗi, tài sản xác minh được bảo vệ và người xác minh độc lập khi môi trường hỗ trợ đáng tin cậy. |
+| `critical` | Thêm phê duyệt của con người, bằng chứng quay lui và người xác minh cuối độc lập. |
+
+#### Ví dụ thực tế: từ chối metric không hợp lệ
+
+| Cổng | Việc xảy ra trong ví dụ | Bằng chứng cần giữ |
+| --- | --- | --- |
+| `Specify` | Khóa quy tắc: `NaN`, `Infinity`, `-Infinity` và số bị tràn phải bị từ chối trước khi thêm dòng; ledger không được đổi khi lỗi. | Story hợp lệ, file được sửa và test được bảo vệ đã ghi rõ. |
+| `Code` | Chạy case metric không hợp lệ để thấy hành vi sai, sau đó thêm kiểm tra số hữu hạn nhỏ nhất. | Case thất bại đúng trước thay đổi và cùng case đạt sau thay đổi. |
+| `Clean` | Gom parsing và thông báo lỗi vào cấu trúc dễ đọc mà không đổi định dạng metric hợp lệ. | Kiểm tra metric hữu hạn và không hữu hạn vẫn đạt. |
+| `Architect` | Xác nhận validation nằm tại ranh giới nơi metric sắp trở thành một dòng ledger, không nằm rải rác ở caller. | Review ranh giới hoặc lệnh kiến trúc của repo. |
+| `Harden` | Thử `NaN`, infinity hai dấu, số tràn, text bất kỳ và xác nhận không có dòng nào được ghi khi lỗi. | Kết quả từng case và kiểm tra ledger không bị thay đổi. |
+| `Verify` | Chạy toàn bộ lệnh đã hứa trên cây file cuối, xem diff và kiểm tra không có thay đổi ngoài phạm vi. | Command, mã thoát, kết quả liên quan và giới hạn còn lại. |
+
+#### Từ khó trong phần này
+
+| Thuật ngữ | Nghĩa đơn giản |
+| --- | --- |
+| `Story` | Bản mô tả nhỏ về một kết quả cần giao, phạm vi được sửa và cách biết đã hoàn tất. |
+| `Red evidence` | Bằng chứng kiểm tra thất bại đúng vì hành vi còn thiếu trước khi triển khai. |
+| `Focused check` | Kiểm tra nhỏ nhất nhắm trực tiếp vào hành vi đang sửa. |
+| `Protected verifier asset` | Test, fixture, schema, snapshot, policy, dữ liệu benchmark hoặc validator mà phần triển khai không được làm yếu. |
+| `Proof gap` | Kiểm tra bắt buộc chưa có, chưa chạy được hoặc chưa được giải quyết. |
+| `Boundary` | Ranh giới trách nhiệm giữa module, tầng hoặc hệ thống. |
+| `Final tree` | Toàn bộ trạng thái file cuối cùng sau mọi lần sửa và làm sạch. |
+
+Kiểm tra một story bằng các lệnh sau:
+
+```bash
+node .vibekit/skills/clean-delivery/scripts/validate-story.mjs path/to/story.md
+npm run test:clean-delivery
+```
+
+Thay `path/to/story.md` bằng đường dẫn thật tới file story. `null`, command vắng mặt hoặc `not-configured: <lý do>` nghĩa là chưa có verifier, không phải đã pass. Xem [skill contract](../.vibekit/skills/clean-delivery/SKILL.md), [story template](../.vibekit/skills/clean-delivery/references/story-template.md) và [verification tiers](../.vibekit/skills/clean-delivery/references/verification-tiers.md).
 
 ### Graph engineering: điều phối có xác minh
 

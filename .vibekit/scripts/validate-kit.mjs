@@ -697,13 +697,133 @@ function validateCleanDeliveryContract() {
     ])
     && exists('test/clean-delivery/scripts/test-story-contract.mjs')
   );
+  const cleanDeliveryReadmes = [
+    'README.md',
+    'docs/README.vi.md',
+    'docs/README.zh-CN.md',
+    'docs/README.ja.md',
+    'docs/README.ko.md',
+    'docs/README.de.md',
+    'docs/README.bg.md'
+  ];
+  const guideMarkers = [
+    '### Clean Delivery',
+    '| `Specify`',
+    '| `Code`',
+    '| `Clean`',
+    '| `Architect`',
+    '| `Harden`',
+    '| `Verify`',
+    'securityLevel: strict',
+    'Specify --> Code',
+    'Code --> Clean',
+    'Clean --> Architect',
+    'Architect --> Harden',
+    'Harden --> Verify',
+    'Revise --> Specify',
+    'Specify -.-> Story',
+    'Code -.-> RedGreen',
+    'Clean -.-> CleanProof',
+    'Architect -.-> Boundary',
+    'Harden -.-> RiskProof',
+    'Verify -.-> FinalProof',
+    'classDef data fill:#63E6BE',
+    'class Ready success;',
+    'class Revise danger;',
+    'class Story,RedGreen,CleanProof,Boundary,RiskProof,FinalProof data;',
+    'linkStyle default stroke:#444444,stroke-width:1.5px;',
+    '/clean-delivery',
+    'Risk: medium.',
+    'Protected verifier asset',
+    'not-configured',
+    'validate-story.mjs',
+    'npm run test:clean-delivery'
+  ];
+  const guidesValid = !isKitSourceRepo || cleanDeliveryReadmes.every((rel) => (
+    exists(rel) && hasAll(read(rel), guideMarkers)
+  ));
+  const localizedGuideMarkers = {
+    'README.md': [
+      '### Clean Delivery: one small change, six checks',
+      '#### What happens when a gate fails?',
+      '**Clean Delivery is not a server, background application, or external service.**',
+      '#### Full flow and evidence from every gate',
+      '**How to read the diagram:**',
+      '**Diagram takeaway:**',
+      '#### How does risk change verification?',
+      '#### Terms used in this section'
+    ],
+    'docs/README.vi.md': [
+      '### Clean Delivery: một thay đổi nhỏ, sáu lần kiểm tra',
+      '#### Nếu một cổng chưa đạt thì sao?',
+      '**Clean Delivery không phải server, ứng dụng nền hay dịch vụ bên ngoài.**',
+      '#### Luồng đầy đủ và bằng chứng của từng cổng',
+      '**Cách đọc sơ đồ:**',
+      '**Kết luận của sơ đồ:**',
+      '#### Mức rủi ro thay đổi cách kiểm tra thế nào?',
+      '#### Từ khó trong phần này'
+    ],
+    'docs/README.zh-CN.md': [
+      '### Clean Delivery：一个小改动，六次检查',
+      '#### 如果某道门没有通过怎么办？',
+      '**Clean Delivery 不是 server、后台应用或外部服务。**',
+      '#### 完整流程和每道门的证据',
+      '**如何阅读这张图：**',
+      '**图的结论：**',
+      '#### 风险如何改变验证强度？',
+      '#### 本节术语'
+    ],
+    'docs/README.ja.md': [
+      '### Clean Delivery：1 つの小さな変更、6 回の確認',
+      '#### Gate を通過できない場合',
+      '**Clean Delivery は server、background application、外部 service ではありません。**',
+      '#### 全体の流れと各 gate の証拠',
+      '**図の読み方：**',
+      '**図の要点：**',
+      '#### Risk によって検証はどう変わるか？',
+      '#### この節で使う用語'
+    ],
+    'docs/README.ko.md': [
+      '### Clean Delivery: 하나의 작은 변경, 여섯 번의 확인',
+      '#### 게이트를 통과하지 못하면 어떻게 하나요?',
+      '**Clean Delivery는 server, background application 또는 외부 service가 아닙니다.**',
+      '#### 전체 흐름과 각 게이트의 증거',
+      '**다이어그램 읽는 방법:**',
+      '**다이어그램의 결론:**',
+      '#### 위험에 따라 검증은 어떻게 달라지나요?',
+      '#### 이 절에서 사용하는 용어'
+    ],
+    'docs/README.de.md': [
+      '### Clean Delivery: eine kleine Änderung, sechs Prüfungen',
+      '#### Was passiert, wenn ein Gate nicht besteht?',
+      '**Clean Delivery ist kein Server, keine Hintergrundanwendung und kein externer Dienst.**',
+      '#### Vollständiger Ablauf und Nachweise je Gate',
+      '**So liest du das Diagramm:**',
+      '**Kernaussage:**',
+      '#### Wie verändert das Risiko die Prüfung?',
+      '#### Begriffe in diesem Abschnitt'
+    ],
+    'docs/README.bg.md': [
+      '### Clean Delivery: една малка промяна, шест проверки',
+      '#### Какво става, ако gate не премине?',
+      '**Clean Delivery не е server, background application или външна услуга.**',
+      '#### Пълният поток и доказателството от всеки gate',
+      '**Как да четете диаграмата:**',
+      '**Извод от диаграмата:**',
+      '#### Как рискът променя проверката?',
+      '#### Термини в този раздел'
+    ]
+  };
+  const localizedGuidesValid = !isKitSourceRepo || Object.entries(localizedGuideMarkers).every(
+    ([rel, markers]) => exists(rel) && hasAll(read(rel), markers)
+  );
   if (hasAll(ui, [
     'display_name: "Clean Delivery"',
     'Use $clean-delivery'
-  ]) && discoveryValid) {
-    ok('Clean Delivery discovery, localization, packaging, UI metadata, and tests stay synchronized');
+  ]) && discoveryValid && guidesValid && localizedGuidesValid) {
+    ok('Clean Delivery discovery, seven-language guide, packaging, UI metadata, and tests stay synchronized');
   } else {
-    fail('Clean Delivery discovery, localization, packaging, UI metadata, or tests drifted');
+    fail('Clean Delivery discovery, seven-language guide, packaging, UI metadata, or tests drifted');
   }
 }
 
@@ -848,6 +968,70 @@ function validateMermaidContract() {
     .map((file) => read(`${base}/references/${file}`))
     .join('\n');
 
+  const duplicateFrontmatterKeys = (diagram) => {
+    const lines = diagram.split(/\r?\n/);
+    if (lines[0]?.trim() !== '---') return [];
+    const closingDelimiter = lines.findIndex((line, index) => index > 0 && line.trim() === '---');
+    if (closingDelimiter < 0) return [];
+
+    const parents = [];
+    const seen = new Set();
+    const duplicates = [];
+    for (let index = 1; index < closingDelimiter; index += 1) {
+      const match = lines[index].match(/^(\s*)([A-Za-z_][A-Za-z0-9_-]*):(?:\s*(.*))?$/);
+      if (!match) continue;
+
+      const indent = match[1].length;
+      const key = match[2];
+      const value = match[3] ?? '';
+      while (parents.length && parents.at(-1).indent >= indent) parents.pop();
+      const parentPath = parents.map((parent) => parent.key).join('.');
+      const qualifiedKey = parentPath ? `${parentPath}.${key}` : key;
+      const identity = `${indent}:${qualifiedKey}`;
+      if (seen.has(identity)) duplicates.push({ key: qualifiedKey, line: index + 1 });
+      else seen.add(identity);
+      if (value.trim() === '') parents.push({ indent, key });
+    }
+    return duplicates;
+  };
+
+  const authoredMermaidFiles = [
+    `${base}/SKILL.md`,
+    `${base}/references/kit-examples.md`,
+    `${base}/references/styling-preset.md`,
+    `${base}/references/debug-heatmap.md`,
+    ...(isKitSourceRepo ? [
+      'README.md',
+      'docs/README.vi.md',
+      'docs/README.zh-CN.md',
+      'docs/README.ja.md',
+      'docs/README.ko.md',
+      'docs/README.de.md',
+      'docs/README.bg.md'
+    ] : [])
+  ];
+  const duplicateKeyFailures = [];
+  for (const rel of authoredMermaidFiles) {
+    if (!exists(rel)) continue;
+    const blocks = [...read(rel).matchAll(/```mermaid\s*\n([\s\S]*?)\n```/g)].map((match) => match[1]);
+    blocks.forEach((diagram, blockIndex) => {
+      duplicateFrontmatterKeys(diagram).forEach(({ key, line }) => {
+        duplicateKeyFailures.push(`${rel} diagram ${blockIndex + 1} line ${line}: ${key}`);
+      });
+    });
+  }
+  const duplicateKeyCanary = duplicateFrontmatterKeys([
+    '---',
+    'config:',
+    '  themeVariables:',
+    '    fontSize: 15px',
+    '  themeVariables:',
+    '    lineColor: "#444444"',
+    '---',
+    'flowchart TD',
+    '  A --> B'
+  ].join('\n'));
+
   const diagrams = [...examples.matchAll(/```mermaid\s*\n([\s\S]*?)\n```/g)].map((match) => match[1]);
   const distinctCases = ['Safe configuration promotion', 'Repository safety evolution', 'Localization release board', 'Validation feedback time', 'Duplicate webhook investigation'];
   if (diagrams.length === 5
@@ -856,6 +1040,26 @@ function validateMermaidContract() {
     ok('Mermaid maintains five strict kit-native examples');
   } else {
     fail('Mermaid kit-native example set, strict security, or distinct cases drifted');
+  }
+
+  if (skill.includes('never paste a second mapping with either key')
+      && skill.includes('every YAML frontmatter key is unique within its mapping scope')
+      && skill.includes('at most one `themeVariables` mapping')) {
+    ok('Mermaid skill requires unique frontmatter keys and merged configuration mappings');
+  } else {
+    fail('Mermaid skill duplicate-frontmatter-key guidance drifted');
+  }
+
+  if (duplicateKeyCanary.length === 1 && duplicateKeyCanary[0].key === 'config.themeVariables') {
+    ok('Mermaid duplicate-frontmatter-key regression detector rejects its canary');
+  } else {
+    fail('Mermaid duplicate-frontmatter-key regression detector did not reject its canary');
+  }
+
+  if (duplicateKeyFailures.length === 0) {
+    ok(`Mermaid frontmatter keys are unique across ${authoredMermaidFiles.length} authored Markdown files`);
+  } else {
+    fail(`Mermaid frontmatter contains duplicate mapping keys: ${duplicateKeyFailures.join('; ')}`);
   }
 
   if (preview.includes('mermaid@11.16.0/dist/mermaid.esm.min.mjs')
@@ -1584,23 +1788,96 @@ if (codexPlugin) {
 if (isKitSourceRepo && pkg?.version) {
   if (codexPlugin?.version === pkg.version) ok(`Codex plugin version matches package version ${pkg.version}`);
   else fail(`Codex plugin version ${codexPlugin?.version || 'missing'} differs from package version ${pkg.version}`);
-  for (const rel of ['README.md', 'docs/README.vi.md', 'docs/README.zh-CN.md', 'docs/README.ja.md']) {
-    if (!exists(rel)) continue;
+  const readmeNavigationContracts = [
+    {
+      rel: 'README.md',
+      tokens: [
+        '**English**',
+        '[Tiếng Việt](docs/README.vi.md)',
+        '[简体中文](docs/README.zh-CN.md)',
+        '[日本語](docs/README.ja.md)',
+        '[한국어](docs/README.ko.md)',
+        '[Deutsch](docs/README.de.md)',
+        '[Български](docs/README.bg.md)'
+      ],
+      starRequest: 'If you use this kit and it actually helps you, drop a star. It tells me it’s useful to one more person and gives me the energy to keep improving it'
+    },
+    {
+      rel: 'docs/README.vi.md',
+      tokens: ['[English](../README.md)', '**Tiếng Việt**', '[简体中文](README.zh-CN.md)', '[日本語](README.ja.md)', '[한국어](README.ko.md)', '[Deutsch](README.de.md)', '[Български](README.bg.md)'],
+      starRequest: 'Nếu bộ kit này thực sự giúp ích cho bạn, hãy tặng repo một Star. Điều đó cho tôi biết nó hữu ích thêm với một người nữa và tiếp thêm năng lượng để tôi tiếp tục cải thiện nó.'
+    },
+    {
+      rel: 'docs/README.zh-CN.md',
+      tokens: ['[English](../README.md)', '[Tiếng Việt](README.vi.md)', '**简体中文**', '[日本語](README.ja.md)', '[한국어](README.ko.md)', '[Deutsch](README.de.md)', '[Български](README.bg.md)'],
+      starRequest: '如果这个工具包确实对你有帮助，请点个 Star。这会让我知道它又帮助了一个人，也会给我继续改进它的动力。'
+    },
+    {
+      rel: 'docs/README.ja.md',
+      tokens: ['[English](../README.md)', '[Tiếng Việt](README.vi.md)', '[简体中文](README.zh-CN.md)', '**日本語**', '[한국어](README.ko.md)', '[Deutsch](README.de.md)', '[Български](README.bg.md)'],
+      starRequest: 'このキットが実際に役立ったなら、ぜひ Star を付けてください。もう一人の役に立てたと分かり、改善を続ける力になります。'
+    },
+    {
+      rel: 'docs/README.ko.md',
+      tokens: ['[English](../README.md)', '[Tiếng Việt](README.vi.md)', '[简体中文](README.zh-CN.md)', '[日本語](README.ja.md)', '**한국어**', '[Deutsch](README.de.md)', '[Български](README.bg.md)'],
+      starRequest: '이 키트가 실제로 도움이 되었다면 Star를 눌러 주세요. 한 사람에게 더 유용했다는 것을 알 수 있고, 계속 개선할 힘이 됩니다.'
+    },
+    {
+      rel: 'docs/README.de.md',
+      tokens: ['[English](../README.md)', '[Tiếng Việt](README.vi.md)', '[简体中文](README.zh-CN.md)', '[日本語](README.ja.md)', '[한국어](README.ko.md)', '**Deutsch**', '[Български](README.bg.md)'],
+      starRequest: 'Wenn dir dieses Kit wirklich hilft, gib dem Repository bitte einen Star. So weiß ich, dass es einem weiteren Menschen nützt, und bekomme neue Energie, es weiter zu verbessern.'
+    },
+    {
+      rel: 'docs/README.bg.md',
+      tokens: ['[English](../README.md)', '[Tiếng Việt](README.vi.md)', '[简体中文](README.zh-CN.md)', '[日本語](README.ja.md)', '[한국어](README.ko.md)', '[Deutsch](README.de.md)', '**Български**'],
+      starRequest: 'Ако този комплект наистина ви помага, дайте звезда на хранилището. Така разбирам, че е полезен за още един човек, и получавам енергия да продължа да го подобрявам.'
+    }
+  ];
+  for (const { rel, starRequest } of readmeNavigationContracts) {
+    if (!exists(rel)) {
+      fail(`${rel} localized README is missing`);
+      continue;
+    }
     read(rel).includes(`version-${pkg.version}-`)
       ? ok(`${rel} version badge matches package version ${pkg.version}`)
       : fail(`${rel} version badge differs from package version ${pkg.version}`);
+    read(rel).includes(`\n\n${starRequest}\n\n</div>`)
+      ? ok(`${rel} places the author star request directly below the introductory tagline`)
+      : fail(`${rel} is missing the author star request below the introductory tagline`);
   }
 
-  const localizedReadmeNavigationValid = (
-    read('README.md').includes('[日本語](docs/README.ja.md)')
-    && read('docs/README.vi.md').includes('[日本語](README.ja.md)')
-    && read('docs/README.zh-CN.md').includes('[日本語](README.ja.md)')
-    && ['[English](../README.md)', '[Tiếng Việt](README.vi.md)', '[简体中文](README.zh-CN.md)', '**日本語**']
-      .every((token) => read('docs/README.ja.md').includes(token))
-  );
+  const localizedReadmeNavigationValid = readmeNavigationContracts.every(({ rel, tokens }) => (
+    exists(rel) && tokens.every((token) => read(rel).includes(token))
+  ));
   localizedReadmeNavigationValid
-    ? ok('English, Vietnamese, Chinese, and Japanese README navigation stays synchronized')
+    ? ok('Seven-language README navigation stays synchronized')
     : fail('Localized README navigation drifted');
+
+  const translatedReadmeContracts = [
+    { rel: 'docs/README.ko.md', markers: ['## 빠른 시작', '전체 21개 스킬', '## 고급 사용', '## 기여', '## 라이선스'] },
+    { rel: 'docs/README.de.md', markers: ['## Schnellstart', 'Alle 21 Skills', '## Erweitert', '## Mitwirken', '## Lizenz'] },
+    { rel: 'docs/README.bg.md', markers: ['## Бърз старт', 'Всички 21 умения', '## Разширена употреба', '## Принос', '## Лиценз'] }
+  ];
+  const sharedCoverage = [
+    '`/init-vibe`',
+    '`/security-scan`',
+    '`/clean-delivery`',
+    '`/proofline`',
+    'ORCHESTRATION_MODES.md',
+    'npm run test:proofline',
+    'graph-engineering-verified-orchestration',
+    'agentshield-probe.mjs',
+    'npm run validate:all'
+  ];
+  const translatedCoverageValid = translatedReadmeContracts.every(({ rel, markers }) => {
+    if (!exists(rel)) return false;
+    const text = read(rel);
+    return [...markers, ...sharedCoverage, ...KIT_SKILLS.map((skill) => `| \`${skill}\``)]
+      .every((token) => text.includes(token));
+  });
+  translatedCoverageValid
+    ? ok('Korean, German, and Bulgarian READMEs cover setup, commands, all skills, orchestration, security, and release validation')
+    : fail('Korean, German, or Bulgarian README coverage drifted');
 }
 if (pkg?.bin && typeof pkg.bin === 'object') {
   for (const [name, target] of Object.entries(pkg.bin)) {

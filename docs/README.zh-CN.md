@@ -1,6 +1,6 @@
 <div align="center">
 
-**阅读语言：** [English](../README.md) · [Tiếng Việt](README.vi.md) · **简体中文** · [日本語](README.ja.md)
+**阅读语言：** [English](../README.md) · [Tiếng Việt](README.vi.md) · **简体中文** · [日本語](README.ja.md) · [한국어](README.ko.md) · [Deutsch](README.de.md) · [Български](README.bg.md)
 
 # Minimal Vibe Coding Kit
 
@@ -18,6 +18,8 @@
 **一套可安装的 AI 编程工作流工具包，同时支持 Claude Code、Cursor、Codex、Grok 和 Kimi，适用于任何仓库、任何语言。**
 
 安装 → 粘贴一个提示词 → 审核方案 → 在护栏保护下开始编码。
+
+如果这个工具包确实对你有帮助，请点个 Star。这会让我知道它又帮助了一个人，也会给我继续改进它的动力。
 
 </div>
 
@@ -590,6 +592,193 @@ node .vibekit/skills/proofline-orchestration/scripts/run-proofline-sandbox.mjs \
 [Paseo 适配器](../.vibekit/skills/proofline-orchestration/references/paseo-adapter.md)是可选项，只在需要协调多个会话时使用。Proofline 不会自动安装 Paseo、保存凭据或修改用户级配置。
 
 </details>
+
+### Clean Delivery：一个小改动，六次检查
+
+**快速理解：** Clean Delivery 按明确顺序完成一个小改动。每道质量门回答一个问题，留下可复查的证据，并且只有满足当前条件后才能继续。六道门是六次质量检查，不是六个 agent，也不是六条并行 workflow。
+
+例如，“不要把 `NaN` 写进 ledger”仍然不够明确。Clean Delivery 会把它变成可测量的结果：所有非有限值都必须在写入前被拒绝，报错时 ledger 保持不变，有限值仍然可以写入。之后再依次实现、清理代码、检查仓库边界、测试失败场景，并在仓库最终状态上重新验证。
+
+本节中的**证据**是检查命令、相关结果和退出码。如果仓库没有合适命令，也可以使用范围明确的技术审查。缺少必需检查叫作 `proof gap`，不代表已经通过。
+
+#### 每道门实际做什么？
+
+| 质量门 | 要做的事 | 只有满足以下条件才能继续 |
+| --- | --- | --- |
+| `Specify` | 写一份 story，说明用户能看到的结果、允许修改的文件、禁止修改的文件和完成标准。 | Validator 接受 story，scope 已冻结，关键测试已标记为受保护的验证资产。 |
+| `Code` | 先运行检查暴露真实问题，再写让行为正确的最小改动。 | 同一个检查在改动前因预期原因失败，在改动后通过。没有削弱测试来制造 false pass。 |
+| `Clean` | 改善命名、拆分难读代码并去除重复，但不增加新行为。 | 每次有意义的清理后，focused check 仍然通过。 |
+| `Architect` | 检查模块边界、依赖方向以及 `backbone.yml` 中的仓库规则。 | Architecture command 通过，或者未验证的边界与剩余风险已明确记录。 |
+| `Harden` | 根据风险测试失败路径和恶意输入，例如边界值、权限、报错时不修改数据或端到端行为。 | 该风险级别要求的检查全部通过。缺少的检查记录为 `not-configured`，不能算通过。 |
+| `Verify` | 在最终文件树上重新运行仓库和 story 的检查，并查看 diff 是否超出 scope。 | 所有必需证据都通过，每个结果都有记录，并且没有 story 之外的改动。 |
+
+#### 如果某道门没有通过怎么办？
+
+- 不跳过质量门，也不把工作标记为完成。
+- 如果问题属于实现，修复后重新运行相关检查。
+- 如果目标需要改变，回到 `Specify`，重新冻结 story。
+- 如果缺少必需工具或证据，安全停止，记录 `proof gap`，并写明需要用户做出的最小决定。
+- 只有 `Verify` 后的绿色分支才可以交付。
+
+#### 实际收益
+
+- 开始编码前就知道必须实现什么以及不能触碰什么。
+- 改动前保留真实失败证据，避免用原本就通过的测试证明错误结论。
+- 关键测试、fixture 和 validator 不得为了 false pass 而被削弱。
+- 每次清理代码后都重新检查，更容易发现 refactor 引入的行为变化。
+- 验证强度随着真实风险增加，小改动不必套用高风险流程。
+- 最终交付会列出改动文件、执行命令、结果和剩余限制。
+
+#### 什么时候使用？
+
+| 使用 Clean Delivery | 简单 workflow 已足够 |
+| --- | --- |
+| 修改登录、授权、支付、数据写入或系统边界上的 validation | 只改拼写、注释或不影响行为的一句话 |
+| 结果需要明确验收标准，并且必须证明问题在修改前存在 | 只做分析、解释或 brainstorm，不修改仓库 |
+| 改动跨多个文件或 module，可能破坏旧行为 | 机械式、易回退并已有合适检查的改动 |
+| 测试或 validator 必须与实现隔离并受保护 | 没有可以客观检查的可观察行为 |
+
+大型需求应拆成多个可独立验证的 Clean Delivery story。只有确实需要独立质疑、分离 ownership 或并行工作时，才加入 Proofline 或 graph orchestration。
+
+#### 在哪里运行？
+
+**Clean Delivery 不是 server、后台应用或外部服务。** 它是 coding agent 在当前打开的仓库中执行的 workflow：
+
+1. 阅读需求、仓库说明和 `backbone.yml`。
+2. 创建一个小 story，冻结 scope，并确定需要保护的检查。
+3. 复用仓库现有命令，例如 `npm test`。
+4. 记录每道门的结果和所有 `proof gap`。
+5. 交付改动，并附上他人可以重新运行的证据。
+
+Clean Delivery 不会为了让质量门看起来通过而自动安装测试框架、启用 hook 或扩大权限。
+
+#### 完整流程和每道门的证据
+
+```mermaid
+---
+config:
+  securityLevel: strict
+  theme: base
+  themeVariables:
+    fontFamily: cascadia mono, consolas, noto sans mono, menlo, monospace
+    fontSize: 15px
+    primaryColor: "#8ECAFF"
+    primaryTextColor: "#111111"
+    primaryBorderColor: "#444444"
+    secondaryColor: "#FFD43B"
+    secondaryBorderColor: "#444444"
+    tertiaryColor: "#FFF9DB"
+    tertiaryBorderColor: "#444444"
+    lineColor: "#444444"
+    textColor: "#111111"
+    edgeLabelBackground: "#FFFFFF"
+    clusterBkg: "#FFF9DB"
+    clusterBorder: "#444444"
+---
+flowchart TD
+    Request([结果明确的需求]) --> Specify("1 - Specify<br/>写 story 和边界")
+    Specify --> Code("2 - Code<br/>先见失败，最小修复")
+    Code --> Clean("3 - Clean<br/>更易读，不改变行为")
+    Clean --> Architect("4 - Architect<br/>遵守仓库边界")
+    Architect --> Harden("5 - Harden<br/>按风险测试失败")
+    Harden --> Verify("6 - Verify<br/>检查最终文件树")
+    Verify --> Gate{所有必需证据都通过？}
+    Gate -->|尚未| Revise([继续修复或停止<br/>并记录 proof gap])
+    Revise --> Specify
+    Gate -->|是| Ready([交付文件和命令<br/>附结果与限制])
+
+    Specify -.-> Story[(Story 有效<br/>scope 已冻结)]
+    Code -.-> RedGreen[(修改前正确失败<br/>修改后正确通过)]
+    Clean -.-> CleanProof[(Focused check<br/>仍然通过)]
+    Architect -.-> Boundary[(边界正确<br/>或风险已记录)]
+    Harden -.-> RiskProof[(必需失败场景<br/>全部通过)]
+    Verify -.-> FinalProof[(命令、退出码<br/>和最终 diff)]
+
+    classDef terminal fill:#111111,stroke:#444444,stroke-width:2px,color:#FFFFFF;
+    classDef step fill:#8ECAFF,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef decision fill:#FFD43B,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef success fill:#8CE99A,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef danger fill:#FF8787,stroke:#444444,stroke-width:2px,color:#111111;
+    classDef data fill:#63E6BE,stroke:#444444,stroke-width:2px,color:#111111;
+    class Request terminal;
+    class Specify,Code,Clean,Architect,Harden,Verify step;
+    class Gate decision;
+    class Ready success;
+    class Revise danger;
+    class Story,RedGreen,CleanProof,Boundary,RiskProof,FinalProof data;
+    linkStyle default stroke:#444444,stroke-width:1.5px;
+```
+
+**如何阅读这张图：**
+
+1. 沿实线箭头从上到下查看六道门的执行顺序。
+2. 蓝色方框表示 agent 在该质量门要做的工作。
+3. 青绿色圆柱通过虚线连接，表示该门完成后必须保留的证据。
+4. 黄色菱形是最终问题：所有必需证据是否都已通过。
+5. 红色分支返回 `Specify`，因为修复可能改变 scope 或验收标准。如果无法安全修复，则带着明确的 `proof gap` 停止。
+6. 只有最终文件树上的检查通过后，才会进入绿色分支。
+
+**图的结论：** 在 `Code` 完成实现不等于完成工作。只有 `Verify` 在最终仓库状态上确认所有必需证据后，改动才可以交付。
+
+#### 最简单的开始方式
+
+```text
+/clean-delivery
+Goal（可观察结果）: 在写入任何 ledger 行之前拒绝非有限 metric。
+May edit（允许修改）: src/metric-ledger.py 和 focused tests。
+Must not edit（禁止修改）: 现有 acceptance fixtures 或 release scripts。
+Done when（可测试条件）: NaN 和 infinity 失败且 ledger 不变，有限值仍然通过。
+Risk: medium.
+```
+
+| Prompt 行 | 含义 |
+| --- | --- |
+| `Goal` | 外部可以观察到的结果，而不是实现步骤。 |
+| `May edit` | Agent 允许修改的文件或目录。 |
+| `Must not edit` | 必须保持不变的测试、fixture、script 或其他区域。 |
+| `Done when` | 可以由检查判断通过或失败的条件。 |
+| `Risk` | 必须应用的最低验证级别。 |
+
+#### 风险如何改变验证强度？
+
+| 级别 | 最低验证要求 |
+| --- | --- |
+| `low` | Focused check、仓库验证和最终 diff review。 |
+| `medium` | 增加验收证据和架构边界审查。 |
+| `high` | 增加 security、失败路径、Protected verifier asset，以及环境可靠时的独立验证。 |
+| `critical` | 增加人工批准、rollback 证据和独立 final verifier。 |
+
+#### 真实例子：拒绝无效 metric
+
+| 质量门 | 本例中的工作 | 必须保留的证据 |
+| --- | --- | --- |
+| `Specify` | 冻结规则：`NaN`、`Infinity`、`-Infinity` 和 overflow 必须在 append 前失败，出错时 ledger 不变。 | 有效 story，明确可编辑文件和受保护测试。 |
+| `Code` | 先运行无效 metric 用例暴露问题，再加入最小的有限数字检查。 | 同一用例在改动前正确失败，在改动后通过。 |
+| `Clean` | 让 parsing 和错误处理易读，同时保持有效 metric 的格式。 | 有限和非有限 metric 检查仍然通过。 |
+| `Architect` | 把 validation 保持在 metric 即将成为 ledger 行的边界，而不是散落在 caller 中。 | 边界审查或仓库 architecture command。 |
+| `Harden` | 测试 `NaN`、两种 infinity、overflow、任意文本和报错时不写入。 | 每个 case 的结果，以及 ledger 未发生修改的证据。 |
+| `Verify` | 在最终文件树上运行所有承诺的命令，并检查 diff 是否超出 scope。 | 命令、退出码、相关结果和剩余限制。 |
+
+#### 本节术语
+
+| 术语 | 简单含义 |
+| --- | --- |
+| `Story` | 对一个交付结果、可编辑 scope 和完成检查的简短描述。 |
+| `Red evidence` | 实现前因为目标行为缺失而正确失败的检查。 |
+| `Focused check` | 直接针对正在修改行为的最小检查。 |
+| `Protected verifier asset` | 实现不得削弱的 test、fixture、schema、snapshot、policy、benchmark input 或 validator。 |
+| `Proof gap` | 必需但缺失、无法运行或尚未解决的检查。 |
+| `Boundary` | Module、layer 或 system 之间的职责边界。 |
+| `Final tree` | 完成实现和清理后的全部最终文件状态。 |
+
+使用以下命令验证 story：
+
+```bash
+node .vibekit/skills/clean-delivery/scripts/validate-story.mjs path/to/story.md
+npm run test:clean-delivery
+```
+
+将 `path/to/story.md` 替换为实际 story 路径。`null`、命令缺失或 `not-configured: <原因>` 表示不存在 verifier，绝不表示已通过。参阅 [skill contract](../.vibekit/skills/clean-delivery/SKILL.md)、[story template](../.vibekit/skills/clean-delivery/references/story-template.md) 和 [verification tiers](../.vibekit/skills/clean-delivery/references/verification-tiers.md)。
 
 ### 图工程：经验证的编排
 

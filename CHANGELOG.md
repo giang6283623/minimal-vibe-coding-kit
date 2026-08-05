@@ -9,6 +9,9 @@
 - Added `clean-delivery` across Claude, Cursor, Codex, Grok, and Kimi. The optional workflow treats Specify, Code, Clean, Architect, Harden, and Verify as proportional craftsmanship gates rather than mandatory agents, with a deterministic story validator, protected verification assets, risk-tier evidence, and Proofline-compatible returns.
 - Added a provider-neutral Default, Auto, and Custom orchestration preference contract. Parent agents prefer native structured questions, child agents return `needs_user_input`, remembered choices reuse `.vibekit/preferences.json`, and a dependency-free helper validates project-local assignments without probing credentials or executing providers.
 - Added an optional `commands.verification` contract to backbone schema version 4 with named unit, acceptance, architecture, property, mutation, and e2e command-or-null fields. Initializers infer existing scripts only, old schema version 3 backbones remain valid, and null never means passed or triggers tool installation.
+- Added practical Korean, German, and Bulgarian README translations with synchronized navigation, npm package inclusion, and deterministic validation coverage.
+- Added a language-matched author star request directly below the introductory tagline in all seven READMEs.
+- Added a plain-language Clean Delivery guide to all seven READMEs, following the Proofline teaching structure with a six-gate analogy, benefits, use and skip criteria, a fail-closed workflow, starter prompt, real metric-validation example, and executable story checks.
 
 ### Changed
 
@@ -22,10 +25,12 @@
 - Hardened Clean Delivery story validation against duplicate required headings, untouched template placeholders, placeholder proof commands, and unconfigured red evidence.
 - Made Autoresearch and Clean Delivery resource validation report incomplete installations through the normal failure summary instead of uncaught filesystem exceptions.
 - Synchronized all four README skill mindmaps with the documented 21-skill catalog and added `clean-delivery`.
+- Removed duplicate `themeVariables` mappings from the Vietnamese, Chinese, and Japanese Proofline diagrams, then added Mermaid skill guidance and a duplicate-key regression gate for authored diagrams.
+- Reworked all seven Clean Delivery guides with plain-language gate conditions, explicit stop behavior, detailed localized evidence flowcharts and legends, annotated starter prompts, risk tables, concrete walkthroughs, and visible glossaries.
 
 ### Validation
 
-- `npm run validate:all` passed with zero validator failures or warnings, the complete install matrix, 32 Autoresearch checks, 7 Clean Delivery story checks, all 177 Tutien checks, all 42 graph-renderer checks, all 37 Proofline sandbox checks, and no built-in suspicious AgentShield markers. The package dry-run included all 926 on-disk skill files in a 1,036-file tarball.
+- `npm run validate:all` passed with zero validator failures or warnings, the complete install matrix, 32 Autoresearch checks, 7 Clean Delivery story checks, all 177 Tutien checks, all 42 graph-renderer checks, all 37 Proofline sandbox checks, and no built-in suspicious AgentShield markers. The package dry-run included all 926 on-disk skill files in a 1,039-file tarball.
 
 ## 0.5.7 - 2026-08-03
 
