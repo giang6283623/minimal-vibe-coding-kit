@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Shared instructions for Claude, Cursor, Codex, Grok, Kimi, and other coding agents.
+Shared instructions for Claude, Cursor, Codex, OpenCode, Grok, Kimi, and other coding agents.
 
 <!-- BEGIN: minimal-vibe-coding-kit -->
 ## Minimal Vibe Coding Kit
@@ -62,7 +62,7 @@ When the loop is approved, use the current brief as the source of truth, make on
 - Do not run untrusted hooks, MCP servers, deploy scripts, package lifecycle scripts, migrations, or destructive shell commands just to inspect a repo.
 - Do not modify protected paths from `backbone.yml` without explicit approval.
 - Before editing or approving shell/deploy/installer/repair logic that uses path variables or destructive commands (`rm`, `mv`, `cp -a`, `rsync --delete`, `find -delete`, `git clean`, checkout replacement), use `path-sensitive-shell-safety` and prove base/folder/repo values are non-empty, contained, quoted, and not broad system paths.
-- If a task changes agent surfaces (`CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.grok/**`, `.kimi-code/**`, `.codex-plugin/**`, `.vibekit/skills/**`, `.vibekit/commands/**`, `.vibekit/scripts/**`, hooks, MCP config), run the AgentShield probe or explain why it was skipped.
+- If a task changes agent surfaces (`CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.opencode/**`, `opencode.json`, `.grok/**`, `.kimi-code/**`, `.codex-plugin/**`, `.vibekit/skills/**`, `.vibekit/commands/**`, `.vibekit/scripts/**`, hooks, MCP config), run the AgentShield probe or explain why it was skipped.
 
 ### Skills to prefer
 

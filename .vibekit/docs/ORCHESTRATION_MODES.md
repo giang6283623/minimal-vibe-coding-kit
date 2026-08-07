@@ -10,7 +10,7 @@ This contract applies immediately before a parent agent would dispatch its first
 4. If no native question tool is available in the current mode or host, ask one concise plain-text question at a time in the parent conversation.
 5. Child agents never ask the end user directly. They return a needs_user_input status, the decision needed, 2 or 3 options with short consequences, and their recommended option. The parent asks and routes the answer back.
 
-Prefer the runtime's currently exposed question mechanism. Common labels include request_user_input in Codex, AskUserQuestion in Claude and Kimi, and Ask Question in Cursor. Grok and any host without a documented generic question tool use the plain parent-conversation fallback. Tool names are examples, not assumptions: capability exposure in the active runtime is the authority.
+Prefer the runtime's currently exposed question mechanism. Common labels include request_user_input in Codex, AskUserQuestion in Claude and Kimi, Ask Question in Cursor, and question in OpenCode. Grok and any host without a documented generic question tool use the plain parent-conversation fallback. Tool names are examples, not assumptions: capability exposure in the active runtime is the authority.
 
 ## First question: mode
 
@@ -59,7 +59,7 @@ Use the script only after the user selects Don't show again. A one-time answer s
 
 ### Auto
 
-Build a bounded capability inventory for Codex, Claude, Cursor, Grok, Kimi, and any provider adapters already configured by the project.
+Build a bounded capability inventory for Codex, Claude, Cursor, OpenCode, Grok, Kimi, and any provider adapters already configured by the project.
 
 Classify each adapter:
 
@@ -76,6 +76,48 @@ For each lane, first satisfy risk, capability, context, tool, isolation, and ver
 Show only providers and models that the runtime can verify as available. Ask for assignments in batches of at most three native questions. Each assignment binds one named role or lane to a provider and model. Keep provider-default as an explicit option. Reject unknown, unavailable, unauthenticated, or unsafe assignments and ask for a replacement.
 
 Custom routing does not bypass task dependencies, isolation, budgets, protected paths, human gates, or verification. When the runtime cannot enforce an assignment, stop or use a user-approved fallback.
+
+## Enforced routing plans
+
+Preference is not dispatch. `.vibekit/preferences.json` records intent, and `orchestration-preference.mjs` validates only bounded local preference state. Neither one invokes a provider or proves that a model is available.
+
+For a Codex-native Auto or Custom lane, the parent should build a current in-memory inventory from the model and agent capabilities exposed by the active runtime, then validate one dispatch plan:
+
+~~~sh
+node .vibekit/scripts/orchestration-routing.mjs plan < routing-request.json
+~~~
+
+The request names the exact `agentType`, reasoning effort, fork policy, capability floor, quality floor, fallback policy, inventory source, expected receipt issuer, verified time, expiry, parent settings, ready model records, and ready agent-profile records with explicit nullable model and reasoning pins. The parent must construct this inventory from authenticated host data. Do not put credentials, full provider output, or secret account data in the inventory.
+
+Before calling the helper, the parent must separately validate the lane's risk, context, tool, isolation, and verification requirements against authenticated runtime data. Those host-specific floors are not represented by the helper schema and must not be claimed as helper-enforced.
+
+The helper is a deterministic policy boundary, not a provider adapter. It never discovers models, authenticates, invokes `spawn_agent`, enables hooks, or changes configuration. The parent remains responsible for mapping the accepted plan to the native spawn fields:
+
+~~~text
+agent_type       <- plan.agentType
+model            <- plan.model
+reasoning_effort <- plan.reasoningEffort
+fork_turns       <- plan.forkTurns
+~~~
+
+Apply these fail-closed rules:
+
+- A Custom model must exactly match a ready model in the fresh inventory. `provider-default` is not exact model control.
+- Custom fallback is `stop` unless the user approved one exact alternate.
+- Auto may select the lowest declared cost rank only after the parent validates the runtime-specific floors and the helper validates capability, quality, and reasoning. It may name at most one capable alternate.
+- A full-history fork must inherit the parent's model and reasoning effort. Use a fresh or bounded fork when an explicit different model is required.
+- Agent-file `model` or `model_reasoning_effort` values outrank explicit spawn values. A ready profile record is required, Auto honors a capable declared model pin, and any pin conflict fails closed. Keep dynamically routed profiles unpinned unless a fixed profile is intentional.
+- Record the accepted plan digest, returned child id, and runtime inventory digest. Spawn acceptance alone is not effective-model attestation.
+
+After the host starts the lane, authenticate the runtime-issued receipt through the host boundary, then verify its plan binding:
+
+~~~sh
+node .vibekit/scripts/orchestration-routing.mjs verify < receipt-envelope.json
+~~~
+
+The verification envelope must include the child id returned by the spawn call as `expectedAgentId`. The receipt must bind the plan digest and report the expected issuer, an evidence digest, the effective provider, agent type, model, reasoning effort, fork policy, child id, and observation time. The helper validates the receipt child id against `expectedAgentId`, plus exact settings equality, freshness, and digest-shaped evidence, but it cannot authenticate the issuer of caller-supplied JSON. A child agent's prose is supporting evidence, not a control-plane receipt. If the host cannot authenticate and expose the effective settings, label the lane `requested-not-attested`; do not claim strict Custom compliance, model diversity, or model-based evaluation validity.
+
+Exact model execution still does not prove that the model is suitable or correct. Auto role floors are hypotheses that must be checked against task-specific acceptance oracles and representative evaluation results.
 
 ## Separate preference from topology
 
@@ -109,4 +151,4 @@ A remembered Auto or Custom preference does not authorize subagents, mutation, p
 }
 ~~~
 
-Allowed provider identifiers are current, codex, claude, cursor, grok, and kimi. Do not store credentials, tokens, account details, or provider command output.
+Allowed provider identifiers are current, codex, claude, cursor, opencode, grok, and kimi. Do not store credentials, tokens, account details, or provider command output.

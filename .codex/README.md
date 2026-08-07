@@ -17,4 +17,6 @@ Project-scoped Proofline roles live in `.codex/agents/`:
 - `proofline_countervoice`: read-only premise, evidence, oracle, and acceptance challenge.
 - `proofline_maker`: bounded implementation with a reproducible Proof Return.
 
-Invoke `proofline-orchestration` or `/proofline` to use the contract. Codex custom-agent files omit model pins so they inherit the active session model. Role labels guide responsibility; the configured sandbox and actual runtime scopes provide the enforceable boundary.
+Invoke `proofline-orchestration` or `/proofline` to use the contract. Codex custom-agent files omit model pins so a parent can apply task-specific routing. Codex resolves model and reasoning settings independently: an agent-file pin, an explicit spawn value, the corresponding `[agents]` default, then the parent value.
+
+For Auto or Custom routing, use `.vibekit/scripts/orchestration-routing.mjs` to validate a fresh runtime inventory, including the selected agent profile's nullable model pins, and produce exact `agent_type`, `model`, `reasoning_effort`, and `fork_turns` values before the native spawn call. After spawn, accept the lane only when an externally authenticated control-plane receipt passes the helper's exact binding check. The helper cannot authenticate caller-supplied JSON. If the host exposes no such receipt, report `requested-not-attested`; do not claim strict model enforcement. Role labels and configured sandboxes remain advisory until the active runtime proves their effective settings.

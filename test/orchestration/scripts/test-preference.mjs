@@ -45,9 +45,11 @@ try {
     "--assign",
     "researcher=cursor:provider-default",
     "--assign=reviewer=claude:sonnet-current",
+    "--assign=operator=opencode:provider-default",
   ]).stdout);
   assert.equal(rememberedCustom.assignments.researcher.provider, "cursor");
   assert.equal(rememberedCustom.assignments.reviewer.model, "sonnet-current");
+  assert.equal(rememberedCustom.assignments.operator.provider, "opencode");
 
   run(["remember", "default", temporary, "--assign=reviewer=claude:provider-default"], 1);
   run(["remember", "custom", temporary, "--assign=../escape=claude:provider-default"], 1);

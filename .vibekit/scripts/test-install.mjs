@@ -96,6 +96,10 @@ try {
     'clean install includes the orchestration preference helper'
   );
   assert(
+    fs.existsSync(path.join(clean, '.vibekit/scripts/orchestration-routing.mjs')),
+    'clean install includes the orchestration routing helper'
+  );
+  assert(
     fs.existsSync(path.join(clean, '.vibekit/docs/ORCHESTRATION_MODES.md')),
     'clean install includes the orchestration mode contract'
   );
@@ -180,6 +184,7 @@ try {
 
   const proposed = run([path.join(kitRoot, '.vibekit/scripts/mvck.mjs'), 'init', '--propose'], { cwd: cwdTarget });
   assert(proposed.stdout.includes('Proposed backbone.yml'), 'init --propose without target preserves flag');
+  assert(proposed.stdout.includes('  opencode: .opencode/'), 'generated backbone registers the OpenCode surface');
   assert(proposed.stdout.includes('  grok: .grok/'), 'generated backbone registers the Grok surface');
   assert(proposed.stdout.includes('  kimi: .kimi-code/'), 'generated backbone registers the Kimi surface');
   assert(proposed.stdout.includes('Writing style: no emoji'), 'generated backbone seeds the writing-style rule');
@@ -360,8 +365,64 @@ try {
     assert(fs.readFileSync(outsideConfig, 'utf8') === 'model = "outside"\n', 'Codex enable refuses a symlinked config without changing its target');
   }
 
+  const openCodeExisting = tempDir('opencode-existing-config');
+  const existingOpenCodeConfig = '{\n  "permission": {\n    "bash": "allow"\n  }\n}\n';
+  fs.writeFileSync(path.join(openCodeExisting, 'opencode.json'), existingOpenCodeConfig);
+  run(['.vibekit/scripts/mvck.mjs', 'install', openCodeExisting, '--profile', 'opencode']);
+  assert(fs.readFileSync(path.join(openCodeExisting, 'opencode.json'), 'utf8') === existingOpenCodeConfig, 'OpenCode install preserves an existing project config');
+  run(['.vibekit/scripts/mvck.mjs', 'update', openCodeExisting, '--profile', 'opencode']);
+  assert(fs.readFileSync(path.join(openCodeExisting, 'opencode.json'), 'utf8') === existingOpenCodeConfig, 'OpenCode update preserves an existing project config');
+
+  const openCodeUpdate = tempDir('opencode-update');
+  run(['.vibekit/scripts/mvck.mjs', 'install', openCodeUpdate, '--profile', 'opencode']);
+  const missingOpenCodeCommand = path.join(openCodeUpdate, '.opencode/commands/proofline.md');
+  fs.rmSync(missingOpenCodeCommand);
+  const unknownOpenCodeCommand = path.join(openCodeUpdate, '.opencode/commands/project-command.md');
+  fs.writeFileSync(unknownOpenCodeCommand, 'project-owned command\n');
+  run(['.vibekit/scripts/mvck.mjs', 'update', openCodeUpdate, '--profile', 'opencode']);
+  assert(fs.existsSync(missingOpenCodeCommand), 'OpenCode update restores a missing kit command');
+  assert(fs.readFileSync(unknownOpenCodeCommand, 'utf8') === 'project-owned command\n', 'OpenCode update preserves unknown project commands');
+
+  if (process.platform !== 'win32') {
+    const openCodeDanglingConfig = tempDir('opencode-dangling-config');
+    const openCodeDanglingConfigOutside = tempDir('opencode-dangling-config-outside');
+    const escapedConfig = path.join(openCodeDanglingConfigOutside, 'escaped-opencode.json');
+    fs.symlinkSync(escapedConfig, path.join(openCodeDanglingConfig, 'opencode.json'));
+    run(['.vibekit/scripts/mvck.mjs', 'install', openCodeDanglingConfig, '--profile', 'opencode'], { expect: 1 });
+    assert(!fs.existsSync(escapedConfig), 'OpenCode install refuses a dangling config symlink without creating its outside target');
+
+    const openCodeSymlink = tempDir('opencode-command-symlink');
+    const openCodeOutside = tempDir('opencode-command-outside');
+    const outsideSentinel = path.join(openCodeOutside, 'outside-sentinel');
+    fs.writeFileSync(outsideSentinel, 'unchanged\n');
+    fs.mkdirSync(path.join(openCodeSymlink, '.opencode'), { recursive: true });
+    fs.symlinkSync(openCodeOutside, path.join(openCodeSymlink, '.opencode/commands'));
+    run(['.vibekit/scripts/mvck.mjs', 'install', openCodeSymlink, '--profile', 'opencode'], { expect: 1 });
+    assert(fs.readFileSync(outsideSentinel, 'utf8') === 'unchanged\n', 'OpenCode install refuses a symlinked command directory without changing its target');
+
+    const openCodeUpdateSymlink = tempDir('opencode-update-command-symlink');
+    const openCodeUpdateOutside = tempDir('opencode-update-command-outside');
+    const updateOutsideSentinel = path.join(openCodeUpdateOutside, 'outside-sentinel');
+    fs.writeFileSync(updateOutsideSentinel, 'unchanged\n');
+    run(['.vibekit/scripts/mvck.mjs', 'install', openCodeUpdateSymlink, '--profile', 'opencode']);
+    fs.rmSync(path.join(openCodeUpdateSymlink, '.opencode/commands'), { recursive: true, force: true });
+    fs.symlinkSync(openCodeUpdateOutside, path.join(openCodeUpdateSymlink, '.opencode/commands'));
+    run(['.vibekit/scripts/mvck.mjs', 'update', openCodeUpdateSymlink, '--profile', 'opencode'], { expect: 1 });
+    assert(fs.readFileSync(updateOutsideSentinel, 'utf8') === 'unchanged\n', 'OpenCode update refuses a symlinked command directory without changing its target');
+
+    const openCodeDanglingUpdate = tempDir('opencode-dangling-update');
+    const openCodeDanglingUpdateOutside = tempDir('opencode-dangling-update-outside');
+    run(['.vibekit/scripts/mvck.mjs', 'install', openCodeDanglingUpdate, '--profile', 'opencode']);
+    const danglingCommand = path.join(openCodeDanglingUpdate, '.opencode/commands/proofline.md');
+    const escapedCommand = path.join(openCodeDanglingUpdateOutside, 'escaped-proofline.md');
+    fs.rmSync(danglingCommand);
+    fs.symlinkSync(escapedCommand, danglingCommand);
+    run(['.vibekit/scripts/mvck.mjs', 'update', openCodeDanglingUpdate, '--profile', 'opencode'], { expect: 1 });
+    assert(!fs.existsSync(escapedCommand), 'OpenCode update refuses a dangling command symlink without creating its outside target');
+  }
+
   // Single-profile installs must pass validation on their own.
-  for (const profile of ['claude', 'cursor', 'codex', 'grok', 'kimi']) {
+  for (const profile of ['claude', 'cursor', 'codex', 'opencode', 'grok', 'kimi']) {
     const solo = tempDir(`profile-${profile}`);
     run(['.vibekit/scripts/mvck.mjs', 'install', solo, '--profile', profile]);
     run(['.vibekit/scripts/validate-kit.mjs', solo]);
@@ -374,6 +435,28 @@ try {
         doctor.nativeReasoningSkills.missing.every((item) => !item.startsWith('kimi:')),
         'doctor validates Kimi native reasoning skills'
       );
+    }
+    if (profile === 'opencode') {
+      assert(fs.existsSync(path.join(solo, 'AGENTS.md')), 'OpenCode-only install creates AGENTS.md');
+      assert(fs.existsSync(path.join(solo, '.agents/skills/clearthought/SKILL.md')), 'OpenCode-only install creates the shared skill registry');
+      assert(fs.existsSync(path.join(solo, '.opencode/commands/proofline.md')), 'OpenCode-only install creates native commands');
+      assert(!fs.existsSync(path.join(solo, '.codex')), 'OpenCode-only install does not create a Codex config directory');
+      assert(!fs.existsSync(path.join(solo, '.codex-plugin')), 'OpenCode-only install does not create a Codex plugin');
+      const doctor = JSON.parse(run(['.vibekit/scripts/doctor.mjs', solo, '--json']).stdout);
+      assert(doctor.agentSurfaces.opencode === true, 'doctor detects an OpenCode-only install');
+      assert(doctor.agentSurfaces.codex === false, 'doctor does not misclassify an OpenCode-only install as Codex');
+      assert(doctor.aiRulesLoaded.codexSkills === 0, 'doctor does not count shared OpenCode skills as active Codex skills');
+      assert(doctor.aiRulesLoaded.opencodeSkills > 0, 'doctor counts shared skills for an active OpenCode surface');
+      assert(doctor.aiRulesLoaded.opencodeCommands > 0, 'doctor counts OpenCode commands');
+      assert(
+        doctor.nativeReasoningSkills.missing.every((item) => !item.startsWith('opencode:')),
+        'doctor validates OpenCode native reasoning skills'
+      );
+    }
+    if (profile === 'codex') {
+      const doctor = JSON.parse(run(['.vibekit/scripts/doctor.mjs', solo, '--json']).stdout);
+      assert(doctor.aiRulesLoaded.codexSkills > 0, 'doctor counts shared skills for an active Codex surface');
+      assert(doctor.aiRulesLoaded.opencodeSkills === 0, 'doctor does not count shared Codex skills as active OpenCode skills');
     }
   }
 

@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const MODES = new Set(["default", "auto", "custom"]);
-const PROVIDERS = new Set(["current", "codex", "claude", "cursor", "grok", "kimi"]);
+const PROVIDERS = new Set(["current", "codex", "claude", "cursor", "opencode", "grok", "kimi"]);
 const args = process.argv.slice(2);
 
 function usage() {

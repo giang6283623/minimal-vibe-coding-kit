@@ -28,7 +28,7 @@ Flag as medium when active config contains:
 
 - Silent failure suppression such as always-success shell fallbacks, stderr suppression, or broad `try/catch` around security checks.
 - Missing descriptions for MCP servers or agent purposes.
-- Duplicate Claude/Codex skill copies likely to drift.
+- Duplicate Claude/Codex/OpenCode skill copies likely to drift.
 - Lack of CI security scan for agent config changes.
 
 ## Low/info findings

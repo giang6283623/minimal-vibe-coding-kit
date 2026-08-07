@@ -6,16 +6,17 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.8-2ea44f.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.9-2ea44f.svg)](CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
+![OpenCode](https://img.shields.io/badge/OpenCode-AGENTS.md%20%26%20Commands-2f7d42)
 ![Grok](https://img.shields.io/badge/Grok-Rules%20%26%20Skills-000000)
 ![Kimi](https://img.shields.io/badge/Kimi-AGENTS.md%20%26%20Skills-2f54eb)
 ![AgentShield](https://img.shields.io/badge/Security-AgentShield-d62828)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)
 
-**One installable AI-coding workflow kit for Claude Code, Cursor, Codex, Grok, and Kimi - any repo, any language.**
+**One installable AI-coding workflow kit for Claude Code, Cursor, Codex, OpenCode, Grok, and Kimi - any repo, any language.**
 
 Install → paste one prompt → approve the proposal → code with guardrails.
 
@@ -27,12 +28,12 @@ If you use this kit and it actually helps you, drop a star. It tells me it’s u
 
 ## What is this?
 
-A small kit of shared **rules**, **skills**, and **commands**, plus one **`backbone.yml`** manifest, so Claude Code, Cursor, Codex, Grok, and Kimi all understand your project the same way.
+A small kit of shared **rules**, **skills**, and **commands**, plus one **`backbone.yml`** manifest, so Claude Code, Cursor, Codex, OpenCode, Grok, and Kimi all understand your project the same way.
 
 - Never overwrites your existing `CLAUDE.md` / `AGENTS.md` - it only adds managed blocks.
 - Every setup write waits for your explicit approval.
 - Security review of agent surfaces (AgentShield) is part of the normal workflow.
-- Safe deletes by default: all agents prefer the recoverable `trash` command (init checks it and recommends an install if missing), backed by each tool's documented guardrail config - Claude Code deny rules (`.claude/settings.json`), Cursor CLI permissions (`.cursor/cli.json`), Codex execution-policy rules (`.codex/rules/`, experimental, active once the project is trusted), and Grok project permission rules (`.grok/config.toml`).
+- Safe deletes by default: all agents prefer the recoverable `trash` command (init checks it and recommends an install if missing), backed by each tool's documented guardrail config - Claude Code deny rules (`.claude/settings.json`), Cursor CLI permissions (`.cursor/cli.json`), Codex execution-policy rules (`.codex/rules/`, experimental, active once the project is trusted), OpenCode project permissions (`opencode.json`), and Grok project permission rules (`.grok/config.toml`).
 - First-time init asks two setup preferences - use `trash` instead of `rm`, and your default explanation level (0-5, changeable anytime with `/coding-level N`) - and records both in `backbone.yml`.
 
 ## Quick Start
@@ -79,7 +80,7 @@ npx --yes minimal-vibe-coding-kit@latest install /path/to/your-project
 
 Already ran `npm i minimal-vibe-coding-kit`, or prefer GitHub or a local clone? See [Install from npm](#install-from-npm).
 
-**2. Open the project in Claude Code, Cursor, Codex, Grok, or Kimi Code and paste:**
+**2. Open the project in Claude Code, Cursor, Codex, OpenCode, Grok, or Kimi Code and paste:**
 
 ```text
 Read .vibekit/init/FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit.
@@ -142,8 +143,10 @@ your-project/
 ├── .gitignore                ← kit entries appended inside a managed block
 ├── .claude/                  ← Claude Code: rules, commands, agents, skills
 ├── .cursor/                  ← Cursor: rules, commands, skills
-├── .agents/                  ← Codex / portable skills
+├── .agents/                  ← Codex + OpenCode shared skills
 ├── .codex/  .codex-plugin/   ← Codex config example + plugin manifest
+├── .opencode/                ← OpenCode commands and integration guide
+├── opencode.json             ← OpenCode permission baseline (seed-only)
 ├── .grok/                    ← Grok Build: rules, skills, config example
 ├── .kimi-code/                    ← Kimi Code: skills (highest-priority project skills dir)
 └── .vibekit/                 ← everything kit-owned, in ONE folder
@@ -172,7 +175,7 @@ config:
     clusterBorder: "#444444"
 ---
 flowchart TD
-    You([You - one prompt]) --> Agent("Claude / Cursor / Codex / Grok / Kimi")
+    You([You - one prompt]) --> Agent("Claude / Cursor / Codex / OpenCode / Grok / Kimi")
 
     subgraph First["Read first"]
         Backbone[("backbone.yml")]
@@ -351,7 +354,7 @@ Choose "Don't show again" to remember that exact mode in .vibekit/preferences.js
 
 ## Skills
 
-All 21 skills live canonically in `.vibekit/skills/`. Claude, Codex, Grok, and Kimi mirror all 21; Cursor mirrors the 16 interactive ones. Invoke them by name ("Use the X skill…") or via the commands above.
+All 21 skills live canonically in `.vibekit/skills/`. Claude, Codex, OpenCode, Grok, and Kimi use all 21; Cursor uses the 16 interactive ones. OpenCode and Codex share `.agents/skills/`. Invoke them by name ("Use the X skill…") or via the commands above.
 
 ```mermaid
 ---
@@ -485,7 +488,7 @@ These are responsibilities, not seniority levels. `Countervoice` may conclude th
 
 #### Where does it run?
 
-Proofline runs inside a repository that uses Minimal Vibe Coding Kit, with Codex, Claude Code, Cursor, Grok, or Kimi. It works best for coding tasks with named files, explicit boundaries, and a measurable test. Paseo is an optional adapter for coordinating several sessions; Proofline does not require Paseo.
+Proofline runs inside a repository that uses Minimal Vibe Coding Kit, with Codex, OpenCode, Claude Code, Cursor, Grok, or Kimi. It works best for coding tasks with named files, explicit boundaries, and a measurable test. Paseo is an optional adapter for coordinating several sessions; Proofline does not require Paseo.
 
 ```mermaid
 ---
@@ -922,6 +925,7 @@ Install only the surfaces you use (default is `all`):
 npx --yes minimal-vibe-coding-kit@latest install . --profile claude          # Claude Code only
 npx --yes minimal-vibe-coding-kit@latest install . --profile claude,cursor   # Claude + Cursor
 npx --yes minimal-vibe-coding-kit@latest install . --profile codex           # Codex / AGENTS.md agents
+npx --yes minimal-vibe-coding-kit@latest install . --profile opencode        # OpenCode / AGENTS.md, shared skills, commands
 npx --yes minimal-vibe-coding-kit@latest install . --profile grok            # Grok Build CLI
 npx --yes minimal-vibe-coding-kit@latest install . --profile kimi            # Kimi Code CLI
 ```
@@ -993,7 +997,7 @@ node .vibekit/scripts/agentshield-probe.mjs .                          # fast re
 npx ecc-agentshield scan --path . --format text --min-severity medium  # optional full scan
 ```
 
-Any change to `CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.grok/**`, `.kimi-code/**`, `.codex-plugin/**`, or `.vibekit/skills|commands|scripts/**` should trigger a review. Model: [.vibekit/docs/SECURITY_MODEL.md](.vibekit/docs/SECURITY_MODEL.md).
+Any change to `CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.opencode/**`, `opencode.json`, `.grok/**`, `.kimi-code/**`, `.codex-plugin/**`, or `.vibekit/skills|commands|scripts/**` should trigger a review. Model: [.vibekit/docs/SECURITY_MODEL.md](.vibekit/docs/SECURITY_MODEL.md).
 
 ### Doctor and reports
 

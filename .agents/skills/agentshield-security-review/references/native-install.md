@@ -1,4 +1,4 @@
-# Native Claude Code and Codex Install Pattern
+# Native Claude Code, Codex, and OpenCode Install Pattern
 
 Keep one canonical skill and add thin harness adapters.
 
@@ -13,6 +13,9 @@ Recommended repo layout:
 .vibekit/skills/agentshield-security-review/scripts/agentshield_repo_probe.py
 .vibekit/commands/security-scan.md
 .codex-plugin/plugin.json
+.agents/skills/<skill-name>/SKILL.md
+.opencode/commands/security-scan.md
+opencode.json
 .claude-plugin/plugin.json
 ```
 
@@ -22,7 +25,7 @@ Create `.vibekit/commands/security-scan.md` or `.claude/commands/security-scan.m
 
 ```markdown
 ---
-description: Run an AgentShield-style security scan against agent, hook, MCP, permission, skill, command, Claude, and Codex surfaces.
+description: Run an AgentShield-style security scan against agent, hook, MCP, permission, skill, command, Claude, Codex, and OpenCode surfaces.
 agent: security-reviewer
 subtask: true
 ---
@@ -61,6 +64,10 @@ Example intent:
 }
 ```
 
+## OpenCode native paths
+
+OpenCode reads repository instructions from `AGENTS.md`, discovers native project skills from `.agents/skills/`, and loads command prompts from `.opencode/commands/`. Keep the shared skill body in `.agents/skills/` and add command frontmatter with a `description`. Seed `opencode.json` only when the project does not already have an OpenCode configuration.
+
 ## CI gate
 
 Add a GitHub Actions job when you want agent config changes to fail builds:
@@ -75,6 +82,8 @@ on:
       - ".claude/**"
       - ".cursor/**"
       - ".agents/**"
+      - ".opencode/**"
+      - "opencode.json"
       - ".grok/**"
       - ".kimi-code/**"
       - ".codex/**"

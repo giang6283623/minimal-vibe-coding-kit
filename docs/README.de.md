@@ -6,16 +6,17 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.8-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.9-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
+![OpenCode](https://img.shields.io/badge/OpenCode-AGENTS.md%20%26%20Commands-2f7d42)
 ![Grok](https://img.shields.io/badge/Grok-Rules%20%26%20Skills-000000)
 ![Kimi](https://img.shields.io/badge/Kimi-AGENTS.md%20%26%20Skills-2f54eb)
 ![AgentShield](https://img.shields.io/badge/Security-AgentShield-d62828)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)
 
-**Ein installierbares KI-Coding-Workflow-Kit für Claude Code, Cursor, Codex, Grok und Kimi. Für jedes Repository und jede Sprache.**
+**Ein installierbares KI-Coding-Workflow-Kit für Claude Code, Cursor, Codex, OpenCode, Grok und Kimi. Für jedes Repository und jede Sprache.**
 
 Installieren → einen Prompt einfügen → Vorschlag prüfen → mit Guardrails programmieren.
 
@@ -27,7 +28,7 @@ Wenn dir dieses Kit wirklich hilft, gib dem Repository bitte einen Star. So wei�
 
 ## Was ist dieses Kit?
 
-Ein kleines Kit aus gemeinsamen **Regeln**, **Skills** und **Befehlen** sowie einem **`backbone.yml`**-Manifest. Damit verstehen Claude Code, Cursor, Codex, Grok und Kimi dein Projekt auf dieselbe Weise.
+Ein kleines Kit aus gemeinsamen **Regeln**, **Skills** und **Befehlen** sowie einem **`backbone.yml`**-Manifest. Damit verstehen Claude Code, Cursor, Codex, OpenCode, Grok und Kimi dein Projekt auf dieselbe Weise.
 
 - Vorhandene `CLAUDE.md`- oder `AGENTS.md`-Dateien werden nie überschrieben. Das Kit ergänzt nur verwaltete Blöcke.
 - Jeder schreibende Setup-Schritt wartet auf deine ausdrückliche Zustimmung.
@@ -56,7 +57,7 @@ flowchart LR
 npx --yes minimal-vibe-coding-kit@latest install /path/to/your-project
 ```
 
-**2. Öffne das Projekt in Claude Code, Cursor, Codex, Grok oder Kimi Code und füge diesen Prompt ein:**
+**2. Öffne das Projekt in Claude Code, Cursor, Codex, OpenCode, Grok oder Kimi Code und füge diesen Prompt ein:**
 
 ```text
 Read .vibekit/init/FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit.
@@ -114,6 +115,7 @@ your-project/
 ├── .cursor/                  ← Regeln, Befehle und Skills für Cursor
 ├── .agents/                  ← portable Skills für Codex
 ├── .codex/  .codex-plugin/   ← Codex-Konfigurationsbeispiel und Plugin-Manifest
+├── .opencode/                ← OpenCode commands and integration guide
 ├── .grok/                    ← Regeln, Skills und Konfigurationsbeispiel für Grok
 ├── .kimi-code/               ← Projekt-Skills für Kimi Code
 └── .vibekit/                 ← alle Dateien, die dem Kit gehören
@@ -165,7 +167,7 @@ Mit "Don't show again" wird die Auswahl in `.vibekit/preferences.json` gespeiche
 
 ## Skills
 
-Alle 21 Skills liegen kanonisch unter `.vibekit/skills/`. Claude, Codex, Grok und Kimi spiegeln alle 21, Cursor spiegelt die 16 interaktiven Skills.
+Alle 21 Skills liegen kanonisch unter `.vibekit/skills/`. Claude, Codex, OpenCode, Grok und Kimi spiegeln alle 21, Cursor spiegelt die 16 interaktiven Skills.
 
 | Skill | Wann er sinnvoll ist |
 | --- | --- |
@@ -437,6 +439,7 @@ Die drei Services können in einer Welle laufen, weil sie unterschiedliche Datei
 npx --yes minimal-vibe-coding-kit@latest install . --profile claude
 npx --yes minimal-vibe-coding-kit@latest install . --profile claude,cursor
 npx --yes minimal-vibe-coding-kit@latest install . --profile codex
+npx --yes minimal-vibe-coding-kit@latest install . --profile opencode        # OpenCode / AGENTS.md, shared skills, commands
 npx --yes minimal-vibe-coding-kit@latest install . --profile grok
 npx --yes minimal-vibe-coding-kit@latest install . --profile kimi
 ```
@@ -470,7 +473,7 @@ node .vibekit/scripts/agentshield-probe.mjs .
 npx ecc-agentshield scan --path . --format text --min-severity medium
 ```
 
-Änderungen an `CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.grok/**`, `.kimi-code/**`, `.codex-plugin/**` oder `.vibekit/skills|commands|scripts/**` sollten eine Prüfung auslösen.
+Änderungen an `CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.opencode/**`, `opencode.json`, `.grok/**`, `.kimi-code/**`, `.codex-plugin/**` oder `.vibekit/skills|commands|scripts/**` sollten eine Prüfung auslösen.
 
 ### Doctor und Berichte
 

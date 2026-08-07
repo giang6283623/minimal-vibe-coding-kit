@@ -6,16 +6,17 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.8-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.9-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
+![OpenCode](https://img.shields.io/badge/OpenCode-AGENTS.md%20%26%20Commands-2f7d42)
 ![Grok](https://img.shields.io/badge/Grok-Rules%20%26%20Skills-000000)
 ![Kimi](https://img.shields.io/badge/Kimi-AGENTS.md%20%26%20Skills-2f54eb)
 ![AgentShield](https://img.shields.io/badge/Security-AgentShield-d62828)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)
 
-**Một bộ kit AI-coding cài một lần cho Claude Code, Cursor, Codex, Grok và Kimi - mọi repo, mọi ngôn ngữ.**
+**Một bộ kit AI-coding cài một lần cho Claude Code, Cursor, Codex, OpenCode, Grok và Kimi - mọi repo, mọi ngôn ngữ.**
 
 Cài đặt → dán một prompt → duyệt đề xuất → code với guardrails.
 
@@ -27,7 +28,7 @@ Nếu bộ kit này thực sự giúp ích cho bạn, hãy tặng repo một Sta
 
 ## Bộ kit này là gì?
 
-Một bộ kit nhỏ gồm **rules**, **skills**, **commands** dùng chung, cộng một manifest **`backbone.yml`**, giúp Claude Code, Cursor, Codex, Grok và Kimi hiểu project của bạn theo cùng một cách.
+Một bộ kit nhỏ gồm **rules**, **skills**, **commands** dùng chung, cộng một manifest **`backbone.yml`**, giúp Claude Code, Cursor, Codex, OpenCode, Grok và Kimi hiểu project của bạn theo cùng một cách.
 
 - Không bao giờ ghi đè `CLAUDE.md` / `AGENTS.md` sẵn có - chỉ thêm managed block.
 - Mọi thao tác ghi khi setup đều chờ bạn duyệt.
@@ -79,7 +80,7 @@ npx --yes minimal-vibe-coding-kit@latest install /path/to/your-project
 
 Đã chạy `npm i minimal-vibe-coding-kit`, hoặc muốn cài từ GitHub / bản clone? Xem [Cài từ npm](#cài-từ-npm).
 
-**2. Mở project trong Claude Code, Cursor, Codex, Grok hoặc Kimi Code và dán:**
+**2. Mở project trong Claude Code, Cursor, Codex, OpenCode, Grok hoặc Kimi Code và dán:**
 
 ```text
 Read .vibekit/init/FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit.
@@ -142,8 +143,9 @@ your-project/
 ├── .gitignore                ← các entry của kit thêm trong managed block
 ├── .claude/                  ← Claude Code: rules, commands, agents, skills
 ├── .cursor/                  ← Cursor: rules, commands, skills
-├── .agents/                  ← skills cho Codex / portable
+├── .agents/                  ← skills cho Codex + OpenCode / portable
 ├── .codex/  .codex-plugin/   ← config mẫu Codex + plugin manifest
+├── .opencode/                ← OpenCode commands and integration guide
 ├── .grok/                    ← Grok Build: rules, skills, config mẫu
 ├── .kimi-code/                    ← Kimi Code: skills (thư mục skills project được ưu tiên cao nhất)
 └── .vibekit/                 ← mọi thứ thuộc kit, trong MỘT thư mục
@@ -172,7 +174,7 @@ config:
     clusterBorder: "#444444"
 ---
 flowchart TD
-    You([Bạn - một prompt]) --> Agent("Claude / Cursor / Codex / Grok / Kimi")
+    You([Bạn - một prompt]) --> Agent("Claude / Cursor / Codex / OpenCode / Grok / Kimi")
 
     subgraph First["Đọc đầu tiên"]
         Backbone[("backbone.yml")]
@@ -351,7 +353,7 @@ Chọn "Don't show again" để nhớ chính xác mode đó trong .vibekit/prefe
 
 ## Skills
 
-Cả 21 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex, Grok và Kimi mirror đủ 21; Cursor mirror 16 skill tương tác. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
+Cả 21 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex, OpenCode, Grok và Kimi mirror đủ 21; Cursor mirror 16 skill tương tác. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
 
 ```mermaid
 ---
@@ -920,6 +922,7 @@ Chỉ cài các bề mặt bạn dùng (mặc định là `all`):
 npx --yes minimal-vibe-coding-kit@latest install . --profile claude          # chỉ Claude Code
 npx --yes minimal-vibe-coding-kit@latest install . --profile claude,cursor   # Claude + Cursor
 npx --yes minimal-vibe-coding-kit@latest install . --profile codex           # Codex / agent dùng AGENTS.md
+npx --yes minimal-vibe-coding-kit@latest install . --profile opencode        # OpenCode / AGENTS.md, shared skills, commands
 npx --yes minimal-vibe-coding-kit@latest install . --profile grok            # Grok Build CLI
 npx --yes minimal-vibe-coding-kit@latest install . --profile kimi            # Kimi Code CLI
 ```
@@ -991,7 +994,7 @@ node .vibekit/scripts/agentshield-probe.mjs .                          # probe c
 npx ecc-agentshield scan --path . --format text --min-severity medium  # scan đầy đủ, tùy chọn
 ```
 
-Mọi thay đổi tới `CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.grok/**`, `.kimi-code/**`, `.codex-plugin/**`, hoặc `.vibekit/skills|commands|scripts/**` đều nên kích hoạt review. Mô hình: [.vibekit/docs/SECURITY_MODEL.md](../.vibekit/docs/SECURITY_MODEL.md).
+Mọi thay đổi tới `CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.opencode/**`, `opencode.json`, `.grok/**`, `.kimi-code/**`, `.codex-plugin/**`, hoặc `.vibekit/skills|commands|scripts/**` đều nên kích hoạt review. Mô hình: [.vibekit/docs/SECURITY_MODEL.md](../.vibekit/docs/SECURITY_MODEL.md).
 
 ### Doctor và báo cáo
 

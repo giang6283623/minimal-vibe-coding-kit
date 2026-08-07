@@ -6,16 +6,17 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.8-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.9-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
+![OpenCode](https://img.shields.io/badge/OpenCode-AGENTS.md%20%26%20Commands-2f7d42)
 ![Grok](https://img.shields.io/badge/Grok-Rules%20%26%20Skills-000000)
 ![Kimi](https://img.shields.io/badge/Kimi-AGENTS.md%20%26%20Skills-2f54eb)
 ![AgentShield](https://img.shields.io/badge/Security-AgentShield-d62828)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)
 
-**一套可安装的 AI 编程工作流工具包，同时支持 Claude Code、Cursor、Codex、Grok 和 Kimi，适用于任何仓库、任何语言。**
+**一套可安装的 AI 编程工作流工具包，同时支持 Claude Code、Cursor、Codex、OpenCode、Grok 和 Kimi，适用于任何仓库、任何语言。**
 
 安装 → 粘贴一个提示词 → 审核方案 → 在护栏保护下开始编码。
 
@@ -27,7 +28,7 @@
 
 ## 这是什么？
 
-这是一套精简的共享 **规则（rules）**、**技能（skills）** 和 **命令（commands）**，再配合一个 **`backbone.yml`** 清单，让 Claude Code、Cursor、Codex、Grok 和 Kimi 以一致的方式理解你的项目。
+这是一套精简的共享 **规则（rules）**、**技能（skills）** 和 **命令（commands）**，再配合一个 **`backbone.yml`** 清单，让 Claude Code、Cursor、Codex、OpenCode、Grok 和 Kimi 以一致的方式理解你的项目。
 
 - 绝不会覆盖已有的 `CLAUDE.md` 或 `AGENTS.md`，只会添加受管理的区块。
 - 初始化期间的每一次写入都会等待你的明确批准。
@@ -79,7 +80,7 @@ npx --yes minimal-vibe-coding-kit@latest install /path/to/your-project
 
 已经运行过 `npm i minimal-vibe-coding-kit`，或者更喜欢 GitHub / 本地克隆方式？请参阅[从 npm 安装](#从-npm-安装)。
 
-**2. 在 Claude Code、Cursor、Codex、Grok 或 Kimi Code 中打开项目并粘贴：**
+**2. 在 Claude Code、Cursor、Codex、OpenCode、Grok 或 Kimi Code 中打开项目并粘贴：**
 
 ```text
 Read .vibekit/init/FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit.
@@ -142,8 +143,9 @@ your-project/
 ├── .gitignore                ← 在受管理区块中追加工具包条目
 ├── .claude/                  ← Claude Code：规则、命令、Agent、技能
 ├── .cursor/                  ← Cursor：规则、命令、技能
-├── .agents/                  ← Codex / 可移植技能
+├── .agents/                  ← Codex + OpenCode / 可移植技能
 ├── .codex/  .codex-plugin/   ← Codex 配置示例和插件清单
+├── .opencode/                ← OpenCode commands and integration guide
 ├── .grok/                    ← Grok Build：规则、技能、配置示例
 ├── .kimi-code/                    ← Kimi Code：技能（最高优先级的项目级技能目录）
 └── .vibekit/                 ← 工具包拥有的所有内容都集中在一个目录
@@ -172,7 +174,7 @@ config:
     clusterBorder: "#444444"
 ---
 flowchart TD
-    You([你 - 一个提示词]) --> Agent("Claude / Cursor / Codex / Grok / Kimi")
+    You([你 - 一个提示词]) --> Agent("Claude / Cursor / Codex / OpenCode / Grok / Kimi")
 
     subgraph First["首先读取"]
         Backbone[("backbone.yml")]
@@ -351,7 +353,7 @@ flowchart LR
 
 ## 技能
 
-全部 21 个技能的规范版本位于 `.vibekit/skills/`。Claude、Codex、Grok 和 Kimi 镜像全部 21 个技能；Cursor 镜像其中 16 个交互式技能。可以直接按名称调用（例如“Use the X skill…”），也可以使用上面的命令。
+全部 21 个技能的规范版本位于 `.vibekit/skills/`。Claude、Codex、OpenCode、Grok 和 Kimi 镜像全部 21 个技能；Cursor 镜像其中 16 个交互式技能。可以直接按名称调用（例如“Use the X skill…”），也可以使用上面的命令。
 
 ```mermaid
 ---
@@ -920,6 +922,7 @@ flowchart TD
 npx --yes minimal-vibe-coding-kit@latest install . --profile claude          # 仅 Claude Code
 npx --yes minimal-vibe-coding-kit@latest install . --profile claude,cursor   # Claude + Cursor
 npx --yes minimal-vibe-coding-kit@latest install . --profile codex           # Codex / AGENTS.md Agent
+npx --yes minimal-vibe-coding-kit@latest install . --profile opencode        # OpenCode / AGENTS.md, shared skills, commands
 npx --yes minimal-vibe-coding-kit@latest install . --profile grok            # Grok Build CLI
 npx --yes minimal-vibe-coding-kit@latest install . --profile kimi            # Kimi Code CLI
 ```

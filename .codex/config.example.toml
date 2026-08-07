@@ -8,6 +8,12 @@ project_doc_fallback_filenames = ["AGENTS.md", "CLAUDE.md"]
 [features]
 # default_mode_request_user_input = true
 
+# Optional fallback for spawned agents that do not receive explicit settings.
+# These values do not provide per-role Auto or Custom routing.
+# [agents]
+# default_subagent_model = "gpt-5.6-terra"
+# default_subagent_reasoning_effort = "medium"
+
 # Skills can be disabled by path if needed:
 # [[skills.config]]
 # path = "/absolute/path/to/.agents/skills/autoresearch-coding/SKILL.md"

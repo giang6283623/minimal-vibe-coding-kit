@@ -30,7 +30,7 @@ It does not install, invoke, or bundle an external scanner.
 Review these before merging changes:
 
 - `CLAUDE.md`, `AGENTS.md`, `.github/copilot-instructions.md`
-- `.claude/**`, `.cursor/**`, `.agents/**`, `.grok/**`, `.kimi-code/**`, `.codex/**`, `.codex-plugin/**`
+- `.claude/**`, `.cursor/**`, `.agents/**`, `.opencode/**`, `opencode.json`, `.grok/**`, `.kimi-code/**`, `.codex/**`, `.codex-plugin/**`
 - `.vibekit/skills/**`, `.vibekit/commands/**`, `.vibekit/scripts/**`, `hooks/**`
 - `.mcp.json`, `mcp.json`, `mcp-configs/**`
 - installer scripts and CI workflows
