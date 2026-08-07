@@ -29,6 +29,12 @@ Read .vibekit/init/FIRST_TIME_INIT.md and .cursor/rules. Initialize backbone.yml
 Read AGENTS.md and .vibekit/init/FIRST_TIME_INIT.md. Use the vibekit-init skill if available. Initialize backbone.yml, include inferred project conventions, keep AGENTS.md concise, and wait for approval before writing.
 ```
 
+## OpenCode
+
+```text
+Read AGENTS.md and .vibekit/init/FIRST_TIME_INIT.md. Use the shared vibekit-init skill if available. Initialize backbone.yml, keep AGENTS.md concise, use .opencode/commands for commands, and wait for approval before writing.
+```
+
 ## Autoresearch improvement loop for this kit
 
 ```text
@@ -36,7 +42,7 @@ Use the autoresearch-coding skill.
 Goal: improve this Minimal Vibe Coding Kit for existing projects in any language.
 Metric command: node .vibekit/scripts/validate-kit.mjs .
 Direction: higher.
-Editable paths: README.md .vibekit/docs .vibekit/scripts skills .vibekit/commands .claude .cursor .agents .grok .codex-plugin .github backbone.yml AGENTS.md .vibekit/init/CLAUDE-template.md .vibekit/init/FIRST_TIME_INIT.md package.json install.sh install.ps1.
+Editable paths: README.md .vibekit/docs .vibekit/scripts skills .vibekit/commands .claude .cursor .agents .opencode opencode.json .grok .codex-plugin .github backbone.yml AGENTS.md .vibekit/init/CLAUDE-template.md .vibekit/init/FIRST_TIME_INIT.md package.json install.sh install.ps1.
 Protected paths: .git .env* node_modules vendor secrets lockfiles.
 Budget: 3.
 ```

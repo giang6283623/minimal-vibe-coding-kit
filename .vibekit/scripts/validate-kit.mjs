@@ -78,7 +78,8 @@ const isKitSourceRepo = readJson('package.json')?.name === 'minimal-vibe-coding-
 const surfacePresent = {
   claude: isKitSourceRepo || exists('.claude'),
   cursor: isKitSourceRepo || exists('.cursor'),
-  codex: isKitSourceRepo || exists('.agents') || exists('.codex') || exists('.codex-plugin'),
+  codex: isKitSourceRepo || exists('.codex') || exists('.codex-plugin'),
+  opencode: isKitSourceRepo || exists('.opencode') || exists('opencode.json'),
   grok: isKitSourceRepo || exists('.grok'),
   kimi: isKitSourceRepo || exists('.kimi-code')
 };
@@ -98,6 +99,7 @@ const KIT_SKILLS = manifestSkills.map((s) => s.name);
 const skillsForSurface = (surface) => manifestSkills.filter((s) => (s.surfaces || []).includes(surface)).map((s) => s.name);
 const CURSOR_KIT_SKILLS = skillsForSurface('cursor');
 const KIMI_KIT_SKILLS = skillsForSurface('kimi');
+const OPENCODE_KIT_SKILLS = skillsForSurface('opencode');
 
 // Fail closed: a canonical skill directory that is not in the manifest would
 // otherwise escape mirror, package, and install validation entirely.
@@ -118,7 +120,7 @@ const required = [
   'AGENTS.md', '.vibekit/init/CLAUDE-template.md', '.vibekit/init/FIRST_TIME_INIT.md', '.vibekit/init/FIRST_PROMPT.md', 'backbone.yml',
   '.vibekit/scripts/mvck.mjs', '.vibekit/scripts/init-backbone.mjs', '.vibekit/scripts/daily-enhance.mjs', '.vibekit/scripts/validate-kit.mjs',
   '.vibekit/scripts/doctor.mjs', '.vibekit/scripts/agentshield-probe.mjs', '.vibekit/scripts/orchestration-preference.mjs',
-  '.vibekit/scripts/vibekit-finalize.mjs', '.vibekit/docs/ORCHESTRATION_MODES.md',
+  '.vibekit/scripts/orchestration-routing.mjs', '.vibekit/scripts/vibekit-finalize.mjs', '.vibekit/docs/ORCHESTRATION_MODES.md',
   ...KIT_SKILLS.map((skill) => `.vibekit/skills/${skill}/SKILL.md`),
   '.vibekit/docs/templates/PRD_TEMPLATE.md', '.vibekit/docs/templates/CONTEXT_TEMPLATE.md'
 ];
@@ -132,6 +134,10 @@ if (surfacePresent.cursor) {
 if (surfacePresent.codex) {
   required.push('.codex/README.md', '.codex/config.example.toml', '.codex/rules/vibekit.rules', '.codex-plugin/plugin.json',
     ...KIT_SKILLS.map((skill) => `.agents/skills/${skill}/SKILL.md`));
+}
+if (surfacePresent.opencode) {
+  required.push('.opencode/README.md', 'opencode.json',
+    ...OPENCODE_KIT_SKILLS.map((skill) => `.agents/skills/${skill}/SKILL.md`));
 }
 if (surfacePresent.grok) {
   required.push('.grok/README.md', '.grok/config.example.toml', '.grok/config.toml',
@@ -221,7 +227,7 @@ const reasoningSkillResources = {
 const reasoningSurfaceDirs = ['.vibekit/skills'];
 if (surfacePresent.claude) reasoningSurfaceDirs.push('.claude/skills');
 if (surfacePresent.cursor) reasoningSurfaceDirs.push('.cursor/skills');
-if (surfacePresent.codex) reasoningSurfaceDirs.push('.agents/skills');
+if (surfacePresent.codex || surfacePresent.opencode) reasoningSurfaceDirs.push('.agents/skills');
 if (surfacePresent.grok) reasoningSurfaceDirs.push('.grok/skills');
 if (surfacePresent.kimi) reasoningSurfaceDirs.push('.kimi-code/skills');
 for (const surface of reasoningSurfaceDirs) {
@@ -290,6 +296,18 @@ for (const surfaceRoot of MANIFEST_SURFACE_ROOTS) {
     `AgentShield probe inventories ${surfaceRoot}`
   );
 }
+for (const surfacePath of ['.opencode/**', 'opencode.json']) {
+  requireText(
+    '.github/workflows/vibekit-validate.yml',
+    `"${surfacePath}"`,
+    `CI workflow watches ${surfacePath}`
+  );
+}
+requireText(
+  '.vibekit/skills/agentshield-security-review/scripts/agentshield_repo_probe.py',
+  '".opencode"',
+  'AgentShield probe inventories .opencode'
+);
 const skillMirrors = {};
 for (const skill of manifestSkills) {
   skillMirrors[skill.name] = (skill.surfaces || [])
@@ -829,10 +847,12 @@ function validateCleanDeliveryContract() {
 
 function validateOrchestrationModeContract() {
   const contractPath = '.vibekit/docs/ORCHESTRATION_MODES.md';
-  const scriptPath = '.vibekit/scripts/orchestration-preference.mjs';
-  if (!exists(contractPath) || !exists(scriptPath)) return;
+  const preferencePath = '.vibekit/scripts/orchestration-preference.mjs';
+  const routingPath = '.vibekit/scripts/orchestration-routing.mjs';
+  if (!exists(contractPath) || !exists(preferencePath) || !exists(routingPath)) return;
   const contract = read(contractPath);
-  const preferenceScript = read(scriptPath);
+  const preferenceScript = read(preferencePath);
+  const routingScript = read(routingPath);
   const agents = read('AGENTS.md');
   const council = read('.vibekit/commands/council.md');
   const parallel = read('.vibekit/skills/parallel-analysis/SKILL.md');
@@ -858,7 +878,8 @@ function validateOrchestrationModeContract() {
     'Coding level changes explanation density',
     'never lowers model capability, safety, verification, or authorization',
     'Auto routes only to ready adapters',
-    'never guesses credentials, model aliases, prices, context limits, or availability'
+    'never guesses credentials, model aliases, prices, context limits, or availability',
+    'host-specific floors are not represented by the helper schema'
   ])) {
     ok('Orchestration routing preserves quality and safety floors without guessing provider state');
   } else {
@@ -867,7 +888,7 @@ function validateOrchestrationModeContract() {
 
   if (hasAll(preferenceScript, [
     'const MODES = new Set(["default", "auto", "custom"])',
-    'const PROVIDERS = new Set(["current", "codex", "claude", "cursor", "grok", "kimi"])',
+    'const PROVIDERS = new Set(["current", "codex", "claude", "cursor", "opencode", "grok", "kimi"])',
     'refusing symlinked project preference file',
     'custom mode requires at least one --assign',
     'delete preferences.orchestration'
@@ -875,6 +896,30 @@ function validateOrchestrationModeContract() {
     ok('Orchestration preference helper validates bounded local state without invoking providers');
   } else {
     fail('Orchestration preference helper schema, path safety, or execution boundary drifted');
+  }
+
+  if (hasAll(contract, [
+    '## Enforced routing plans',
+    'Preference is not dispatch',
+    'requested-not-attested',
+    'full-history fork'
+  ]) && hasAll(routingScript, [
+    'export function buildRoutingPlan',
+    'export function verifyEffectiveReceipt',
+    'provider-default is not an exact model',
+    'agentProfilePins',
+    'custom agent model pin',
+    'full-history routing must inherit the parent model and reasoning effort',
+    'effective-model receipt is required',
+    'expected agentId',
+    'receipt agentId does not match the spawned child',
+    'bindingVerified: true',
+    'validates binding, not issuer authenticity',
+    'MAX_INPUT_BYTES'
+  ]) && !/(node:child_process|\beval\s*\(|\bexecSync\s*\(|\bspawnSync\s*\()/.test(routingScript)) {
+    ok('Orchestration routing helper validates exact models, fork compatibility, fallbacks, freshness, and effective receipts without invoking providers');
+  } else {
+    fail('Orchestration routing planner, attestation, or non-execution boundary drifted');
   }
 
   const integrationValid = hasAll(agents, [
@@ -903,7 +948,8 @@ function validateOrchestrationModeContract() {
 
   const sourceValid = !isKitSourceRepo || (
     exists('test/orchestration/scripts/test-preference.mjs')
-    && hasAll(read('package.json'), ['test:orchestration', 'orchestration-preference.mjs'])
+    && exists('test/orchestration/scripts/test-routing.mjs')
+    && hasAll(read('package.json'), ['test:orchestration', 'orchestration-preference.mjs', 'orchestration-routing.mjs'])
     && ['README.md', 'docs/README.vi.md', 'docs/README.zh-CN.md', 'docs/README.ja.md']
       .every((file) => read(file).includes('ORCHESTRATION_MODES.md'))
     && read('.vibekit/docs/INSTALL.md').includes('Multi-agent orchestration preference')
@@ -1734,7 +1780,7 @@ function parseFrontmatter(text) {
   return fields;
 }
 
-for (const surface of ['.vibekit/skills', ...Object.values(MANIFEST_SURFACE_DIRS)]) {
+for (const surface of new Set(['.vibekit/skills', ...Object.values(MANIFEST_SURFACE_DIRS)])) {
   if (!exists(surface)) continue;
   for (const file of listFiles(surface).filter((f) => f.endsWith('SKILL.md'))) {
     const rel = `${surface}/${file}`;
@@ -1756,6 +1802,7 @@ if (exists('.vibekit/commands')) {
   const cmdMirrors = {};
   if (surfacePresent.claude) cmdMirrors['.claude/commands'] = true;
   if (surfacePresent.cursor) cmdMirrors['.cursor/commands'] = true;
+  if (surfacePresent.opencode) cmdMirrors['.opencode/commands'] = true;
   for (const [mirrorDir, stripFm] of Object.entries(cmdMirrors)) {
     if (!exists(mirrorDir)) { warn(`command mirror dir missing: ${mirrorDir}`); continue; }
     for (const file of canonicalCmds) {
@@ -1766,11 +1813,16 @@ if (exists('.vibekit/commands')) {
       const mirText = stripFm ? stripFrontmatter(read(mirRel)) : read(mirRel).trim();
       if (srcText === mirText) ok(`command mirror ${mirRel} matches`);
       else fail(`command mirror ${mirRel} differs from ${srcRel}`);
+      if (mirrorDir === '.opencode/commands') {
+        parseFrontmatter(read(mirRel))?.description
+          ? ok(`OpenCode command ${mirRel} has a description`)
+          : fail(`OpenCode command ${mirRel} is missing frontmatter description`);
+      }
     }
   }
 }
 
-for (const rel of ['package.json', '.claude/settings.json', '.cursor/settings.json', '.cursor/cli.json', '.codex-plugin/plugin.json']) {
+for (const rel of ['package.json', '.claude/settings.json', '.cursor/settings.json', '.cursor/cli.json', '.codex-plugin/plugin.json', 'opencode.json']) {
   if (!exists(rel)) continue;
   try { JSON.parse(read(rel)); ok(`valid JSON ${rel}`); } catch (error) { fail(`invalid JSON ${rel}: ${error.message}`); }
 }
@@ -1953,6 +2005,10 @@ if (surfacePresent.cursor && exists('.cursor/cli.json')) {
     : fail('.cursor/cli.json missing permissions.deny entry Shell(rm)');
 }
 if (surfacePresent.codex) requireText('.codex/rules/vibekit.rules', 'decision = "forbidden"', 'Codex rules include forbidden decisions');
+if (surfacePresent.opencode) {
+  requireText('opencode.json', '"external_directory": "deny"', 'OpenCode config denies external directories');
+  requireText('opencode.json', '"rm": "deny"', 'OpenCode config denies rm');
+}
 if (surfacePresent.grok) {
   requireText('.grok/config.toml', '[permission]', 'Grok project config declares [permission] rules');
   requireText('.grok/config.toml', '"Bash(rm *)"', 'Grok project config denies rm');
@@ -2108,6 +2164,8 @@ const riskyPatterns = [
 
 const scanDirs = [...new Set([
   ...MANIFEST_SURFACE_ROOTS,
+  '.opencode',
+  'opencode.json',
   '.codex',
   '.codex-plugin',
   '.vibekit/skills',

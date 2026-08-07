@@ -16,10 +16,11 @@ PATTERNS = {
     "claude": [".claude", ".claude-plugin", "agents"],
     "cursor": [".cursor"],
     "codex": [".agents", ".codex", ".codex-plugin"],
+    "opencode": [".opencode", "opencode.json"],
     "grok": [".grok"],
     "kimi": [".kimi-code"],
     "shared_skills": [".vibekit/skills", ".claude/skills", ".cursor/skills", ".agents/skills", ".grok/skills", ".kimi-code/skills", "skills"],
-    "shared_commands": [".vibekit/commands"],
+    "shared_commands": [".vibekit/commands", ".opencode/commands"],
     "kit_scripts": [".vibekit/scripts"],
     "hooks": ["hooks", ".claude/hooks", ".cursor/hooks", ".agents/hooks", ".grok/hooks", ".kimi-code/hooks"],
     "mcp": [".mcp.json", "mcp.json", "mcp-configs"],
@@ -69,6 +70,9 @@ def deny_block_lines(text: str) -> set[int]:
     inside = False
     for idx, line in enumerate(text.splitlines()):
         stripped = line.strip()
+        if ": \"deny\"" in stripped and stripped.rstrip(",").endswith("\"deny\""):
+            covered.add(idx)
+            continue
         if not inside and "[" in stripped and ('"deny"' in stripped or stripped.startswith("deny =") or stripped.startswith("deny=")):
             covered.add(idx)
             inside = "]" not in stripped.split("[", 1)[1]
@@ -81,7 +85,7 @@ def deny_block_lines(text: str) -> set[int]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Inventory Claude/Codex AgentShield surfaces")
+    parser = argparse.ArgumentParser(description="Inventory Claude/Codex/OpenCode AgentShield surfaces")
     parser.add_argument("path", nargs="?", default=".", help="Repository root")
     parser.add_argument("--json", action="store_true", help="Emit JSON")
     args = parser.parse_args()

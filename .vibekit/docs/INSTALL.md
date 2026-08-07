@@ -29,6 +29,7 @@ Profiles:
 - `claude`: `CLAUDE.md`, `.claude/`, Claude skills, agents, commands, rules, deny-list settings.
 - `cursor`: `.cursor/rules`, `.cursor/commands`, `.cursor/cli.json` CLI permissions, Cursor skill entrypoints.
 - `codex`: `AGENTS.md`, `.agents/skills`, `.codex/rules` execution-policy rules, `.codex-plugin`, `.codex` examples. Install and update give MVCK-owned manifests a project-scoped plugin name (`mvck-<folder-name>`) so Codex skill pickers can distinguish different projects. Names are normalized and capped at 64 characters, with a short stable hash for long or non-ASCII folder names. Existing project-owned plugin manifests are preserved unless install is explicitly run with `--force`; projects that share a folder name can still collide, so rename one folder if that happens.
+- `opencode`: `AGENTS.md`, the shared `.agents/skills` registry, `.opencode/commands`, and a seed-only `opencode.json` permission baseline. OpenCode and Codex intentionally share one skill registry; installing OpenCode alone does not create `.codex/` or `.codex-plugin/`. Existing `opencode.json` files are preserved.
 - `grok`: `AGENTS.md`, `.grok/rules`, `.grok/skills`, `.grok/config.toml` permission rules, user config example.
 - `kimi`: `AGENTS.md`, `.kimi-code/README.md`, and the full `.kimi-code/skills` mirror.
 - `all`: every profile.
@@ -61,8 +62,9 @@ node /path/to/kit/.vibekit/scripts/mvck.mjs update /path/to/project
 
 The updater:
 
-- refreshes kit-owned surfaces (`.vibekit/skills/`, `.vibekit/commands/`, `.vibekit/scripts/`, `.vibekit/docs/`, and the `.claude/`, `.cursor/`, `.agents/`, `.grok/`, `.kimi-code/`, `.codex*` mirrors) and adds any new kit skills;
+- refreshes kit-owned surfaces (`.vibekit/skills/`, `.vibekit/commands/`, `.vibekit/scripts/`, `.vibekit/docs/`, and the `.claude/`, `.cursor/`, `.agents/`, `.opencode/`, `.grok/`, `.kimi-code/`, `.codex*` mirrors) and adds any new kit skills;
 - never overwrites `backbone.yml`, `CLAUDE.md`, `AGENTS.md` content outside the managed block, or `settings.json` files - those are seeded only if missing;
+- never overwrites an existing `opencode.json`; it is seeded only if missing;
 - backs up every replaced kit file to `.vibekit/update-backup/<timestamp>/` (disable with `--no-backup`);
 - never deletes files you added, and skips re-seeding one-time files after `mvck finalize`;
 - records the kit version in `.vibekit/KIT_VERSION` (shown by `mvck doctor`).
@@ -93,7 +95,7 @@ Note: run the updater from a newer kit (npx or a local clone), not via the proje
 Before the first child agent or multi-agent lane is dispatched, the parent follows .vibekit/docs/ORCHESTRATION_MODES.md. It prefers the active provider's native structured-question tool and falls back to one concise parent-conversation question at a time when that tool is unavailable.
 
 - Default preserves the active provider's normal behavior and default model.
-- Auto inventories ready Codex, Claude, Cursor, Grok, and Kimi adapters, then chooses the lowest-cost capable model above the task's safety and quality floor.
+- Auto inventories ready Codex, Claude, Cursor, OpenCode, Grok, and Kimi adapters, then chooses the lowest-cost capable model above the task's safety and quality floor.
 - Custom lets the user bind verified providers and models to named roles or lanes.
 
 The user may apply the choice once or select Don't show again to remember it in the existing project-local .vibekit/preferences.json. Child agents return needs_user_input to the parent instead of asking the user directly. .vibekit/parallel-analysis.json remains a separate executor-detail cache and cannot override the global mode.

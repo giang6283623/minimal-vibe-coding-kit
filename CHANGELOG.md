@@ -1,6 +1,27 @@
 # Changelog
 
-## Unreleased
+## 0.5.9 - 2026-08-07
+
+### Added
+
+- Added an OpenCode profile with root `AGENTS.md`, the shared `.agents/skills` registry, native `.opencode/commands`, a seed-only guarded `opencode.json`, installer and doctor support, AgentShield inventory, package inclusion, and OpenCode-only acceptance coverage.
+
+- Added a dependency-free Codex routing-plan and receipt-binding validator. It converts trusted live inventory into exact model, reasoning, role, profile-pin, capability, quality, and fallback decisions, then fails closed on stale inventories, unavailable models, profile-pin conflicts, full-history override conflicts, and missing or mismatched effective-model receipts without invoking providers or claiming to authenticate caller-supplied JSON.
+
+### Changed
+
+- Hardened generic installer and updater destinations against existing and dangling symlinked project paths, including OpenCode configuration and command paths.
+
+- Clarified that orchestration preferences are not dispatch, runtime-specific safety floors remain the parent's responsibility, custom-agent pins outrank explicit spawn values, global `[agents]` settings are fallbacks rather than per-role routing, and unavailable control-plane attestation must be reported as `requested-not-attested`.
+
+### Fixed
+
+- Bound effective-model receipts to the exact child id returned by the spawn call, preventing a receipt from another identical routing plan from satisfying verification.
+- Registered OpenCode in remembered Custom assignments and Auto inventory guidance, and corrected doctor reports so shared `.agents/skills` count only for active Codex or OpenCode surfaces.
+
+### Validation
+
+- `npm run validate:all` passed with zero validator failures or warnings, 45 orchestration routing checks, dangling-symlink install and update regressions, a clean deterministic AgentShield probe, and all 936 on-disk skill files included in a 1,050-file npm tarball.
 
 ## 0.5.8 - 2026-08-05
 

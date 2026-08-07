@@ -15,8 +15,8 @@ function usage() {
   console.log(`Minimal Vibe Coding Kit
 
 Usage:
-  mvck install [target] [--profile all|claude,cursor,codex,grok,kimi] [--force] [--dry-run] [--json]
-  mvck update [target] [--profile all|claude,cursor,codex,grok,kimi] [--dry-run] [--json] [--no-backup] [--codex-default-mode yes|no|never]
+  mvck install [target] [--profile all|claude,cursor,codex,opencode,grok,kimi] [--force] [--dry-run] [--json]
+  mvck update [target] [--profile all|claude,cursor,codex,opencode,grok,kimi] [--dry-run] [--json] [--no-backup] [--codex-default-mode yes|no|never]
   mvck init [target] [--propose|--write --yes] [--preset nextjs|wordpress|python|laravel|docker]
   mvck validate [target]
   mvck doctor [target] [--write-report] [--run-repo-checks] [--json]
@@ -88,41 +88,44 @@ function ensureDir(dir, dryRun) {
 
 function copyFileSafe(srcRel, destRel, target, { force = false, dryRun = false } = {}) {
   const src = path.join(kitRoot, srcRel);
-  const dest = path.join(target, destRel ?? srcRel);
+  const rel = destRel ?? srcRel;
+  const dest = safeTargetFile(target, rel);
   if (!fs.existsSync(src)) throw new Error(`Missing source file: ${srcRel}`);
-  if (fs.existsSync(dest) && !force) return { action: 'skip', path: destRel ?? srcRel };
+  if (fs.existsSync(dest) && !force) return { action: 'skip', path: rel };
   if (!dryRun) {
     fs.mkdirSync(path.dirname(dest), { recursive: true });
     fs.copyFileSync(src, dest);
     const mode = fs.statSync(src).mode;
     fs.chmodSync(dest, mode);
   }
-  return { action: fs.existsSync(dest) && force ? 'replace' : 'copy', path: destRel ?? srcRel };
+  return { action: fs.existsSync(dest) && force ? 'replace' : 'copy', path: rel };
 }
 
 function copyDirSafe(srcRel, destRel, target, { force = false, dryRun = false, exclude = [] } = {}) {
   const src = path.join(kitRoot, srcRel);
-  const destRoot = path.join(target, destRel ?? srcRel);
+  const rel = destRel ?? srcRel;
   if (!fs.existsSync(src)) throw new Error(`Missing source dir: ${srcRel}`);
   let copied = 0;
   let skipped = 0;
-  function copyRecursive(from, to) {
+  function copyRecursive(from) {
     if (exclude.includes(path.relative(src, from).replaceAll(path.sep, '/'))) return;
+    const targetRel = path.join(rel, path.relative(src, from)).replaceAll(path.sep, '/');
+    const safeTo = safeTargetFile(target, targetRel);
     const stat = fs.statSync(from);
     if (stat.isDirectory()) {
-      if (!dryRun) fs.mkdirSync(to, { recursive: true });
-      for (const entry of fs.readdirSync(from)) copyRecursive(path.join(from, entry), path.join(to, entry));
+      if (!dryRun) fs.mkdirSync(safeTo, { recursive: true });
+      for (const entry of fs.readdirSync(from)) copyRecursive(path.join(from, entry));
       return;
     }
-    if (fs.existsSync(to) && !force) { skipped += 1; return; }
+    if (fs.existsSync(safeTo) && !force) { skipped += 1; return; }
     copied += 1;
     if (!dryRun) {
-      fs.mkdirSync(path.dirname(to), { recursive: true });
-      fs.copyFileSync(from, to);
-      fs.chmodSync(to, fs.statSync(from).mode);
+      fs.mkdirSync(path.dirname(safeTo), { recursive: true });
+      fs.copyFileSync(from, safeTo);
+      fs.chmodSync(safeTo, fs.statSync(from).mode);
     }
   }
-  copyRecursive(src, destRoot);
+  copyRecursive(src);
   const action = force ? 'merge-replace' : copied > 0 && skipped > 0 ? 'merge-copy-missing' : copied > 0 ? 'copy-dir' : 'skip-dir';
   return { action: `${action} (${copied} copied, ${skipped} skipped)`, path: destRel ?? srcRel };
 }
@@ -165,7 +168,7 @@ function personalizeCodexPlugin(target, { dryRun = false, backup = null, force =
   if (plugin.author && typeof plugin.author.name === 'string') {
     plugin.author.name = `MVCK (${projectName})`;
   }
-  const dest = path.join(target, rel);
+  const dest = safeTargetFile(target, rel);
   const next = `${JSON.stringify(plugin, null, 2)}\n`;
   if (!fs.existsSync(dest)) {
     if (!dryRun) {
@@ -185,7 +188,7 @@ function personalizeCodexPlugin(target, { dryRun = false, backup = null, force =
   }
   if (!dryRun) {
     if (backup) {
-      const backupPath = path.join(backup.dir, rel);
+      const backupPath = safeTargetFile(target, path.relative(target, path.join(backup.dir, rel)));
       fs.mkdirSync(path.dirname(backupPath), { recursive: true });
       fs.copyFileSync(dest, backupPath);
       backup.count += 1;
@@ -195,7 +198,8 @@ function personalizeCodexPlugin(target, { dryRun = false, backup = null, force =
   return { action: isMvckCodexPlugin(currentPlugin) ? 'personalize' : 'replace', path: rel };
 }
 
-function appendManagedBlock(file, block, begin, end, { dryRun = false } = {}) {
+function appendManagedBlock(target, rel, block, begin, end, { dryRun = false } = {}) {
+  const file = safeTargetFile(target, rel);
   let current = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
   const start = current.indexOf(begin);
   const finish = current.indexOf(end);
@@ -227,14 +231,14 @@ const KIT_DOC_EXCLUDES = ['RESEARCH_NOTES.md', 'AUTORESEARCH_LEDGER.md'];
 const KIT_SCRIPTS = [
   '.vibekit/scripts/mvck.mjs', '.vibekit/scripts/init-backbone.mjs', '.vibekit/scripts/daily-enhance.mjs', '.vibekit/scripts/validate-kit.mjs',
   '.vibekit/scripts/doctor.mjs', '.vibekit/scripts/agentshield-probe.mjs', '.vibekit/scripts/orchestration-preference.mjs',
-  '.vibekit/scripts/vibekit-finalize.mjs'
+  '.vibekit/scripts/orchestration-routing.mjs', '.vibekit/scripts/vibekit-finalize.mjs'
 ];
-const VALID_PROFILES = new Set(['claude', 'cursor', 'codex', 'grok', 'kimi']);
+const VALID_PROFILES = new Set(['claude', 'cursor', 'codex', 'opencode', 'grok', 'kimi']);
 
 function parseProfiles(profileRaw) {
-  const profiles = new Set(profileRaw === 'all' ? ['claude', 'cursor', 'codex', 'grok', 'kimi'] : profileRaw.split(',').map((x) => x.trim()).filter(Boolean));
+  const profiles = new Set(profileRaw === 'all' ? ['claude', 'cursor', 'codex', 'opencode', 'grok', 'kimi'] : profileRaw.split(',').map((x) => x.trim()).filter(Boolean));
   for (const p of profiles) {
-    if (!VALID_PROFILES.has(p)) throw new Error(`Unknown profile: ${p}. Valid values: all, claude, cursor, codex, grok, kimi (comma-separated).`);
+    if (!VALID_PROFILES.has(p)) throw new Error(`Unknown profile: ${p}. Valid values: all, claude, cursor, codex, opencode, grok, kimi (comma-separated).`);
   }
   return profiles;
 }
@@ -246,6 +250,7 @@ const CLAUDE_SKILLS = skillsManifest.skills.map((s) => s.name);
 const CURSOR_DIRS = ['.cursor/rules', '.cursor/commands'];
 const CURSOR_SKILLS = skillsManifest.skills.filter((s) => (s.surfaces || []).includes('cursor')).map((s) => s.name);
 const CODEX_DIRS = ['.agents', '.codex', '.codex-plugin'];
+const OPENCODE_DIRS = ['.agents', '.opencode'];
 const GROK_DIRS = ['.grok'];
 const KIMI_DIRS = ['.kimi-code'];
 const GITIGNORE_BLOCK = `# BEGIN: minimal-vibe-coding-kit\n.autoresearch/\nresults.tsv\n.vibekit/INIT_DONE\n.vibekit/FINALIZE_DONE\n.vibekit/preferences.json\n.vibekit/parallel-analysis.json\n.vibekit/reports/\n.vibekit/update-backup/\n_vibekit-cleanup/\nCLAUDE.local.md\n# END: minimal-vibe-coding-kit`;
@@ -270,7 +275,13 @@ function safeTargetFile(target, rel) {
   let current = base;
   for (const part of parts) {
     current = path.join(current, part);
-    if (fs.existsSync(current) && fs.lstatSync(current).isSymbolicLink()) {
+    let stat = null;
+    try {
+      stat = fs.lstatSync(current);
+    } catch (error) {
+      if (error?.code !== 'ENOENT') throw error;
+    }
+    if (stat?.isSymbolicLink()) {
       throw new Error(`Refusing symlinked project path: ${rel}`);
     }
   }
@@ -374,9 +385,9 @@ function enableCodexDefaultMode(content) {
   return `${lines.join('\n')}\n`;
 }
 
-function backupTargetFile(file, rel, backup) {
+function backupTargetFile(target, file, rel, backup) {
   if (!backup || !fs.existsSync(file)) return;
-  const backupPath = path.join(backup.dir, rel);
+  const backupPath = safeTargetFile(target, path.relative(target, path.join(backup.dir, rel)));
   if (fs.existsSync(backupPath)) return;
   fs.mkdirSync(path.dirname(backupPath), { recursive: true });
   fs.copyFileSync(file, backupPath);
@@ -397,7 +408,7 @@ function writeCodexPreference(target, state, { dryRun = false, backup = null } =
   const text = `${JSON.stringify(next, null, 2)}\n`;
   if (text === current) return { action: 'unchanged', path: CODEX_PREFERENCES_REL };
   if (!dryRun) {
-    backupTargetFile(file, CODEX_PREFERENCES_REL, backup);
+    backupTargetFile(target, file, CODEX_PREFERENCES_REL, backup);
     fs.mkdirSync(path.dirname(file), { recursive: true });
     fs.writeFileSync(file, text);
   }
@@ -410,7 +421,7 @@ function writeCodexDefaultModeConfig(target, { dryRun = false, backup = null } =
   const next = enableCodexDefaultMode(current);
   if (next === current) return { action: 'unchanged', path: CODEX_CONFIG_REL };
   if (!dryRun) {
-    backupTargetFile(file, CODEX_CONFIG_REL, backup);
+    backupTargetFile(target, file, CODEX_CONFIG_REL, backup);
     fs.mkdirSync(path.dirname(file), { recursive: true });
     fs.writeFileSync(file, next);
   }
@@ -498,27 +509,27 @@ function kitVersion() {
 
 function writeKitVersion(target, dryRun) {
   if (dryRun) return;
-  const markerDir = path.join(target, '.vibekit');
+  const markerDir = safeTargetFile(target, '.vibekit');
   fs.mkdirSync(markerDir, { recursive: true });
-  fs.writeFileSync(path.join(markerDir, 'KIT_VERSION'), `${kitVersion()}\n`);
+  fs.writeFileSync(safeTargetFile(target, '.vibekit/KIT_VERSION'), `${kitVersion()}\n`);
 }
 
 function applyManagedBlocks(target, profiles, actions, { dryRun = false } = {}) {
-  appendManagedBlock(path.join(target, '.gitignore'), GITIGNORE_BLOCK, '# BEGIN: minimal-vibe-coding-kit', '# END: minimal-vibe-coding-kit', { dryRun });
+  appendManagedBlock(target, '.gitignore', GITIGNORE_BLOCK, '# BEGIN: minimal-vibe-coding-kit', '# END: minimal-vibe-coding-kit', { dryRun });
   actions.push({ action: 'managed-block', path: '.gitignore' });
 
   if (profiles.has('claude')) {
-    const claudeTarget = path.join(target, 'CLAUDE.md');
+    const claudeTarget = safeTargetFile(target, 'CLAUDE.md');
     if (!fs.existsSync(claudeTarget)) {
       actions.push(copyFileSafe('.vibekit/init/CLAUDE-template.md', 'CLAUDE.md', target, { force: false, dryRun }));
     } else {
       const block = `<!-- BEGIN: minimal-vibe-coding-kit -->\n@AGENTS.md\n\n## Minimal Vibe Coding Kit\n\n- Read \`backbone.yml\` before changing code.\n- If \`meta.template_status\` is \`uninitialized\`, follow \`.vibekit/init/FIRST_TIME_INIT.md\` and wait for approval before writing.\n- After init, follow \`backbone.yml\` \`conventions\` before adding new project patterns.\n- Prefer project skills for multi-step workflows: \`/autoresearch-coding\`, \`/security-scan\`, \`/daily-enhance\`.\n<!-- END: minimal-vibe-coding-kit -->`;
-      appendManagedBlock(claudeTarget, block, '<!-- BEGIN: minimal-vibe-coding-kit -->', '<!-- END: minimal-vibe-coding-kit -->', { dryRun });
+      appendManagedBlock(target, 'CLAUDE.md', block, '<!-- BEGIN: minimal-vibe-coding-kit -->', '<!-- END: minimal-vibe-coding-kit -->', { dryRun });
       actions.push({ action: 'managed-block', path: 'CLAUDE.md' });
     }
   }
 
-  const agentsTarget = path.join(target, 'AGENTS.md');
+  const agentsTarget = safeTargetFile(target, 'AGENTS.md');
   if (!fs.existsSync(agentsTarget)) {
     actions.push(copyFileSafe('AGENTS.md', 'AGENTS.md', target, { force: false, dryRun }));
   } else {
@@ -526,7 +537,7 @@ function applyManagedBlocks(target, profiles, actions, { dryRun = false } = {}) 
     const begin = '<!-- BEGIN: minimal-vibe-coding-kit -->';
     const end = '<!-- END: minimal-vibe-coding-kit -->';
     const managed = managedBlockFromTemplate(block, begin, end);
-    appendManagedBlock(agentsTarget, managed, begin, end, { dryRun });
+    appendManagedBlock(target, 'AGENTS.md', managed, begin, end, { dryRun });
     actions.push({ action: 'managed-block', path: 'AGENTS.md' });
   }
 }
@@ -576,6 +587,12 @@ function install() {
       actions.push(copyDirSafe(dir, dir, target, dir === '.codex-plugin' ? { ...opts, exclude: ['plugin.json'] } : opts));
     }
     actions.push(personalizeCodexPlugin(target, opts));
+  }
+  if (profiles.has('opencode')) {
+    for (const dir of OPENCODE_DIRS) {
+      actions.push(copyDirSafe(dir, dir, target, opts));
+    }
+    actions.push(copyFileSafe('opencode.json', 'opencode.json', target, { force: false, dryRun }));
   }
   if (profiles.has('grok')) {
     for (const dir of GROK_DIRS) {
@@ -635,7 +652,8 @@ function printLegacyLayoutNote(legacy) {
 
 function updateFileSafe(srcRel, destRel, target, { dryRun = false, backup = null } = {}) {
   const src = path.join(kitRoot, srcRel);
-  const dest = path.join(target, destRel ?? srcRel);
+  const rel = destRel ?? srcRel;
+  const dest = safeTargetFile(target, rel);
   if (!fs.existsSync(src)) throw new Error(`Missing source file: ${srcRel}`);
 
   if (!fs.existsSync(dest)) {
@@ -644,16 +662,16 @@ function updateFileSafe(srcRel, destRel, target, { dryRun = false, backup = null
       fs.copyFileSync(src, dest);
       fs.chmodSync(dest, fs.statSync(src).mode);
     }
-    return { action: 'add', path: destRel ?? srcRel };
+    return { action: 'add', path: rel };
   }
 
   if (fs.readFileSync(src).equals(fs.readFileSync(dest))) {
-    return { action: 'unchanged', path: destRel ?? srcRel };
+    return { action: 'unchanged', path: rel };
   }
 
   if (!dryRun) {
     if (backup) {
-      const backupPath = path.join(backup.dir, destRel ?? srcRel);
+      const backupPath = safeTargetFile(target, path.relative(target, path.join(backup.dir, rel)));
       fs.mkdirSync(path.dirname(backupPath), { recursive: true });
       fs.copyFileSync(dest, backupPath);
       backup.count += 1;
@@ -661,7 +679,7 @@ function updateFileSafe(srcRel, destRel, target, { dryRun = false, backup = null
     fs.copyFileSync(src, dest);
     fs.chmodSync(dest, fs.statSync(src).mode);
   }
-  return { action: 'update', path: destRel ?? srcRel };
+  return { action: 'update', path: rel };
 }
 
 function updateDirSafe(srcRel, target, opts) {
@@ -724,6 +742,9 @@ async function update() {
     for (const dir of CODEX_DIRS) actions.push(...updateDirSafe(dir, target, dir === '.codex-plugin' ? { ...opts, exclude: ['plugin.json'] } : opts));
     actions.push(personalizeCodexPlugin(target, opts));
   }
+  if (profiles.has('opencode')) {
+    for (const dir of OPENCODE_DIRS) actions.push(...updateDirSafe(dir, target, opts));
+  }
   if (profiles.has('grok')) {
     // .grok/config.toml holds user-editable permission rules; seed it below instead of overwriting.
     for (const dir of GROK_DIRS) actions.push(...updateDirSafe(dir, target, dir === '.grok' ? { ...opts, exclude: ['config.toml'] } : opts));
@@ -742,6 +763,7 @@ async function update() {
     actions.push(copyFileSafe('.cursor/cli.json', '.cursor/cli.json', target, { force: false, dryRun }));
   }
   if (profiles.has('grok')) actions.push(copyFileSafe('.grok/config.toml', '.grok/config.toml', target, { force: false, dryRun }));
+  if (profiles.has('opencode')) actions.push(copyFileSafe('opencode.json', 'opencode.json', target, { force: false, dryRun }));
 
   actions.push(...applyCodexDefaultModeChoice(target, codexDefaultModeChoice, opts));
 
@@ -754,7 +776,7 @@ async function update() {
   const preserved = [
     'backbone.yml', 'CLAUDE.md', 'AGENTS.md content outside the managed block', '.claude/settings.json',
     '.cursor/settings.json', '.cursor/cli.json', '.grok/config.toml',
-    '.codex/config.toml except the explicitly approved default-mode feature', '.vibekit/preferences.json'
+    '.codex/config.toml except the explicitly approved default-mode feature', 'opencode.json', '.vibekit/preferences.json'
   ];
 
   const legacyPaths = detectLegacyLayout(target);

@@ -6,16 +6,17 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.8-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.9-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
+![OpenCode](https://img.shields.io/badge/OpenCode-AGENTS.md%20%26%20Commands-2f7d42)
 ![Grok](https://img.shields.io/badge/Grok-Rules%20%26%20Skills-000000)
 ![Kimi](https://img.shields.io/badge/Kimi-AGENTS.md%20%26%20Skills-2f54eb)
 ![AgentShield](https://img.shields.io/badge/Security-AgentShield-d62828)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)
 
-**Claude Code, Cursor, Codex, Grok, Kimi를 위한 설치형 AI 코딩 워크플로 키트. 어떤 저장소와 언어에서도 사용할 수 있습니다.**
+**Claude Code, Cursor, Codex, OpenCode, Grok, Kimi를 위한 설치형 AI 코딩 워크플로 키트. 어떤 저장소와 언어에서도 사용할 수 있습니다.**
 
 설치 → 프롬프트 하나 붙여넣기 → 제안 검토 → 가드레일과 함께 코딩.
 
@@ -27,7 +28,7 @@
 
 ## 이 키트는 무엇인가요?
 
-Claude Code, Cursor, Codex, Grok, Kimi가 프로젝트를 같은 방식으로 이해하도록 돕는 공유 **규칙**, **스킬**, **명령**, 그리고 단일 **`backbone.yml`** 매니페스트로 구성된 작은 키트입니다.
+Claude Code, Cursor, Codex, OpenCode, Grok, Kimi가 프로젝트를 같은 방식으로 이해하도록 돕는 공유 **규칙**, **스킬**, **명령**, 그리고 단일 **`backbone.yml`** 매니페스트로 구성된 작은 키트입니다.
 
 - 기존 `CLAUDE.md`나 `AGENTS.md`를 덮어쓰지 않고 관리 블록만 추가합니다.
 - 설정 단계의 모든 쓰기 작업은 사용자의 명시적 승인을 기다립니다.
@@ -56,7 +57,7 @@ flowchart LR
 npx --yes minimal-vibe-coding-kit@latest install /path/to/your-project
 ```
 
-**2. Claude Code, Cursor, Codex, Grok 또는 Kimi Code에서 프로젝트를 열고 다음 프롬프트를 붙여넣습니다.**
+**2. Claude Code, Cursor, Codex, OpenCode, Grok 또는 Kimi Code에서 프로젝트를 열고 다음 프롬프트를 붙여넣습니다.**
 
 ```text
 Read .vibekit/init/FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit.
@@ -112,8 +113,9 @@ your-project/
 ├── .gitignore                ← 관리 블록 안에 키트 항목 추가
 ├── .claude/                  ← Claude Code 규칙, 명령, 에이전트, 스킬
 ├── .cursor/                  ← Cursor 규칙, 명령, 스킬
-├── .agents/                  ← Codex 및 이식 가능한 스킬
+├── .agents/                  ← Codex + OpenCode 및 이식 가능한 스킬
 ├── .codex/  .codex-plugin/   ← Codex 설정 예시와 플러그인 매니페스트
+├── .opencode/                ← OpenCode commands and integration guide
 ├── .grok/                    ← Grok 규칙, 스킬, 설정 예시
 ├── .kimi-code/               ← Kimi Code 프로젝트 스킬
 └── .vibekit/                 ← 키트가 소유하는 모든 파일
@@ -165,7 +167,7 @@ your-project/
 
 ## 스킬
 
-전체 21개 스킬의 정본은 `.vibekit/skills/`에 있습니다. Claude, Codex, Grok, Kimi는 21개 모두를 미러링하고 Cursor는 상호작용형 16개를 미러링합니다.
+전체 21개 스킬의 정본은 `.vibekit/skills/`에 있습니다. Claude, Codex, OpenCode, Grok, Kimi는 21개 모두를 미러링하고 Cursor는 상호작용형 16개를 미러링합니다.
 
 | 스킬 | 사용 시점 |
 | --- | --- |
@@ -437,6 +439,7 @@ Editable paths: billing/ auth/ reports/. Protected paths: tests/ and configs.
 npx --yes minimal-vibe-coding-kit@latest install . --profile claude
 npx --yes minimal-vibe-coding-kit@latest install . --profile claude,cursor
 npx --yes minimal-vibe-coding-kit@latest install . --profile codex
+npx --yes minimal-vibe-coding-kit@latest install . --profile opencode        # OpenCode / AGENTS.md, shared skills, commands
 npx --yes minimal-vibe-coding-kit@latest install . --profile grok
 npx --yes minimal-vibe-coding-kit@latest install . --profile kimi
 ```
@@ -470,7 +473,7 @@ node .vibekit/scripts/agentshield-probe.mjs .
 npx ecc-agentshield scan --path . --format text --min-severity medium
 ```
 
-`CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.grok/**`, `.kimi-code/**`, `.codex-plugin/**`, `.vibekit/skills|commands|scripts/**`를 변경했다면 검토를 실행하세요.
+`CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.opencode/**`, `opencode.json`, `.grok/**`, `.kimi-code/**`, `.codex-plugin/**`, `.vibekit/skills|commands|scripts/**`를 변경했다면 검토를 실행하세요.
 
 ### 상태 검사와 보고서
 

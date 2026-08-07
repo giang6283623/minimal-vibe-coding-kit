@@ -6,16 +6,17 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.8-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.9-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
+![OpenCode](https://img.shields.io/badge/OpenCode-AGENTS.md%20%26%20Commands-2f7d42)
 ![Grok](https://img.shields.io/badge/Grok-Rules%20%26%20Skills-000000)
 ![Kimi](https://img.shields.io/badge/Kimi-AGENTS.md%20%26%20Skills-2f54eb)
 ![AgentShield](https://img.shields.io/badge/Security-AgentShield-d62828)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)
 
-**Claude Code、Cursor、Codex、Grok、Kimi に対応する、あらゆるリポジトリと言語で使えるインストール型 AI コーディングワークフローキット。**
+**Claude Code、Cursor、Codex、OpenCode、Grok、Kimi に対応する、あらゆるリポジトリと言語で使えるインストール型 AI コーディングワークフローキット。**
 
 インストール → プロンプトを貼り付ける → 提案を承認する → ガードレール付きでコーディングする。
 
@@ -27,7 +28,7 @@
 
 ## このキットとは？
 
-共有の **ルール（rules）**、**スキル（skills）**、**コマンド（commands）** と、1 つの **`backbone.yml`** マニフェストからなる小さなキットです。Claude Code、Cursor、Codex、Grok、Kimi が同じ方法でプロジェクトを理解できるようにします。
+共有の **ルール（rules）**、**スキル（skills）**、**コマンド（commands）** と、1 つの **`backbone.yml`** マニフェストからなる小さなキットです。Claude Code、Cursor、Codex、OpenCode、Grok、Kimi が同じ方法でプロジェクトを理解できるようにします。
 
 - 既存の `CLAUDE.md` や `AGENTS.md` は上書きせず、管理対象ブロックだけを追加します。
 - セットアップ中の書き込みは、必ず明示的な承認を待ちます。
@@ -79,7 +80,7 @@ npx --yes minimal-vibe-coding-kit@latest install /path/to/your-project
 
 すでに `npm i minimal-vibe-coding-kit` を実行した場合や、GitHub またはローカル clone を使いたい場合は、[npm からインストール](#npm-からインストール)を参照してください。
 
-**2. Claude Code、Cursor、Codex、Grok、Kimi Code のいずれかでプロジェクトを開き、次を貼り付けます：**
+**2. Claude Code、Cursor、Codex、OpenCode、Grok、Kimi Code のいずれかでプロジェクトを開き、次を貼り付けます：**
 
 ```text
 Read .vibekit/init/FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit.
@@ -142,8 +143,9 @@ your-project/
 ├── .gitignore                ← キット項目を管理対象ブロック内へ追加
 ├── .claude/                  ← Claude Code：ルール、コマンド、Agent、スキル
 ├── .cursor/                  ← Cursor：ルール、コマンド、スキル
-├── .agents/                  ← Codex / ポータブルスキル
+├── .agents/                  ← Codex + OpenCode / ポータブルスキル
 ├── .codex/  .codex-plugin/   ← Codex 設定例と plugin manifest
+├── .opencode/                ← OpenCode commands and integration guide
 ├── .grok/                    ← Grok Build：ルール、スキル、設定例
 ├── .kimi-code/               ← Kimi Code：スキル（最優先のプロジェクトスキルディレクトリ）
 └── .vibekit/                 ← キット所有のすべてを 1 フォルダに集約
@@ -172,7 +174,7 @@ config:
     clusterBorder: "#444444"
 ---
 flowchart TD
-    You([あなた：1 つのプロンプト]) --> Agent("Claude / Cursor / Codex / Grok / Kimi")
+    You([あなた：1 つのプロンプト]) --> Agent("Claude / Cursor / Codex / OpenCode / Grok / Kimi")
 
     subgraph First["最初に読む"]
         Backbone[("backbone.yml")]
@@ -351,7 +353,7 @@ flowchart LR
 
 ## スキル
 
-21 個すべてのスキルの正本は `.vibekit/skills/` にあります。Claude、Codex、Grok、Kimi は 21 個すべてをミラーし、Cursor は対話型の 16 個をミラーします。名前で指定（「Use the X skill」）するか、上記のコマンドから呼び出します。
+21 個すべてのスキルの正本は `.vibekit/skills/` にあります。Claude、Codex、OpenCode、Grok、Kimi は 21 個すべてをミラーし、Cursor は対話型の 16 個をミラーします。名前で指定（「Use the X skill」）するか、上記のコマンドから呼び出します。
 
 ```mermaid
 ---
@@ -919,6 +921,7 @@ flowchart TD
 npx --yes minimal-vibe-coding-kit@latest install . --profile claude          # Claude Code のみ
 npx --yes minimal-vibe-coding-kit@latest install . --profile claude,cursor   # Claude + Cursor
 npx --yes minimal-vibe-coding-kit@latest install . --profile codex           # Codex / AGENTS.md agents
+npx --yes minimal-vibe-coding-kit@latest install . --profile opencode        # OpenCode / AGENTS.md, shared skills, commands
 npx --yes minimal-vibe-coding-kit@latest install . --profile grok            # Grok Build CLI
 npx --yes minimal-vibe-coding-kit@latest install . --profile kimi            # Kimi Code CLI
 ```

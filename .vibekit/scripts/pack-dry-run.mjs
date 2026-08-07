@@ -27,8 +27,8 @@ try {
   process.exit(1);
 }
 
-// Every skill file present on disk must ship in the tarball. A skill directory
-// added without its package.json `files` entry fails here with the missing path.
+// Every distributed skill and provider surface present on disk must ship in the
+// tarball. A path added without its package.json `files` entry fails here.
 const manifest = JSON.parse(fs.readFileSync('.vibekit/skills/skills-manifest.json', 'utf8'));
 const manifestSkillRoots = Object.values(manifest.surfaces || {});
 const unsafeSkillRoots = manifestSkillRoots.filter((root) =>
@@ -54,6 +54,8 @@ function walk(dir) {
 for (const root of skillRoots) {
   if (fs.existsSync(root)) walk(root);
 }
+if (fs.existsSync('.opencode')) walk('.opencode');
+if (fs.existsSync('opencode.json')) expected.push('opencode.json');
 
 const missing = expected.filter((rel) => !packed.has(rel));
 for (const rel of missing) console.error(`FAIL packaged tarball is missing ${rel}`);

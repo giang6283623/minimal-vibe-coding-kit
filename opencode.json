@@ -1,0 +1,42 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permission": {
+    "*": "ask",
+    "read": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "*.env.example": "allow"
+    },
+    "glob": "allow",
+    "grep": "allow",
+    "skill": "allow",
+    "external_directory": "deny",
+    "bash": {
+      "*": "ask",
+      "rm": "deny",
+      "rm *": "deny",
+      "git clean*": "deny",
+      "git push": "deny",
+      "git push *": "deny",
+      "git reset --hard*": "deny",
+      "git checkout -- *": "deny",
+      "git restore *": "deny",
+      "sh": "deny",
+      "sh *": "deny",
+      "bash": "deny",
+      "bash *": "deny",
+      "zsh": "deny",
+      "zsh *": "deny",
+      "npx --yes *": "deny",
+      "npx -y *": "deny",
+      "npx * --yes *": "deny",
+      "npx * -y *": "deny",
+      "npm publish*": "deny",
+      "migrate": "deny",
+      "migrate *": "deny",
+      "docker compose up*": "deny",
+      "docker-compose up*": "deny"
+    }
+  }
+}

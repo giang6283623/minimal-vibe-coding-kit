@@ -6,16 +6,17 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.8-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.9-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
+![OpenCode](https://img.shields.io/badge/OpenCode-AGENTS.md%20%26%20Commands-2f7d42)
 ![Grok](https://img.shields.io/badge/Grok-Rules%20%26%20Skills-000000)
 ![Kimi](https://img.shields.io/badge/Kimi-AGENTS.md%20%26%20Skills-2f54eb)
 ![AgentShield](https://img.shields.io/badge/Security-AgentShield-d62828)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)
 
-**Инсталируем комплект за AI програмиране с Claude Code, Cursor, Codex, Grok и Kimi. За всяко хранилище и всеки език.**
+**Инсталируем комплект за AI програмиране с Claude Code, Cursor, Codex, OpenCode, Grok и Kimi. За всяко хранилище и всеки език.**
 
 Инсталирайте → поставете един prompt → прегледайте предложението → програмирайте с guardrails.
 
@@ -27,7 +28,7 @@
 
 ## Какво представлява този комплект?
 
-Малък комплект от споделени **правила**, **умения** и **команди**, заедно с един manifest **`backbone.yml`**, така че Claude Code, Cursor, Codex, Grok и Kimi да разбират проекта ви по един и същ начин.
+Малък комплект от споделени **правила**, **умения** и **команди**, заедно с един manifest **`backbone.yml`**, така че Claude Code, Cursor, Codex, OpenCode, Grok и Kimi да разбират проекта ви по един и същ начин.
 
 - Никога не презаписва съществуващите `CLAUDE.md` или `AGENTS.md`. Добавя само управлявани блокове.
 - Всяка операция за запис по време на настройването чака изричното ви одобрение.
@@ -56,7 +57,7 @@ flowchart LR
 npx --yes minimal-vibe-coding-kit@latest install /path/to/your-project
 ```
 
-**2. Отворете проекта в Claude Code, Cursor, Codex, Grok или Kimi Code и поставете следния prompt:**
+**2. Отворете проекта в Claude Code, Cursor, Codex, OpenCode, Grok или Kimi Code и поставете следния prompt:**
 
 ```text
 Read .vibekit/init/FIRST_TIME_INIT.md and initialize this repo with Minimal Vibe Coding Kit.
@@ -114,6 +115,7 @@ your-project/
 ├── .cursor/                  ← правила, команди и умения за Cursor
 ├── .agents/                  ← преносими умения за Codex
 ├── .codex/  .codex-plugin/   ← примерна Codex конфигурация и plugin manifest
+├── .opencode/                ← OpenCode commands and integration guide
 ├── .grok/                    ← правила, умения и примерна конфигурация за Grok
 ├── .kimi-code/               ← проектни умения за Kimi Code
 └── .vibekit/                 ← всички файлове, притежавани от комплекта
@@ -165,7 +167,7 @@ your-project/
 
 ## Умения
 
-Всички 21 умения се намират канонично в `.vibekit/skills/`. Claude, Codex, Grok и Kimi огледално поддържат всичките 21, а Cursor поддържа 16-те интерактивни умения.
+Всички 21 умения се намират канонично в `.vibekit/skills/`. Claude, Codex, OpenCode, Grok и Kimi огледално поддържат всичките 21, а Cursor поддържа 16-те интерактивни умения.
 
 | Умение | Кога да го използвате |
 | --- | --- |
@@ -437,6 +439,7 @@ Editable paths: billing/ auth/ reports/. Protected paths: tests/ and configs.
 npx --yes minimal-vibe-coding-kit@latest install . --profile claude
 npx --yes minimal-vibe-coding-kit@latest install . --profile claude,cursor
 npx --yes minimal-vibe-coding-kit@latest install . --profile codex
+npx --yes minimal-vibe-coding-kit@latest install . --profile opencode        # OpenCode / AGENTS.md, shared skills, commands
 npx --yes minimal-vibe-coding-kit@latest install . --profile grok
 npx --yes minimal-vibe-coding-kit@latest install . --profile kimi
 ```
@@ -470,7 +473,7 @@ node .vibekit/scripts/agentshield-probe.mjs .
 npx ecc-agentshield scan --path . --format text --min-severity medium
 ```
 
-Промени в `CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.grok/**`, `.kimi-code/**`, `.codex-plugin/**` или `.vibekit/skills|commands|scripts/**` трябва да предизвикат review.
+Промени в `CLAUDE.md`, `AGENTS.md`, `.claude/**`, `.cursor/**`, `.agents/**`, `.opencode/**`, `opencode.json`, `.grok/**`, `.kimi-code/**`, `.codex-plugin/**` или `.vibekit/skills|commands|scripts/**` трябва да предизвикат review.
 
 ### Doctor и отчети
 

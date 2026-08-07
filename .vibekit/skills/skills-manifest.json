@@ -6,29 +6,235 @@
     "cursor": ".cursor/skills",
     "codex": ".agents/skills",
     "grok": ".grok/skills",
-    "kimi": ".kimi-code/skills"
+    "kimi": ".kimi-code/skills",
+    "opencode": ".agents/skills"
   },
   "skills": [
-    { "name": "autoresearch-coding", "surfaces": ["claude", "codex", "grok", "kimi"] },
-    { "name": "agentshield-security-review", "surfaces": ["claude", "codex", "grok", "kimi"] },
-    { "name": "threat-model-security-review", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
-    { "name": "daily-workflow-curator", "surfaces": ["claude", "codex", "grok", "kimi"] },
-    { "name": "vibekit-init", "surfaces": ["claude", "codex", "grok", "kimi"] },
-    { "name": "visual-design-loop", "surfaces": ["claude", "codex", "grok", "kimi"] },
-    { "name": "clearthought", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
-    { "name": "sequential-thinking", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
-    { "name": "reviewing-4p-priorities", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
-    { "name": "path-sensitive-shell-safety", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
-    { "name": "memento", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
-    { "name": "coding-level", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
-    { "name": "parallel-analysis", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
-    { "name": "graph-engineering-verified-orchestration", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
-    { "name": "clean-delivery", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
-    { "name": "proofline-orchestration", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
-    { "name": "prompt-sharpener", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
-    { "name": "claim", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
-    { "name": "tutien", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
-    { "name": "the-creator", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] },
-    { "name": "mermaid", "surfaces": ["claude", "cursor", "codex", "grok", "kimi"] }
+    {
+      "name": "autoresearch-coding",
+      "surfaces": [
+        "claude",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
+      "name": "agentshield-security-review",
+      "surfaces": [
+        "claude",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
+      "name": "threat-model-security-review",
+      "surfaces": [
+        "claude",
+        "cursor",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
+      "name": "daily-workflow-curator",
+      "surfaces": [
+        "claude",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
+      "name": "vibekit-init",
+      "surfaces": [
+        "claude",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
+      "name": "visual-design-loop",
+      "surfaces": [
+        "claude",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
+      "name": "clearthought",
+      "surfaces": [
+        "claude",
+        "cursor",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
+      "name": "sequential-thinking",
+      "surfaces": [
+        "claude",
+        "cursor",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
+      "name": "reviewing-4p-priorities",
+      "surfaces": [
+        "claude",
+        "cursor",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
+      "name": "path-sensitive-shell-safety",
+      "surfaces": [
+        "claude",
+        "cursor",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
+      "name": "memento",
+      "surfaces": [
+        "claude",
+        "cursor",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
+      "name": "coding-level",
+      "surfaces": [
+        "claude",
+        "cursor",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
+      "name": "parallel-analysis",
+      "surfaces": [
+        "claude",
+        "cursor",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
+      "name": "graph-engineering-verified-orchestration",
+      "surfaces": [
+        "claude",
+        "cursor",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
+      "name": "clean-delivery",
+      "surfaces": [
+        "claude",
+        "cursor",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
+      "name": "proofline-orchestration",
+      "surfaces": [
+        "claude",
+        "cursor",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
+      "name": "prompt-sharpener",
+      "surfaces": [
+        "claude",
+        "cursor",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
+      "name": "claim",
+      "surfaces": [
+        "claude",
+        "cursor",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
+      "name": "tutien",
+      "surfaces": [
+        "claude",
+        "cursor",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
+      "name": "the-creator",
+      "surfaces": [
+        "claude",
+        "cursor",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
+      "name": "mermaid",
+      "surfaces": [
+        "claude",
+        "cursor",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    }
   ]
 }

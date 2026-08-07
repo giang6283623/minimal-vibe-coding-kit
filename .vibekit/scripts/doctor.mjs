@@ -173,7 +173,8 @@ const surfaces = {
   agents: exists('AGENTS.md'),
   claude: exists('CLAUDE.md') || exists('.claude'),
   cursor: exists('.cursor/rules'),
-  codex: exists('.agents') || exists('.codex-plugin/plugin.json'),
+  codex: exists('.codex') || exists('.codex-plugin/plugin.json'),
+  opencode: exists('.opencode') || exists('opencode.json'),
   grok: exists('.grok'),
   kimi: exists('.kimi-code')
 };
@@ -275,7 +276,9 @@ const report = {
   aiRulesLoaded: {
     sharedSkills: listFiles('.vibekit/skills').filter((f) => f.endsWith('SKILL.md')).length,
     claudeSkills: listFiles('.claude/skills').filter((f) => f.endsWith('SKILL.md')).length,
-    codexSkills: listFiles('.agents/skills').filter((f) => f.endsWith('SKILL.md')).length,
+    codexSkills: surfaces.codex ? listFiles('.agents/skills').filter((f) => f.endsWith('SKILL.md')).length : 0,
+    opencodeSkills: surfaces.opencode ? listFiles('.agents/skills').filter((f) => f.endsWith('SKILL.md')).length : 0,
+    opencodeCommands: listFiles('.opencode/commands').filter((f) => f.endsWith('.md')).length,
     cursorSkills: listFiles('.cursor/skills').filter((f) => f.endsWith('SKILL.md')).length,
     cursorRules: listFiles('.cursor/rules').filter((f) => f.endsWith('.mdc')).length,
     grokSkills: listFiles('.grok/skills').filter((f) => f.endsWith('SKILL.md')).length,
@@ -335,11 +338,14 @@ ${(data.protectedPaths.length ? data.protectedPaths : ['not declared']).map((ite
 - Claude surface: ${data.agentSurfaces.claude ? 'yes' : 'no'}
 - Cursor surface: ${data.agentSurfaces.cursor ? 'yes' : 'no'}
 - Codex surface: ${data.agentSurfaces.codex ? 'yes' : 'no'}
+- OpenCode surface: ${data.agentSurfaces.opencode ? 'yes' : 'no'}
 - Grok surface: ${data.agentSurfaces.grok ? 'yes' : 'no'}
 - Kimi surface: ${data.agentSurfaces.kimi ? 'yes' : 'no'}
 - Shared skills: ${data.aiRulesLoaded.sharedSkills}
 - Claude skills: ${data.aiRulesLoaded.claudeSkills}
 - Codex skills: ${data.aiRulesLoaded.codexSkills}
+- OpenCode shared skills: ${data.aiRulesLoaded.opencodeSkills}
+- OpenCode commands: ${data.aiRulesLoaded.opencodeCommands}
 - Cursor skills: ${data.aiRulesLoaded.cursorSkills}
 - Cursor rules: ${data.aiRulesLoaded.cursorRules}
 - Grok skills: ${data.aiRulesLoaded.grokSkills}
