@@ -16,7 +16,7 @@ project:
   package_manager: npm
   mode: brownfield
   prd: none
-  context: none
+  context: .vibekit/docs/CONTEXT.md
 
 paths:
   root: .
@@ -56,6 +56,7 @@ conventions:
     - Response format: lead with the outcome; use decision tables (Option, What it does, Cost, Risk, Recommended) when the user must choose; end multi-step work with a Done / Next / Decision needed status block. See .claude/rules/response-format.md.
     - Proportional effort: triage tasks as trivial/small/medium/large and match process weight; score the visual/e2e gate 0-6 and require user approval before visual-design-loop or e2e runs. See .claude/rules/proportional-effort.md.
     - README dedication lines in README.md and every docs/README.*.md localization keep the author's Vietnam flag emoji; user-authored content, exempt from the writing-style emoji rule.
+    - Plain-language register in every reply language: lead with the outcome, short sentences, active voice, define project terms at first use, and reuse the glossary in project.context (.vibekit/docs/CONTEXT.md) instead of synonyms. English-only word lists (ASD-STE100) apply only to English replies; /wait-what re-pitches a message that did not land, in the user's language, with zero new work.
 
 commands:
   install: npm install

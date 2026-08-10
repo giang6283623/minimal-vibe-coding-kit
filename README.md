@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.9-2ea44f.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.10-2ea44f.svg)](CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -275,12 +275,13 @@ flowchart TD
 2. **Big or vague task?** Start with the `clearthought` or `sequential-thinking` skill to get a plan first.
 3. **Complex task but only a rough prompt?** `/prompt-sharpener <rough prompt>` sharpens it into a precise prompt and executes it in the same turn.
 4. **Found a skill, rule, or tool you want to bring in?** `/claim <request + links>` validates the sources against official docs, checks fit with your repo, asks when unclear, then integrates and documents it.
-5. **Want a quiet reset while reviewing progress?** `/tutien` is a private xianxia coding-reflection mode over Git history + supplied AI-chat exports. Once enabled, every reply keeps an adaptive cultivation-novel voice in the user's language until `/tutien off`; eligible workflow villains default to evidence-bound sarcasm and mockery. Activation asks for an optional `humiliation=0..10` level that can stage increasingly severe defeat for the fictional cultivation avatar while preserving real-person hard boundaries. Its living chronicle grows an original project-specific world, cast, sects, cultivation system, and ordered chapters in Vietnamese, English, or Simplified Chinese.
-6. **Repo-wide question or big review?** Use `parallel-analysis` - it fans out read-only analysis lanes and verifies the merged result.
-7. **Changed `.claude/`, skills, hooks, or installer scripts?** Run `/security-scan` before merging.
-8. **Want measurable improvements?** Run `/autoresearch-coding` with a metric and budget.
-9. **Keep the setup sharp:** `/daily-enhance` proposes improvements - it never applies them silently.
-10. **Onboarding finished for good?** `/vibe-finalize` moves one-time bootstrap files out.
+5. **The agent's last answer did not land?** `/wait-what [the part that lost you]` makes it stop and re-pitch: same facts and decisions, plain language in your language, project terms from the glossary in `.vibekit/docs/CONTEXT.md`.
+6. **Want a quiet reset while reviewing progress?** `/tutien` is a private xianxia coding-reflection mode over Git history + supplied AI-chat exports. Once enabled, every reply keeps an adaptive cultivation-novel voice in the user's language until `/tutien off`; eligible workflow villains default to evidence-bound sarcasm and mockery. Activation asks for an optional `humiliation=0..10` level that can stage increasingly severe defeat for the fictional cultivation avatar while preserving real-person hard boundaries. Its living chronicle grows an original project-specific world, cast, sects, cultivation system, and ordered chapters in Vietnamese, English, or Simplified Chinese.
+7. **Repo-wide question or big review?** Use `parallel-analysis` - it fans out read-only analysis lanes and verifies the merged result.
+8. **Changed `.claude/`, skills, hooks, or installer scripts?** Run `/security-scan` before merging.
+9. **Want measurable improvements?** Run `/autoresearch-coding` with a metric and budget.
+10. **Keep the setup sharp:** `/daily-enhance` proposes improvements - it never applies them silently.
+11. **Onboarding finished for good?** `/vibe-finalize` moves one-time bootstrap files out.
 
 </details>
 
@@ -354,7 +355,7 @@ Choose "Don't show again" to remember that exact mode in .vibekit/preferences.js
 
 ## Skills
 
-All 21 skills live canonically in `.vibekit/skills/`. Claude, Codex, OpenCode, Grok, and Kimi use all 21; Cursor uses the 16 interactive ones. OpenCode and Codex share `.agents/skills/`. Invoke them by name ("Use the X skill…") or via the commands above.
+All 22 skills live canonically in `.vibekit/skills/`. Claude, Codex, OpenCode, Grok, and Kimi use all 22; Cursor uses the 17 interactive ones. OpenCode and Codex share `.agents/skills/`. Invoke them by name ("Use the X skill…") or via the commands above.
 
 ```mermaid
 ---
@@ -391,7 +392,7 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("21 skills"))
+  root(("22 skills"))
     setup("Setup and safety")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
@@ -417,6 +418,7 @@ mindmap
       h3("mermaid")
       h4("claim")
       h5("tutien")
+      h6("wait-what")
 ```
 
 <details>
@@ -442,6 +444,7 @@ mindmap
 | `coding-level`                | Setting how detailed explanations should be (0 = ELI5 … 5 = expert).                                                                                                                                                                     | "/coding-level 2"                                                                                     |
 | `prompt-sharpener`            | A complex task but only a rough prompt: sharpen it, then execute it in the same turn.                                                                                                                                                    | "/prompt-sharpener make the settings page load faster"                                                |
 | `claim`                       | Bringing something new into the repo (skill, rule, convention, tool): vet sources against official docs, fit-check, confirm, integrate, document.                                                                                        | "/claim add the conventional-commits rule from https://www.npmjs.com/package/minimal-vibe-coding-kit" |
+| `wait-what`                   | The last answer did not land: the agent re-pitches it in plain language, in your language, restoring the missing premise with project glossary terms; no new work.                                                                       | "/wait-what the part about token budgets"                                                             |
 | `tutien`                      | A private, user-invoked xianxia coding-reflection mode with exact Git/chat evidence and an open-ended chronicle. While on, every reply uses an adaptive cultivation voice in the user's language; an explicit `humiliation=0..10` controls fictional-avatar defeat intensity; `/tutien off` restores normal prose. | "/tutien on humiliation=8"                                                                          |
 | `the-creator`                 | Creating original but workable art, designs, interfaces, methods, processes, or systems through ten cumulative creativity levels while preserving safety, logic, and functional acceptance. | "Use the-creator level 7 to invent a safer code-review process." |
 | `mermaid`                     | Generating styled Mermaid diagrams (31 types) with coding-level-aware density. Offers to illustrate generated docs, and draws debug workflow charts with the risky zones highlighted red.                                                                | "Use the mermaid skill. Draw this deploy pipeline as a flowchart."                                    |

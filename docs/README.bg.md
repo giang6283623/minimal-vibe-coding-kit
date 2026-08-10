@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.9-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.10-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -167,7 +167,7 @@ your-project/
 
 ## Умения
 
-Всички 21 умения се намират канонично в `.vibekit/skills/`. Claude, Codex, OpenCode, Grok и Kimi огледално поддържат всичките 21, а Cursor поддържа 16-те интерактивни умения.
+Всички 22 умения се намират канонично в `.vibekit/skills/`. Claude, Codex, OpenCode, Grok и Kimi огледално поддържат всичките 22, а Cursor поддържа 17-те интерактивни умения.
 
 | Умение | Кога да го използвате |
 | --- | --- |
@@ -189,6 +189,7 @@ your-project/
 | `memento` | Устойчива бележка за задача, продължаваща няколко дни |
 | `coding-level` | Настройване на подробността на обясненията от 0 до 5 |
 | `claim` | Проверка на нови инструменти, умения и URL адреси спрямо официални източници |
+| `wait-what` | Когато последният отговор не е разбран: ново обяснение на прост език, на езика на потребителя, с речника на проекта |
 | `tutien` | Частен xianxia coding reflection mode според Git и предоставени chat доказателства |
 | `the-creator` | Оригинална творческа работа, когато потребителят изрично поиска creativity level |
 | `mermaid` | Създаване на стилизирани Mermaid диаграми |

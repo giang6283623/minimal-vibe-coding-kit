@@ -235,6 +235,17 @@
         "grok",
         "kimi"
       ]
+    },
+    {
+      "name": "wait-what",
+      "surfaces": [
+        "claude",
+        "cursor",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
     }
   ]
 }
