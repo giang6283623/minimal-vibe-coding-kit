@@ -32,6 +32,9 @@ Shared instructions for Claude, Cursor, Codex, OpenCode, Grok, Kimi, and other c
 - No emoji in responses, code, docs, commits, or diagrams unless the user explicitly asks.
 - No em dashes or en dashes in generated prose; use ASCII punctuation (comma, colon, semicolon, hyphen, parentheses).
 - When editing files whose established style already uses these characters, keep existing characters and apply the rule only to new text.
+- Plain-language register in every reply language: lead with the outcome, keep sentences short with one idea each, prefer active voice and concrete verbs, put known information before new information, and define project terms at first use.
+- Reuse the project's vocabulary from the glossary named in `backbone.yml` `project.context` when present instead of rotating synonyms. When replying in English, keep one meaning per word (ASD-STE100-style simplicity); never apply English-only word lists to other languages.
+- Reply in the user's conversation language; quote code identifiers, commands, file paths, and error text verbatim in every language. When a message does not land, the user can invoke `/wait-what` for a plain-language re-pitch.
 
 ### Proportional effort
 

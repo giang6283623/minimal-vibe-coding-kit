@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.10 - 2026-08-10
+
+### Added
+
+- Added `wait-what` across Claude, Cursor, Codex, OpenCode, Grok, and Kimi (skill 22). A user-invoked comprehension repair: `/wait-what [the part that lost you]` makes the agent stop and re-pitch its previous message with the missing premise restored, in the user's conversation language, using the project glossary, with zero new work. The kit-native version fixes the upstream concept's blind spots: it diagnoses the specific failure (missing premise, undefined term, skipped step, wrong altitude, buried outcome) instead of compressing, bounds the register to the re-pitch, keeps code identifiers verbatim, applies ASD-STE100-style constraints only to English replies, and falls back to `backbone.yml` vocabulary when no glossary exists.
+- Added a plain-language register to the shared writing rules (AGENTS.md, Claude, Cursor, and Grok rule files) and `backbone.yml` `custom_rules`: outcome first, short sentences, active voice, terms defined at first use, glossary vocabulary over synonyms, replies in the user's language with code identifiers quoted verbatim, and English-only word lists never applied to other languages.
+- Added `.vibekit/docs/CONTEXT.md`, a trilingual (en/vi/zh) project glossary for the kit repo wired to `backbone.yml` `project.context`, so re-pitches and prose share one vocabulary across languages; end-user projects keep scaffolding their own from `CONTEXT_TEMPLATE.md`.
+
+### Validation
+
+- `npm test` and `npm run security:probe` passed after the integration; skill counts, localized README markers, manifest-driven mirrors, and package contents updated to 22 skills.
+
 ## 0.5.9 - 2026-08-07
 
 ### Added

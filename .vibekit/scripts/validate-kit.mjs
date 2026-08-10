@@ -499,11 +499,11 @@ function validateThreatModelSecurityReviewContract() {
   const ui = read(`${base}/agents/openai.yaml`);
   const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
   const sourceDiscoveryValid = !isKitSourceRepo || (
-    hasAll(read('README.md'), ['All 21 skills', '| `threat-model-security-review`'])
-    && hasAll(read('docs/README.vi.md'), ['Cả 21 skill', '| `threat-model-security-review`'])
-    && hasAll(read('docs/README.zh-CN.md'), ['全部 21 个技能', '| `threat-model-security-review`'])
-    && hasAll(read('docs/README.ja.md'), ['21 個すべてのスキル', '| `threat-model-security-review`'])
-    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Eleven user-invoked skills', '`threat-model-security-review`'])
+    hasAll(read('README.md'), ['All 22 skills', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 22 skill', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 22 个技能', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.ja.md'), ['22 個すべてのスキル', '| `threat-model-security-review`'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Twelve user-invoked skills', '`threat-model-security-review`'])
     && hasAll(read('.vibekit/docs/SECURITY_MODEL.md'), [
       '`threat-model-security-review` covers application source',
       '`agentshield-security-review` covers agent instructions'
@@ -703,11 +703,11 @@ function validateCleanDeliveryContract() {
   }
 
   const discoveryValid = !isKitSourceRepo || (
-    hasAll(read('README.md'), ['All 21 skills', 'clean-delivery'])
-    && hasAll(read('docs/README.vi.md'), ['Cả 21 skill', 'clean-delivery'])
-    && hasAll(read('docs/README.zh-CN.md'), ['全部 21 个技能', 'clean-delivery'])
-    && hasAll(read('docs/README.ja.md'), ['21 個すべてのスキル', 'clean-delivery'])
-    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Eleven user-invoked skills', 'clean-delivery'])
+    hasAll(read('README.md'), ['All 22 skills', 'clean-delivery'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 22 skill', 'clean-delivery'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 22 个技能', 'clean-delivery'])
+    && hasAll(read('docs/README.ja.md'), ['22 個すべてのスキル', 'clean-delivery'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Twelve user-invoked skills', 'clean-delivery'])
     && hasAll(read('package.json'), [
       'test:clean-delivery',
       '.claude/skills/clean-delivery/',
@@ -1230,14 +1230,14 @@ function validateGraphEngineeringContract() {
 
   const sourceDiscoveryValid = !isKitSourceRepo || (
     hasAll(readme, [
-      'All 21 skills',
+      'All 22 skills',
       'Graph engineering: verified orchestration',
       'edgeLabelBackground: "#FFFFFF"'
     ])
     && readmeVi.includes('Graph engineering: điều phối có xác minh')
     && readmeZh.includes('图工程：经验证的编排')
     && readmeJa.includes('Graph engineering：検証付き orchestration')
-    && install.includes('Eleven user-invoked skills')
+    && install.includes('Twelve user-invoked skills')
     && hasAll(pkg, [
       '.claude/skills/graph-engineering-verified-orchestration/',
       '.cursor/skills/graph-engineering-verified-orchestration/'
@@ -1566,11 +1566,11 @@ function validateProoflineContract() {
   }
 
   const sourceDiscoveryValid = !isKitSourceRepo || (
-    hasAll(read('README.md'), ['All 21 skills', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('docs/README.vi.md'), ['Cả 21 skill', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('docs/README.zh-CN.md'), ['全部 21 个技能', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('docs/README.ja.md'), ['21 個すべてのスキル', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Eleven user-invoked skills', '`proofline-orchestration`'])
+    hasAll(read('README.md'), ['All 22 skills', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 22 skill', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 22 个技能', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('docs/README.ja.md'), ['22 個すべてのスキル', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Twelve user-invoked skills', '`proofline-orchestration`'])
     && hasAll(read('package.json'), [
       '.claude/skills/proofline-orchestration/',
       '.cursor/skills/proofline-orchestration/'
@@ -1728,18 +1728,18 @@ function validateTheCreatorContract() {
 
   const discoveryValid = !isKitSourceRepo || (
     exists('README.md')
-    && read('README.md').includes('All 21 skills')
+    && read('README.md').includes('All 22 skills')
     && exists('docs/README.vi.md')
-    && read('docs/README.vi.md').includes('Cả 21 skill')
+    && read('docs/README.vi.md').includes('Cả 22 skill')
     && read('docs/README.vi.md').includes('| `the-creator`')
     && exists('docs/README.zh-CN.md')
-    && read('docs/README.zh-CN.md').includes('全部 21 个技能')
+    && read('docs/README.zh-CN.md').includes('全部 22 个技能')
     && read('docs/README.zh-CN.md').includes('| `the-creator`')
     && exists('docs/README.ja.md')
-    && read('docs/README.ja.md').includes('21 個すべてのスキル')
+    && read('docs/README.ja.md').includes('22 個すべてのスキル')
     && read('docs/README.ja.md').includes('| `the-creator`')
     && exists('.vibekit/docs/INSTALL.md')
-    && read('.vibekit/docs/INSTALL.md').includes('Eleven user-invoked skills')
+    && read('.vibekit/docs/INSTALL.md').includes('Twelve user-invoked skills')
     && exists('.vibekit/init/CLAUDE-template.md')
     && read('.vibekit/init/CLAUDE-template.md').includes('/the-creator level N')
     && exists('package.json')
@@ -1906,9 +1906,9 @@ if (isKitSourceRepo && pkg?.version) {
     : fail('Localized README navigation drifted');
 
   const translatedReadmeContracts = [
-    { rel: 'docs/README.ko.md', markers: ['## 빠른 시작', '전체 21개 스킬', '## 고급 사용', '## 기여', '## 라이선스'] },
-    { rel: 'docs/README.de.md', markers: ['## Schnellstart', 'Alle 21 Skills', '## Erweitert', '## Mitwirken', '## Lizenz'] },
-    { rel: 'docs/README.bg.md', markers: ['## Бърз старт', 'Всички 21 умения', '## Разширена употреба', '## Принос', '## Лиценз'] }
+    { rel: 'docs/README.ko.md', markers: ['## 빠른 시작', '전체 22개 스킬', '## 고급 사용', '## 기여', '## 라이선스'] },
+    { rel: 'docs/README.de.md', markers: ['## Schnellstart', 'Alle 22 Skills', '## Erweitert', '## Mitwirken', '## Lizenz'] },
+    { rel: 'docs/README.bg.md', markers: ['## Бърз старт', 'Всички 22 умения', '## Разширена употреба', '## Принос', '## Лиценз'] }
   ];
   const sharedCoverage = [
     '`/init-vibe`',

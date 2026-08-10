@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.9-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.10-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -353,7 +353,7 @@ Chọn "Don't show again" để nhớ chính xác mode đó trong .vibekit/prefe
 
 ## Skills
 
-Cả 21 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex, OpenCode, Grok và Kimi mirror đủ 21; Cursor mirror 16 skill tương tác. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
+Cả 22 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex, OpenCode, Grok và Kimi mirror đủ 22; Cursor mirror 17 skill tương tác. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
 
 ```mermaid
 ---
@@ -390,7 +390,7 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("21 skill"))
+  root(("22 skill"))
     setup("Thiết lập và an toàn")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
@@ -416,6 +416,7 @@ mindmap
       h3("mermaid")
       h4("claim")
       h5("tutien")
+      h6("wait-what")
 ```
 
 <details>
@@ -441,6 +442,7 @@ mindmap
 | `coding-level`                | Chỉnh độ chi tiết khi giải thích (0 = ELI5 … 5 = chuyên gia).                                                                                                                                                                                          | "/coding-level 2"                                                                       |
 | `prompt-sharpener`            | Task phức tạp nhưng prompt mù mờ: cải thiện prompt rồi thực thi ngay trong cùng lượt.                                                                                                                                                                  | "/prompt-sharpener make the settings page load faster"                                  |
 | `claim`                       | Đưa thứ mới vào repo (skill, rule, quy ước, tool): kiểm chứng nguồn chính thức, kiểm tra độ khớp, xác nhận, tích hợp, ghi tài liệu.                                                                                                                    | "/claim add the conventional-commits rule from https://www.conventionalcommits.org"     |
+| `wait-what`                   | Câu trả lời vừa rồi chưa rõ: agent dừng lại và trình bày lại bằng ngôn ngữ đơn giản, đúng ngôn ngữ của bạn, khôi phục tiền đề còn thiếu bằng thuật ngữ trong glossary; không làm việc mới.                                                             | "/wait-what đoạn nói về token budget"                                                   |
 | `tutien`                      | Chế độ tu tiên riêng tư do người dùng gọi, có bằng chứng Git/chat chính xác và trường thiên mở. Khi bật, mọi phản hồi dùng văn phong tu tiên linh hoạt theo ngôn ngữ người dùng; `humiliation=0..10` điều khiển độ bại trận của vai tu sĩ hư cấu. `/tutien off` khôi phục văn phong thường. | "/tutien on humiliation=8"                                                             |
 | `the-creator`                 | Sáng tạo art, design, interface, method, process hoặc system qua 10 level cộng dồn; mỗi level bỏ thêm 10% convention đủ điều kiện nhưng giữ nguyên safety, logic và functional acceptance. | "Use the-creator level 7 để tạo một quy trình code review mới." |
 | `mermaid`                     | Sinh sơ đồ Mermaid có style (31 loại) với độ chi tiết theo coding level. Chủ động hỏi có muốn thêm sơ đồ khi viết tài liệu, và khi debug có thể vẽ workflow tô đỏ vùng nghi là nguyên nhân bug.                                                        | "Use the mermaid skill. Vẽ flowchart cho pipeline deploy này."                          |
