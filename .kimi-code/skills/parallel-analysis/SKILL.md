@@ -44,6 +44,7 @@ Immediately before the first lane dispatch, follow .vibekit/docs/ORCHESTRATION_M
 ### Readiness and model resolution
 
 - native-subagents: ready only when the active Codex, Claude, Cursor, Grok, or Kimi host exposes a child-agent API with the required read-only boundary. Use the host's default model unless the remembered Custom assignment names another verified model.
+- cursor-sdk: ready only when `cursor-sdk-adapter.mjs preflight` succeeds, `Cursor.models.list()` returns the requested model and parameters, and the remembered assignment names `adapter: cursor-sdk`. The adapter requires Node.js 22.13+, `@cursor/sdk` 1.0.27+, a real kit project root, and its enforced read-only profile. Never infer SDK readiness from Cursor CLI or IDE authentication.
 - cursor-cli: cursor-agent must exist, report an authenticated session, expose the requested model, and support the read-only invocation below. Never assume a model alias from documentation or an old config.
 - codex-cli: codex --version must succeed and the CLI must support a read-only exec invocation. Use its configured default model unless the user chose a verified model.
 - provider CLI adapter: a Claude, Grok, or Kimi executable alone is installed-unverified. Mark it ready only when the project has a known non-interactive, read-only invocation contract plus a non-mutating authentication and model preflight.
@@ -78,6 +79,14 @@ Every lane is READ-ONLY: search, read, summarize - never edit files, execute
 project binaries, run hooks, or trigger installs/deploys/migrations.
 
 - `native-subagents`: dispatch every lane through the active parent runtime's native child-agent facility with an explicit read-only brief. If the host cannot enforce read-only access, run sequentially in the parent instead of claiming lane isolation.
+- `cursor-sdk`: get a fresh catalog, then pass one version 1 JSON request with `access: "read-only"`, the verified model and parameters, the exact lane brief, and a bounded timeout:
+
+  ```sh
+  node .vibekit/scripts/cursor-sdk-adapter.mjs models .
+  node .vibekit/scripts/cursor-sdk-adapter.mjs run . < cursor-run-request.json
+  ```
+
+  Reject an unavailable preflight, model mismatch, router selection presented as exact, or result without agent and run ids. The request must not contain credentials. See `.vibekit/docs/CURSOR_SDK.md` for setup and model changes.
 - `cursor-cli`:
 
   ```sh

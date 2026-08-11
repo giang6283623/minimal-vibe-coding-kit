@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.10-2ea44f.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.11-2ea44f.svg)](CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -353,9 +353,11 @@ Immediately before the first child agent or multi-agent lane is dispatched, the 
 
 Choose "Don't show again" to remember that exact mode in .vibekit/preferences.json. Child agents return needs_user_input to the parent instead of questioning you directly. Coding level changes explanation detail and the recommended option, never model quality or safety. See [.vibekit/docs/ORCHESTRATION_MODES.md](.vibekit/docs/ORCHESTRATION_MODES.md).
 
+Optional Cursor SDK routing uses a live account model catalog, bounded local tool profiles, and a remembered adapter and model. Setup and model changes are in [CURSOR_SDK.md](.vibekit/docs/CURSOR_SDK.md).
+
 ## Skills
 
-All 22 skills live canonically in `.vibekit/skills/`. Claude, Codex, OpenCode, Grok, and Kimi use all 22; Cursor uses the 17 interactive ones. OpenCode and Codex share `.agents/skills/`. Invoke them by name ("Use the X skill…") or via the commands above.
+All 23 skills live canonically in `.vibekit/skills/`. Claude, Codex, OpenCode, Grok, and Kimi use all 23; Cursor uses the 18 interactive ones. OpenCode and Codex share `.agents/skills/`. Invoke them by name ("Use the X skill…") or via the commands above.
 
 ```mermaid
 ---
@@ -392,7 +394,7 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("22 skills"))
+  root(("23 skills"))
     setup("Setup and safety")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
@@ -412,6 +414,7 @@ mindmap
       a2("autoresearch-coding")
       a3("daily-workflow-curator")
       a4("visual-design-loop")
+      a5("clone-website")
     helpers("Daily helpers")
       h1("memento")
       h2("coding-level")
@@ -444,6 +447,7 @@ mindmap
 | `coding-level`                | Setting how detailed explanations should be (0 = ELI5 … 5 = expert).                                                                                                                                                                     | "/coding-level 2"                                                                                     |
 | `prompt-sharpener`            | A complex task but only a rough prompt: sharpen it, then execute it in the same turn.                                                                                                                                                    | "/prompt-sharpener make the settings page load faster"                                                |
 | `claim`                       | Bringing something new into the repo (skill, rule, convention, tool): vet sources against official docs, fit-check, confirm, integrate, document.                                                                                        | "/claim add the conventional-commits rule from https://www.npmjs.com/package/minimal-vibe-coding-kit" |
+| `clone-website`               | Cloning or migrating an authorized website with dynamic fidelity, scope, stack, backend, rights, capture, and parity choices.                                                                                                           | "Use clone-website to reproduce this page as a safe local F2/S1 prototype."             |
 | `wait-what`                   | The last answer did not land: the agent re-pitches it in plain language, in your language, restoring the missing premise with project glossary terms; no new work.                                                                       | "/wait-what the part about token budgets"                                                             |
 | `tutien`                      | A private, user-invoked xianxia coding-reflection mode with exact Git/chat evidence and an open-ended chronicle. While on, every reply uses an adaptive cultivation voice in the user's language; an explicit `humiliation=0..10` controls fictional-avatar defeat intensity; `/tutien off` restores normal prose. | "/tutien on humiliation=8"                                                                          |
 | `the-creator`                 | Creating original but workable art, designs, interfaces, methods, processes, or systems through ten cumulative creativity levels while preserving safety, logic, and functional acceptance. | "Use the-creator level 7 to invent a safer code-review process." |

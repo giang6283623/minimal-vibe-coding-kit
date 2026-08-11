@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "target": {
+    "url": "https://example.com/products",
+    "routes": [
+      "/products"
+    ],
+    "capture_mode": "static-capture",
+    "interactive_capture_approved": false,
+    "approved_capture_hosts": [
+      "example.com"
+    ]
+  },
+  "authorization": {
+    "status": "public-research-local",
+    "evidence": "User requested a bounded local research exercise.",
+    "content_rights": "neutralized",
+    "scope": {
+      "routes": ["/products"],
+      "deployment": "local-only",
+      "features": [],
+      "data": []
+    }
+  },
+  "replica": {
+    "fidelity": "F2",
+    "scope": "S1",
+    "backend_level": "B0",
+    "target_stack": "static-html-css-js",
+    "deployment": "local-only"
+  },
+  "limits": {
+    "max_pages": 1,
+    "max_items": 8,
+    "max_redirects": 3,
+    "max_response_bytes": 5242880,
+    "max_elapsed_ms": 30000,
+    "viewports": [
+      {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      }
+    ]
+  },
+  "features": {
+    "identity": false,
+    "cart": false,
+    "checkout": false,
+    "payments": false,
+    "external_forms": false,
+    "live_customer_data": false
+  },
+  "source_inputs": [],
+  "exclusions": [
+    "source identity",
+    "source content",
+    "sensitive interactions"
+  ]
+}

@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.10-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.11-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -165,9 +165,11 @@ Unmittelbar vor dem ersten Unteragenten oder parallelen Arbeitsstrang fragt der 
 
 Mit "Don't show again" wird die Auswahl in `.vibekit/preferences.json` gespeichert. Unteragenten fragen den Benutzer nicht direkt, sondern geben `needs_user_input` an den übergeordneten Agenten zurück. Details stehen in [ORCHESTRATION_MODES.md](../.vibekit/docs/ORCHESTRATION_MODES.md).
 
+Das optionale Cursor SDK Routing verwendet den aktuellen Modellkatalog des Kontos, begrenzte lokale Tool-Profile sowie einen gespeicherten Adapter und ein gespeichertes Modell. Einrichtung und Modellwechsel stehen in [CURSOR_SDK.md](../.vibekit/docs/CURSOR_SDK.md).
+
 ## Skills
 
-Alle 22 Skills liegen kanonisch unter `.vibekit/skills/`. Claude, Codex, OpenCode, Grok und Kimi spiegeln alle 22, Cursor spiegelt die 17 interaktiven Skills.
+Alle 23 Skills liegen kanonisch unter `.vibekit/skills/`. Claude, Codex, OpenCode, Grok und Kimi spiegeln alle 23, Cursor spiegelt die 18 interaktiven Skills.
 
 | Skill | Wann er sinnvoll ist |
 | --- | --- |
@@ -189,6 +191,7 @@ Alle 22 Skills liegen kanonisch unter `.vibekit/skills/`. Claude, Codex, OpenCod
 | `memento` | Dauerhafte Notiz für Aufgaben, die sich über mehrere Tage erstrecken |
 | `coding-level` | Einstellung der Erklärungstiefe von 0 bis 5 |
 | `claim` | Prüfung neuer Tools, Skills oder URLs gegen offizielle Quellen vor der Integration |
+| `clone-website` | Klonen oder Migrieren einer autorisierten Website mit klaren Grenzen für Rechte, Wiedergabetreue, Umfang, Stack, Backend, Erfassung und Prüfung |
 | `wait-what` | Wenn die letzte Antwort nicht ankam: Neuvortrag in einfacher Sprache, in der Sprache des Nutzers, mit dem Projektglossar |
 | `tutien` | Privater Xianxia-Coding-Rückblick auf Basis von Git und bereitgestellten Chat-Belegen |
 | `the-creator` | Originale kreative Arbeit, wenn der Benutzer ausdrücklich eine Kreativitätsstufe aufruft |

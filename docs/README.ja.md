@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.10-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.11-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -351,9 +351,11 @@ flowchart LR
 
 "Don't show again" を選ぶと、その mode を .vibekit/preferences.json に保存します。Child agent は user に直接質問せず、parent に needs_user_input を返します。Coding level は説明量と推奨 option だけに影響し、model の品質や安全性を下げません。詳しくは [.vibekit/docs/ORCHESTRATION_MODES.md](../.vibekit/docs/ORCHESTRATION_MODES.md) を参照してください。
 
+オプションの Cursor SDK routing は、account の live model catalog、制限された local tool profile、保存された adapter と model を使います。Setup と model の変更は [CURSOR_SDK.md](../.vibekit/docs/CURSOR_SDK.md) を参照してください。
+
 ## スキル
 
-22 個すべてのスキルの正本は `.vibekit/skills/` にあります。Claude、Codex、OpenCode、Grok、Kimi は 22 個すべてをミラーし、Cursor は対話型の 17 個をミラーします。名前で指定（「Use the X skill」）するか、上記のコマンドから呼び出します。
+23 個すべてのスキルの正本は `.vibekit/skills/` にあります。Claude、Codex、OpenCode、Grok、Kimi は 23 個すべてをミラーし、Cursor は対話型の 18 個をミラーします。名前で指定（「Use the X skill」）するか、上記のコマンドから呼び出します。
 
 ```mermaid
 ---
@@ -390,7 +392,7 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("22 skills"))
+  root(("23 skills"))
     setup("セットアップと安全")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
@@ -410,6 +412,7 @@ mindmap
       a2("autoresearch-coding")
       a3("daily-workflow-curator")
       a4("visual-design-loop")
+      a5("clone-website")
     helpers("日常の補助")
       h1("memento")
       h2("coding-level")
@@ -442,6 +445,7 @@ mindmap
 | `coding-level` | 説明の詳しさを設定するとき（0 = ELI5、5 = expert）。 | "/coding-level 2" |
 | `prompt-sharpener` | 複雑なタスクに対して粗いプロンプトしかないとき。明確化して同じターンで実行します。 | "/prompt-sharpener make the settings page load faster" |
 | `claim` | 新しい skill、rule、convention、tool をリポジトリに持ち込むとき。公式資料を検証し、適合性を確認し、承認後に統合と文書化を行います。 | "/claim add the conventional-commits rule from https://www.npmjs.com/package/minimal-vibe-coding-kit" |
+| `clone-website` | 権利、忠実度、範囲、技術スタック、バックエンド、取得、検証の境界を決めて、Web サイトを複製または移行するとき。 | "Use clone-website to create a safe local F2/S1 prototype of this page." |
 | `wait-what` | 直前の回答が伝わらなかったとき。agent は止まり、平易な言葉でユーザーの言語のまま説明し直し、glossary の用語で欠けていた前提を補います。新しい作業は行いません。 | "/wait-what token budget の部分" |
 | `tutien` | 正確な Git/chat 証拠と終わりのない chronicle を使う、非公開でユーザー起動型の仙侠コーディング振り返りモード。実行中はユーザーの言語に合わせた修行文体を使い、`humiliation=0..10` で架空 avatar の敗北強度を調整し、`/tutien off` で通常文へ戻ります。 | "/tutien on humiliation=8" |
 | `the-creator` | 安全性、論理、機能的な受け入れ条件を守りながら、10 段階の累積的創造性で独自かつ実用的な art、design、interface、method、process、system を作るとき。 | "Use the-creator level 7 to invent a safer code-review process." |

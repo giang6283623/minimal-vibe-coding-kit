@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "target": {
+    "url": "https://store.example.com/",
+    "routes": [
+      "/",
+      "/products"
+    ],
+    "capture_mode": "isolated-interactive",
+    "interactive_capture_approved": true,
+    "approved_capture_hosts": [
+      "store.example.com",
+      "cdn.example.com"
+    ]
+  },
+  "authorization": {
+    "status": "owned",
+    "evidence": "The user states that they own the source and destination storefronts.",
+    "content_rights": "owned",
+    "scope": {
+      "routes": ["/", "/products"],
+      "deployment": "owner-controlled-production",
+      "features": ["cart", "checkout", "external_forms", "identity", "live_customer_data", "payments"],
+      "data": ["contact-data", "live-customer-data", "product-data", "source-content", "source-identity"]
+    }
+  },
+  "replica": {
+    "fidelity": "F4",
+    "scope": "S4",
+    "backend_level": "B2",
+    "target_stack": "nextjs-typescript",
+    "deployment": "owner-controlled-production"
+  },
+  "limits": {
+    "max_pages": 50,
+    "max_items": 1000,
+    "max_redirects": 5,
+    "max_response_bytes": 20971520,
+    "max_elapsed_ms": 120000,
+    "viewports": [
+      {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      }
+    ]
+  },
+  "features": {
+    "identity": true,
+    "cart": true,
+    "checkout": true,
+    "payments": true,
+    "external_forms": true,
+    "live_customer_data": true
+  },
+  "source_inputs": [],
+  "exclusions": []
+}

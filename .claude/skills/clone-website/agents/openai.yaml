@@ -1,0 +1,4 @@
+interface:
+  display_name: "Clone Website"
+  short_description: "Clone authorized sites with safe parity checks"
+  default_prompt: "Use $clone-website to plan and build a bounded website clone with suitable stack and backend choices."

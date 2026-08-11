@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.5.11 - 2026-08-11
+
+### Added
+
+- Added an optional local Cursor SDK adapter with live account model discovery, remembered `cursor-sdk` assignments, strict project-root validation, read-only and bounded workspace-write tool profiles, sandbox enforcement, requested-versus-effective model evidence, a fake-SDK sandbox contract, and a short end-user setup and model-change guide. The kit keeps its Node.js 18 baseline and never installs the SDK, starts login, stores credentials, invokes shell tools, or enables Cursor cloud agents.
+- Added `clone-website` across Claude, Cursor, Codex, OpenCode, Grok, and Kimi as skill 23. It uses explicit authorization and content-rights modes, dynamic fidelity, scope, stack, and backend choices, bounded static or approved isolated capture, neutralized public-research output, a hardened brief validator, adversarial fixtures, and evidence-backed parity verdicts.
+
+### Changed
+
+- Disabled file-based Cursor setting sources in both SDK adapter profiles so repository, user, team, plugin, and managed-device hooks, MCP servers, and subagents cannot bypass the declared tool allowlist.
+- Bound clone authorization to exact routes, deployment, enabled features, and approved data; added explicit redirect, response-byte, and elapsed-time caps; and required public-research neutralization inventory plus an unaffiliated-demo notice.
+- Added a canonical clone validation receipt that starts invalid and becomes valid only after normalized brief and plan digests are committed, preventing stale or partial outputs from counting as approved.
+
+### Fixed
+
+- Compared the complete requested and effective Cursor model selection, including every parameter, before reporting `exact-match`.
+- Rejected boolean clone-brief versions, non-canonical output paths, broad feature approval, evidence-output collisions, malformed raw input, duplicate JSON keys, invalid UTF-8, and oversized briefs with focused regressions.
+- Corrected Cursor SDK documentation so remembered metadata is described accurately, model examples require a freshly verified id, and the maintainer-only fake-SDK test is not presented as available in installed projects.
+
+### Validation
+
+- `npm test`, `npm run security:probe`, `npm run pack:dry-run`, and `git diff --check` passed. The release includes 40 Cursor SDK adapter checks, the expanded clone-website validator contract, zero dependency-free validator failures or warnings, no built-in suspicious AgentShield markers, and all 1,002 on-disk skill files in the 1,119-file npm tarball.
+
 ## 0.5.10 - 2026-08-10
 
 ### Added

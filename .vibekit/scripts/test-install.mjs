@@ -56,6 +56,11 @@ try {
       '.vibekit/skills/clean-delivery/references/story-template.md',
       'Clean Delivery canonical resources are incomplete: references/story-template.md',
       'validator reports an incomplete Clean Delivery install without an uncaught exception'
+    ],
+    [
+      '.vibekit/skills/clone-website/scripts/validate_replica_brief.py',
+      'Clone Website canonical resources are incomplete: scripts/validate_replica_brief.py',
+      'validator reports an incomplete Clone Website install without an uncaught exception'
     ]
   ]) {
     const resourcePath = path.join(clean, resource);
@@ -100,8 +105,16 @@ try {
     'clean install includes the orchestration routing helper'
   );
   assert(
+    fs.existsSync(path.join(clean, '.vibekit/scripts/cursor-sdk-adapter.mjs')),
+    'clean install includes the optional Cursor SDK adapter'
+  );
+  assert(
     fs.existsSync(path.join(clean, '.vibekit/docs/ORCHESTRATION_MODES.md')),
     'clean install includes the orchestration mode contract'
+  );
+  assert(
+    fs.existsSync(path.join(clean, '.vibekit/docs/CURSOR_SDK.md')),
+    'clean install includes the Cursor SDK setup guide'
   );
   assert(!fs.existsSync(path.join(clean, 'commands')), 'clean install does not create root commands');
   assert(!fs.existsSync(path.join(clean, 'scripts')), 'clean install does not create root scripts');
@@ -109,10 +122,15 @@ try {
   assert(fs.existsSync(path.join(clean, '.vibekit/skills/vibekit-init/SKILL.md')), 'clean install creates .vibekit/skills');
   assert(fs.existsSync(path.join(clean, '.vibekit/skills/proofline-orchestration/scripts/run-proofline-sandbox.mjs')), 'clean install includes the canonical Proofline sandbox validator');
   assert(fs.existsSync(path.join(clean, '.vibekit/skills/proofline-orchestration/examples/auth-migration-case.json')), 'clean install includes the Proofline authentication case');
+  assert(fs.existsSync(path.join(clean, '.vibekit/skills/clone-website/scripts/validate_replica_brief.py')), 'clean install includes the canonical Clone Website brief validator');
   for (const mirror of ['.claude', '.cursor', '.agents', '.grok', '.kimi-code']) {
     assert(
       fs.existsSync(path.join(clean, mirror, 'skills/proofline-orchestration/scripts/run-proofline-sandbox.mjs')),
       `clean install includes the Proofline sandbox validator in ${mirror}`
+    );
+    assert(
+      fs.existsSync(path.join(clean, mirror, 'skills/clone-website/scripts/validate_replica_brief.py')),
+      `clean install includes the Clone Website brief validator in ${mirror}`
     );
   }
   assert(fs.existsSync(path.join(clean, '.vibekit/init/FIRST_TIME_INIT.md')), 'clean install seeds init files under .vibekit/init');
@@ -427,6 +445,19 @@ try {
     run(['.vibekit/scripts/mvck.mjs', 'install', solo, '--profile', profile]);
     run(['.vibekit/scripts/validate-kit.mjs', solo]);
     assert(true, `${profile}-only install passes validation`);
+    const skillRoot = profile === 'claude'
+      ? '.claude'
+      : profile === 'cursor'
+        ? '.cursor'
+        : profile === 'grok'
+          ? '.grok'
+          : profile === 'kimi'
+            ? '.kimi-code'
+            : '.agents';
+    assert(
+      fs.existsSync(path.join(solo, skillRoot, 'skills/clone-website/SKILL.md')),
+      `${profile}-only install includes clone-website`
+    );
     if (profile === 'kimi') {
       const doctor = JSON.parse(run(['.vibekit/scripts/doctor.mjs', solo, '--json']).stdout);
       assert(doctor.agentSurfaces.kimi === true, 'doctor detects a Kimi-only install');

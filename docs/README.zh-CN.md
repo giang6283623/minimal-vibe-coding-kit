@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.10-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.11-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -351,9 +351,11 @@ flowchart LR
 
 选择 "Don't show again" 会把该模式保存在 .vibekit/preferences.json。子 Agent 不会直接询问用户，而是向父 Agent 返回 needs_user_input。Coding level 只影响说明密度和推荐选项，不会降低 model 质量或安全要求。参见 [.vibekit/docs/ORCHESTRATION_MODES.md](../.vibekit/docs/ORCHESTRATION_MODES.md)。
 
+可选的 Cursor SDK 路由使用账户的实时 model 目录、受限的本地 tool profile，以及记住的 adapter 和 model。设置和更改 model 请参见 [CURSOR_SDK.md](../.vibekit/docs/CURSOR_SDK.md)。
+
 ## 技能
 
-全部 22 个技能的规范版本位于 `.vibekit/skills/`。Claude、Codex、OpenCode、Grok 和 Kimi 镜像全部 22 个技能；Cursor 镜像其中 17 个交互式技能。可以直接按名称调用（例如“Use the X skill…”），也可以使用上面的命令。
+全部 23 个技能的规范版本位于 `.vibekit/skills/`。Claude、Codex、OpenCode、Grok 和 Kimi 镜像全部 23 个技能；Cursor 镜像其中 18 个交互式技能。可以直接按名称调用（例如“Use the X skill…”），也可以使用上面的命令。
 
 ```mermaid
 ---
@@ -390,7 +392,7 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("22 个技能"))
+  root(("23 个技能"))
     setup("设置与安全")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
@@ -410,6 +412,7 @@ mindmap
       a2("autoresearch-coding")
       a3("daily-workflow-curator")
       a4("visual-design-loop")
+      a5("clone-website")
     helpers("日常助手")
       h1("memento")
       h2("coding-level")
@@ -442,6 +445,7 @@ mindmap
 | `coding-level`                  | 设置解释详细程度（0 = ELI5，5 = 专家同行）。                                                        | "/coding-level 2"                                                                                     |
 | `prompt-sharpener`              | 复杂任务只有粗略提示词时：优化提示词并在同一轮执行。                                                 | "/prompt-sharpener make the settings page load faster"                                                |
 | `claim`                         | 将新技能、规则、约定或工具带入仓库：验证官方来源、检查适配性、确认、集成并记录文档。                 | "/claim add the conventional-commits rule from https://www.conventionalcommits.org"                   |
+| `clone-website`                 | 在明确权限、保真度、范围、技术栈、后端、采集和验证边界后，克隆或迁移网站。                         | "Use clone-website 为这个页面创建安全的本地 F2/S1 原型。"                                             |
 | `wait-what`                     | 上一条回答没有讲明白：agent 停下来，用通俗语言并按你的语言重新讲解，用 glossary 术语补回缺失的前提；不做新工作。 | "/wait-what 关于 token 预算的部分"                                                                    |
 | `tutien`                        | 由用户调用的私密修仙模式，使用准确的 Git/聊天证据并维护开放式连载故事。启用期间，每次回复都按用户语言使用自然的修仙文风；`humiliation=0..10` 控制虚构修士角色的败阵强度。`/tutien off` 恢复正常文风。 | "/tutien on humiliation=8"                                                                         |
 | `the-creator`                   | 通过 10 个累积创意等级创造新颖但可用的艺术、设计、界面、方法、流程或系统；每级放宽 10% 的适用惯例，同时保持安全、逻辑和功能验收不变。 | "Use the-creator level 7 设计一种更安全的代码审查流程。" |
