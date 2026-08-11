@@ -5,13 +5,14 @@ import path from "node:path";
 
 const MODES = new Set(["default", "auto", "custom"]);
 const PROVIDERS = new Set(["current", "codex", "claude", "cursor", "opencode", "grok", "kimi"]);
+const ADAPTERS = new Set(["cursor-sdk"]);
 const args = process.argv.slice(2);
 
 function usage() {
   console.log([
     "Usage:",
     "  orchestration-preference.mjs show [target]",
-    "  orchestration-preference.mjs remember <default|auto|custom> [target] [--assign role=provider:model]",
+    "  orchestration-preference.mjs remember <default|auto|custom> [target] [--assign role=provider:model] [--adapter role=cursor-sdk]",
     "  orchestration-preference.mjs forget [target]",
   ].join("\n"));
 }
@@ -67,6 +68,12 @@ function validateAssignment(role, assignment) {
   if (typeof assignment.model !== "string" || assignment.model.length < 1 || assignment.model.length > 120 || /[\u0000-\u001f\u007f]/.test(assignment.model)) {
     fail("custom role must have a printable model name of at most 120 characters: " + role);
   }
+  if (assignment.adapter !== undefined) {
+    if (!ADAPTERS.has(assignment.adapter)) fail("custom role has an unknown adapter: " + role);
+    if (assignment.adapter === "cursor-sdk" && assignment.provider !== "cursor") {
+      fail("cursor-sdk adapter requires the cursor provider: " + role);
+    }
+  }
 }
 
 function normalizedState(preferences) {
@@ -110,18 +117,38 @@ function writePreferences(target, preferences) {
 
 function parseAssignments(rawArgs) {
   const assignments = {};
+  const adapters = {};
   for (let index = 0; index < rawArgs.length; index += 1) {
     const item = rawArgs[index];
     let value = null;
+    let kind = null;
     if (item === "--assign") {
       value = rawArgs[index + 1];
+      kind = "assign";
       index += 1;
     } else if (item.startsWith("--assign=")) {
       value = item.slice("--assign=".length);
+      kind = "assign";
+    } else if (item === "--adapter") {
+      value = rawArgs[index + 1];
+      kind = "adapter";
+      index += 1;
+    } else if (item.startsWith("--adapter=")) {
+      value = item.slice("--adapter=".length);
+      kind = "adapter";
     } else {
       fail("unknown argument: " + item);
     }
-    if (!value) fail("--assign requires role=provider:model");
+    if (!value) fail(kind === "assign" ? "--assign requires role=provider:model" : "--adapter requires role=adapter");
+    if (kind === "adapter") {
+      const equals = value.indexOf("=");
+      if (equals < 1 || equals === value.length - 1) fail("--adapter requires role=adapter");
+      const role = value.slice(0, equals);
+      const adapter = value.slice(equals + 1);
+      if (Object.hasOwn(adapters, role)) fail("duplicate custom adapter role: " + role);
+      adapters[role] = adapter;
+      continue;
+    }
     const equals = value.indexOf("=");
     const colon = value.indexOf(":", equals + 1);
     if (equals < 1 || colon < equals + 2 || colon === value.length - 1) {
@@ -133,9 +160,13 @@ function parseAssignments(rawArgs) {
       model: value.slice(colon + 1),
     };
     if (Object.hasOwn(assignments, role)) fail("duplicate custom role: " + role);
-    validateAssignment(role, assignment);
     assignments[role] = assignment;
   }
+  for (const [role, adapter] of Object.entries(adapters)) {
+    if (!Object.hasOwn(assignments, role)) fail("--adapter role requires a matching --assign: " + role);
+    assignments[role].adapter = adapter;
+  }
+  for (const [role, assignment] of Object.entries(assignments)) validateAssignment(role, assignment);
   return assignments;
 }
 

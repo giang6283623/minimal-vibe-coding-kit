@@ -120,7 +120,8 @@ const required = [
   'AGENTS.md', '.vibekit/init/CLAUDE-template.md', '.vibekit/init/FIRST_TIME_INIT.md', '.vibekit/init/FIRST_PROMPT.md', 'backbone.yml',
   '.vibekit/scripts/mvck.mjs', '.vibekit/scripts/init-backbone.mjs', '.vibekit/scripts/daily-enhance.mjs', '.vibekit/scripts/validate-kit.mjs',
   '.vibekit/scripts/doctor.mjs', '.vibekit/scripts/agentshield-probe.mjs', '.vibekit/scripts/orchestration-preference.mjs',
-  '.vibekit/scripts/orchestration-routing.mjs', '.vibekit/scripts/vibekit-finalize.mjs', '.vibekit/docs/ORCHESTRATION_MODES.md',
+  '.vibekit/scripts/orchestration-routing.mjs', '.vibekit/scripts/cursor-sdk-adapter.mjs', '.vibekit/scripts/vibekit-finalize.mjs',
+  '.vibekit/docs/ORCHESTRATION_MODES.md', '.vibekit/docs/CURSOR_SDK.md',
   ...KIT_SKILLS.map((skill) => `.vibekit/skills/${skill}/SKILL.md`),
   '.vibekit/docs/templates/PRD_TEMPLATE.md', '.vibekit/docs/templates/CONTEXT_TEMPLATE.md'
 ];
@@ -221,6 +222,17 @@ const reasoningSkillResources = {
     'references/flowchart.md',
     'references/sequenceDiagram.md',
     'references/config-theming.md'
+  ],
+  'clone-website': [
+    'agents/openai.yaml',
+    'references/intake-and-levels.md',
+    'references/minimal-vibe-integration.md',
+    'references/output-templates.md',
+    'references/platform-playbooks.md',
+    'references/replica-brief.example.json',
+    'references/safety-and-rights.md',
+    'references/verification-contract.md',
+    'scripts/validate_replica_brief.py'
   ]
 };
 
@@ -499,11 +511,11 @@ function validateThreatModelSecurityReviewContract() {
   const ui = read(`${base}/agents/openai.yaml`);
   const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
   const sourceDiscoveryValid = !isKitSourceRepo || (
-    hasAll(read('README.md'), ['All 22 skills', '| `threat-model-security-review`'])
-    && hasAll(read('docs/README.vi.md'), ['Cả 22 skill', '| `threat-model-security-review`'])
-    && hasAll(read('docs/README.zh-CN.md'), ['全部 22 个技能', '| `threat-model-security-review`'])
-    && hasAll(read('docs/README.ja.md'), ['22 個すべてのスキル', '| `threat-model-security-review`'])
-    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Twelve user-invoked skills', '`threat-model-security-review`'])
+    hasAll(read('README.md'), ['All 23 skills', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 23 skill', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 23 个技能', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.ja.md'), ['23 個すべてのスキル', '| `threat-model-security-review`'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Thirteen user-invoked skills', '`threat-model-security-review`'])
     && hasAll(read('.vibekit/docs/SECURITY_MODEL.md'), [
       '`threat-model-security-review` covers application source',
       '`agentshield-security-review` covers agent instructions'
@@ -703,11 +715,11 @@ function validateCleanDeliveryContract() {
   }
 
   const discoveryValid = !isKitSourceRepo || (
-    hasAll(read('README.md'), ['All 22 skills', 'clean-delivery'])
-    && hasAll(read('docs/README.vi.md'), ['Cả 22 skill', 'clean-delivery'])
-    && hasAll(read('docs/README.zh-CN.md'), ['全部 22 个技能', 'clean-delivery'])
-    && hasAll(read('docs/README.ja.md'), ['22 個すべてのスキル', 'clean-delivery'])
-    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Twelve user-invoked skills', 'clean-delivery'])
+    hasAll(read('README.md'), ['All 23 skills', 'clean-delivery'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 23 skill', 'clean-delivery'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 23 个技能', 'clean-delivery'])
+    && hasAll(read('docs/README.ja.md'), ['23 個すべてのスキル', 'clean-delivery'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Thirteen user-invoked skills', 'clean-delivery'])
     && hasAll(read('package.json'), [
       'test:clean-delivery',
       '.claude/skills/clean-delivery/',
@@ -849,10 +861,12 @@ function validateOrchestrationModeContract() {
   const contractPath = '.vibekit/docs/ORCHESTRATION_MODES.md';
   const preferencePath = '.vibekit/scripts/orchestration-preference.mjs';
   const routingPath = '.vibekit/scripts/orchestration-routing.mjs';
-  if (!exists(contractPath) || !exists(preferencePath) || !exists(routingPath)) return;
+  const cursorAdapterPath = '.vibekit/scripts/cursor-sdk-adapter.mjs';
+  if (!exists(contractPath) || !exists(preferencePath) || !exists(routingPath) || !exists(cursorAdapterPath)) return;
   const contract = read(contractPath);
   const preferenceScript = read(preferencePath);
   const routingScript = read(routingPath);
+  const cursorAdapter = read(cursorAdapterPath);
   const agents = read('AGENTS.md');
   const council = read('.vibekit/commands/council.md');
   const parallel = read('.vibekit/skills/parallel-analysis/SKILL.md');
@@ -889,6 +903,8 @@ function validateOrchestrationModeContract() {
   if (hasAll(preferenceScript, [
     'const MODES = new Set(["default", "auto", "custom"])',
     'const PROVIDERS = new Set(["current", "codex", "claude", "cursor", "opencode", "grok", "kimi"])',
+    'const ADAPTERS = new Set(["cursor-sdk"])',
+    '--adapter role=cursor-sdk',
     'refusing symlinked project preference file',
     'custom mode requires at least one --assign',
     'delete preferences.orchestration'
@@ -922,6 +938,30 @@ function validateOrchestrationModeContract() {
     fail('Orchestration routing planner, attestation, or non-execution boundary drifted');
   }
 
+  if (hasAll(contract, [
+    '## Optional Cursor SDK adapter',
+    'Cursor.models.list()',
+    'read-only',
+    'workspace-write',
+    '--adapter reviewer=cursor-sdk'
+  ]) && hasAll(cursorAdapter, [
+    'const MIN_NODE_VERSION = "22.13.0"',
+    'const MIN_SDK_VERSION = "1.0.27"',
+    'export function resolveProjectRoot',
+    'sdk.Cursor.models.list()',
+    'sandboxOptions: { enabled: true }',
+    'READ_ONLY_TOOLS',
+    'WORKSPACE_WRITE_TOOLS',
+    'mutationApproved',
+    'isolatedWorkspace',
+    'protectedPathsChecked',
+    'modelBinding'
+  ]) && !/(node:child_process|\beval\s*\(|\bexecSync\s*\(|\bspawnSync\s*\()/.test(cursorAdapter)) {
+    ok('Optional Cursor SDK adapter validates runtime, project root, live models, tool access, sandboxing, and model binding');
+  } else {
+    fail('Cursor SDK adapter readiness, safety, or orchestration contract drifted');
+  }
+
   const integrationValid = hasAll(agents, [
     '### Orchestration preference',
     'native structured-question tool',
@@ -949,7 +989,14 @@ function validateOrchestrationModeContract() {
   const sourceValid = !isKitSourceRepo || (
     exists('test/orchestration/scripts/test-preference.mjs')
     && exists('test/orchestration/scripts/test-routing.mjs')
-    && hasAll(read('package.json'), ['test:orchestration', 'orchestration-preference.mjs', 'orchestration-routing.mjs'])
+    && exists('test/orchestration/scripts/test-cursor-sdk-adapter.mjs')
+    && hasAll(read('package.json'), [
+      'test:orchestration',
+      'test:cursor-sdk-sandbox',
+      'orchestration-preference.mjs',
+      'orchestration-routing.mjs',
+      'cursor-sdk-adapter.mjs'
+    ])
     && ['README.md', 'docs/README.vi.md', 'docs/README.zh-CN.md', 'docs/README.ja.md']
       .every((file) => read(file).includes('ORCHESTRATION_MODES.md'))
     && read('.vibekit/docs/INSTALL.md').includes('Multi-agent orchestration preference')
@@ -1230,14 +1277,14 @@ function validateGraphEngineeringContract() {
 
   const sourceDiscoveryValid = !isKitSourceRepo || (
     hasAll(readme, [
-      'All 22 skills',
+      'All 23 skills',
       'Graph engineering: verified orchestration',
       'edgeLabelBackground: "#FFFFFF"'
     ])
     && readmeVi.includes('Graph engineering: điều phối có xác minh')
     && readmeZh.includes('图工程：经验证的编排')
     && readmeJa.includes('Graph engineering：検証付き orchestration')
-    && install.includes('Twelve user-invoked skills')
+    && install.includes('Thirteen user-invoked skills')
     && hasAll(pkg, [
       '.claude/skills/graph-engineering-verified-orchestration/',
       '.cursor/skills/graph-engineering-verified-orchestration/'
@@ -1566,11 +1613,11 @@ function validateProoflineContract() {
   }
 
   const sourceDiscoveryValid = !isKitSourceRepo || (
-    hasAll(read('README.md'), ['All 22 skills', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('docs/README.vi.md'), ['Cả 22 skill', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('docs/README.zh-CN.md'), ['全部 22 个技能', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('docs/README.ja.md'), ['22 個すべてのスキル', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Twelve user-invoked skills', '`proofline-orchestration`'])
+    hasAll(read('README.md'), ['All 23 skills', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 23 skill', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 23 个技能', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('docs/README.ja.md'), ['23 個すべてのスキル', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Thirteen user-invoked skills', '`proofline-orchestration`'])
     && hasAll(read('package.json'), [
       '.claude/skills/proofline-orchestration/',
       '.cursor/skills/proofline-orchestration/'
@@ -1728,18 +1775,18 @@ function validateTheCreatorContract() {
 
   const discoveryValid = !isKitSourceRepo || (
     exists('README.md')
-    && read('README.md').includes('All 22 skills')
+    && read('README.md').includes('All 23 skills')
     && exists('docs/README.vi.md')
-    && read('docs/README.vi.md').includes('Cả 22 skill')
+    && read('docs/README.vi.md').includes('Cả 23 skill')
     && read('docs/README.vi.md').includes('| `the-creator`')
     && exists('docs/README.zh-CN.md')
-    && read('docs/README.zh-CN.md').includes('全部 22 个技能')
+    && read('docs/README.zh-CN.md').includes('全部 23 个技能')
     && read('docs/README.zh-CN.md').includes('| `the-creator`')
     && exists('docs/README.ja.md')
-    && read('docs/README.ja.md').includes('22 個すべてのスキル')
+    && read('docs/README.ja.md').includes('23 個すべてのスキル')
     && read('docs/README.ja.md').includes('| `the-creator`')
     && exists('.vibekit/docs/INSTALL.md')
-    && read('.vibekit/docs/INSTALL.md').includes('Twelve user-invoked skills')
+    && read('.vibekit/docs/INSTALL.md').includes('Thirteen user-invoked skills')
     && exists('.vibekit/init/CLAUDE-template.md')
     && read('.vibekit/init/CLAUDE-template.md').includes('/the-creator level N')
     && exists('package.json')
@@ -1758,6 +1805,128 @@ function validateTheCreatorContract() {
   }
 }
 
+function validateCloneWebsiteContract() {
+  const base = '.vibekit/skills/clone-website';
+  if (!exists(`${base}/SKILL.md`)) return;
+  const resources = [
+    'agents/openai.yaml',
+    'references/intake-and-levels.md',
+    'references/minimal-vibe-integration.md',
+    'references/output-templates.md',
+    'references/platform-playbooks.md',
+    'references/replica-brief.example.json',
+    'references/safety-and-rights.md',
+    'references/verification-contract.md',
+    'scripts/validate_replica_brief.py'
+  ];
+  const missingResources = resources.filter((file) => !exists(`${base}/${file}`));
+  if (missingResources.length > 0) {
+    fail(`Clone Website canonical resources are incomplete: ${missingResources.join(', ')}`);
+    return;
+  }
+
+  const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
+  const skill = read(`${base}/SKILL.md`);
+  const intake = read(`${base}/references/intake-and-levels.md`);
+  const safety = read(`${base}/references/safety-and-rights.md`);
+  const verification = read(`${base}/references/verification-contract.md`);
+  const validator = read(`${base}/scripts/validate_replica_brief.py`);
+  const ui = read(`${base}/agents/openai.yaml`);
+  const example = readJson(`${base}/references/replica-brief.example.json`);
+
+  hasAll(skill, [
+    'name: clone-website',
+    'Never infer ownership, permission, or content rights',
+    '`public-research-local`',
+    '`static-capture`',
+    '`isolated-interactive`',
+    'backend level `B0` to `B2`',
+    'PASS WITH EXCEPTIONS'
+  ])
+    ? ok('Clone Website skill keeps authorization, capture, architecture, and verdict boundaries')
+    : fail('Clone Website skill safety or workflow contract drifted');
+
+  hasAll(intake, [
+    '`B0 static`',
+    '`B1 small`',
+    '`B2 scale-ready`',
+    'Preserve a working repository stack',
+    'Public research cannot use S4'
+  ])
+    ? ok('Clone Website intake defines dynamic fidelity, scope, stack, and backend choices')
+    : fail('Clone Website intake choices drifted');
+
+  hasAll(safety, [
+    'A request to clone is not evidence of ownership',
+    'Static capture',
+    'Isolated interactive capture',
+    'repeat the check after every redirect and DNS resolution'
+  ]) && hasAll(verification, [
+    'The implementer cannot pass work using only a self-authored checklist',
+    'Local browser traffic contains only approved local GET requests',
+    'Public research may claim layout parity only'
+  ])
+    ? ok('Clone Website separates rights, runtime capture, and independent verification')
+    : fail('Clone Website rights or verification contract drifted');
+
+  hasAll(validator, [
+    'MAX_BRIEF_BYTES',
+    'reject_duplicate_keys',
+    'ipaddress.ip_address',
+    'must not use symlinks',
+    'instruction-like text',
+    'public research cannot use B2',
+    'def atomic_write',
+    'never expose an uncaught traceback'
+  ])
+    ? ok('Clone Website brief validator retains URL, path, injection, and atomic-write guards')
+    : fail('Clone Website brief validator safety markers drifted');
+
+  if (example?.replica?.backend_level === 'B0'
+    && example?.authorization?.status === 'public-research-local'
+    && example?.authorization?.content_rights === 'neutralized') {
+    ok('Clone Website example uses the safe public-research default');
+  } else {
+    fail('Clone Website example safe default drifted');
+  }
+
+  const manifestEntry = manifestSkills.find((skillEntry) => skillEntry.name === 'clone-website');
+  const allSurfaces = ['claude', 'cursor', 'codex', 'opencode', 'grok', 'kimi'];
+  const manifestValid = manifestEntry
+    && allSurfaces.every((surface) => manifestEntry.surfaces.includes(surface));
+  manifestValid
+    ? ok('Clone Website is registered for all six provider surfaces')
+    : fail('Clone Website provider manifest coverage drifted');
+
+  if (hasAll(ui, [
+    'display_name: "Clone Website"',
+    'Use $clone-website'
+  ])) {
+    ok('Clone Website UI metadata matches the skill name');
+  } else {
+    fail('Clone Website UI metadata drifted');
+  }
+
+  const sourceDiscoveryValid = !isKitSourceRepo || (
+    hasAll(read('README.md'), ['All 23 skills', 'Cursor uses the 18 interactive ones', '| `clone-website`'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 23 skill', 'Cursor mirror 18 skill', '| `clone-website`'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 23 个技能', '18 个交互式技能', '| `clone-website`'])
+    && hasAll(read('docs/README.ja.md'), ['23 個すべてのスキル', '18 個をミラー', '| `clone-website`'])
+    && read('docs/README.ko.md').includes('| `clone-website`')
+    && read('docs/README.de.md').includes('| `clone-website`')
+    && read('docs/README.bg.md').includes('| `clone-website`')
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Thirteen user-invoked skills', '`clone-website`'])
+    && hasAll(read('package.json'), [
+      '"test:clone-website"',
+      '.claude/skills/clone-website/',
+      '.cursor/skills/clone-website/'
+    ])
+  );
+  sourceDiscoveryValid
+    ? ok('Clone Website discovery, localization, packaging, and tests stay synchronized')
+    : fail('Clone Website discovery, localization, packaging, or tests drifted');
+}
+
 validateAutoresearchContract();
 validateSequentialThinkingContract();
 validateThreatModelSecurityReviewContract();
@@ -1768,6 +1937,7 @@ validateMermaidContract();
 validateGraphEngineeringContract();
 validateProoflineContract();
 validateTheCreatorContract();
+validateCloneWebsiteContract();
 
 function parseFrontmatter(text) {
   const match = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -1906,9 +2076,9 @@ if (isKitSourceRepo && pkg?.version) {
     : fail('Localized README navigation drifted');
 
   const translatedReadmeContracts = [
-    { rel: 'docs/README.ko.md', markers: ['## 빠른 시작', '전체 22개 스킬', '## 고급 사용', '## 기여', '## 라이선스'] },
-    { rel: 'docs/README.de.md', markers: ['## Schnellstart', 'Alle 22 Skills', '## Erweitert', '## Mitwirken', '## Lizenz'] },
-    { rel: 'docs/README.bg.md', markers: ['## Бърз старт', 'Всички 22 умения', '## Разширена употреба', '## Принос', '## Лиценз'] }
+    { rel: 'docs/README.ko.md', markers: ['## 빠른 시작', '전체 23개 스킬', '## 고급 사용', '## 기여', '## 라이선스'] },
+    { rel: 'docs/README.de.md', markers: ['## Schnellstart', 'Alle 23 Skills', '## Erweitert', '## Mitwirken', '## Lizenz'] },
+    { rel: 'docs/README.bg.md', markers: ['## Бърз старт', 'Всички 23 умения', '## Разширена употреба', '## Принос', '## Лиценз'] }
   ];
   const sharedCoverage = [
     '`/init-vibe`',

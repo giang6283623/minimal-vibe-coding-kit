@@ -231,7 +231,7 @@ const KIT_DOC_EXCLUDES = ['RESEARCH_NOTES.md', 'AUTORESEARCH_LEDGER.md'];
 const KIT_SCRIPTS = [
   '.vibekit/scripts/mvck.mjs', '.vibekit/scripts/init-backbone.mjs', '.vibekit/scripts/daily-enhance.mjs', '.vibekit/scripts/validate-kit.mjs',
   '.vibekit/scripts/doctor.mjs', '.vibekit/scripts/agentshield-probe.mjs', '.vibekit/scripts/orchestration-preference.mjs',
-  '.vibekit/scripts/orchestration-routing.mjs', '.vibekit/scripts/vibekit-finalize.mjs'
+  '.vibekit/scripts/orchestration-routing.mjs', '.vibekit/scripts/cursor-sdk-adapter.mjs', '.vibekit/scripts/vibekit-finalize.mjs'
 ];
 const VALID_PROFILES = new Set(['claude', 'cursor', 'codex', 'opencode', 'grok', 'kimi']);
 

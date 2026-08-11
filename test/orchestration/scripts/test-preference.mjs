@@ -43,16 +43,23 @@ try {
     "custom",
     temporary,
     "--assign",
-    "researcher=cursor:provider-default",
+    "researcher=cursor:composer-2.5",
+    "--adapter",
+    "researcher=cursor-sdk",
     "--assign=reviewer=claude:sonnet-current",
     "--assign=operator=opencode:provider-default",
   ]).stdout);
   assert.equal(rememberedCustom.assignments.researcher.provider, "cursor");
+  assert.equal(rememberedCustom.assignments.researcher.model, "composer-2.5");
+  assert.equal(rememberedCustom.assignments.researcher.adapter, "cursor-sdk");
   assert.equal(rememberedCustom.assignments.reviewer.model, "sonnet-current");
   assert.equal(rememberedCustom.assignments.operator.provider, "opencode");
 
   run(["remember", "default", temporary, "--assign=reviewer=claude:provider-default"], 1);
   run(["remember", "custom", temporary, "--assign=../escape=claude:provider-default"], 1);
+  run(["remember", "custom", temporary, "--assign=reviewer=claude:sonnet-current", "--adapter=reviewer=cursor-sdk"], 1);
+  run(["remember", "custom", temporary, "--assign=reviewer=cursor:composer-2.5", "--adapter=reviewer=unknown"], 1);
+  run(["remember", "custom", temporary, "--assign=reviewer=cursor:composer-2.5", "--adapter=maker=cursor-sdk"], 1);
 
   const forgotten = JSON.parse(run(["forget", temporary]).stdout);
   assert.equal(forgotten.configured, false);

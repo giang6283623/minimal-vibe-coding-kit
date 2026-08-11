@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.10-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.11-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -165,9 +165,11 @@ your-project/
 
 "Don't show again"을 선택하면 해당 모드가 `.vibekit/preferences.json`에 저장됩니다. 하위 에이전트는 사용자에게 직접 묻지 않고 `needs_user_input`을 부모에게 반환합니다. 자세한 내용은 [ORCHESTRATION_MODES.md](../.vibekit/docs/ORCHESTRATION_MODES.md)를 참고하세요.
 
+선택형 Cursor SDK routing은 계정의 실시간 model catalog, 제한된 local tool profile, 저장된 adapter와 model을 사용합니다. 설정과 model 변경 방법은 [CURSOR_SDK.md](../.vibekit/docs/CURSOR_SDK.md)를 참고하세요.
+
 ## 스킬
 
-전체 22개 스킬의 정본은 `.vibekit/skills/`에 있습니다. Claude, Codex, OpenCode, Grok, Kimi는 22개 모두를 미러링하고 Cursor는 상호작용형 17개를 미러링합니다.
+전체 23개 스킬의 정본은 `.vibekit/skills/`에 있습니다. Claude, Codex, OpenCode, Grok, Kimi는 23개 모두를 미러링하고 Cursor는 상호작용형 18개를 미러링합니다.
 
 | 스킬 | 사용 시점 |
 | --- | --- |
@@ -189,6 +191,7 @@ your-project/
 | `memento` | 여러 날에 걸친 작업을 위한 저장소 내 메모가 필요할 때 |
 | `coding-level` | 코딩 설명의 깊이를 0부터 5까지 설정할 때 |
 | `claim` | 새로운 도구, 스킬, URL을 공식 출처와 대조한 뒤 통합할 때 |
+| `clone-website` | 권한, 충실도, 범위, 기술 스택, 백엔드, 캡처, 검증 경계를 정해 웹사이트를 복제하거나 마이그레이션할 때 |
 | `wait-what` | 직전 답변이 이해되지 않았을 때: 쉬운 말로, 사용자의 언어로, 용어집 어휘를 써서 다시 설명 |
 | `tutien` | Git과 제공된 채팅 증거를 바탕으로 한 개인적인 선협 코딩 회고 모드 |
 | `the-creator` | 사용자가 명시적으로 창작 수준을 요청했을 때 |

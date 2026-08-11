@@ -44,6 +44,7 @@ Persist a remembered choice with:
 ~~~sh
 node .vibekit/scripts/orchestration-preference.mjs remember auto .
 node .vibekit/scripts/orchestration-preference.mjs remember custom . --assign reviewer=claude:provider-default
+node .vibekit/scripts/orchestration-preference.mjs remember custom . --assign reviewer=cursor:<verified-model-id> --adapter reviewer=cursor-sdk
 ~~~
 
 Use the script only after the user selects Don't show again. A one-time answer stays in conversation state and does not write local preferences.
@@ -75,7 +76,68 @@ For each lane, first satisfy risk, capability, context, tool, isolation, and ver
 
 Show only providers and models that the runtime can verify as available. Ask for assignments in batches of at most three native questions. Each assignment binds one named role or lane to a provider and model. Keep provider-default as an explicit option. Reject unknown, unavailable, unauthenticated, or unsafe assignments and ask for a replacement.
 
+When the optional Cursor SDK adapter is ready, show `Cursor SDK` as a distinct execution option under the Cursor provider. After the user selects it, get the current account-specific catalog with `Cursor.models.list()`. Present 2 or 3 verified model choices per native question and let the native free-form fallback accept another catalog id. Revalidate every answer against the same fresh catalog before dispatch. Never show a model from documentation, cached prose, or a previous session as currently available without this check.
+
 Custom routing does not bypass task dependencies, isolation, budgets, protected paths, human gates, or verification. When the runtime cannot enforce an assignment, stop or use a user-approved fallback.
+
+## Optional Cursor SDK adapter
+
+Cursor SDK is an optional local adapter. It does not change the kit's Node.js 18 baseline and is ready only when all of these checks pass:
+
+- Node.js 22.13 or later is active for the adapter process.
+- `@cursor/sdk` 1.0.27 or later is installed in the consuming project.
+- the SDK can authenticate without starting a login flow;
+- `Cursor.models.list()` returns the selected model and every requested model parameter;
+- the target is a real, non-symlinked kit project root, not a broad system or home directory;
+- the requested access profile and local sandbox can be enforced.
+
+Run the non-mutating readiness and model probes before offering Cursor SDK:
+
+~~~sh
+node .vibekit/scripts/cursor-sdk-adapter.mjs preflight .
+node .vibekit/scripts/cursor-sdk-adapter.mjs models .
+~~~
+
+Classify a missing package, unsupported Node.js version, failed authentication, invalid project root, stale model id, missing model parameter, or unavailable sandbox as unavailable. Never install the SDK, open a browser login, change credentials, or weaken the access profile during a probe.
+
+The adapter supports two explicit local profiles:
+
+- `read-only`: offers only `read`, `grep`, `glob`, and `ls`, and starts in plan mode;
+- `workspace-write`: also offers `edit` and `write`, but never shell, web, MCP, or nested-agent tools.
+
+Both profiles enable the Cursor local sandbox and disable file-based setting sources so repository, user, team, plugin, and managed-device hooks, MCP servers, and subagents cannot bypass the tool profile. `workspace-write` fails closed unless the request asserts `mutationApproved`, `isolatedWorkspace`, and `protectedPathsChecked` as `true`. The parent must establish those facts and perform its own validation. Cursor SDK never grants those conditions by itself.
+
+Dispatch one lane by passing bounded JSON on stdin. Do not put credentials in the request:
+
+~~~sh
+node .vibekit/scripts/cursor-sdk-adapter.mjs run . < cursor-run-request.json
+~~~
+
+~~~json
+{
+  "version": 1,
+  "access": "read-only",
+  "model": "composer-2.5",
+  "prompt": "Review the named files and return evidence only.",
+  "timeoutMs": 600000
+}
+~~~
+
+For a parameterized model, pass every parameter exactly as returned by the live catalog. The result reports the adapter, agent id, run id, requested model, effective model, and either `exact-match` or `router-selection`. Reject an exact-model mismatch. A router selection is not exact model attestation.
+
+For `workspace-write`, add this object only after the parent has completed each check:
+
+~~~json
+{
+  "authorization": {
+    "mutationApproved": true,
+    "isolatedWorkspace": true,
+    "protectedPathsChecked": true
+  }
+}
+~~~
+
+Cursor SDK is local-only in this integration. Do not use its cloud runtime, automatic pull requests, inline MCP servers, custom tools, or nested agents through this adapter. See [CURSOR_SDK.md](CURSOR_SDK.md) for the short end-user setup and model-change guide.
 
 ## Enforced routing plans
 
@@ -142,8 +204,9 @@ A remembered Auto or Custom preference does not authorize subagents, mutation, p
     "remember": true,
     "assignments": {
       "reviewer": {
-        "provider": "claude",
-        "model": "provider-default"
+        "provider": "cursor",
+        "model": "composer-2.5",
+        "adapter": "cursor-sdk"
       }
     },
     "configuredAt": "2026-08-05T00:00:00.000Z"
@@ -151,4 +214,4 @@ A remembered Auto or Custom preference does not authorize subagents, mutation, p
 }
 ~~~
 
-Allowed provider identifiers are current, codex, claude, cursor, opencode, grok, and kimi. Do not store credentials, tokens, account details, or provider command output.
+Allowed provider identifiers are current, codex, claude, cursor, opencode, grok, and kimi. `cursor-sdk` is the only stored adapter identifier and is valid only with the cursor provider. Do not store credentials, tokens, account details, or provider command output.

@@ -108,6 +108,8 @@ node .vibekit/scripts/orchestration-preference.mjs remember auto .
 node .vibekit/scripts/orchestration-preference.mjs forget .
 ~~~
 
+For optional Cursor SDK routing, follow [CURSOR_SDK.md](CURSOR_SDK.md). The adapter verifies Node.js, SDK version, authentication, the live account model catalog, project-root safety, and bounded local tool access before it becomes a choice.
+
 ## After install
 
 Paste the universal prompt from `.vibekit/init/FIRST_PROMPT.md`, or run:
@@ -166,7 +168,7 @@ The installer also includes `visual-design-loop` for Claude, Codex, Grok, and Ki
 
 ## User-invoked utility skills
 
-Twelve user-invoked skills install across Claude, Codex, Cursor, Grok, and Kimi surfaces:
+Thirteen user-invoked skills install across Claude, Codex, Cursor, Grok, and Kimi surfaces:
 
 - `memento`: write a `MEMENTO.md` working note before closing a multi-day task (`/memento`), then resume from it in the next session (`/memento resume`).
 - `coding-level`: set the explanation register from 0 (ELI5) to 5 (expert peer) with `/coding-level N`; stays active until reinvoked.
@@ -180,6 +182,7 @@ Twelve user-invoked skills install across Claude, Codex, Cursor, Grok, and Kimi 
 - `tutien`: turn Git history and explicitly supplied AI-chat exports into a private xianxia coding-reflection mode with `/tutien` (realm, token use, workflow habits, evidence-bound suggestions). Once enabled, every reply keeps an adaptive cultivation-novel voice in the user's language, activation asks for an optional fictional-avatar `humiliation=0..10` level, analysis remains read-only and aggregate-only by default, and `/tutien off` disables the mode.
 - `the-creator`: create original but workable art, designs, interfaces, methods, processes, or systems with `/the-creator level N`; each level cumulatively relaxes 10% of eligible conventions while preserving safety, logic, authorization, and functional acceptance.
 - `mermaid`: generate styled diagrams across 31 Mermaid types, adapt density to `/coding-level`, and optionally visualize multi-step documentation or debugging flows.
+- `clone-website`: plan, build, and verify a bounded website clone with explicit rights, dynamic fidelity, scope, stack, and backend choices, plus neutralized local research defaults.
 
 ### Proofline sandbox ledger
 
