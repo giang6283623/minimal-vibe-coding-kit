@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.11-2ea44f.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.12-2ea44f.svg)](CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -355,9 +355,13 @@ Choose "Don't show again" to remember that exact mode in .vibekit/preferences.js
 
 Optional Cursor SDK routing uses a live account model catalog, bounded local tool profiles, and a remembered adapter and model. Setup and model changes are in [CURSOR_SDK.md](.vibekit/docs/CURSOR_SDK.md).
 
+Use `agent-control-center` when one verified controller should coordinate native or cross-provider workers. Use `swap-control-center` when the user should choose Codex or another verified controller provider, transport, model, and supported reasoning effort at runtime. The active host still dispatches its own agents and enforces permissions. Plain MCP does not give an external controller direct control of another provider's Agent window, and app access never proves that the same provider's CLI or SDK is ready.
+
+The optional Codex bridge is `codex mcp-server`, registered in the host's personal MCP settings rather than committed to this repository. The host must expose the `codex` start tool and `codex-reply` continuation tool before the route is considered ready. Cursor CLI and Cursor SDK are not required for this bridge.
+
 ## Skills
 
-All 23 skills live canonically in `.vibekit/skills/`. Claude, Codex, OpenCode, Grok, and Kimi use all 23; Cursor uses the 18 interactive ones. OpenCode and Codex share `.agents/skills/`. Invoke them by name ("Use the X skill…") or via the commands above.
+All 25 skills live canonically in `.vibekit/skills/`. Claude, Codex, OpenCode, Grok, and Kimi use all 25; Cursor uses the 20 interactive ones. OpenCode and Codex share `.agents/skills/`. Invoke them by name ("Use the X skill…") or via the commands above.
 
 ```mermaid
 ---
@@ -394,7 +398,7 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("23 skills"))
+  root(("25 skills"))
     setup("Setup and safety")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
@@ -409,6 +413,8 @@ mindmap
       t6("the-creator")
       t7("proofline-<br/>orchestration")
       t8("clean-delivery")
+      t9("agent-control-<br/>center")
+      t10("swap-control-<br/>center")
     analyze("Analyze and improve")
       a1("parallel-analysis")
       a2("autoresearch-coding")
@@ -434,6 +440,8 @@ mindmap
 | `graph-engineering-verified-orchestration` | Complex work has genuinely independent branches and needs explicit dependencies, isolation, budgets, objective verification, rollback, and bounded merge gates. | "Use graph-engineering-verified-orchestration to design a safe task graph for this migration." |
 | `clean-delivery` | A behavior slice needs disciplined Specify, Code, Clean, Architect, Harden, and Verify gates with proportional TDD and reproducible evidence. | "Use clean-delivery to implement this behavior with extreme craftsmanship." |
 | `proofline-orchestration`     | Complex work benefits from explicit governance, bounded implementation, an empowered independent challenger, typed escalation signals, and evidence-bound acceptance. | "Use proofline-orchestration to govern this migration and preserve dissent." |
+| `agent-control-center`        | One verified controller must coordinate bounded native or cross-provider workers without mixing controller choice, provider routing, or topology. | "Use agent-control-center with controller=auto to coordinate this task safely." |
+| `swap-control-center`         | The user should select a verified controller provider, transport, model, and supported reasoning effort while the active host retains execution authority. | "Use swap-control-center to choose the controller for this task from Cursor." |
 | `agentshield-security-review` | Auditing agent config, skills, hooks, MCP, commands before merge.                                                                                                                                                                        | "Use agentshield-security-review on .claude/** and .vibekit/skills/**."                               |
 | `threat-model-security-review` | Reviewing application source, APIs, authentication, authorization, input paths, trust boundaries, and security-sensitive diffs with explicit evidence and coverage. | "Use threat-model-security-review on this repository. Stay read-only and report proof gaps." |
 | `autoresearch-coding`         | Improving the repo through measured experiments.                                                                                                                                                                                         | "Use autoresearch-coding. Metric: `npm test`. Direction: higher. Budget: 3."                          |

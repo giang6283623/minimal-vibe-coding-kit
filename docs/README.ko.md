@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.11-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.12-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -169,7 +169,7 @@ your-project/
 
 ## 스킬
 
-전체 23개 스킬의 정본은 `.vibekit/skills/`에 있습니다. Claude, Codex, OpenCode, Grok, Kimi는 23개 모두를 미러링하고 Cursor는 상호작용형 18개를 미러링합니다.
+전체 25개 스킬의 정본은 `.vibekit/skills/`에 있습니다. Claude, Codex, OpenCode, Grok, Kimi는 25개 모두를 미러링하고 Cursor는 상호작용형 20개를 미러링합니다.
 
 | 스킬 | 사용 시점 |
 | --- | --- |
@@ -178,6 +178,8 @@ your-project/
 | `graph-engineering-verified-orchestration` | 세 개 이상의 경계가 분명한 작업에 의존성, 격리, 예산, 검증, 롤백이 필요할 때 |
 | `clean-delivery` | 하나의 동작을 Specify, Code, Clean, Architect, Harden, Verify 게이트로 전달할 때 |
 | `proofline-orchestration` | 독립적인 반론과 증거 기반 승인 경계가 필요한 복잡한 작업 |
+| `agent-control-center` | 검증된 하나의 컨트롤러가 제한된 native 또는 cross-provider worker를 조정해야 할 때 |
+| `swap-control-center` | 사용자가 검증된 controller provider, transport, model, reasoning effort를 선택하고 현재 host가 실행 권한을 유지해야 할 때 |
 | `agentshield-security-review` | 에이전트 설정, 스킬, 훅, MCP, 명령의 보안 검토 |
 | `threat-model-security-review` | 애플리케이션 소스, 인증, 권한, 입력 경로의 위협 모델 검토 |
 | `autoresearch-coding` | 측정 가능한 실험으로 저장소를 개선할 때 |

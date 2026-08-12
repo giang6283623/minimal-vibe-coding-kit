@@ -1,5 +1,28 @@
 # Changelog
 
+## Unreleased
+
+## 0.5.12 - 2026-08-12
+
+### Added
+
+- Added `agent-control-center` across Claude, Cursor, Codex, OpenCode, Grok, and Kimi. It separates controller ownership from provider routing and task topology, classifies each app, CLI, SDK, API, MCP, or manual transport independently, and coordinates bounded work through task envelopes, work orders, proof receipts, and fail-closed control decisions.
+- Added `swap-control-center` as the dynamic-provider preset. It asks the parent user to choose a controller provider, transport, live-catalog model, and supported reasoning effort, keeps one controller, permits one approved transfer, and gates setup and smoke-test actions behind explicit consent.
+- Extended `agent-control-center` with generic provider selection, alias-safe CLI identity probes, current official setup guidance, and a provider-neutral host-mediated controller loop.
+- Documented the optional user-level `codex mcp-server` bridge and manual app-only fallback without adding repository MCP configuration or credentials.
+
+### Changed
+
+- Reworked `clone-website` into a local-artifact-only UI workflow with safe per-clone workspaces. The agent now acts as a Component UI Developer that consumes user-provided mock JSON, screenshots, owner exports, design files, and local assets. Target URLs are metadata only, all media maps to relative local paths, and the skill includes user-run Chrome DevTools Console examples for preparing authorized local data.
+
+### Fixed
+
+- Removed the obsolete live capture plan, remote asset/API request manifests, and curl runner from the clone workflow. The brief validator now accepts only `local-artifacts-only` data mode and rejects legacy capture fields.
+
+### Validation
+
+- `npm test`, `npm run validate`, `npm run pack:dry-run`, the dependency-free AgentShield probe, and `git diff --check` passed. The local external AgentShield package was absent, so the agent-surface changes also received the documented manual review. The package dry-run includes all 1,062 on-disk skill files across 1,179 packaged files.
+
 ## 0.5.11 - 2026-08-11
 
 ### Added

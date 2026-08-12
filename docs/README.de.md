@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.11-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.12-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -169,7 +169,7 @@ Das optionale Cursor SDK Routing verwendet den aktuellen Modellkatalog des Konto
 
 ## Skills
 
-Alle 23 Skills liegen kanonisch unter `.vibekit/skills/`. Claude, Codex, OpenCode, Grok und Kimi spiegeln alle 23, Cursor spiegelt die 18 interaktiven Skills.
+Alle 25 Skills liegen kanonisch unter `.vibekit/skills/`. Claude, Codex, OpenCode, Grok und Kimi spiegeln alle 25, Cursor spiegelt die 20 interaktiven Skills.
 
 | Skill | Wann er sinnvoll ist |
 | --- | --- |
@@ -178,6 +178,8 @@ Alle 23 Skills liegen kanonisch unter `.vibekit/skills/`. Claude, Codex, OpenCod
 | `graph-engineering-verified-orchestration` | Mindestens drei klar begrenzte Aufgaben brauchen Abhängigkeiten, Isolation, Budgets, Verifikation und Rollback |
 | `clean-delivery` | Ein Verhalten soll durch Specify, Code, Clean, Architect, Harden und Verify geliefert werden |
 | `proofline-orchestration` | Komplexe Arbeit braucht unabhängigen Widerspruch und evidenzgebundene Abnahme |
+| `agent-control-center` | Ein verifizierter Controller soll begrenzte native oder providerübergreifende Worker koordinieren |
+| `swap-control-center` | Der Benutzer soll einen verifizierten Controller-Provider, Transport, Modell und Reasoning-Aufwand wählen, während der aktive Host die Ausführungsrechte behält |
 | `agentshield-security-review` | Sicherheitsprüfung von Agent-Konfiguration, Skills, Hooks, MCP und Befehlen |
 | `threat-model-security-review` | Bedrohungsmodell für Anwendungscode, Authentifizierung, Autorisierung und Eingabepfade |
 | `autoresearch-coding` | Verbesserung eines Repositories durch messbare Experimente |

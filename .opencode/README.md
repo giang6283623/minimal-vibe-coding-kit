@@ -9,6 +9,8 @@ Minimal Vibe Coding Kit supports OpenCode through its native project surfaces.
 
 No custom OpenCode agents are included. OpenCode's built-in Plan agent and the shared skills cover the kit workflows without introducing a non-portable agent format.
 
+Use `agent-control-center` for provider-neutral controller ownership and bounded native or cross-provider work. Use `swap-control-center` when the user should select Codex or another verified controller provider, transport, model, and supported reasoning effort.
+
 Use the profile explicitly:
 
 ```bash

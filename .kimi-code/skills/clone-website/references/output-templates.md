@@ -10,9 +10,7 @@ Store the intake at `.replica/brief.json`:
   "target": {
     "url": "https://example.com/products",
     "routes": ["/products"],
-    "capture_mode": "static-capture",
-    "interactive_capture_approved": false,
-    "approved_capture_hosts": ["example.com"]
+    "data_mode": "local-artifacts-only"
   },
   "authorization": {
     "status": "public-research-local",
@@ -35,9 +33,6 @@ Store the intake at `.replica/brief.json`:
   "limits": {
     "max_pages": 1,
     "max_items": 8,
-    "max_redirects": 3,
-    "max_response_bytes": 5242880,
-    "max_elapsed_ms": 30000,
     "viewports": [
       { "name": "desktop", "width": 1440, "height": 900 },
       { "name": "mobile", "width": 390, "height": 844 }
@@ -57,6 +52,29 @@ Store the intake at `.replica/brief.json`:
 ```
 
 All paths in `source_inputs` are relative to `.replica/evidence/`. Do not place credentials or private exports there without an approved secure-data plan. Record exact user-approved routes, deployment, features, and data in `authorization.scope`; its routes, deployment, and features must match the requested behavior exactly.
+
+`target.url` records provenance only. The agent must not open or fetch it. `target.data_mode` must be `local-artifacts-only`.
+
+## Local input inventory
+
+Record each supplied file before implementation:
+
+```json
+[
+  {
+    "path": ".replica/evidence/products.json",
+    "kind": "mock-json",
+    "rights": "neutralized",
+    "sha256": "<digest>"
+  },
+  {
+    "path": "public/images/product-1.jpg",
+    "kind": "image",
+    "rights": "owned",
+    "sha256": "<digest>"
+  }
+]
+```
 
 ## Architecture recommendation
 
@@ -81,11 +99,14 @@ Rejected alternatives:
 Brief digest:
 Validation receipt digest:
 Source evidence digest:
+Local input inventory digest:
+Local asset mapping digest:
 Final tree digest:
 Verifier:
 Commands:
 Viewports:
 Network result:
+Local asset inventory:
 Static safety scan:
 Neutralization inventory:
 Unaffiliated demo notice:

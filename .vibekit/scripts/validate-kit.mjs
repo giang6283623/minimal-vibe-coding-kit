@@ -209,6 +209,17 @@ const reasoningSkillResources = {
     'assets/codex-profiles/proofline-countervoice.config.toml',
     'assets/codex-profiles/proofline-maker.config.toml'
   ],
+  'agent-control-center': [
+    'agents/openai.yaml',
+    'references/controller-modes.md',
+    'references/capability-contract.md',
+    'references/handoff-contract.md',
+    'references/provider-selection.md'
+  ],
+  'swap-control-center': [
+    'agents/openai.yaml',
+    'references/examples.md'
+  ],
   'the-creator': [
     'agents/openai.yaml'
   ],
@@ -232,7 +243,8 @@ const reasoningSkillResources = {
     'references/replica-brief.example.json',
     'references/safety-and-rights.md',
     'references/verification-contract.md',
-    'scripts/validate_replica_brief.py'
+    'scripts/validate_replica_brief.py',
+    'scripts/prepare-replica-workspace.mjs'
   ]
 };
 
@@ -511,11 +523,11 @@ function validateThreatModelSecurityReviewContract() {
   const ui = read(`${base}/agents/openai.yaml`);
   const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
   const sourceDiscoveryValid = !isKitSourceRepo || (
-    hasAll(read('README.md'), ['All 23 skills', '| `threat-model-security-review`'])
-    && hasAll(read('docs/README.vi.md'), ['Cả 23 skill', '| `threat-model-security-review`'])
-    && hasAll(read('docs/README.zh-CN.md'), ['全部 23 个技能', '| `threat-model-security-review`'])
-    && hasAll(read('docs/README.ja.md'), ['23 個すべてのスキル', '| `threat-model-security-review`'])
-    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Thirteen user-invoked skills', '`threat-model-security-review`'])
+    hasAll(read('README.md'), ['All 25 skills', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 25 skill', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 25 个技能', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.ja.md'), ['25 個すべてのスキル', '| `threat-model-security-review`'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Fifteen user-invoked skills', '`threat-model-security-review`'])
     && hasAll(read('.vibekit/docs/SECURITY_MODEL.md'), [
       '`threat-model-security-review` covers application source',
       '`agentshield-security-review` covers agent instructions'
@@ -715,11 +727,11 @@ function validateCleanDeliveryContract() {
   }
 
   const discoveryValid = !isKitSourceRepo || (
-    hasAll(read('README.md'), ['All 23 skills', 'clean-delivery'])
-    && hasAll(read('docs/README.vi.md'), ['Cả 23 skill', 'clean-delivery'])
-    && hasAll(read('docs/README.zh-CN.md'), ['全部 23 个技能', 'clean-delivery'])
-    && hasAll(read('docs/README.ja.md'), ['23 個すべてのスキル', 'clean-delivery'])
-    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Thirteen user-invoked skills', 'clean-delivery'])
+    hasAll(read('README.md'), ['All 25 skills', 'clean-delivery'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 25 skill', 'clean-delivery'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 25 个技能', 'clean-delivery'])
+    && hasAll(read('docs/README.ja.md'), ['25 個すべてのスキル', 'clean-delivery'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Fifteen user-invoked skills', 'clean-delivery'])
     && hasAll(read('package.json'), [
       'test:clean-delivery',
       '.claude/skills/clean-delivery/',
@@ -1277,14 +1289,14 @@ function validateGraphEngineeringContract() {
 
   const sourceDiscoveryValid = !isKitSourceRepo || (
     hasAll(readme, [
-      'All 23 skills',
+      'All 25 skills',
       'Graph engineering: verified orchestration',
       'edgeLabelBackground: "#FFFFFF"'
     ])
     && readmeVi.includes('Graph engineering: điều phối có xác minh')
     && readmeZh.includes('图工程：经验证的编排')
     && readmeJa.includes('Graph engineering：検証付き orchestration')
-    && install.includes('Thirteen user-invoked skills')
+    && install.includes('Fifteen user-invoked skills')
     && hasAll(pkg, [
       '.claude/skills/graph-engineering-verified-orchestration/',
       '.cursor/skills/graph-engineering-verified-orchestration/'
@@ -1613,11 +1625,11 @@ function validateProoflineContract() {
   }
 
   const sourceDiscoveryValid = !isKitSourceRepo || (
-    hasAll(read('README.md'), ['All 23 skills', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('docs/README.vi.md'), ['Cả 23 skill', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('docs/README.zh-CN.md'), ['全部 23 个技能', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('docs/README.ja.md'), ['23 個すべてのスキル', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Thirteen user-invoked skills', '`proofline-orchestration`'])
+    hasAll(read('README.md'), ['All 25 skills', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 25 skill', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 25 个技能', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('docs/README.ja.md'), ['25 個すべてのスキル', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Fifteen user-invoked skills', '`proofline-orchestration`'])
     && hasAll(read('package.json'), [
       '.claude/skills/proofline-orchestration/',
       '.cursor/skills/proofline-orchestration/'
@@ -1775,18 +1787,18 @@ function validateTheCreatorContract() {
 
   const discoveryValid = !isKitSourceRepo || (
     exists('README.md')
-    && read('README.md').includes('All 23 skills')
+    && read('README.md').includes('All 25 skills')
     && exists('docs/README.vi.md')
-    && read('docs/README.vi.md').includes('Cả 23 skill')
+    && read('docs/README.vi.md').includes('Cả 25 skill')
     && read('docs/README.vi.md').includes('| `the-creator`')
     && exists('docs/README.zh-CN.md')
-    && read('docs/README.zh-CN.md').includes('全部 23 个技能')
+    && read('docs/README.zh-CN.md').includes('全部 25 个技能')
     && read('docs/README.zh-CN.md').includes('| `the-creator`')
     && exists('docs/README.ja.md')
-    && read('docs/README.ja.md').includes('23 個すべてのスキル')
+    && read('docs/README.ja.md').includes('25 個すべてのスキル')
     && read('docs/README.ja.md').includes('| `the-creator`')
     && exists('.vibekit/docs/INSTALL.md')
-    && read('.vibekit/docs/INSTALL.md').includes('Thirteen user-invoked skills')
+    && read('.vibekit/docs/INSTALL.md').includes('Fifteen user-invoked skills')
     && exists('.vibekit/init/CLAUDE-template.md')
     && read('.vibekit/init/CLAUDE-template.md').includes('/the-creator level N')
     && exists('package.json')
@@ -1803,6 +1815,166 @@ function validateTheCreatorContract() {
   } else {
     fail('The Creator discovery, localization, UI metadata, or packaging drifted');
   }
+}
+
+function validateControlCenterContract() {
+  const base = '.vibekit/skills/agent-control-center';
+  const swapBase = '.vibekit/skills/swap-control-center';
+  if (!exists(`${base}/SKILL.md`) || !exists(`${swapBase}/SKILL.md`)) return;
+  const resources = [
+    'agents/openai.yaml',
+    'references/controller-modes.md',
+    'references/capability-contract.md',
+    'references/handoff-contract.md',
+    'references/provider-selection.md'
+  ];
+  const missingResources = resources.filter((file) => !exists(`${base}/${file}`));
+  if (missingResources.length > 0
+    || !exists(`${swapBase}/agents/openai.yaml`)
+    || !exists(`${swapBase}/references/examples.md`)) {
+    fail(`Control Center resources are incomplete: ${missingResources.join(', ')}`);
+    return;
+  }
+
+  const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
+  const skill = read(`${base}/SKILL.md`);
+  const controllerModes = read(`${base}/references/controller-modes.md`);
+  const capabilities = read(`${base}/references/capability-contract.md`);
+  const handoff = read(`${base}/references/handoff-contract.md`);
+  const providerSelection = read(`${base}/references/provider-selection.md`);
+  const swapPreset = read(`${swapBase}/SKILL.md`);
+
+  hasAll(skill, [
+    'Keep exactly one controller',
+    'plain MCP',
+    '`controller`: `native`, `auto`',
+    'ORCHESTRATION_MODES.md',
+    'requested-not-attested',
+    'switch controllers silently'
+  ])
+    ? ok('Agent Control Center separates controller ownership, host authority, routing, and attestation')
+    : fail('Agent Control Center ownership, routing, or attestation contract drifted');
+
+  hasAll(controllerModes, [
+    '## Fixed provider',
+    '### Codex',
+    'Do not invoke `cursor-agent`',
+    'Manual is a transport, not a controller',
+    'Allow at most one transfer per task',
+    'A controller choice does not authorize multi-agent work'
+  ])
+    ? ok('Agent Control Center prevents recursive or implicit controller transfer')
+    : fail('Agent Control Center controller transfer contract drifted');
+
+  hasAll(capabilities, [
+    '`ready`',
+    '`installed-unverified`',
+    '`unavailable`',
+    '`ready` applies to one transport only',
+    'generic executable name',
+    'Do not bypass the limit'
+  ])
+    ? ok('Agent Control Center classifies each provider transport independently and fails closed')
+    : fail('Agent Control Center capability or quota contract drifted');
+
+  hasAll(handoff, [
+    '## Task envelope',
+    '## Work order',
+    '## Proof receipt',
+    '## Control decision',
+    '## Host-mediated controller loop',
+    'It is not direct remote control'
+  ])
+    ? ok('Agent Control Center defines bounded handoffs, receipts, and control decisions')
+    : fail('Agent Control Center handoff contract drifted');
+
+  hasAll(providerSelection, [
+    '## Parent-only questions',
+    'provider documentation. Use primary provider sources only',
+    '## Setup state machine',
+    'Require explicit approval',
+    '## Host-mediated controller loop',
+    '`requested-not-attested`'
+  ])
+    ? ok('Agent Control Center selects and sets up provider routes from live evidence')
+    : fail('Agent Control Center provider selection or setup contract drifted');
+
+  hasAll(swapPreset, [
+    '../agent-control-center/SKILL.md',
+    "host's exposed structured",
+    'controller=<provider-id>',
+    '## Codex selection',
+    'controller=codex',
+    'Do not require Cursor CLI',
+    'Obtain explicit user',
+    'Never run co-controllers',
+    'requested-not-attested'
+  ])
+    ? ok('Swap Control Center provides dynamic verified selection and one bounded transfer')
+    : fail('Swap Control Center selection, setup, or transfer contract drifted');
+
+  const allSurfaces = ['claude', 'cursor', 'codex', 'opencode', 'grok', 'kimi'];
+  const manifestValid = ['agent-control-center', 'swap-control-center'].every((name) => {
+    const entry = manifestSkills.find((skillEntry) => skillEntry.name === name);
+    return entry && allSurfaces.every((surface) => entry.surfaces.includes(surface));
+  });
+  manifestValid
+    ? ok('Control Center skills are registered for all six provider surfaces')
+    : fail('Control Center provider manifest coverage drifted');
+
+  const removedPreset = 'codex-control-center';
+  const stalePresetDirs = [
+    `.vibekit/skills/${removedPreset}`,
+    `.claude/skills/${removedPreset}`,
+    `.cursor/skills/${removedPreset}`,
+    `.agents/skills/${removedPreset}`,
+    `.grok/skills/${removedPreset}`,
+    `.kimi-code/skills/${removedPreset}`
+  ].filter((path) => exists(path));
+  const staleSourceFiles = !isKitSourceRepo ? [] : [
+    'README.md',
+    'docs/README.vi.md',
+    'docs/README.zh-CN.md',
+    'docs/README.ja.md',
+    'docs/README.ko.md',
+    'docs/README.de.md',
+    'docs/README.bg.md',
+    '.vibekit/docs/INSTALL.md',
+    '.codex/README.md',
+    '.opencode/README.md',
+    '.grok/README.md',
+    '.kimi-code/README.md',
+    'package.json'
+  ].filter((path) => exists(path) && read(path).includes(removedPreset));
+  const removedPresetAbsent = !manifestSkills.some((entry) => entry.name === removedPreset)
+    && stalePresetDirs.length === 0
+    && staleSourceFiles.length === 0;
+  removedPresetAbsent
+    ? ok('The redundant Codex preset stays removed from runtime and discovery surfaces')
+    : fail(`Removed Control Center preset returned: ${[
+      ...stalePresetDirs,
+      ...staleSourceFiles
+    ].join(', ')}`);
+
+  const sourceDiscoveryValid = !isKitSourceRepo || (
+    hasAll(read('README.md'), ['All 25 skills', '| `agent-control-center`', '| `swap-control-center`'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 25 skill', '| `agent-control-center`', '| `swap-control-center`'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 25 个技能', '| `agent-control-center`', '| `swap-control-center`'])
+    && hasAll(read('docs/README.ja.md'), ['25 個すべてのスキル', '| `agent-control-center`', '| `swap-control-center`'])
+    && read('docs/README.ko.md').includes('| `swap-control-center`')
+    && read('docs/README.de.md').includes('| `swap-control-center`')
+    && read('docs/README.bg.md').includes('| `swap-control-center`')
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Fifteen user-invoked skills', '`agent-control-center`', '`swap-control-center`'])
+    && hasAll(read('package.json'), [
+      '.claude/skills/agent-control-center/',
+      '.claude/skills/swap-control-center/',
+      '.cursor/skills/agent-control-center/',
+      '.cursor/skills/swap-control-center/'
+    ])
+  );
+  sourceDiscoveryValid
+    ? ok('Control Center discovery, localization, packaging, and provider coverage stay synchronized')
+    : fail('Control Center discovery, localization, packaging, or provider coverage drifted');
 }
 
 function validateCloneWebsiteContract() {
@@ -1831,19 +2003,22 @@ function validateCloneWebsiteContract() {
   const safety = read(`${base}/references/safety-and-rights.md`);
   const verification = read(`${base}/references/verification-contract.md`);
   const validator = read(`${base}/scripts/validate_replica_brief.py`);
+  const workspace = read(`${base}/scripts/prepare-replica-workspace.mjs`);
   const ui = read(`${base}/agents/openai.yaml`);
   const example = readJson(`${base}/references/replica-brief.example.json`);
 
   hasAll(skill, [
     'name: clone-website',
     'Never infer ownership, permission, or content rights',
+    'Component UI Developer',
+    'Local data only',
     '`public-research-local`',
-    '`static-capture`',
-    '`isolated-interactive`',
+    'target URL as provenance metadata only',
+    'relative local path',
     'backend level `B0` to `B2`',
     'PASS WITH EXCEPTIONS'
   ])
-    ? ok('Clone Website skill keeps authorization, capture, architecture, and verdict boundaries')
+    ? ok('Clone Website skill keeps authorization, local-data, architecture, and verdict boundaries')
     : fail('Clone Website skill safety or workflow contract drifted');
 
   hasAll(intake, [
@@ -1858,16 +2033,29 @@ function validateCloneWebsiteContract() {
 
   hasAll(safety, [
     'A request to clone is not evidence of ownership',
-    'Static capture',
-    'Isolated interactive capture',
-    'repeat the check after every redirect and DNS resolution'
+    'Local-only source boundary',
+    'must not open it',
+    'Chrome DevTools Console',
+    'relative local path',
+    'prompts or provider switching intended to evade'
   ]) && hasAll(verification, [
     'The implementer cannot pass work using only a self-authored checklist',
-    'Local browser traffic contains only approved local GET requests',
-    'Public research may claim layout parity only'
+    'Local browser traffic contains no external requests',
+    'Public research may claim layout parity only',
+    'Every rendered image and media reference maps to one current relative local path'
   ])
-    ? ok('Clone Website separates rights, runtime capture, and independent verification')
+    ? ok('Clone Website separates rights, local evidence, and independent verification')
     : fail('Clone Website rights or verification contract drifted');
+
+  hasAll(workspace, [
+    'workspace root must be a real directory, not a symlink',
+    'workspace root is too broad',
+    'workspace target escaped its parent',
+    "'.replica/evidence'",
+    "'.replica/screenshots'"
+  ])
+    ? ok('Clone Website workspace setup keeps local artifacts in a bounded project root')
+    : fail('Clone Website workspace safety contract drifted');
 
   hasAll(validator, [
     'MAX_BRIEF_BYTES',
@@ -1875,6 +2063,7 @@ function validateCloneWebsiteContract() {
     'ipaddress.ip_address',
     'must not use symlinks',
     'instruction-like text',
+    'local-artifacts-only',
     'public research cannot use B2',
     'def atomic_write',
     'never expose an uncaught traceback'
@@ -1884,7 +2073,8 @@ function validateCloneWebsiteContract() {
 
   if (example?.replica?.backend_level === 'B0'
     && example?.authorization?.status === 'public-research-local'
-    && example?.authorization?.content_rights === 'neutralized') {
+    && example?.authorization?.content_rights === 'neutralized'
+    && example?.target?.data_mode === 'local-artifacts-only') {
     ok('Clone Website example uses the safe public-research default');
   } else {
     fail('Clone Website example safe default drifted');
@@ -1908,14 +2098,14 @@ function validateCloneWebsiteContract() {
   }
 
   const sourceDiscoveryValid = !isKitSourceRepo || (
-    hasAll(read('README.md'), ['All 23 skills', 'Cursor uses the 18 interactive ones', '| `clone-website`'])
-    && hasAll(read('docs/README.vi.md'), ['Cả 23 skill', 'Cursor mirror 18 skill', '| `clone-website`'])
-    && hasAll(read('docs/README.zh-CN.md'), ['全部 23 个技能', '18 个交互式技能', '| `clone-website`'])
-    && hasAll(read('docs/README.ja.md'), ['23 個すべてのスキル', '18 個をミラー', '| `clone-website`'])
+    hasAll(read('README.md'), ['All 25 skills', 'Cursor uses the 20 interactive ones', '| `clone-website`'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 25 skill', 'Cursor mirror 20 skill', '| `clone-website`'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 25 个技能', '20 个交互式技能', '| `clone-website`'])
+    && hasAll(read('docs/README.ja.md'), ['25 個すべてのスキル', '20 個をミラー', '| `clone-website`'])
     && read('docs/README.ko.md').includes('| `clone-website`')
     && read('docs/README.de.md').includes('| `clone-website`')
     && read('docs/README.bg.md').includes('| `clone-website`')
-    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Thirteen user-invoked skills', '`clone-website`'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Fifteen user-invoked skills', '`clone-website`'])
     && hasAll(read('package.json'), [
       '"test:clone-website"',
       '.claude/skills/clone-website/',
@@ -1937,6 +2127,7 @@ validateMermaidContract();
 validateGraphEngineeringContract();
 validateProoflineContract();
 validateTheCreatorContract();
+validateControlCenterContract();
 validateCloneWebsiteContract();
 
 function parseFrontmatter(text) {
@@ -2076,9 +2267,9 @@ if (isKitSourceRepo && pkg?.version) {
     : fail('Localized README navigation drifted');
 
   const translatedReadmeContracts = [
-    { rel: 'docs/README.ko.md', markers: ['## 빠른 시작', '전체 23개 스킬', '## 고급 사용', '## 기여', '## 라이선스'] },
-    { rel: 'docs/README.de.md', markers: ['## Schnellstart', 'Alle 23 Skills', '## Erweitert', '## Mitwirken', '## Lizenz'] },
-    { rel: 'docs/README.bg.md', markers: ['## Бърз старт', 'Всички 23 умения', '## Разширена употреба', '## Принос', '## Лиценз'] }
+    { rel: 'docs/README.ko.md', markers: ['## 빠른 시작', '전체 25개 스킬', '## 고급 사용', '## 기여', '## 라이선스'] },
+    { rel: 'docs/README.de.md', markers: ['## Schnellstart', 'Alle 25 Skills', '## Erweitert', '## Mitwirken', '## Lizenz'] },
+    { rel: 'docs/README.bg.md', markers: ['## Бърз старт', 'Всички 25 умения', '## Разширена употреба', '## Принос', '## Лиценз'] }
   ];
   const sharedCoverage = [
     '`/init-vibe`',

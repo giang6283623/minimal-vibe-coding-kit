@@ -11,5 +11,7 @@ Native custom reasoning skills:
 - `clearthought`: structured reasoning for broad or ambiguous coding tasks.
 - `sequential-thinking`: step-by-step task splitting with revisions and branches.
 - `reviewing-4p-priorities`: P0-P4 review triage and fix ordering.
+- `agent-control-center`: provider-neutral controller ownership, bounded worker dispatch, receipts, and safe fallbacks.
+- `swap-control-center`: dynamic verified controller, transport, model, and reasoning selection with one bounded transfer.
 - `graph-engineering-verified-orchestration`: bounded dependency graphs with verified execution; use `--format=ascii` renders in the Kimi TUI.
 - `proofline-orchestration`: role-separated governance with independent challenge, typed signals, and evidence-bound Proof Returns.

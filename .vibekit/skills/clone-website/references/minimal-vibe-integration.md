@@ -18,14 +18,16 @@ ClearThought and Sequential Thinking are optional for ambiguous or multi-path wo
 
 ## Working artifacts
 
-Use `.replica/` for the brief and local evidence. Before creating capture-heavy artifacts, propose project-specific ignore rules for:
+Use `.replica/` for the brief and local evidence. Before creating large local artifacts, propose project-specific ignore rules for:
 
 ```text
 .replica/evidence/
-.replica/captures/
 .replica/screenshots/
 .replica/assets/
+.replica/fixtures/
 ```
+
+For multiple clones, put each clone in a user-approved `workspace/<slug>/` folder and run the brief validator with that clone folder as `--project-root`. Validate the slug before joining paths and never overwrite an existing clone folder.
 
 Do not make the kit installer add these ignores to every project. The user may choose to commit sanitized brief and verification files.
 

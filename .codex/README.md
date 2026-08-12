@@ -9,6 +9,8 @@ Native custom reasoning skills:
 - `clearthought`: structured reasoning for broad or ambiguous coding tasks.
 - `sequential-thinking`: step-by-step task splitting with revisions and branches.
 - `reviewing-4p-priorities`: P0-P4 review triage and fix ordering.
+- `agent-control-center`: provider-neutral controller ownership, bounded worker dispatch, receipts, and safe fallbacks.
+- `swap-control-center`: dynamic verified controller, transport, model, and reasoning selection with one bounded transfer.
 
 Project-scoped Proofline roles live in `.codex/agents/`:
 

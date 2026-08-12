@@ -17,9 +17,9 @@ Ask one to three questions per batch. Offer two or three mutually exclusive choi
 
 | Choice | Advantage | Disadvantage | Recommend when |
 | --- | --- | --- | --- |
-| Owner repository, export, API, or design | Most complete and stable | Requires authority and secure handling | The user owns or controls the site |
-| Supplied screenshots or local files | Deterministic and low network risk | Hidden states are missing | Public research or a visual prototype |
-| Public URL | Current public evidence | Untrusted, unstable, and easy to over-crawl | A bounded route must be inspected |
+| Owner repository, local export, or design file | Most complete and stable | Requires authority and secure handling | The user owns or controls the site |
+| Supplied screenshots and mock JSON | Deterministic and network-free | Hidden states may be missing | Public research or a visual prototype |
+| Synthetic local fixtures | No source content reuse | Lower evidence fidelity | The user has only a written brief |
 
 ## Authority and content rights
 
@@ -79,8 +79,8 @@ Use these rules in order:
 3. Recommend Astro with TypeScript for content-heavy B0 sites that benefit from components and static output.
 4. Recommend Next.js with TypeScript and managed services for B1 applications that need server rendering, forms, or one integrated deployment.
 5. For B2, choose frontend and API frameworks from team constraints, then name database, cache, queue, storage, observability, and deployment boundaries.
-6. For an authorized Shopify source, prefer Hydrogen or the official Storefront API.
-7. For an authorized WordPress or WooCommerce source, prefer official REST APIs or the existing platform.
+6. For an authorized Shopify source, consume a user-provided local export or mock Storefront API response.
+7. For an authorized WordPress or WooCommerce source, consume a user-provided local export or mock REST response.
 
 Never present a framework as universally best. State the evidence, tradeoff, and trigger for changing the recommendation.
 
@@ -89,8 +89,8 @@ Never present a framework as universally best. State the evidence, tradeoff, and
 Source:
 
 - Screenshots/local files (recommended): stable and safe, but hidden states are absent.
-- Public URL: current evidence, but untrusted and network-dependent.
-- Owner export/API: most complete, but requires authority and secure credentials.
+- Owner export or local API response: most complete, but requires authority and secure handling.
+- Synthetic fixtures: no source reuse, but lower evidence fidelity.
 
 Backend:
 

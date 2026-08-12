@@ -18,6 +18,14 @@ const validator = path.join(
   'scripts',
   'validate_replica_brief.py'
 );
+const prepareWorkspace = path.join(
+  kitRoot,
+  '.vibekit',
+  'skills',
+  'clone-website',
+  'scripts',
+  'prepare-replica-workspace.mjs'
+);
 const publicFixture = JSON.parse(
   fs.readFileSync(path.join(fixtureRoot, 'safe-public-f2-s1-b0.json'), 'utf8')
 );
@@ -230,7 +238,29 @@ try {
     );
   }
 
-  console.log('PASS clone-website brief validator contract');
+  const workspaceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'clone-workspaces-'));
+  tempRoots.push(workspaceRoot);
+  const workspace = spawnSync('node', [
+    prepareWorkspace,
+    '--workspace-root', workspaceRoot,
+    '--slug', 'sample-site',
+  ], { encoding: 'utf8' });
+  assert.equal(workspace.status, 0, workspace.stderr);
+  assert.ok(fs.existsSync(path.join(workspaceRoot, 'sample-site', '.replica', 'evidence')));
+  const collision = spawnSync('node', [
+    prepareWorkspace,
+    '--workspace-root', workspaceRoot,
+    '--slug', 'sample-site',
+  ], { encoding: 'utf8' });
+  assert.equal(collision.status, 2);
+  const traversal = spawnSync('node', [
+    prepareWorkspace,
+    '--workspace-root', workspaceRoot,
+    '--slug', '../escape',
+  ], { encoding: 'utf8' });
+  assert.equal(traversal.status, 2);
+
+  console.log('PASS clone-website local artifact contract');
 } finally {
   for (const root of tempRoots) {
     fs.rmSync(root, { recursive: true, force: true });
