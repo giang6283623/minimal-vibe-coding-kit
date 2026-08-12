@@ -1,0 +1,123 @@
+{
+  "taskEnvelope": {
+    "version": 2,
+    "task_id": "task-cursor-codex-review",
+    "objective": "Review two independent repository areas and decide from evidence",
+    "controller": "codex",
+    "relay": {
+      "mode": "automatic-host-relay",
+      "resume_controller": true
+    },
+    "controller_route": {
+      "provider": "codex",
+      "transport": "mcp",
+      "model": "catalog-verified-controller-model-id",
+      "reasoning_effort": "high",
+      "selection_source": "explicit-user"
+    },
+    "worker_defaults": {
+      "provider": "cursor",
+      "transport": "native-subagents",
+      "model": "catalog-verified-worker-model-id",
+      "reasoning_effort": "medium",
+      "selection_source": "explicit-user"
+    },
+    "topology": "parallel-analysis",
+    "scope": {
+      "allowed_paths": ["src/area-a", "src/area-b"],
+      "protected_paths": []
+    },
+    "authorization": {
+      "mutation": false,
+      "external_actions": false
+    },
+    "budget": {
+      "max_workers": 2,
+      "max_retries": 1,
+      "timeout_ms": 600000
+    },
+    "acceptance": {
+      "commands": [],
+      "artifacts": ["area A report", "area B report"],
+      "human_gates": []
+    }
+  },
+  "workOrders": [
+    {
+      "work_id": "work-area-a",
+      "task_id": "task-cursor-codex-review",
+      "role": "area-a-reader",
+      "executor_provider": "cursor",
+      "executor_transport": "native-subagents",
+      "requested_model": "catalog-verified-worker-model-id",
+      "requested_reasoning_effort": "medium",
+      "read_only": true,
+      "paths": ["src/area-a"],
+      "instructions": "Inspect area A and return evidence only",
+      "expected_artifacts": ["area A report"],
+      "validation": [],
+      "stop_conditions": [],
+      "allow_child_dispatch": false
+    },
+    {
+      "work_id": "work-area-b",
+      "task_id": "task-cursor-codex-review",
+      "role": "area-b-reader",
+      "executor_provider": "cursor",
+      "executor_transport": "native-subagents",
+      "requested_model": "catalog-verified-worker-model-id",
+      "requested_reasoning_effort": "medium",
+      "read_only": true,
+      "paths": ["src/area-b"],
+      "instructions": "Inspect area B and return evidence only",
+      "expected_artifacts": ["area B report"],
+      "validation": [],
+      "stop_conditions": [],
+      "allow_child_dispatch": false
+    }
+  ],
+  "trace": [
+    {
+      "type": "task-envelope-sent",
+      "actor": "host",
+      "target": "controller"
+    },
+    {
+      "type": "work-order-issued",
+      "actor": "controller",
+      "work_id": "work-area-a"
+    },
+    {
+      "type": "work-order-issued",
+      "actor": "controller",
+      "work_id": "work-area-b"
+    },
+    {
+      "type": "worker-dispatched",
+      "actor": "host",
+      "work_id": "work-area-a"
+    },
+    {
+      "type": "worker-dispatched",
+      "actor": "host",
+      "work_id": "work-area-b"
+    },
+    {
+      "type": "proof-receipt-returned",
+      "actor": "host",
+      "target": "controller",
+      "work_id": "work-area-a"
+    },
+    {
+      "type": "proof-receipt-returned",
+      "actor": "host",
+      "target": "controller",
+      "work_id": "work-area-b"
+    },
+    {
+      "type": "control-decision",
+      "actor": "controller",
+      "decision": "accept"
+    }
+  ]
+}

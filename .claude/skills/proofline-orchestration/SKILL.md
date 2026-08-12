@@ -32,6 +32,33 @@ The four agent roles are:
 
 Role names describe responsibilities, not capability. A Countervoice may be as capable as a Wayfinder. A Wayfinder has coordination authority, not factual privilege.
 
+## External-controller composition
+
+Inspect the active Agent Control Center task envelope before assigning
+Proofline roles. When `controller` is neither `native` nor `current`, bind the
+selected external controller as the sole Wayfinder and task controller. Do not
+let the host parent create a second Wayfinder, decompose the task, or seal the
+controller's work independently.
+
+The external controller issues bounded Keeper, Countervoice, and Maker work
+orders using the independently selected worker provider, transport, model, and
+reasoning settings. The host validates and dispatches those orders, then returns
+unaltered Proof Returns and signals to the same controller session. Worker roles
+must not become controllers, select their own runtime, or ask the end user.
+
+If the controller returns `ask-user` or a worker returns `needs_user_input`, the
+host parent uses its exposed structured-question tool, such as
+`AskUserQuestion` or `request_user_input` when available, and returns the answer
+to the same controller session. The human `Owner` keeps every consequential
+approval and final override defined below.
+
+For `topology=proofline`, an external controller's `accept` decision is invalid
+until the host returns a verified `SEAL_GRANTED` receipt from the Keeper. When
+the frozen acceptance contract has human gates, that receipt must also prove
+the required Owner approval. The controller may propose acceptance before that
+point, but it must return `ask-user`, `retry`, `escalate`, or `stop` instead of
+final `accept` until the seal prerequisites are complete.
+
 ## Route proportionally
 
 Proofline does not justify extra agents by itself.
@@ -110,6 +137,12 @@ Use one active integration lease with a holder, exact scope, checkpoint artifact
 ### 6. Seal with evidence
 
 The Wayfinder emits `SEAL_PROPOSAL` only after combined verification. The Countervoice may emit `SEAL_DENIED` with a falsifiable reason. The Keeper records `SEAL_GRANTED` only when the frozen acceptance contract is satisfied and all required human gates are complete.
+
+When an external controller is the Wayfinder, the host returns the verified
+`SEAL_GRANTED` receipt and any required Owner-approval evidence to that same
+controller session. Only then may its next control decision be `accept`. The
+host cannot substitute its own acceptance, and the controller cannot treat a
+`SEAL_PROPOSAL` as a granted seal.
 
 Before final verification, fully consume or revoke mutation grants and deactivate the integration lease so no writer remains after the exact tree is measured. Enforce this order: frozen input snapshot, mutation authority, writer closure, exact-tree verification, `SEAL_PROPOSAL`, final Owner grant, `SEAL_GRANTED`, ledger tombstone. Immediately before sealing, re-check contract and input digests, budget use, open blocking signals, verifier integrity, cleanup, and gate expiry. Missing or expired Owner approval defaults to no seal.
 

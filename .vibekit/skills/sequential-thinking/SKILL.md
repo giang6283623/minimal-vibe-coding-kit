@@ -46,6 +46,24 @@ Plan a safe installer-scope repair.
 
 Optional hints such as mode, output format, estimated total, revision target, or branch ID shape presentation only. They do not invoke an external processor. See references/parameters.md.
 
+## External-controller precedence
+
+When the same task selects or requests an external controller through
+`agent-control-center` or `swap-control-center`, resolve controller ownership
+before applying this skill. The active host may use Sequential Thinking only to
+freeze the objective, authoritative evidence, unknown user decisions, scope,
+authorization, budget, and acceptance criteria.
+
+The host must not split the task into work items or lanes, choose workers, make
+architecture decisions, or mark the task final. It sends the frozen reasoning
+envelope to the external controller. The controller performs the decomposition,
+revision, comparison, and convergence steps, then returns bounded work orders
+or `ask-user`. The host may relay that question, dispatch approved work orders,
+and return unaltered receipts to the same controller session.
+
+Treat an explicit request to use Sequential Thinking as a reasoning method for
+the selected external controller, not as authority for the host to plan first.
+
 ## Marker Vocabulary
 
 Explicit mode uses this closed marker set:
@@ -73,6 +91,8 @@ No other bracketed reasoning marker is valid.
 - Limit open branches to two or three, then converge before opening another.
 
 ## Workflow
+
+Apply the external-controller precedence rule above before step 1.
 
 1. Frame the decision and its completion criteria.
 2. Gather the smallest relevant evidence before proposing a change.

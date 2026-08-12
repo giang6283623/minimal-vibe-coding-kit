@@ -1,4 +1,4 @@
 interface:
   display_name: "Swap Control Center"
-  short_description: "Choose and transfer a verified task controller"
-  default_prompt: "Use $swap-control-center to choose a verified controller provider and coordinate this task through the active host."
+  short_description: "Choose verified controller and worker routes"
+  default_prompt: "Use $swap-control-center to choose separate verified controller and worker providers and models, then bind a compatible relay mode through the active host."

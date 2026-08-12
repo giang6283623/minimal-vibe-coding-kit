@@ -6,15 +6,23 @@ provider, model, command, and status with current verified evidence.
 ## Cursor host, external controller
 
 1. Cursor remains the host and parent user conversation.
-2. The user selects a ready Codex controller route and one model from the fresh
-   authenticated catalog.
-3. Cursor sends the task envelope to the Codex controller.
-4. Codex returns bounded work orders for Cursor-native agents.
-5. Cursor dispatches those agents and returns proof receipts to the same Codex
-   session.
-6. Codex returns `accept`, `retry`, `escalate`, `ask-user`, or `stop`.
-7. Cursor presents the result or user decision. Codex never claims direct
-   control of the Cursor Agent window.
+2. Cursor builds a live inventory, then uses `AskUserQuestion` or its exposed
+   structured equivalent for unresolved choices. The user selects
+   `automatic-host-relay`, a ready Codex controller route and model, and a
+   separate Cursor-native worker route and model.
+3. Cursor records `host=cursor`, `controller=codex`, and the selected Cursor
+   worker defaults. Controller and worker selections remain independent.
+4. Cursor sends the frozen task envelope to the Codex controller before
+   creating analysis lanes.
+5. Codex returns bounded work orders for Cursor-native agents. If Codex returns
+   `ask-user`, Cursor asks in the parent conversation and returns the answer to
+   the same Codex session.
+6. Cursor validates each order against the selected worker route, dispatches
+   those agents, and returns unaltered proof receipts to the same Codex session.
+7. Codex reviews the receipts and returns `accept`, `retry`, `escalate`,
+   `ask-user`, or `stop`.
+8. Cursor presents the result or user decision. Cursor does not create its own
+   lane plan, and Codex never claims direct control of the Cursor Agent window.
 
 ## CLI host, selected controller
 

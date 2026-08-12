@@ -1,4 +1,4 @@
 interface:
   display_name: "Agent Control Center"
   short_description: "Coordinate verified cross-provider agent work"
-  default_prompt: "Use $agent-control-center to choose a verified controller and coordinate this task through bounded workers."
+  default_prompt: "Use $agent-control-center to choose separate verified controller and worker routes, then coordinate this task through the active host."
