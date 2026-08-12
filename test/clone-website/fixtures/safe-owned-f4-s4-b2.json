@@ -6,12 +6,7 @@
       "/",
       "/products"
     ],
-    "capture_mode": "isolated-interactive",
-    "interactive_capture_approved": true,
-    "approved_capture_hosts": [
-      "store.example.com",
-      "cdn.example.com"
-    ]
+    "data_mode": "local-artifacts-only"
   },
   "authorization": {
     "status": "owned",
@@ -34,9 +29,6 @@
   "limits": {
     "max_pages": 50,
     "max_items": 1000,
-    "max_redirects": 5,
-    "max_response_bytes": 20971520,
-    "max_elapsed_ms": 120000,
     "viewports": [
       {
         "name": "desktop",

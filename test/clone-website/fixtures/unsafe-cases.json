@@ -66,22 +66,22 @@
     "error": "authorization.scope.deployment must match replica.deployment"
   },
   {
-    "name": "redirect cap too high",
-    "path": ["limits", "max_redirects"],
-    "value": 21,
-    "error": "limits.max_redirects must be between 0 and 20"
+    "name": "legacy live capture mode",
+    "path": ["target", "capture_mode"],
+    "value": "static-capture",
+    "error": "target has unknown fields"
   },
   {
-    "name": "response cap too low",
-    "path": ["limits", "max_response_bytes"],
-    "value": 100,
-    "error": "limits.max_response_bytes must be between"
+    "name": "non-local data mode",
+    "path": ["target", "data_mode"],
+    "value": "remote-capture",
+    "error": "target.data_mode must be one of: local-artifacts-only"
   },
   {
-    "name": "elapsed cap too high",
-    "path": ["limits", "max_elapsed_ms"],
-    "value": 700000,
-    "error": "limits.max_elapsed_ms must be between"
+    "name": "legacy approved capture hosts",
+    "path": ["target", "approved_capture_hosts"],
+    "value": ["example.com"],
+    "error": "target has unknown fields"
   },
   {
     "name": "Markdown heading injection",

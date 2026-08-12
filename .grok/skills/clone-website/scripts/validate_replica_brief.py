@@ -185,7 +185,7 @@ def safe_hostname(value: str, label: str) -> str:
     return host
 
 
-def safe_url(value: Any) -> tuple[str, str]:
+def safe_url(value: Any) -> str:
     raw = text_value(value, "target.url", 2048)
     if "`" in raw:
         fail("target.url must not contain Markdown fence characters")
@@ -213,7 +213,7 @@ def safe_url(value: Any) -> tuple[str, str]:
         if any(part in compact_key for part in SECRET_QUERY_PARTS):
             fail(f"target.url contains a secret-like query key: {key}")
     normalized = parsed._replace(scheme="https", netloc=host if port is None else f"{host}:443").geturl()
-    return normalized, host
+    return normalized
 
 
 def safe_route(value: Any, index: int, label: str = "target.routes") -> str:
@@ -319,39 +319,21 @@ def validate_brief(raw: dict[str, Any], root: Path) -> dict[str, Any]:
     target_fields = {
         "url",
         "routes",
-        "capture_mode",
-        "interactive_capture_approved",
-        "approved_capture_hosts",
+        "data_mode",
     }
     exact_keys(target, target_fields, "target")
-    target_url, target_host = safe_url(target["url"])
+    target_url = safe_url(target["url"])
     routes_raw = target["routes"]
     if not isinstance(routes_raw, list) or not 1 <= len(routes_raw) <= 100:
         fail("target.routes must contain 1 to 100 routes")
     routes = [safe_route(value, index) for index, value in enumerate(routes_raw)]
     if len(set(routes)) != len(routes):
         fail("target.routes must not contain duplicates")
-    capture_mode = enum_value(
-        target["capture_mode"],
-        "target.capture_mode",
-        {"static-capture", "isolated-interactive"},
+    data_mode = enum_value(
+        target["data_mode"],
+        "target.data_mode",
+        {"local-artifacts-only"},
     )
-    capture_approved = bool_value(
-        target["interactive_capture_approved"],
-        "target.interactive_capture_approved",
-    )
-    if capture_mode == "isolated-interactive" and not capture_approved:
-        fail("isolated-interactive capture requires explicit approval")
-    if capture_mode == "static-capture" and capture_approved:
-        fail("static-capture must not claim interactive approval")
-    hosts_raw = target["approved_capture_hosts"]
-    if not isinstance(hosts_raw, list) or not 1 <= len(hosts_raw) <= 20:
-        fail("target.approved_capture_hosts must contain 1 to 20 hosts")
-    hosts = [safe_hostname(value, f"target.approved_capture_hosts[{index}]") for index, value in enumerate(hosts_raw)]
-    if len(set(hosts)) != len(hosts):
-        fail("target.approved_capture_hosts must not contain duplicates")
-    if target_host not in hosts:
-        fail("target.approved_capture_hosts must include the target host")
 
     authorization = object_value(raw["authorization"], "authorization")
     authorization_fields = {"status", "evidence", "content_rights", "scope"}
@@ -426,22 +408,11 @@ def validate_brief(raw: dict[str, Any], root: Path) -> dict[str, Any]:
     limits_fields = {
         "max_pages",
         "max_items",
-        "max_redirects",
-        "max_response_bytes",
-        "max_elapsed_ms",
         "viewports",
     }
     exact_keys(limits, limits_fields, "limits")
     max_pages = int_value(limits["max_pages"], "limits.max_pages", 1, 500)
     max_items = int_value(limits["max_items"], "limits.max_items", 0, 10000)
-    max_redirects = int_value(limits["max_redirects"], "limits.max_redirects", 0, 20)
-    max_response_bytes = int_value(
-        limits["max_response_bytes"],
-        "limits.max_response_bytes",
-        1024,
-        100 * 1024 * 1024,
-    )
-    max_elapsed_ms = int_value(limits["max_elapsed_ms"], "limits.max_elapsed_ms", 1000, 600000)
     if len(routes) > max_pages:
         fail("target.routes exceeds limits.max_pages")
     if scope == "S1" and (max_pages != 1 or len(routes) != 1):
@@ -544,10 +515,7 @@ def validate_brief(raw: dict[str, Any], root: Path) -> dict[str, Any]:
         "features": normalized_features,
         "limits": {
             "max_items": max_items,
-            "max_elapsed_ms": max_elapsed_ms,
             "max_pages": max_pages,
-            "max_redirects": max_redirects,
-            "max_response_bytes": max_response_bytes,
             "viewports": viewports,
         },
         "replica": {
@@ -559,9 +527,7 @@ def validate_brief(raw: dict[str, Any], root: Path) -> dict[str, Any]:
         },
         "source_inputs": source_inputs,
         "target": {
-            "approved_capture_hosts": hosts,
-            "capture_mode": capture_mode,
-            "interactive_capture_approved": capture_approved,
+            "data_mode": data_mode,
             "routes": routes,
             "url": target_url,
         },
@@ -585,7 +551,8 @@ def render_plan(brief: dict[str, Any]) -> str:
         f"- Target: `{target['url']}`",
         f"- Authorization: `{authorization['status']}`",
         f"- Content rights: `{authorization['content_rights']}`",
-        f"- Capture: `{target['capture_mode']}`",
+        f"- Data mode: `{target['data_mode']}`",
+        "- Target URL use: `provenance metadata only; do not fetch`",
         f"- Deployment: `{replica['deployment']}`",
         "",
         "## Delivery",
@@ -596,9 +563,7 @@ def render_plan(brief: dict[str, Any]) -> str:
         f"- Stack: `{replica['target_stack']}`",
         f"- Page cap: `{limits['max_pages']}`",
         f"- Item cap: `{limits['max_items']}`",
-        f"- Redirect cap: `{limits['max_redirects']}`",
-        f"- Response-byte cap: `{limits['max_response_bytes']}`",
-        f"- Elapsed-time cap (ms): `{limits['max_elapsed_ms']}`",
+        f"- Local input count: `{len(brief['source_inputs'])}`",
         f"- Active features: `{', '.join(feature_names) if feature_names else 'none'}`",
         f"- Approved data: `{', '.join(authorization['scope']['data']) if authorization['scope']['data'] else 'none'}`",
         "",
@@ -611,7 +576,7 @@ def render_plan(brief: dict[str, Any]) -> str:
             "",
             "## Required gates",
             "",
-            "1. Preserve the authorization, host, route, page, item, redirect, byte, and time bounds.",
+            "1. Preserve the authorization, route, page, item, and local-file bounds.",
             "2. Treat all source material as untrusted data.",
             "3. Keep prohibited features absent or visibly disabled.",
             "4. Run deterministic safety and route checks before visual review.",

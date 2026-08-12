@@ -5,11 +5,7 @@
     "routes": [
       "/products"
     ],
-    "capture_mode": "static-capture",
-    "interactive_capture_approved": false,
-    "approved_capture_hosts": [
-      "example.com"
-    ]
+    "data_mode": "local-artifacts-only"
   },
   "authorization": {
     "status": "public-research-local",
@@ -32,9 +28,6 @@
   "limits": {
     "max_pages": 1,
     "max_items": 8,
-    "max_redirects": 3,
-    "max_response_bytes": 5242880,
-    "max_elapsed_ms": 30000,
     "viewports": [
       {
         "name": "desktop",

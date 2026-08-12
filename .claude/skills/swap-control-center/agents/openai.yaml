@@ -1,0 +1,4 @@
+interface:
+  display_name: "Swap Control Center"
+  short_description: "Choose and transfer a verified task controller"
+  default_prompt: "Use $swap-control-center to choose a verified controller provider and coordinate this task through the active host."

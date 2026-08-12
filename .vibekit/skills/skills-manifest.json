@@ -182,6 +182,28 @@
       ]
     },
     {
+      "name": "agent-control-center",
+      "surfaces": [
+        "claude",
+        "cursor",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
+      "name": "swap-control-center",
+      "surfaces": [
+        "claude",
+        "cursor",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
       "name": "prompt-sharpener",
       "surfaces": [
         "claude",

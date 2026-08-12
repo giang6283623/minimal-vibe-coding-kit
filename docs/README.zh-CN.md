@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.11-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.12-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -355,7 +355,7 @@ flowchart LR
 
 ## 技能
 
-全部 23 个技能的规范版本位于 `.vibekit/skills/`。Claude、Codex、OpenCode、Grok 和 Kimi 镜像全部 23 个技能；Cursor 镜像其中 18 个交互式技能。可以直接按名称调用（例如“Use the X skill…”），也可以使用上面的命令。
+全部 25 个技能的规范版本位于 `.vibekit/skills/`。Claude、Codex、OpenCode、Grok 和 Kimi 镜像全部 25 个技能；Cursor 镜像其中 20 个交互式技能。可以直接按名称调用（例如“Use the X skill…”），也可以使用上面的命令。
 
 ```mermaid
 ---
@@ -392,7 +392,7 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("23 个技能"))
+  root(("25 个技能"))
     setup("设置与安全")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
@@ -407,6 +407,8 @@ mindmap
       t6("the-creator")
       t7("proofline-<br/>orchestration")
       t8("clean-delivery")
+      t9("agent-control-<br/>center")
+      t10("swap-control-<br/>center")
     analyze("分析与改进")
       a1("parallel-analysis")
       a2("autoresearch-coding")
@@ -432,6 +434,8 @@ mindmap
 | `graph-engineering-verified-orchestration` | 复杂工作包含真正独立的分支，并且需要明确依赖、隔离、预算、客观验证、回滚和有界合并门。 | "Use graph-engineering-verified-orchestration to design a safe task graph for this migration." |
 | `clean-delivery` | 一个行为切片需要严格的 Specify、Code、Clean、Architect、Harden 和 Verify 门，并配合适度的 TDD 与可复现证据。 | "Use clean-delivery to implement this behavior with extreme craftsmanship." |
 | `proofline-orchestration`       | 复杂工作需要明确治理、有界实现、具备实际质疑权的独立检查者、类型化升级信号和基于证据的验收。 | "Use proofline-orchestration to govern this migration and preserve dissent." |
+| `agent-control-center`          | 一个已验证的控制器需要协调有界的原生或跨供应商工作器，同时保持控制器、供应商路由和拓扑相互独立。 | "Use agent-control-center with controller=auto to coordinate this task safely." |
+| `swap-control-center`           | 用户需要选择已验证的控制器供应商、传输方式、模型和推理强度，同时当前主机保留执行权限。 | "Use swap-control-center to choose the controller for this task from Cursor." |
 | `agentshield-security-review`   | 合并前审计 Agent 配置、技能、hook、MCP 和命令。                                                       | "Use agentshield-security-review on .claude/** and .vibekit/skills/**."                               |
 | `threat-model-security-review`  | 使用明确的证据和覆盖范围审查应用源码、API、身份验证、授权、输入路径、信任边界以及安全敏感差异。       | "Use threat-model-security-review on this repository. Stay read-only and report proof gaps."          |
 | `autoresearch-coding`           | 通过可衡量的实验持续改进仓库。                                                                       | "Use autoresearch-coding. Metric: `npm test`. Direction: higher. Budget: 3."                          |

@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.11-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.12-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -355,7 +355,7 @@ Cursor SDK tùy chọn dùng danh sách model trực tiếp của tài khoản, 
 
 ## Skills
 
-Cả 23 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex, OpenCode, Grok và Kimi mirror đủ 23; Cursor mirror 18 skill tương tác. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
+Cả 25 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex, OpenCode, Grok và Kimi mirror đủ 25; Cursor mirror 20 skill tương tác. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
 
 ```mermaid
 ---
@@ -392,7 +392,7 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("23 skill"))
+  root(("25 skill"))
     setup("Thiết lập và an toàn")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
@@ -407,6 +407,8 @@ mindmap
       t6("the-creator")
       t7("proofline-<br/>orchestration")
       t8("clean-delivery")
+      t9("agent-control-<br/>center")
+      t10("swap-control-<br/>center")
     analyze("Phân tích và cải tiến")
       a1("parallel-analysis")
       a2("autoresearch-coding")
@@ -432,6 +434,8 @@ mindmap
 | `graph-engineering-verified-orchestration` | Công việc phức tạp có các nhánh thực sự độc lập và cần dependency rõ ràng, cô lập, budget, xác minh khách quan, rollback và merge gate có giới hạn. | "Use graph-engineering-verified-orchestration to design a safe task graph for this migration." |
 | `clean-delivery` | Một lát cắt hành vi cần các gate Specify, Code, Clean, Architect, Harden và Verify có kỷ luật, TDD theo tỷ lệ và bằng chứng tái lập được. | "Use clean-delivery để triển khai hành vi này với extreme craftsmanship." |
 | `proofline-orchestration`     | Công việc phức tạp cần governance rõ ràng, implementation có giới hạn, một bên phản biện độc lập có thực quyền, tín hiệu escalation có kiểu và acceptance dựa trên bằng chứng. | "Use proofline-orchestration để điều phối migration này và giữ nguyên dissent." |
+| `agent-control-center`        | Một controller đã xác minh cần điều phối worker native hoặc cross-provider có giới hạn mà không trộn controller, provider routing và topology. | "Use agent-control-center with controller=auto để điều phối task này an toàn." |
+| `swap-control-center`         | Người dùng cần chọn controller provider, transport, model và reasoning effort đã xác minh, trong khi host hiện tại vẫn giữ execution authority. | "Use swap-control-center để chọn controller cho task này từ Cursor." |
 | `agentshield-security-review` | Audit config agent, skills, hooks, MCP, commands trước khi merge.                                                                                                                                                                                      | "Use agentshield-security-review on .claude/** and .vibekit/skills/**."                 |
 | `threat-model-security-review` | Review source ứng dụng, API, authentication, authorization, đường input, trust boundary và diff nhạy cảm về bảo mật với bằng chứng và coverage rõ ràng. | "Use threat-model-security-review on this repository. Stay read-only and report proof gaps." |
 | `autoresearch-coding`         | Cải tiến repo qua các thử nghiệm đo được.                                                                                                                                                                                                              | "Use autoresearch-coding. Metric: `npm test`. Direction: higher. Budget: 3."            |

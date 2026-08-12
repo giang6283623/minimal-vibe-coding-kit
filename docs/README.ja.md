@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.11-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.12-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -355,7 +355,7 @@ flowchart LR
 
 ## スキル
 
-23 個すべてのスキルの正本は `.vibekit/skills/` にあります。Claude、Codex、OpenCode、Grok、Kimi は 23 個すべてをミラーし、Cursor は対話型の 18 個をミラーします。名前で指定（「Use the X skill」）するか、上記のコマンドから呼び出します。
+25 個すべてのスキルの正本は `.vibekit/skills/` にあります。Claude、Codex、OpenCode、Grok、Kimi は 25 個すべてをミラーし、Cursor は対話型の 20 個をミラーします。名前で指定（「Use the X skill」）するか、上記のコマンドから呼び出します。
 
 ```mermaid
 ---
@@ -392,7 +392,7 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("23 skills"))
+  root(("25 skills"))
     setup("セットアップと安全")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
@@ -407,6 +407,8 @@ mindmap
       t6("the-creator")
       t7("proofline-<br/>orchestration")
       t8("clean-delivery")
+      t9("agent-control-<br/>center")
+      t10("swap-control-<br/>center")
     analyze("分析と改善")
       a1("parallel-analysis")
       a2("autoresearch-coding")
@@ -432,6 +434,8 @@ mindmap
 | `graph-engineering-verified-orchestration` | 複雑な作業に本当に独立した branch があり、明示的な依存関係、分離、budget、客観的検証、rollback、範囲付き merge gate が必要なとき。 | "Use graph-engineering-verified-orchestration to design a safe task graph for this migration." |
 | `clean-delivery` | 1 つの behavior slice を、適度な TDD と再現可能な証拠を伴う Specify、Code、Clean、Architect、Harden、Verify gate で届けるとき。 | "Use clean-delivery to implement this behavior with extreme craftsmanship." |
 | `proofline-orchestration` | 複雑な作業に明示的な統治、範囲付き実装、権限を持つ独立した反論者、型付き escalation signal、証拠に基づく受け入れが必要なとき。 | "Use proofline-orchestration to govern this migration and preserve dissent." |
+| `agent-control-center` | 検証済みの 1 つの controller が、controller 選択、provider routing、topology を分離したまま、範囲付きの native または cross-provider worker を調整するとき。 | "Use agent-control-center with controller=auto to coordinate this task safely." |
+| `swap-control-center` | ユーザーが検証済みの controller provider、transport、model、reasoning effort を選択し、現在の host が実行権限を保持するとき。 | "Use swap-control-center to choose the controller for this task from Cursor." |
 | `agentshield-security-review` | マージ前に Agent config、skills、hooks、MCP、commands を監査するとき。 | "Use agentshield-security-review on .claude/** and .vibekit/skills/**." |
 | `threat-model-security-review` | application source、API、authentication、authorization、input path、trust boundary、security-sensitive diff を明示的な証拠と coverage でレビューするとき。 | "Use threat-model-security-review on this repository. Stay read-only and report proof gaps." |
 | `autoresearch-coding` | 測定可能な実験でリポジトリを改善するとき。 | "Use autoresearch-coding. Metric: `npm test`. Direction: higher. Budget: 3." |

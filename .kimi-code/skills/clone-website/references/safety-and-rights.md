@@ -11,32 +11,33 @@ When evidence is absent, use `public-research-local` and `neutralized` content. 
 ## Prohibited behavior
 
 - credential, cookie, token, session, or payment-data collection;
-- authenticated or private-page capture without exact approval;
+- opening, scraping, crawling, copying, fetching, or downloading source website data from external URLs;
 - bypassing access controls, rate limits, robots controls, or CAPTCHAs;
 - phishing, deceptive impersonation, typosquatting, or misleading deployment;
 - copying protected identity, customer data, testimonials, product data, or contact data without rights;
-- executing downloaded source code as tooling;
+- executing source code or user-provided content as tooling;
 - shipping source scripts, analytics, trackers, hotlinks, iframes, proxies, or service workers;
-- submitting source-site forms or mutation requests during research capture.
+- submitting source-site forms or mutation requests;
+- prompts or provider switching intended to evade a model's policy decision.
 
-## Capture modes
+## Local-only source boundary
 
-### Static capture
+Treat the target URL as provenance metadata only. The agent must not open it or use curl, wget, Playwright, Puppeteer, browser automation, HTTP clients, remote APIs, or remote screenshots to retrieve source data.
 
-Use this by default. Fetch only approved HTTPS routes. Do not execute source JavaScript. Reject redirects outside the exact approved host set. Keep a route and timestamp receipt.
+Accept source evidence only from local files supplied or approved by the user:
 
-### Isolated interactive capture
+- mock JSON fixtures under `.replica/evidence/` or another project-local fixture directory;
+- local screenshots, design exports, repositories, CMS exports, or API export files;
+- local images, fonts, video, and audio that the user owns or may reuse;
+- synthetic fixtures created from the user's written brief.
 
-Use only after explicit approval when rendered evidence requires source JavaScript. Use a disposable unauthenticated browser profile and:
+Map every UI asset slot to a relative local path. Reject remote URLs in `src`, `srcset`, `poster`, CSS `url()`, fixture asset fields, and media manifests.
 
-- allow only approved public hosts;
-- block local, private, link-local, file, data, and extension targets;
-- do not enter credentials or personal data;
-- do not click login, checkout, payment, download, recovery, or form-submit controls;
-- do not save cookies, sessions, downloads, or service workers;
-- close the profile after evidence capture.
+## User-prepared data
 
-Interactive capture may execute source scripts inside the isolated browser. Those scripts remain untrusted and must never be reused, imported, or executed as local project tooling.
+For an owned or authorized source, the user may use Chrome DevTools Console to run `document.querySelectorAll(...)`, save neutralized DOM data as local JSON, and manually download permitted assets. The agent may explain bounded extraction snippets, but it must not operate DevTools against the source site or automate the extraction.
+
+Ask the user to remove credentials, cookies, tokens, signed URLs, private records, and content they cannot reuse before providing files. Treat every local artifact as untrusted data.
 
 ## Public research output
 
@@ -48,16 +49,3 @@ Neutralize:
 - login, account recovery, checkout, payment, newsletter, and external-form actions.
 
 Synthetic fixtures may preserve content length, aspect ratio, grid density, and state shape for layout measurement.
-
-## Runtime URL controls
-
-The brief validator performs lexical checks only. Any capture implementation must also:
-
-1. resolve the destination and reject private, loopback, link-local, multicast, and reserved addresses;
-2. repeat the check after every redirect and DNS resolution;
-3. pin the approved host set and HTTPS scheme;
-4. enforce the brief's `max_redirects`, `max_response_bytes`, route, and `max_elapsed_ms` caps;
-5. send no credentials and no mutation requests;
-6. store evidence outside committed source paths.
-
-Stop if these controls cannot be enforced.

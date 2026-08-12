@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.11-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.12-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -169,7 +169,7 @@ your-project/
 
 ## Умения
 
-Всички 23 умения се намират канонично в `.vibekit/skills/`. Claude, Codex, OpenCode, Grok и Kimi огледално поддържат всичките 23, а Cursor поддържа 18-те интерактивни умения.
+Всички 25 умения се намират канонично в `.vibekit/skills/`. Claude, Codex, OpenCode, Grok и Kimi огледално поддържат всичките 25, а Cursor поддържа 20-те интерактивни умения.
 
 | Умение | Кога да го използвате |
 | --- | --- |
@@ -178,6 +178,8 @@ your-project/
 | `graph-engineering-verified-orchestration` | Три или повече ограничени задачи изискват зависимости, изолация, бюджети, verification и rollback |
 | `clean-delivery` | Едно поведение трябва да премине през Specify, Code, Clean, Architect, Harden и Verify |
 | `proofline-orchestration` | Сложна работа изисква независима критика и приемане според доказателства |
+| `agent-control-center` | Един проверен controller трябва да координира ограничени native или cross-provider workers |
+| `swap-control-center` | Потребителят трябва да избере проверени controller provider, transport, model и reasoning effort, докато активният host запазва правото за изпълнение |
 | `agentshield-security-review` | Security review на agent конфигурация, умения, hooks, MCP и команди |
 | `threat-model-security-review` | Threat model за application source, authentication, authorization и input paths |
 | `autoresearch-coding` | Подобряване на хранилището чрез измерими експерименти |

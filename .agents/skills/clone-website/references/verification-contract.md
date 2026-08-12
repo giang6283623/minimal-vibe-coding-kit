@@ -6,10 +6,10 @@ Freeze acceptance before implementation. The implementer cannot pass work using 
 
 Record:
 
-- source route and capture mode;
-- capture timestamp and browser/tool version;
-- viewport, page state, and redirect chain;
-- screenshot or artifact digest;
+- target URL as provenance metadata only;
+- every local input path, type, byte size, rights status, and digest;
+- every local screenshot viewport and page state;
+- every local asset slot, relative path, alt text, and digest;
 - source identity, content, data, media, and metadata inventory with synthetic replacements;
 - visible unaffiliated-research-demo notice for public research;
 - neutralized and masked regions;
@@ -22,10 +22,12 @@ Record:
 2. Every approved route loads directly at each required viewport.
 3. Public research includes a visible unaffiliated-demo notice, and every inventoried source identity, copy, media, metadata, personal, product, and contact-data value is replaced or masked with zero source-token matches in static output.
 4. Static output contains no unapproved source domain, remote asset, source script, tracker, iframe, service worker, password input, or external form action.
-5. Local browser traffic contains only approved local GET requests. Mutation requests are zero.
+5. Local browser traffic contains no external requests. Local mutation requests are zero unless the approved application behavior requires and tests them.
 6. Console errors, broken assets, and horizontal overflow are zero unless documented as accepted exceptions.
 7. Keyboard and accessibility checks match the selected fidelity and scope.
 8. Tests and the repository validation command pass on the final tree.
+9. Every rendered image and media reference maps to one current relative local path and digest in the asset inventory.
+10. Screenshot completeness is measured against the user-supplied local route, state, and viewport matrix. Missing local evidence is reported as an exception, not fetched from the source site.
 
 ## Visual comparison
 
@@ -50,6 +52,6 @@ Follow the repository visual gate:
 
 - `PASS`: every required deterministic and visual gate passes.
 - `PASS WITH EXCEPTIONS`: required behavior works and every exception is bounded, safe, and documented.
-- `FAIL`: a required gate, safety control, source receipt, or verifier is missing.
+- `FAIL`: a required gate, safety control, local input, source receipt, or verifier is missing.
 
 Missing evidence is not a pass. Use `not configured`, `not run`, or `unresolved` explicitly.
