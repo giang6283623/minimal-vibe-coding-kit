@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Changed
+
+- Made relay mode, controller provider/model, and worker provider/model separate live-inventory selections in `agent-control-center` and `swap-control-center`. Unresolved choices now return to the parent host through `AskUserQuestion`, `request_user_input`, or the available plain-question fallback.
+- Bound `manual-handoff` directly to a manual controller transport, and added external-controller precedence to `sequential-thinking` and `clearthought` so the host freezes evidence but the selected controller owns decomposition and decisions.
+
+### Fixed
+
+- Added external-controller precedence to `parallel-analysis` and `proofline-orchestration`: a selected Codex controller now creates work orders and decides from returned receipts, while a Cursor host dispatches independently selected Cursor workers instead of launching Codex analysis lanes or a second planning controller.
+- Corrected the version 2 sequential handoff example so each work order matches its approved route. Added complete native and Cursor-to-Codex-to-Cursor traces plus a dependency-free validator that rejects route drift, implicit controller-as-worker selection, reversed authority, invalid relay bindings, and Proofline acceptance without its required seal and Owner gates.
+
+### Validation
+
+- `npm test`, `npm run pack:dry-run`, the dependency-free AgentShield probe, and `git diff --check` passed. The optional local `ecc-agentshield` package was absent, so the changed agent surfaces also received the documented manual review with no critical or high findings.
+
 ## 0.5.12 - 2026-08-12
 
 ### Added

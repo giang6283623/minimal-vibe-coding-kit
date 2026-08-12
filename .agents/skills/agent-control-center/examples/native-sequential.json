@@ -1,0 +1,86 @@
+{
+  "taskEnvelope": {
+    "version": 2,
+    "task_id": "task-native-sequential",
+    "objective": "Inspect one bounded module and return evidence",
+    "controller": "native",
+    "relay": {
+      "mode": "sequential-host-relay",
+      "resume_controller": false
+    },
+    "controller_route": {
+      "provider": "current",
+      "transport": "native",
+      "model": "provider-default",
+      "reasoning_effort": "provider-default",
+      "selection_source": "verified-single-route"
+    },
+    "worker_defaults": {
+      "provider": "current",
+      "transport": "host-sequential",
+      "model": "provider-default",
+      "reasoning_effort": "provider-default",
+      "selection_source": "verified-single-route"
+    },
+    "topology": "sequential",
+    "scope": {
+      "allowed_paths": ["src/module.js"],
+      "protected_paths": []
+    },
+    "authorization": {
+      "mutation": false,
+      "external_actions": false
+    },
+    "budget": {
+      "max_workers": 1,
+      "max_retries": 1,
+      "timeout_ms": 600000
+    },
+    "acceptance": {
+      "commands": [],
+      "artifacts": ["module evidence"],
+      "human_gates": []
+    }
+  },
+  "workOrders": [
+    {
+      "work_id": "work-module-evidence",
+      "task_id": "task-native-sequential",
+      "role": "bounded-reader",
+      "executor_provider": "current",
+      "executor_transport": "host-sequential",
+      "requested_model": "provider-default",
+      "requested_reasoning_effort": "provider-default",
+      "read_only": true,
+      "paths": ["src/module.js"],
+      "instructions": "Inspect the module and cite observable evidence",
+      "expected_artifacts": ["module evidence"],
+      "validation": [],
+      "stop_conditions": [],
+      "allow_child_dispatch": false
+    }
+  ],
+  "trace": [
+    {
+      "type": "work-order-issued",
+      "actor": "host",
+      "work_id": "work-module-evidence"
+    },
+    {
+      "type": "worker-dispatched",
+      "actor": "host",
+      "work_id": "work-module-evidence"
+    },
+    {
+      "type": "proof-receipt-returned",
+      "actor": "host",
+      "target": "host",
+      "work_id": "work-module-evidence"
+    },
+    {
+      "type": "control-decision",
+      "actor": "host",
+      "decision": "accept"
+    }
+  ]
+}

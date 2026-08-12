@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { validateControllerContract } from '../skills/agent-control-center/scripts/validate-controller-contract.mjs';
 
 const root = path.resolve(process.argv[2] || process.cwd());
 const validatorRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -1823,10 +1824,13 @@ function validateControlCenterContract() {
   if (!exists(`${base}/SKILL.md`) || !exists(`${swapBase}/SKILL.md`)) return;
   const resources = [
     'agents/openai.yaml',
+    'examples/cursor-codex-cursor-workers.json',
+    'examples/native-sequential.json',
     'references/controller-modes.md',
     'references/capability-contract.md',
     'references/handoff-contract.md',
-    'references/provider-selection.md'
+    'references/provider-selection.md',
+    'scripts/validate-controller-contract.mjs'
   ];
   const missingResources = resources.filter((file) => !exists(`${base}/${file}`));
   if (missingResources.length > 0
@@ -1843,11 +1847,22 @@ function validateControlCenterContract() {
   const handoff = read(`${base}/references/handoff-contract.md`);
   const providerSelection = read(`${base}/references/provider-selection.md`);
   const swapPreset = read(`${swapBase}/SKILL.md`);
+  const swapExamples = read(`${swapBase}/references/examples.md`);
+  const parallelAnalysis = read('.vibekit/skills/parallel-analysis/SKILL.md');
+  const proofline = read('.vibekit/skills/proofline-orchestration/SKILL.md');
+  const sequentialThinking = read('.vibekit/skills/sequential-thinking/SKILL.md');
+  const clearthought = read('.vibekit/skills/clearthought/SKILL.md');
 
   hasAll(skill, [
     'Keep exactly one controller',
     'plain MCP',
     '`controller`: `native`, `auto`',
+    '`relay_mode`',
+    '`controller_route`',
+    '`worker_routes`',
+    'Apply controller precedence',
+    'Reasoning skills such as `sequential-thinking` and `clearthought`',
+    'bundled contract',
     'ORCHESTRATION_MODES.md',
     'requested-not-attested',
     'switch controllers silently'
@@ -1883,6 +1898,13 @@ function validateControlCenterContract() {
     '## Proof receipt',
     '## Control decision',
     '## Host-mediated controller loop',
+    'version: 2',
+    'controller_route:',
+    'worker_defaults:',
+    'selection_source',
+    '`automatic-host-relay`',
+    'Complete examples and trace validation',
+    '`topology=proofline`',
     'It is not direct remote control'
   ])
     ? ok('Agent Control Center defines bounded handoffs, receipts, and control decisions')
@@ -1890,6 +1912,13 @@ function validateControlCenterContract() {
 
   hasAll(providerSelection, [
     '## Parent-only questions',
+    '`AskUserQuestion`',
+    '`request_user_input`',
+    '**Worker provider and transport.**',
+    'Selecting `controller=codex` does not select Codex',
+    'Derive `manual-handoff`',
+    'manual` implies relay mode `manual-handoff`',
+    '## User-question relay',
     'provider documentation. Use primary provider sources only',
     '## Setup state machine',
     'Require explicit approval',
@@ -1903,8 +1932,11 @@ function validateControlCenterContract() {
     '../agent-control-center/SKILL.md',
     "host's exposed structured",
     'controller=<provider-id>',
+    'Resolve controller and worker routes independently',
+    'Derive `manual-handoff` from a manual controller',
     '## Codex selection',
     'controller=codex',
+    'Do not launch Codex analysis lanes',
     'Do not require Cursor CLI',
     'Obtain explicit user',
     'Never run co-controllers',
@@ -1912,6 +1944,67 @@ function validateControlCenterContract() {
   ])
     ? ok('Swap Control Center provides dynamic verified selection and one bounded transfer')
     : fail('Swap Control Center selection, setup, or transfer contract drifted');
+
+  hasAll(parallelAnalysis, [
+    '## External-controller executor mode',
+    'Use this workflow only when `controller=native` or `controller=current`',
+    '`Codex lanes`',
+    'user-selected worker',
+    'same controller session'
+  ]) && hasAll(swapExamples, [
+    '`automatic-host-relay`',
+    '`controller=codex`',
+    'Cursor-native worker route and model',
+    'does not create its own'
+  ]) && hasAll(proofline, [
+    '## External-controller composition',
+    'sole Wayfinder and task controller',
+    'independently selected worker provider',
+    'must not become controllers',
+    'same controller session',
+    "controller's `accept` decision is invalid",
+    '`SEAL_GRANTED` receipt'
+  ]) && hasAll(sequentialThinking, [
+    '## External-controller precedence',
+    'must not split the task into work items or lanes',
+    'reasoning method for'
+  ]) && hasAll(clearthought, [
+    '## External-controller precedence',
+    'must not split the task',
+    'reasoning method for'
+  ])
+    ? ok('External controllers own decomposition while topology skills use independently selected workers')
+    : fail('Control Center topology composition or external-controller precedence drifted');
+
+  const nativeFixture = readJson(`${base}/examples/native-sequential.json`);
+  const externalFixture = readJson(`${base}/examples/cursor-codex-cursor-workers.json`);
+  const fixtureResults = [nativeFixture, externalFixture]
+    .map((fixture) => fixture && validateControllerContract(fixture));
+  if (fixtureResults.every((result) => result?.valid)) {
+    ok('Control Center complete native and external traces satisfy the executable contract');
+  } else {
+    fail(`Control Center trace fixture failed: ${JSON.stringify(fixtureResults.flatMap((result) => result?.errors || []))}`);
+  }
+
+  if (externalFixture) {
+    const routeMismatch = JSON.parse(JSON.stringify(externalFixture));
+    routeMismatch.workOrders[0].executor_transport = 'host-sequential';
+    const hostDecomposition = JSON.parse(JSON.stringify(externalFixture));
+    hostDecomposition.trace.splice(1, 0, { type: 'host-decomposed', actor: 'host' });
+    const prooflineWithoutSeal = JSON.parse(JSON.stringify(externalFixture));
+    prooflineWithoutSeal.taskEnvelope.topology = 'proofline';
+    const rejectionCodes = [
+      validateControllerContract(routeMismatch),
+      validateControllerContract(hostDecomposition),
+      validateControllerContract(prooflineWithoutSeal)
+    ].map((result) => new Set(result.errors.map((error) => error.code)));
+    const rejectsReviewedFailures = rejectionCodes[0].has('UNAPPROVED_WORKER_ROUTE')
+      && rejectionCodes[1].has('HOST_DECOMPOSITION')
+      && rejectionCodes[2].has('PROOFLINE_SEAL_REQUIRED');
+    rejectsReviewedFailures
+      ? ok('Control Center executable contract rejects the reviewed route, precedence, and seal failures')
+      : fail('Control Center executable contract no longer rejects all reviewed failure traces');
+  }
 
   const allSurfaces = ['claude', 'cursor', 'codex', 'opencode', 'grok', 'kimi'];
   const manifestValid = ['agent-control-center', 'swap-control-center'].every((name) => {

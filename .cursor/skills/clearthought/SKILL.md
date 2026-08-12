@@ -34,7 +34,27 @@ Choose the narrowest operation that fits:
 
 If the operation is omitted, infer it from the request. Default to `sequential_thinking`.
 
+## External-controller precedence
+
+When the same task selects or requests an external controller through
+`agent-control-center` or `swap-control-center`, resolve controller ownership
+before choosing a ClearThought operation. The active host may only freeze the
+problem, observed evidence, assumptions, unknown user decisions, scope,
+authorization, budget, and acceptance criteria.
+
+The host must not split the task, assign file or module ownership, choose
+workers, decide architecture, or accept the final result. It sends the frozen
+reasoning envelope to the external controller. The controller applies the
+selected ClearThought operation, creates bounded work orders, reviews returned
+evidence, and decides. The host may relay `ask-user`, dispatch approved work
+orders, and return unaltered receipts to the same controller session.
+
+Treat an explicit request to use ClearThought as a reasoning method for the
+selected external controller, not as authority for the host to decompose first.
+
 ## Workflow
+
+Apply the external-controller precedence rule above before step 1.
 
 1. Read `AGENTS.md` and `backbone.yml` before repo edits.
 2. Separate observed facts, assumptions, unknowns, and decisions.

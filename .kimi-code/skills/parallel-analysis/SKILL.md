@@ -111,7 +111,40 @@ If the harness cannot run lanes concurrently (plain CLI loop), run them
 back-to-back without changing the briefs - merge and verification stay the
 same.
 
+## External-controller executor mode
+
+Before decomposing the question, inspect the active Agent Control Center task
+envelope. When `controller` is neither `native` nor `current`, do not run the
+native workflow below. The selected external controller owns decomposition,
+lane briefs, receipt review, refutation, and the final control decision.
+
+Run this host-mediated executor loop instead:
+
+1. Send the frozen task envelope to the selected controller before creating any
+   lane.
+2. If the controller returns `ask-user`, have the host parent use its exposed
+   structured-question tool, such as `AskUserQuestion` or
+   `request_user_input` when available, then return the answer to the same
+   controller session.
+3. Accept only bounded lane work orders that match the user-selected worker
+   provider, transport, model, reasoning effort, scope, and budget. An
+   unresolved or mismatched worker route returns `ask-user`; it never falls
+   back silently.
+4. Dispatch the approved worker lanes without rewriting their questions or
+   assigning the controller provider as their executor.
+5. Return unaltered proof receipts to the same controller session. Let the
+   controller merge, challenge, retry, escalate, accept, or stop.
+6. Present the controller's user question or final accepted result in the host
+   parent conversation.
+
+For example, with `host=cursor`, `controller=codex`, and Cursor-native workers,
+Codex creates the lane briefs and Cursor dispatches Cursor agents. Do not create
+or describe `Codex lanes` unless the user independently selected Codex as a
+worker provider.
+
 ## Workflow
+
+Use this workflow only when `controller=native` or `controller=current`.
 
 1. **Scope.** State the question in one sentence. Split it into 2-5 lanes that
    are independent of each other (by directory, package, concern, or doc set).
@@ -131,7 +164,7 @@ same.
 7. **Deliver.** Report merged findings, what was verified, and remaining
    unknowns. For issue triage, classify surviving findings with the
    `reviewing-4p-priorities` skill (P0-P4). Decisions and edits stay in the
-   main session under the repo's normal review rules.
+   native main session under the repo's normal review rules.
 
 ## Lane brief template
 
@@ -159,4 +192,4 @@ findings as file:line - issue - why it matters.
 - Never put secrets in lane briefs or executor prompts: no `.env*` contents,
   credentials, tokens, private keys, or customer data.
 - This skill produces analysis, not decisions; a lane may not conclude
-  "therefore change X" without main-session review.
+  "therefore change X" without native-parent or external-controller review.
