@@ -7,7 +7,6 @@ import https from 'node:https';
 import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
-import { spawnSync } from 'node:child_process';
 
 import {
   fail,
@@ -250,13 +249,26 @@ const CHROME_CANDIDATES = {
   ],
 };
 
-export function detectChromeCommand() {
-  const platform = process.platform;
+function executableOnPath(command, searchPath) {
+  if (typeof searchPath !== 'string' || searchPath.length === 0) return false;
+  for (const directory of searchPath.split(path.delimiter)) {
+    if (!directory) continue;
+    const executable = path.resolve(directory, command);
+    try {
+      fs.accessSync(executable, fs.constants.X_OK);
+      if (fs.statSync(executable).isFile()) return true;
+    } catch {
+      // Continue through PATH when an entry is missing or not executable.
+    }
+  }
+  return false;
+}
+
+export function detectChromeCommand(platform = process.platform, searchPath = process.env.PATH || '') {
   const candidates = CHROME_CANDIDATES[platform] || [];
   for (const candidate of candidates) {
     if (platform === 'linux') {
-      const result = spawnSync('command', ['-v', candidate], { encoding: 'utf8' });
-      if (result.status === 0) return { command: candidate, platform, source: 'path' };
+      if (executableOnPath(candidate, searchPath)) return { command: candidate, platform, source: 'path' };
     } else if (fs.existsSync(candidate)) {
       return { command: candidate, platform, source: 'file' };
     }
