@@ -238,6 +238,8 @@ const reasoningSkillResources = {
   'clone-website': [
     'agents/openai.yaml',
     'references/intake-and-levels.md',
+    'references/local-development.md',
+    'references/authorized-data-and-assets.md',
     'references/minimal-vibe-integration.md',
     'references/output-templates.md',
     'references/platform-playbooks.md',
@@ -2082,6 +2084,12 @@ function validateCloneWebsiteContract() {
     'references/replica-brief.example.json',
     'references/safety-and-rights.md',
     'references/verification-contract.md',
+    'references/workflow-routing.md',
+    'scripts/asset-workflow-lib.mjs',
+    'scripts/download-authorized-assets.mjs',
+    'scripts/normalize-local-export.mjs',
+    'scripts/prepare-replica-workspace.mjs',
+    'scripts/verify-local-assets.mjs',
     'scripts/validate_replica_brief.py'
   ];
   const missingResources = resources.filter((file) => !exists(`${base}/${file}`));
@@ -2093,6 +2101,9 @@ function validateCloneWebsiteContract() {
   const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
   const skill = read(`${base}/SKILL.md`);
   const intake = read(`${base}/references/intake-and-levels.md`);
+  const localDevelopment = read(`${base}/references/local-development.md`);
+  const routing = read(`${base}/references/workflow-routing.md`);
+  const assets = read(`${base}/references/authorized-data-and-assets.md`);
   const safety = read(`${base}/references/safety-and-rights.md`);
   const verification = read(`${base}/references/verification-contract.md`);
   const validator = read(`${base}/scripts/validate_replica_brief.py`);
@@ -2119,10 +2130,44 @@ function validateCloneWebsiteContract() {
     '`B1 small`',
     '`B2 scale-ready`',
     'Preserve a working repository stack',
-    'Public research cannot use S4'
+    'Public research cannot use S4',
+    '`AskUserQuestion`',
+    '`request_user_input`'
   ])
     ? ok('Clone Website intake defines dynamic fidelity, scope, stack, and backend choices')
     : fail('Clone Website intake choices drifted');
+
+  hasAll(localDevelopment, [
+    '`preserve-existing`',
+    '`host-native`',
+    '`docker-compose`',
+    '`docker-desktop`',
+    '`docker-engine`',
+    '`compose-compatible`',
+    '`custom`',
+    'Do not install an engine',
+    'docker compose config --quiet'
+  ]) && hasAll(validator, [
+    'LOCAL_DEVELOPMENT_MODES',
+    'CONTAINER_ENGINES',
+    'replica.local_development'
+  ])
+    ? ok('Clone Website keeps local runtime selection explicit, flexible, and validated')
+    : fail('Clone Website local development contract drifted');
+
+  hasAll(routing, [
+    'shopify-to-shopify-hydrogen',
+    'wordpress-to-astro-typescript',
+    'woocommerce-to-nextjs-app-router',
+    'Do not recommend a stack because it is fashionable'
+  ]) && hasAll(assets, [
+    'The agent must not execute this command',
+    'normalize-local-export.mjs',
+    'download-authorized-assets.mjs',
+    'verify-local-assets.mjs'
+  ])
+    ? ok('Clone Website routes platform stacks and keeps network acquisition owner-run')
+    : fail('Clone Website platform routing or authorized asset workflow drifted');
 
   hasAll(safety, [
     'A request to clone is not evidence of ownership',
@@ -2145,6 +2190,7 @@ function validateCloneWebsiteContract() {
     'workspace root is too broad',
     'workspace target escaped its parent',
     "'.replica/evidence'",
+    "'.replica/manifests'",
     "'.replica/screenshots'"
   ])
     ? ok('Clone Website workspace setup keeps local artifacts in a bounded project root')
@@ -2165,6 +2211,8 @@ function validateCloneWebsiteContract() {
     : fail('Clone Website brief validator safety markers drifted');
 
   if (example?.replica?.backend_level === 'B0'
+    && example?.replica?.local_development?.mode === 'preserve-existing'
+    && example?.replica?.local_development?.container_engine === 'none'
     && example?.authorization?.status === 'public-research-local'
     && example?.authorization?.content_rights === 'neutralized'
     && example?.target?.data_mode === 'local-artifacts-only') {

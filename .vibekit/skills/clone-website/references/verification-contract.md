@@ -14,6 +14,7 @@ Record:
 - visible unaffiliated-research-demo notice for public research;
 - neutralized and masked regions;
 - implementation commit or tree digest;
+- selected local run mode, container engine, command, ports, storage, and health result;
 - verifier identity and command receipts.
 
 ## Deterministic gates
@@ -28,6 +29,10 @@ Record:
 8. Tests and the repository validation command pass on the final tree.
 9. Every rendered image and media reference maps to one current relative local path and digest in the asset inventory.
 10. Screenshot completeness is measured against the user-supplied local route, state, and viewport matrix. Missing local evidence is reported as an exception, not fetched from the source site.
+11. When authorized assets use the owner-run downloader, the offline verifier checks every downloaded file independently for containment, symlinks, nonzero size, image signature, digest, and manifest coverage. The downloader's own receipt is not sufficient acceptance evidence.
+12. The local run command and any container engine match `replica.local_development`.
+
+For Docker Compose, inspect the Dockerfile and Compose files before execution. Record the selected engine, the quiet Compose configuration check, bound ports, build or pull approval, and the local health result. Do not print resolved configuration that may contain secrets. For host-native or preserved workflows, record the exact existing local run command instead.
 
 ## Visual comparison
 

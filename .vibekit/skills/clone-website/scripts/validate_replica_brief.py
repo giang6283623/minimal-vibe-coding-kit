@@ -63,6 +63,27 @@ DATA_SCOPE_VALUES = {
     "source-content",
     "source-identity",
 }
+SOURCE_PLATFORMS = {
+    "existing-repository",
+    "generic",
+    "shopify",
+    "static-site",
+    "woocommerce",
+    "wordpress",
+}
+LOCAL_DEVELOPMENT_MODES = {
+    "custom",
+    "docker-compose",
+    "host-native",
+    "preserve-existing",
+}
+CONTAINER_ENGINES = {
+    "compose-compatible",
+    "custom",
+    "docker-desktop",
+    "docker-engine",
+    "none",
+}
 CANONICAL_BRIEF = ".replica/brief.json"
 CANONICAL_NORMALIZED = ".replica/brief.normalized.json"
 CANONICAL_PLAN = ".replica/plan.md"
@@ -390,14 +411,81 @@ def validate_brief(raw: dict[str, Any], root: Path) -> dict[str, Any]:
     )
 
     replica = object_value(raw["replica"], "replica")
-    replica_fields = {"fidelity", "scope", "backend_level", "target_stack", "deployment"}
-    exact_keys(replica, replica_fields, "replica")
+    replica_fields = {
+        "fidelity",
+        "scope",
+        "backend_level",
+        "target_stack",
+        "deployment",
+        "source_platform",
+        "local_development",
+    }
+    exact_keys(
+        replica,
+        replica_fields,
+        "replica",
+        {"fidelity", "scope", "backend_level", "target_stack", "deployment"},
+    )
+    source_platform = enum_value(
+        replica.get("source_platform", "generic"),
+        "replica.source_platform",
+        SOURCE_PLATFORMS,
+    )
     fidelity = enum_value(replica["fidelity"], "replica.fidelity", {"F1", "F2", "F3", "F4"})
     scope = enum_value(replica["scope"], "replica.scope", {"S1", "S2", "S3", "S4"})
     backend_level = enum_value(replica["backend_level"], "replica.backend_level", {"B0", "B1", "B2"})
     target_stack = text_value(replica["target_stack"], "replica.target_stack", 64)
     if not STACK_RE.fullmatch(target_stack):
         fail("replica.target_stack must be a lowercase stack identifier")
+    workflow_id = f"{source_platform}-to-{target_stack}"
+    local_development_raw = object_value(
+        replica.get(
+            "local_development",
+            {"mode": "preserve-existing", "container_engine": "none"},
+        ),
+        "replica.local_development",
+    )
+    exact_keys(
+        local_development_raw,
+        {"mode", "container_engine", "custom_runtime"},
+        "replica.local_development",
+        {"mode", "container_engine"},
+    )
+    local_development_mode = enum_value(
+        local_development_raw["mode"],
+        "replica.local_development.mode",
+        LOCAL_DEVELOPMENT_MODES,
+    )
+    container_engine = enum_value(
+        local_development_raw["container_engine"],
+        "replica.local_development.container_engine",
+        CONTAINER_ENGINES,
+    )
+    custom_runtime = None
+    if "custom_runtime" in local_development_raw:
+        custom_runtime = text_value(
+            local_development_raw["custom_runtime"],
+            "replica.local_development.custom_runtime",
+            200,
+            untrusted=True,
+        )
+        if "`" in custom_runtime:
+            fail("replica.local_development.custom_runtime contains unsafe Markdown")
+    if local_development_mode == "docker-compose" and container_engine == "none":
+        fail("docker-compose local development requires a container engine")
+    if local_development_mode != "docker-compose" and container_engine != "none":
+        fail("only docker-compose local development may select a container engine")
+    uses_custom_runtime = local_development_mode == "custom" or container_engine == "custom"
+    if uses_custom_runtime and custom_runtime is None:
+        fail("custom local development requires replica.local_development.custom_runtime")
+    if not uses_custom_runtime and custom_runtime is not None:
+        fail("replica.local_development.custom_runtime is allowed only for a custom runtime")
+    local_development = {
+        "container_engine": container_engine,
+        "mode": local_development_mode,
+    }
+    if custom_runtime is not None:
+        local_development["custom_runtime"] = custom_runtime
     deployment = enum_value(
         replica["deployment"],
         "replica.deployment",
@@ -522,8 +610,11 @@ def validate_brief(raw: dict[str, Any], root: Path) -> dict[str, Any]:
             "backend_level": backend_level,
             "deployment": deployment,
             "fidelity": fidelity,
+            "local_development": local_development,
             "scope": scope,
+            "source_platform": source_platform,
             "target_stack": target_stack,
+            "workflow_id": workflow_id,
         },
         "source_inputs": source_inputs,
         "target": {
@@ -560,7 +651,16 @@ def render_plan(brief: dict[str, Any]) -> str:
         f"- Fidelity: `{replica['fidelity']}`",
         f"- Scope: `{replica['scope']}`",
         f"- Backend: `{replica['backend_level']}`",
+        f"- Source platform: `{replica['source_platform']}`",
         f"- Stack: `{replica['target_stack']}`",
+        f"- Local development: `{replica['local_development']['mode']}`",
+        f"- Container engine: `{replica['local_development']['container_engine']}`",
+        *(
+            [f"- Custom runtime: `{replica['local_development']['custom_runtime']}`"]
+            if "custom_runtime" in replica["local_development"]
+            else []
+        ),
+        f"- Workflow: `{replica['workflow_id']}`",
         f"- Page cap: `{limits['max_pages']}`",
         f"- Item cap: `{limits['max_items']}`",
         f"- Local input count: `{len(brief['source_inputs'])}`",

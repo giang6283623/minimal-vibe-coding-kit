@@ -6,6 +6,11 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import {
+  imageKind,
+  isPublicIp,
+  safeRemoteImageUrl,
+} from '../../../.vibekit/skills/clone-website/scripts/asset-workflow-lib.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const kitRoot = path.resolve(here, '..', '..', '..');
@@ -25,6 +30,30 @@ const prepareWorkspace = path.join(
   'clone-website',
   'scripts',
   'prepare-replica-workspace.mjs'
+);
+const normalizeExport = path.join(
+  kitRoot,
+  '.vibekit',
+  'skills',
+  'clone-website',
+  'scripts',
+  'normalize-local-export.mjs'
+);
+const downloadAssets = path.join(
+  kitRoot,
+  '.vibekit',
+  'skills',
+  'clone-website',
+  'scripts',
+  'download-authorized-assets.mjs'
+);
+const verifyAssets = path.join(
+  kitRoot,
+  '.vibekit',
+  'skills',
+  'clone-website',
+  'scripts',
+  'verify-local-assets.mjs'
 );
 const publicFixture = JSON.parse(
   fs.readFileSync(path.join(fixtureRoot, 'safe-public-f2-s1-b0.json'), 'utf8')
@@ -124,9 +153,110 @@ function expectInvalid(fixture, error, label) {
 
 try {
   assert.ok(fs.existsSync(validator), 'canonical validator exists');
+  assert.equal(isPublicIp('8.8.8.8'), true);
+  assert.equal(isPublicIp('127.0.0.1'), false);
+  assert.equal(isPublicIp('10.0.0.1'), false);
+  assert.equal(isPublicIp('::1'), false);
+  assert.equal(isPublicIp('ff02::1'), false);
+  assert.throws(() => safeRemoteImageUrl('http://example.com/a.jpg', 'test URL'), /HTTPS/);
+  assert.throws(() => safeRemoteImageUrl('https://127.0.0.1/a.jpg', 'test URL'), /private|IP-literal/);
+  assert.throws(() => safeRemoteImageUrl('https://example.com/a.jpg?access_token=secret', 'test URL'), /secret-like/);
+  assert.equal(imageKind(Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0, 0, 0, 0, 0, 0, 0, 0])), 'jpeg');
 
   const publicRoot = expectValid(publicFixture, 'safe public F2/S1/B0 brief');
   expectValid(ownedFixture, 'safe owned F4/S4/B2 brief');
+
+  const legacyNormalized = JSON.parse(
+    fs.readFileSync(path.join(publicRoot, '.replica', 'brief.normalized.json'), 'utf8')
+  );
+  assert.deepEqual(legacyNormalized.replica.local_development, {
+    container_engine: 'none',
+    mode: 'preserve-existing',
+  });
+
+  const dockerDesktopFixture = clone(publicFixture);
+  dockerDesktopFixture.replica.local_development = {
+    mode: 'docker-compose',
+    container_engine: 'docker-desktop',
+  };
+  const dockerDesktopRoot = expectValid(dockerDesktopFixture, 'Docker Desktop local development');
+  assert.match(
+    fs.readFileSync(path.join(dockerDesktopRoot, '.replica', 'plan.md'), 'utf8'),
+    /Local development: `docker-compose`[\s\S]*Container engine: `docker-desktop`/
+  );
+
+  const customRuntimeFixture = clone(publicFixture);
+  customRuntimeFixture.replica.local_development = {
+    mode: 'custom',
+    container_engine: 'none',
+    custom_runtime: 'Project-approved Devbox workflow',
+  };
+  expectValid(customRuntimeFixture, 'custom local development');
+
+  const customContainerEngineFixture = clone(publicFixture);
+  customContainerEngineFixture.replica.local_development = {
+    mode: 'docker-compose',
+    container_engine: 'custom',
+    custom_runtime: 'Project-approved compatible container provider',
+  };
+  expectValid(customContainerEngineFixture, 'custom Docker Compose provider');
+
+  const dockerWithoutEngine = clone(publicFixture);
+  dockerWithoutEngine.replica.local_development = {
+    mode: 'docker-compose',
+    container_engine: 'none',
+  };
+  expectInvalid(
+    dockerWithoutEngine,
+    'docker-compose local development requires a container engine',
+    'Docker Compose requires an engine'
+  );
+
+  const nativeWithEngine = clone(publicFixture);
+  nativeWithEngine.replica.local_development = {
+    mode: 'host-native',
+    container_engine: 'docker-desktop',
+  };
+  expectInvalid(
+    nativeWithEngine,
+    'only docker-compose local development may select a container engine',
+    'host-native rejects a container engine'
+  );
+
+  const customWithoutDescription = clone(publicFixture);
+  customWithoutDescription.replica.local_development = {
+    mode: 'custom',
+    container_engine: 'none',
+  };
+  expectInvalid(
+    customWithoutDescription,
+    'custom local development requires replica.local_development.custom_runtime',
+    'custom runtime requires a description'
+  );
+
+  const standardWithCustomDescription = clone(publicFixture);
+  standardWithCustomDescription.replica.local_development = {
+    mode: 'preserve-existing',
+    container_engine: 'none',
+    custom_runtime: 'Unexpected override',
+  };
+  expectInvalid(
+    standardWithCustomDescription,
+    'custom_runtime is allowed only for a custom runtime',
+    'standard runtime rejects a custom description'
+  );
+
+  const markdownBreakingDescription = clone(publicFixture);
+  markdownBreakingDescription.replica.local_development = {
+    mode: 'custom',
+    container_engine: 'none',
+    custom_runtime: 'Unsafe `inline` Markdown',
+  };
+  expectInvalid(
+    markdownBreakingDescription,
+    'custom_runtime contains unsafe Markdown',
+    'custom runtime rejects Markdown delimiters'
+  );
 
   const broadApproval = clone(ownedFixture);
   broadApproval.authorization.scope.features = [];
@@ -247,6 +377,7 @@ try {
   ], { encoding: 'utf8' });
   assert.equal(workspace.status, 0, workspace.stderr);
   assert.ok(fs.existsSync(path.join(workspaceRoot, 'sample-site', '.replica', 'evidence')));
+  assert.match(fs.readFileSync(path.join(workspaceRoot, 'sample-site', '.gitignore'), 'utf8'), /\.replica\/manifests\//);
   const collision = spawnSync('node', [
     prepareWorkspace,
     '--workspace-root', workspaceRoot,
@@ -259,6 +390,101 @@ try {
     '--slug', '../escape',
   ], { encoding: 'utf8' });
   assert.equal(traversal.status, 2);
+
+  const shopifyExport = {
+    data: {
+      products: {
+        nodes: [
+          {
+            description: '<p>Local owner export</p>',
+            handle: 'sample-product',
+            id: 'gid://shopify/Product/1',
+            images: {
+              nodes: [
+                {
+                  altText: 'Sample product',
+                  height: 800,
+                  url: 'https://cdn.shopify.com/s/files/1/0001/products/sample.jpg?width=1200',
+                  width: 1200,
+                },
+              ],
+            },
+            priceRange: { minVariantPrice: { amount: '12.00', currencyCode: 'USD' } },
+            title: 'Sample product',
+          },
+        ],
+      },
+    },
+  };
+  const adapterBrief = clone(ownedFixture);
+  adapterBrief.replica.source_platform = 'shopify';
+  adapterBrief.source_inputs = ['shopify-products.json'];
+  const adapterRoot = createProject(adapterBrief);
+  fs.writeFileSync(
+    path.join(adapterRoot, '.replica', 'evidence', 'shopify-products.json'),
+    `${JSON.stringify(shopifyExport, null, 2)}\n`
+  );
+  const adapterValidation = runValidator(adapterRoot);
+  assert.equal(adapterValidation.status, 0, adapterValidation.stderr);
+  const normalizedBrief = JSON.parse(
+    fs.readFileSync(path.join(adapterRoot, '.replica', 'brief.normalized.json'), 'utf8')
+  );
+  assert.equal(normalizedBrief.replica.workflow_id, 'shopify-to-nextjs-typescript');
+  const normalization = spawnSync('node', [
+    normalizeExport,
+    '--project-root', adapterRoot,
+    '--platform', 'shopify',
+    '--input', 'shopify-products.json',
+  ], { cwd: adapterRoot, encoding: 'utf8' });
+  assert.equal(normalization.status, 0, normalization.stderr);
+  const catalogText = fs.readFileSync(path.join(adapterRoot, '.replica', 'fixtures', 'catalog.json'), 'utf8');
+  assert.doesNotMatch(catalogText, /https?:\/\//i);
+  const assetManifest = JSON.parse(
+    fs.readFileSync(path.join(adapterRoot, '.replica', 'manifests', 'authorized-assets.json'), 'utf8')
+  );
+  assert.deepEqual(assetManifest.candidate_hosts, ['cdn.shopify.com']);
+  assert.equal(assetManifest.assets.length, 1);
+  assert.match(assetManifest.assets[0].output, /^public\/assets\/imported\/shopify\//);
+
+  const wrongHost = spawnSync('node', [
+    downloadAssets,
+    '--project-root', adapterRoot,
+    '--allow-host', 'example.com',
+  ], { cwd: adapterRoot, encoding: 'utf8' });
+  assert.equal(wrongHost.status, 2);
+  assert.match(wrongHost.stderr, /must exactly match candidate_hosts/i);
+
+  const localAsset = path.join(adapterRoot, assetManifest.assets[0].output);
+  fs.mkdirSync(path.dirname(localAsset), { recursive: true });
+  fs.writeFileSync(localAsset, Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0, 0, 0, 0, 0, 0, 0, 0]));
+  const verification = spawnSync('node', [
+    verifyAssets,
+    '--project-root', adapterRoot,
+  ], { cwd: adapterRoot, encoding: 'utf8' });
+  assert.equal(verification.status, 0, verification.stderr);
+  assert.equal(
+    JSON.parse(fs.readFileSync(path.join(adapterRoot, '.replica', 'asset-verification.json'), 'utf8')).status,
+    'pass'
+  );
+
+  const publicRemoteBrief = clone(publicFixture);
+  publicRemoteBrief.replica.source_platform = 'shopify';
+  publicRemoteBrief.source_inputs = ['shopify-products.json'];
+  const publicRemoteRoot = createProject(publicRemoteBrief);
+  fs.writeFileSync(
+    path.join(publicRemoteRoot, '.replica', 'evidence', 'shopify-products.json'),
+    `${JSON.stringify(shopifyExport, null, 2)}\n`
+  );
+  const publicRemoteValidation = runValidator(publicRemoteRoot);
+  assert.equal(publicRemoteValidation.status, 0, publicRemoteValidation.stderr);
+  const publicNormalization = spawnSync('node', [
+    normalizeExport,
+    '--project-root', publicRemoteRoot,
+    '--platform', 'shopify',
+    '--input', 'shopify-products.json',
+  ], { cwd: publicRemoteRoot, encoding: 'utf8' });
+  assert.equal(publicNormalization.status, 2);
+  assert.match(publicNormalization.stderr, /must not contain remote image URLs/i);
 
   console.log('PASS clone-website local artifact contract');
 } finally {
