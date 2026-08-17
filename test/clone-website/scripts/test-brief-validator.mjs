@@ -12,6 +12,9 @@ import {
   isPublicIp,
   safeRemoteImageUrl,
 } from '../../../.vibekit/skills/clone-website/scripts/asset-workflow-lib.mjs';
+import {
+  detectChromeCommand,
+} from '../../../.vibekit/skills/clone-website/scripts/capture-workflow-lib.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const kitRoot = path.resolve(here, '..', '..', '..');
@@ -157,6 +160,19 @@ function expectInvalid(fixture, error, label) {
 
 try {
   assert.ok(fs.existsSync(validator), 'canonical validator exists');
+  const fakeChromeRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'clone-website-browser-path-'));
+  tempRoots.push(fakeChromeRoot);
+  fs.writeFileSync(path.join(fakeChromeRoot, 'google-chrome'), '#!/bin/sh\nexit 0\n', { mode: 0o755 });
+  assert.deepEqual(detectChromeCommand('linux', fakeChromeRoot), {
+    command: 'google-chrome',
+    platform: 'linux',
+    source: 'path',
+  });
+  assert.deepEqual(detectChromeCommand('linux', ''), {
+    command: null,
+    platform: 'linux',
+    source: 'missing',
+  });
   assert.equal(isPublicIp('8.8.8.8'), true);
   assert.equal(isPublicIp('127.0.0.1'), false);
   assert.equal(isPublicIp('10.0.0.1'), false);
