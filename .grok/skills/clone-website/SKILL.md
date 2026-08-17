@@ -1,6 +1,6 @@
 ---
 name: clone-website
-description: Plan, build, and verify an authorized website clone or local research replica from local screenshots, mock JSON, owner exports, design files, or an existing repository. Use when reproducing page structure or visual design from user-provided artifacts, migrating an owned site from local exports, choosing a suitable frontend and backend level, or measuring UI parity without live external capture. Requires explicit rights handling, local-only data, local asset mapping, neutralized public-research output, and evidence-backed verification.
+description: Plan, build, and verify an authorized website clone or local research replica from local screenshots, mock JSON, owner exports, design files, or an existing repository. Use when reproducing page structure or visual design from user-provided artifacts, migrating an owned site from local exports, choosing a suitable frontend, backend, and local development runtime, or measuring UI parity without live external capture. Supports host-native development, Docker Compose with Docker Desktop or Docker Engine, and reviewed custom runtimes. Requires explicit rights handling, local-only data, local asset mapping, neutralized public-research output, and evidence-backed verification.
 ---
 
 # Clone Website
@@ -11,7 +11,10 @@ Act as a Component UI Developer consuming local mock data. Do not act as a web s
 
 - Read `references/intake-and-levels.md` when requirements, scope, stack, or backend level are unresolved.
 - Read `references/safety-and-rights.md` before any local source evidence, asset reuse, authenticated work, or public deployment.
+- Read `references/workflow-routing.md` before asking the user to choose a source platform or target stack.
+- Read `references/local-development.md` when the local run workflow is unresolved or the user requests Docker, Docker Desktop, containers, or another runtime.
 - Read `references/platform-playbooks.md` after identifying the source platform or target stack.
+- Read `references/authorized-data-and-assets.md` when an owned or written-permission workflow needs to normalize a local export or prepare real local images.
 - Read `references/output-templates.md` before creating `.replica/brief.json`, the implementation plan, or the final report.
 - Read `references/verification-contract.md` before implementation so acceptance evidence is fixed first.
 - Read `references/minimal-vibe-integration.md` when the project uses Minimal Vibe Coding Kit.
@@ -120,7 +123,11 @@ When the user wants multiple replicas in one repository, create or select one sa
 
 ### 2. Resolve only missing intake fields
 
-Use the provider's native structured-question tool when available. Ask one to three questions per batch, with two or three mutually exclusive options. Put the recommendation first and state one short advantage and disadvantage for each option.
+Use the provider's native structured-question tool when available. Common labels are `AskUserQuestion` in Claude and Kimi, `request_user_input` in Codex, Ask Question in Cursor, and `question` in OpenCode. Treat those labels as examples, not guaranteed tool names. Use the tool exposed by the active parent runtime. If none is exposed, ask one concise plain-text question in the parent conversation. Do not invent or call a literal `AskUserTool` when the runtime does not provide it.
+
+Ask one to three questions per batch, with two or three mutually exclusive options. Put the recommendation first and state one short advantage and disadvantage for each option. When the repository does not settle the stack, stack selection is required. First resolve the source platform, then present only the two or three target-stack options allowed by `references/workflow-routing.md`. Record the result as `replica.source_platform` and `replica.target_stack`.
+
+Resolve local development separately from stack and deployment. Preserve a working repository workflow when possible. Otherwise follow `references/local-development.md` and record `replica.local_development`. Treat Docker Compose as the run mode and Docker Desktop, Docker Engine, or another compatible provider as the container engine. Accept a user-specified alternative as `custom` with a bounded description.
 
 Resolve:
 
@@ -129,7 +136,7 @@ Resolve:
 - fidelity `F1` to `F4`;
 - scope `S1` to `S4`;
 - backend level `B0` to `B2`;
-- target stack and deployment boundary;
+- target stack, local development runtime, and deployment boundary;
 - routes, states, viewports, and item cap;
 - local fixture paths, screenshot paths, asset paths, and asset mapping files;
 - allowed and prohibited interactions.
@@ -172,15 +179,19 @@ Before implementation, create a local inventory that records:
 - every intentional neutralization or synthetic replacement;
 - every missing fixture that blocks fidelity.
 
+For an owned or written-permission local export, follow `references/authorized-data-and-assets.md`. The agent may run the local-only normalizer. It must not run the network downloader. Present the bounded downloader command to the owner only after reviewing the generated host list. After the owner runs it, the agent may run the offline verifier.
+
 ### 5. Select architecture proportionately
 
 - Preserve the current stack when it can meet the brief.
+- Preserve the current local run workflow when it is safe and can meet the brief. Do not add Docker files unless the selected runtime requires them.
 - For `B0`, prefer the simplest static or content-focused solution.
 - For `B1`, prefer one integrated application and managed services.
 - For `B2`, use clear frontend, API, data, cache, queue, and storage boundaries only when scale requirements justify them.
 - Prefer official platform exports or user-provided API export files for authorized Shopify, WordPress, WooCommerce, or CMS migrations.
+- Use the workflow ID generated by the brief validator to select the matching platform playbook. A custom or unrecognized combination requires a short architecture review before code generation.
 
-Do not prescribe one universal stack. Explain why the recommendation fits the chosen fidelity, scope, backend, team, deployment, and local data shape.
+Do not prescribe one universal stack or local runtime. Explain why the recommendation fits the chosen fidelity, scope, backend, team, deployment, and local data shape. Keep Docker Desktop as an engine choice, not a target stack or deployment destination.
 
 ### 6. Implement the smallest complete slice
 

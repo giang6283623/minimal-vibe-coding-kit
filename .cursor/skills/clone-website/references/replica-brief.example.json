@@ -19,10 +19,15 @@
     }
   },
   "replica": {
+    "source_platform": "generic",
     "fidelity": "F2",
     "scope": "S1",
     "backend_level": "B0",
     "target_stack": "static-html-css-js",
+    "local_development": {
+      "mode": "preserve-existing",
+      "container_engine": "none"
+    },
     "deployment": "local-only"
   },
   "limits": {

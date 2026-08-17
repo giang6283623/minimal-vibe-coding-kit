@@ -69,6 +69,7 @@ function main() {
   const ignore = [
     '.replica/assets/',
     '.replica/evidence/',
+    '.replica/manifests/',
     '.replica/screenshots/',
     '',
   ].join('\n');

@@ -2,19 +2,30 @@
 
 ## Unreleased
 
+## 0.5.13 - 2026-08-17
+
+### Added
+
+- Added explicit source-platform and target-stack routing to `clone-website`, with validated workflow IDs and focused Shopify, WordPress, WooCommerce, Astro, Next.js, Hydrogen, native-platform, and preserved-stack playbooks based only on local evidence.
+- Added an authorized local export pipeline with platform-aware normalization, bounded asset manifests, an owner-run HTTPS image downloader, and an agent-runnable offline verifier. Public research remains local and neutralized, and the agent never runs the network downloader.
+- Added selectable local development modes for preserved workflows, host-native tools, Docker Compose, and reviewed custom runtimes. Docker Desktop, Docker Engine with Compose, compatible providers, and custom engines are recorded separately from the target stack and deployment destination.
+
 ### Changed
 
 - Made relay mode, controller provider/model, and worker provider/model separate live-inventory selections in `agent-control-center` and `swap-control-center`. Unresolved choices now return to the parent host through `AskUserQuestion`, `request_user_input`, or the available plain-question fallback.
 - Bound `manual-handoff` directly to a manual controller transport, and added external-controller precedence to `sequential-thinking` and `clearthought` so the host freezes evidence but the selected controller owns decomposition and decisions.
+- Extended the version 1 clone brief with backward-compatible `source_platform` and `local_development` fields. The validator derives workflow IDs, preserves safe legacy defaults, records local runtime choices in generated plans, and rejects inconsistent mode and engine combinations.
+- Expanded Clone Website packaging, install checks, deterministic validation, and identical skill mirrors across Claude, Cursor, Codex/OpenCode, Grok, Kimi, and the canonical `.vibekit` source.
 
 ### Fixed
 
 - Added external-controller precedence to `parallel-analysis` and `proofline-orchestration`: a selected Codex controller now creates work orders and decides from returned receipts, while a Cursor host dispatches independently selected Cursor workers instead of launching Codex analysis lanes or a second planning controller.
 - Corrected the version 2 sequential handoff example so each work order matches its approved route. Added complete native and Cursor-to-Codex-to-Cursor traces plus a dependency-free validator that rejects route drift, implicit controller-as-worker selection, reversed authority, invalid relay bindings, and Proofline acceptance without its required seal and Owner gates.
+- Hardened authorized asset handling against redirects, private or local addresses, IP literals, secret-like query parameters, oversized responses, unsupported image signatures, symlink escapes, host-list drift, and public-research remote media. Custom local runtime descriptions are bounded and cannot inject Markdown into generated plans.
 
 ### Validation
 
-- `npm test`, `npm run pack:dry-run`, the dependency-free AgentShield probe, and `git diff --check` passed. The optional local `ecc-agentshield` package was absent, so the changed agent surfaces also received the documented manual review with no critical or high findings.
+- `npm run validate:all` and `git diff --check` passed with zero validator failures or warnings, a clean dependency-free AgentShield probe, all Clone Website and install-profile checks, and all 1,122 on-disk skill files included in a 1,239-file npm tarball. The optional local `ecc-agentshield` package was absent, so the changed agent surfaces received the documented manual review with no critical, high, medium, or low findings.
 
 ## 0.5.12 - 2026-08-12
 

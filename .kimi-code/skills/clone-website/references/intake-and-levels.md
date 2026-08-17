@@ -9,7 +9,8 @@ Use this reference only for unresolved choices. Infer repository facts, but neve
 3. Intended outcome and fidelity.
 4. Route or catalog scope.
 5. Backend level.
-6. Stack only when the existing stack does not settle it.
+6. Source platform and stack only when the existing repository does not settle them.
+7. Local development mode, and container engine only when Docker Compose is selected.
 
 Ask one to three questions per batch. Offer two or three mutually exclusive choices. Put the context-aware recommendation first. Keep each option to one advantage and one disadvantage.
 
@@ -84,6 +85,23 @@ Use these rules in order:
 
 Never present a framework as universally best. State the evidence, tradeoff, and trigger for changing the recommendation.
 
+## Required structured stack selection
+
+When repository evidence does not settle the target stack, do not silently choose one. Use the active parent runtime's structured-question tool. Common labels include `AskUserQuestion`, `request_user_input`, Ask Question, and `question`. If no such tool is exposed, ask one concise plain-text question.
+
+Use two stages so each question stays bounded:
+
+1. Ask for the source platform: Shopify, WordPress/WooCommerce, or existing/generic.
+2. Read `workflow-routing.md`, then ask only the two or three target-stack options compatible with that platform, backend level, and destination repository.
+
+Put `Preserve existing stack` first whenever the destination repository already has a suitable framework. Do not offer a framework switch based only on popularity. Record the selected identifiers in `replica.source_platform` and `replica.target_stack` before validation.
+
+## Required local development selection
+
+Do not derive the local runtime from the target stack. Infer it only when the repository already has a safe, working run workflow or the user explicitly selected one. Otherwise read `local-development.md` and ask for `preserve-existing`, `host-native`, or `docker-compose`. Allow the user to name another runtime and record it as `custom` with a bounded description.
+
+When `docker-compose` is selected, ask a second question only if the available engine is not already known. Offer Docker Desktop, Docker Engine with Compose, or a compatible provider. Record the result in `replica.local_development` before validation.
+
 ## Example compact questions
 
 Source:
@@ -97,3 +115,9 @@ Backend:
 - B0 static (recommended for F2/S1): fastest and safest, but no real server state.
 - B1 small: supports forms and managed data, but adds operations.
 - B2 scale-ready: supports growth, but costs more and needs proven requirements.
+
+Local development:
+
+- Preserve existing (recommended when it works): lowest migration risk, but keeps current constraints.
+- Host native: simplest for one service, but requires host toolchains.
+- Docker Compose: consistent multi-service setup, but adds engine, image, storage, and port costs.

@@ -24,10 +24,15 @@ Store the intake at `.replica/brief.json`:
     }
   },
   "replica": {
+    "source_platform": "generic",
     "fidelity": "F2",
     "scope": "S1",
     "backend_level": "B0",
     "target_stack": "static-html-css-js",
+    "local_development": {
+      "mode": "preserve-existing",
+      "container_engine": "none"
+    },
     "deployment": "local-only"
   },
   "limits": {
@@ -54,6 +59,10 @@ Store the intake at `.replica/brief.json`:
 All paths in `source_inputs` are relative to `.replica/evidence/`. Do not place credentials or private exports there without an approved secure-data plan. Record exact user-approved routes, deployment, features, and data in `authorization.scope`; its routes, deployment, and features must match the requested behavior exactly.
 
 `target.url` records provenance only. The agent must not open or fetch it. `target.data_mode` must be `local-artifacts-only`.
+
+`replica.source_platform` is optional for legacy briefs and defaults to `generic`. New briefs must record one of `existing-repository`, `static-site`, `shopify`, `wordpress`, `woocommerce`, or `generic`. The validator derives `replica.workflow_id` from the source platform and target stack. Do not hand-edit the derived field into the input brief.
+
+`replica.local_development` is optional for legacy briefs and defaults to `preserve-existing` with `container_engine: none`. New briefs must record it. Allowed modes are `preserve-existing`, `host-native`, `docker-compose`, and `custom`. Docker Compose requires `docker-desktop`, `docker-engine`, `compose-compatible`, or `custom` as its engine. Other modes require `none`. When either value is `custom`, add a short `custom_runtime` description. Do not add `custom_runtime` for standard choices.
 
 ## Local input inventory
 
@@ -125,5 +134,5 @@ Keep the handoff short:
 2. one install command only when dependencies already belong to the project;
 3. one local run command;
 4. one validation command;
-5. configuration path for backend, stack, source, and model choices;
+5. configuration path for backend, stack, local runtime, source, and model choices;
 6. how to change those choices later.
