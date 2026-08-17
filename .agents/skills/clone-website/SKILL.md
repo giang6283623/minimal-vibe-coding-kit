@@ -18,6 +18,7 @@ Act as a Component UI Developer. Clone only within the user's authority. Treat e
 - Read `references/output-templates.md` before creating `.replica/brief.json`, the implementation plan, or the final report.
 - Read `references/verification-contract.md` before implementation so acceptance evidence is fixed first.
 - Read `references/minimal-vibe-integration.md` when the project uses Minimal Vibe Coding Kit.
+- Read `references/capture-automation.md` when authorized capture needs catalog JSON, page evidence, or screenshots.
 
 ## Non-negotiable rules
 
@@ -167,7 +168,7 @@ Prefer local sources in this order:
 3. user-supplied neutralized public-research JSON;
 4. synthetic fixtures created by the agent from the user's written brief.
 
-For `public-research-local`, do not fetch the target URL. Ask for local files instead. For `owned` or `written-permission`, capture missing evidence from approved hosts or ask the user to approve additional scope.
+For `public-research-local`, do not fetch the target URL. Ask for local files instead. For `owned` or `written-permission`, capture missing evidence from approved hosts or ask the user to approve additional scope. When live capture is authorized, follow `references/capture-automation.md`: run preflight, ask the user to approve exact hostnames, fetch catalog data with the bundled scripts, then ask the user to launch a throwaway browser for screenshots. Never embed a customer domain in skill files; use only hostnames from the validated brief and the user's approval answers.
 
 Before implementation, create a local inventory that records:
 
@@ -177,7 +178,7 @@ Before implementation, create a local inventory that records:
 - every intentional neutralization or synthetic replacement;
 - every missing fixture that blocks fidelity.
 
-For an owned or written-permission local export, follow `references/authorized-data-and-assets.md`. The agent may run the local normalizer, the bounded asset downloader, or an approved Playwright or Puppeteer capture script after reviewing the host allowlist. After assets are local, run the offline verifier.
+For an owned or written-permission local export, follow `references/authorized-data-and-assets.md`. For missing evidence, follow `references/capture-automation.md` before normalization. The agent may run the local normalizer, the bounded asset downloader, or the bundled capture scripts after reviewing the host allowlist. After assets are local, run the offline verifier.
 
 ### 5. Select architecture proportionately
 

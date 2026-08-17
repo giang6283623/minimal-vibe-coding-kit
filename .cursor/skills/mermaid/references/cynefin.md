@@ -72,7 +72,7 @@ complex
   "Run chaos experiment"
 ```
 
-Keep per-domain item lists short — the quadrants have fixed layout and long lists can visually overflow their boxes. The confusion ellipse caps at three items and shows a `+N more` badge; the four quadrant domains do not clip, so prefer a handful of items each.
+Keep per-domain item lists short: the quadrants have fixed layout and long lists can visually overflow their boxes. The confusion ellipse caps at three items and shows a `+N more` badge; the four quadrant domains do not clip, so prefer a handful of items each.
 
 ### Transitions
 
@@ -222,7 +222,7 @@ Cynefin diagrams accept the following configuration under the `cynefin` key in t
 | `padding`                | number  | `40`    | Padding around the diagram                                                                                                                                                                                                   |
 | `showDomainDescriptions` | boolean | `true`  | Show decision model and practice type subtitles per domain                                                                                                                                                                   |
 | `boundaryAmplitude`      | number  | `8`     | Waviness amplitude of domain boundaries in pixels (set to `0` for straight lines)                                                                                                                                            |
-| `seed`                   | number  | `0`     | Deterministic seed for boundary waviness. `0` (default) hashes the diagram's SVG id so each diagram looks unique. Set any non-zero number to lock the waviness across renders — required for stable visual regression tests. |
+| `seed`                   | number  | `0`     | Deterministic seed for boundary waviness. `0` (default) hashes the diagram's SVG id so each diagram looks unique. Set any non-zero number to lock the waviness across renders, required for stable visual regression tests. |
 
 Example:
 
@@ -259,7 +259,7 @@ Cynefin diagrams use the following theme variables, which can be overridden via 
 
 - Domain names are fixed keywords. Only `complex`, `complicated`, `clear`, `chaotic`, and `confusion` are recognized.
 - Domains can be declared in any order; their position in the diagram is always the same (Complex top-left, Complicated top-right, Chaotic bottom-left, Clear bottom-right, Confusion center).
-- The `confusion` domain has a compact center ellipse. Up to 3 items are shown inside it; if more are provided a `+N more` overflow badge is displayed. In practice, the confusion domain should contain very few items — its purpose is to surface unknowns so they can be moved to one of the four main domains.
+- The `confusion` domain has a compact center ellipse. Up to 3 items are shown inside it; if more are provided a `+N more` overflow badge is displayed. In practice, the confusion domain should contain very few items; its purpose is to surface unknowns so they can be moved to one of the four main domains.
 - Self-loop transitions (e.g. `complex --> complex`) are silently ignored. Transitions must connect two different domains.
 - Handdrawn mode is not currently supported.
 - The wavy boundary rendering is deterministic: the same input always produces the same diagram, so diffs are stable across builds.

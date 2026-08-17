@@ -63,13 +63,15 @@ DATA_SCOPE_VALUES = {
     "source-content",
     "source-identity",
 }
-SOURCE_PLATFORMS = {
-    "existing-repository",
+CAPTURE_PLATFORMS = {
     "generic",
     "shopify",
-    "static-site",
     "woocommerce",
     "wordpress",
+}
+SOURCE_PLATFORMS = CAPTURE_PLATFORMS | {
+    "existing-repository",
+    "static-site",
 }
 LOCAL_DEVELOPMENT_MODES = {
     "custom",
@@ -321,6 +323,95 @@ def validate_source_inputs(root: Path, values: Any) -> list[str]:
     return normalized
 
 
+def validate_capture(
+    raw: dict[str, Any] | None,
+    *,
+    authorization_status: str,
+    source_platform: str,
+    target_url: str,
+) -> dict[str, Any] | None:
+    if raw is None:
+        return None
+    capture = object_value(raw, "capture")
+    exact_keys(
+        capture,
+        {
+            "approved_hosts",
+            "enabled",
+            "interactive_capture_approved",
+            "max_catalog_items",
+            "max_content_pages",
+            "max_redirects",
+            "max_response_bytes",
+            "max_routes",
+            "page_load_timeout_ms",
+            "platform",
+            "request_timeout_ms",
+        },
+        "capture",
+        {"approved_hosts", "enabled", "interactive_capture_approved", "platform"},
+    )
+    enabled = bool_value(capture["enabled"], "capture.enabled")
+    if not enabled:
+        fail("capture.enabled must be true when capture is present")
+    platform = enum_value(capture["platform"], "capture.platform", CAPTURE_PLATFORMS)
+    if platform != source_platform and not (platform == "generic" or source_platform == "generic"):
+        fail("capture.platform must match replica.source_platform unless one is generic")
+    interactive_capture_approved = bool_value(
+        capture["interactive_capture_approved"],
+        "capture.interactive_capture_approved",
+    )
+    if not interactive_capture_approved:
+        fail("capture.interactive_capture_approved must be true before running capture scripts")
+    if authorization_status not in {"owned", "written-permission"}:
+        fail("capture requires owned or written-permission authorization")
+    target_host = safe_hostname(urlsplit(target_url).hostname or "", "target.url hostname")
+    approved_hosts_raw = capture["approved_hosts"]
+    if not isinstance(approved_hosts_raw, list) or not 1 <= len(approved_hosts_raw) <= 10:
+        fail("capture.approved_hosts must contain 1 to 10 exact hostnames")
+    approved_hosts = [safe_hostname(str(host), f"capture.approved_hosts[{index}]") for index, host in enumerate(approved_hosts_raw)]
+    if len(set(approved_hosts)) != len(approved_hosts):
+        fail("capture.approved_hosts must not contain duplicates")
+    if target_host not in approved_hosts:
+        fail("capture.approved_hosts must include the target URL hostname")
+    normalized: dict[str, Any] = {
+        "approved_hosts": sorted(approved_hosts),
+        "enabled": True,
+        "interactive_capture_approved": True,
+        "platform": platform,
+    }
+    if "max_catalog_items" in capture:
+        normalized["max_catalog_items"] = int_value(capture["max_catalog_items"], "capture.max_catalog_items", 1, 100)
+    if "max_content_pages" in capture:
+        normalized["max_content_pages"] = int_value(capture["max_content_pages"], "capture.max_content_pages", 1, 100)
+    if "max_routes" in capture:
+        normalized["max_routes"] = int_value(capture["max_routes"], "capture.max_routes", 1, 100)
+    if "max_response_bytes" in capture:
+        normalized["max_response_bytes"] = int_value(
+            capture["max_response_bytes"],
+            "capture.max_response_bytes",
+            1024,
+            25 * 1024 * 1024,
+        )
+    if "max_redirects" in capture:
+        normalized["max_redirects"] = int_value(capture["max_redirects"], "capture.max_redirects", 0, 5)
+    if "page_load_timeout_ms" in capture:
+        normalized["page_load_timeout_ms"] = int_value(
+            capture["page_load_timeout_ms"],
+            "capture.page_load_timeout_ms",
+            5000,
+            120000,
+        )
+    if "request_timeout_ms" in capture:
+        normalized["request_timeout_ms"] = int_value(
+            capture["request_timeout_ms"],
+            "capture.request_timeout_ms",
+            1000,
+            120000,
+        )
+    return normalized
+
+
 def validate_brief(raw: dict[str, Any], root: Path) -> dict[str, Any]:
     root_fields = {
         "version",
@@ -332,7 +423,13 @@ def validate_brief(raw: dict[str, Any], root: Path) -> dict[str, Any]:
         "source_inputs",
         "exclusions",
     }
-    exact_keys(raw, root_fields, "brief")
+    allowed_root = root_fields | {"capture"}
+    unknown = sorted(set(raw) - allowed_root)
+    if unknown:
+        fail(f"brief has unknown fields: {', '.join(unknown)}")
+    missing = sorted(root_fields - set(raw))
+    if missing:
+        fail(f"brief is missing fields: {', '.join(missing)}")
     if isinstance(raw["version"], bool) or not isinstance(raw["version"], int) or raw["version"] != 1:
         fail("version must be integer 1")
 
@@ -586,8 +683,17 @@ def validate_brief(raw: dict[str, Any], root: Path) -> dict[str, Any]:
             fail("production deployment requires owned or written-permission authorization")
         if content_rights == "neutralized":
             fail("production deployment requires owned, licensed, or permitted content")
+    if raw.get("capture") is not None and authorization_status == "public-research-local":
+        fail("public research cannot enable capture")
 
-    return {
+    capture = validate_capture(
+        raw.get("capture"),
+        authorization_status=authorization_status,
+        source_platform=source_platform,
+        target_url=target_url,
+    )
+
+    normalized_brief: dict[str, Any] = {
         "authorization": {
             "content_rights": content_rights,
             "evidence": authorization_evidence,
@@ -624,6 +730,9 @@ def validate_brief(raw: dict[str, Any], root: Path) -> dict[str, Any]:
         },
         "version": 1,
     }
+    if capture is not None:
+        normalized_brief["capture"] = capture
+    return normalized_brief
 
 
 def render_plan(brief: dict[str, Any]) -> str:
@@ -672,9 +781,24 @@ def render_plan(brief: dict[str, Any]) -> str:
         f"- Active features: `{', '.join(feature_names) if feature_names else 'none'}`",
         f"- Approved data: `{', '.join(authorization['scope']['data']) if authorization['scope']['data'] else 'none'}`",
         "",
-        "## Routes",
-        "",
     ]
+    if brief.get("capture"):
+        lines.extend(
+            [
+                "## Capture",
+                "",
+                f"- Platform: `{brief['capture']['platform']}`",
+                f"- Approved hosts: `{', '.join(brief['capture']['approved_hosts'])}`",
+                f"- Interactive capture approved: `{brief['capture']['interactive_capture_approved']}`",
+                "",
+            ]
+        )
+    lines.extend(
+        [
+            "## Routes",
+            "",
+        ]
+    )
     lines.extend(f"- `{route}`" for route in target["routes"])
     lines.extend(
         [

@@ -28,3 +28,16 @@ CLAUDE.local.md
 .DS_Store
 .vscode/
 .idea/
+
+# BEGIN: minimal-vibe-coding-kit
+.autoresearch/
+results.tsv
+.vibekit/INIT_DONE
+.vibekit/FINALIZE_DONE
+.vibekit/preferences.json
+.vibekit/parallel-analysis.json
+.vibekit/reports/
+.vibekit/update-backup/
+_vibekit-cleanup/
+CLAUDE.local.md
+# END: minimal-vibe-coding-kit

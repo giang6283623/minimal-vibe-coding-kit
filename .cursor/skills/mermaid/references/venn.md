@@ -17,7 +17,7 @@ Venn diagrams show relationships between sets using overlapping circles.
 - Use `union` for an overlap of two or more set names.
 - Identifiers in `union` must be defined by earlier `set` lines.
 - Set identifiers can be bare words (`A`, `Set_1`) or quoted strings (`"Foo Bar"`).
-- Write the `title` text unquoted — quotes render as literal characters (verified v11.16).
+- Write the `title` text unquoted: quotes render as literal characters (verified v11.16).
 
 ```mermaid-example
 venn-beta

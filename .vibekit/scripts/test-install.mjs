@@ -75,6 +75,25 @@ try {
     );
     fs.renameSync(heldPath, resourcePath);
   }
+  const dashFixture = String.fromCodePoint(0x2014);
+  const dashFixturePaths = [
+    '.vibekit/skills/mermaid/references/architecture.md',
+    '.claude/skills/mermaid/references/architecture.md',
+    '.cursor/skills/mermaid/references/architecture.md',
+    '.agents/skills/mermaid/references/architecture.md',
+    '.grok/skills/mermaid/references/architecture.md',
+    '.kimi-code/skills/mermaid/references/architecture.md'
+  ].map((rel) => path.join(clean, rel));
+  const dashFixtureOriginals = dashFixturePaths.map((file) => fs.readFileSync(file, 'utf8'));
+  dashFixturePaths.forEach((file, index) => {
+    fs.writeFileSync(file, `${dashFixtureOriginals[index]}\nDash regression fixture ${dashFixture}\n`);
+  });
+  const dashFailure = run(['.vibekit/scripts/validate-kit.mjs', clean], { expect: 1 });
+  assert(
+    dashFailure.stdout.includes('Mermaid references contain em or en dashes'),
+    'validator rejects em and en dashes in Mermaid references'
+  );
+  dashFixturePaths.forEach((file, index) => fs.writeFileSync(file, dashFixtureOriginals[index]));
   run(['.vibekit/scripts/validate-kit.mjs', clean]);
   const cleanProbePath = path.join(clean, '.vibekit/scripts/agentshield-probe.mjs');
   const cleanProbeOriginal = fs.readFileSync(cleanProbePath, 'utf8');
@@ -217,7 +236,7 @@ try {
   assert(proposed.stdout.includes('  opencode: .opencode/'), 'generated backbone registers the OpenCode surface');
   assert(proposed.stdout.includes('  grok: .grok/'), 'generated backbone registers the Grok surface');
   assert(proposed.stdout.includes('  kimi: .kimi-code/'), 'generated backbone registers the Kimi surface');
-  assert(proposed.stdout.includes('Writing style: no emoji'), 'generated backbone seeds the writing-style rule');
+  assert(proposed.stdout.includes('Writing style: no emoji and no em/en dashes in generated prose'), 'generated backbone seeds the writing-style rule');
   assert(proposed.stdout.includes('  schema_version: 4'), 'generated backbone uses schema version 4');
   assert(proposed.stdout.includes('  verification:'), 'generated backbone includes the named verification contract');
   for (const verifier of ['unit', 'acceptance', 'architecture', 'property', 'mutation', 'e2e']) {

@@ -7,6 +7,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import {
+  acceptHeaderForImageKind,
   imageKind,
   isPublicIp,
   safeRemoteImageUrl,
@@ -60,6 +61,9 @@ const publicFixture = JSON.parse(
 );
 const ownedFixture = JSON.parse(
   fs.readFileSync(path.join(fixtureRoot, 'safe-owned-f4-s4-b2.json'), 'utf8')
+);
+const captureFixture = JSON.parse(
+  fs.readFileSync(path.join(fixtureRoot, 'safe-owned-capture.json'), 'utf8')
 );
 const unsafeCases = JSON.parse(
   fs.readFileSync(path.join(fixtureRoot, 'unsafe-cases.json'), 'utf8')
@@ -446,6 +450,13 @@ try {
   assert.equal(assetManifest.assets.length, 1);
   assert.match(assetManifest.assets[0].output, /^public\/assets\/imported\/shopify\//);
 
+  assert.equal(acceptHeaderForImageKind('jpeg'), 'image/jpeg');
+  assert.equal(acceptHeaderForImageKind('png'), 'image/png');
+  assert.doesNotMatch(
+    fs.readFileSync(downloadAssets, 'utf8'),
+    /Accept: 'image\/avif,image\/webp,image\/png,image\/jpeg,image\/gif'/
+  );
+
   const wrongHost = spawnSync('node', [
     downloadAssets,
     '--project-root', adapterRoot,
@@ -485,6 +496,28 @@ try {
   ], { cwd: publicRemoteRoot, encoding: 'utf8' });
   assert.equal(publicNormalization.status, 2);
   assert.match(publicNormalization.stderr, /must not contain remote image URLs/i);
+
+  const captureRoot = expectValid(captureFixture, 'owned capture brief');
+  const captureBlocked = clone(captureFixture);
+  captureBlocked.capture.interactive_capture_approved = false;
+  expectInvalid(captureBlocked, 'interactive_capture_approved must be true', 'capture approval gate');
+
+  const capturePreflight = path.join(
+    kitRoot,
+    '.vibekit',
+    'skills',
+    'clone-website',
+    'scripts',
+    'capture-preflight.mjs'
+  );
+  const preflight = spawnSync('node', [capturePreflight, '--project-root', captureRoot, '--json'], {
+    cwd: kitRoot,
+    encoding: 'utf8',
+  });
+  assert.equal(preflight.status, 0, preflight.stderr);
+  const preflightJson = JSON.parse(preflight.stdout);
+  assert.ok(preflightJson.commands.fetch_catalog);
+  assert.ok(preflightJson.commands.launch_browser || preflightJson.chrome.command);
 
   console.log('PASS clone-website local artifact contract');
 } finally {

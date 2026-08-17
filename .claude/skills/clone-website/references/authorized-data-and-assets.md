@@ -45,7 +45,7 @@ Run the command with one exact `--allow-host` value for every reviewed host:
 ```bash
 node .vibekit/skills/clone-website/scripts/download-authorized-assets.mjs \
   --project-root . \
-  --allow-host cdn.shopify.com
+  --allow-host cdn.store.example.com
 ```
 
 The downloader refuses public-research briefs, unknown hosts, redirects, non-HTTPS URLs, private network addresses, oversized responses, unsupported image signatures, symlink paths, and existing output files that do not already contain a valid image. It records `.replica/asset-download-receipt.json`.

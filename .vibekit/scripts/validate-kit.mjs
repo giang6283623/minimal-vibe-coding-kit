@@ -237,6 +237,7 @@ const reasoningSkillResources = {
   ],
   'clone-website': [
     'agents/openai.yaml',
+    'references/capture-automation.md',
     'references/intake-and-levels.md',
     'references/local-development.md',
     'references/authorized-data-and-assets.md',
@@ -246,6 +247,12 @@ const reasoningSkillResources = {
     'references/replica-brief.example.json',
     'references/safety-and-rights.md',
     'references/verification-contract.md',
+    'scripts/build-capture-routes.mjs',
+    'scripts/capture-preflight.mjs',
+    'scripts/capture-screenshots.mjs',
+    'scripts/capture-workflow-lib.mjs',
+    'scripts/fetch-public-catalog.mjs',
+    'scripts/report-capture-completeness.mjs',
     'scripts/validate_replica_brief.py',
     'scripts/prepare-replica-workspace.mjs'
   ]
@@ -284,6 +291,12 @@ requireText('.vibekit/scripts/doctor.mjs', '.vibekit/scripts/agentshield-probe.m
 requireText('.vibekit/skills/agentshield-security-review/SKILL.md', 'ecc-agentshield@1.4.0', 'AgentShield workflow pins the reviewed scanner version');
 requireText('.vibekit/skills/agentshield-security-review/SKILL.md', 'npm ls ecc-agentshield --depth=0 --ignore-scripts', 'AgentShield workflow checks for a local scanner without lifecycle scripts');
 requireText('.vibekit/scripts/init-backbone.mjs', 'npx ecc-agentshield@1.4.0 scan', 'generated backbone pins the AgentShield scanner version');
+requireText('AGENTS.md', 'No em dashes or en dashes in generated prose', 'shared agent instructions prohibit em and en dashes');
+requireText('backbone.yml', 'no em/en dashes in generated prose', 'backbone conventions prohibit em and en dashes');
+requireText('.vibekit/scripts/init-backbone.mjs', 'no em/en dashes in generated prose', 'generated backbone preserves the em and en dash rule');
+requireText('.cursor/rules/050-writing-style.mdc', 'Do not use em dashes or en dashes in generated prose', 'Cursor writing rule prohibits em and en dashes');
+requireText('.claude/rules/writing-style.md', 'Do not use em dashes or en dashes in generated prose', 'Claude writing rule prohibits em and en dashes');
+requireText('.grok/rules/writing-style.md', 'Do not use em dashes or en dashes in generated prose', 'Grok writing rule prohibits em and en dashes');
 
 if (exists('.vibekit/docs/AUTORESEARCH_LEDGER.md')) {
   const ledgerText = read('.vibekit/docs/AUTORESEARCH_LEDGER.md');
@@ -1071,10 +1084,17 @@ function validateMermaidContract() {
   const notice = read(`${base}/UPSTREAM-NOTICE.md`);
   const debug = read(`${base}/references/debug-heatmap.md`);
   const styling = read(`${base}/references/styling-preset.md`);
-  const imported = listFiles(`${base}/references`)
-    .filter((file) => file.endsWith('.md'))
+  const importedReferenceFiles = listFiles(`${base}/references`)
+    .filter((file) => file.endsWith('.md'));
+  const imported = importedReferenceFiles
     .map((file) => read(`${base}/references/${file}`))
     .join('\n');
+  const forbiddenDashPattern = /[\u2013\u2014]/u;
+  const dashViolations = importedReferenceFiles.flatMap((file) =>
+    read(`${base}/references/${file}`)
+      .split(/\r?\n/)
+      .flatMap((line, index) => forbiddenDashPattern.test(line) ? [`${file}:${index + 1}`] : [])
+  );
 
   const duplicateFrontmatterKeys = (diagram) => {
     const lines = diagram.split(/\r?\n/);
@@ -1192,6 +1212,10 @@ function validateMermaidContract() {
   stale.length
     ? fail(`Mermaid imported references contain stale or operational tokens: ${stale.join(', ')}`)
     : ok('Mermaid references remove development placeholders and imported operational directives');
+
+  dashViolations.length
+    ? fail(`Mermaid references contain em or en dashes: ${dashViolations.join(', ')}`)
+    : ok('Mermaid references use ASCII punctuation instead of em or en dashes');
 
   const unavailableCount = (imported.match(/unreleased upstream; unavailable in Mermaid 11\.16\.0/g) || []).length;
   unavailableCount === 3
@@ -2077,6 +2101,7 @@ function validateCloneWebsiteContract() {
   if (!exists(`${base}/SKILL.md`)) return;
   const resources = [
     'agents/openai.yaml',
+    'references/capture-automation.md',
     'references/intake-and-levels.md',
     'references/minimal-vibe-integration.md',
     'references/output-templates.md',
@@ -2086,9 +2111,15 @@ function validateCloneWebsiteContract() {
     'references/verification-contract.md',
     'references/workflow-routing.md',
     'scripts/asset-workflow-lib.mjs',
+    'scripts/build-capture-routes.mjs',
+    'scripts/capture-preflight.mjs',
+    'scripts/capture-screenshots.mjs',
+    'scripts/capture-workflow-lib.mjs',
     'scripts/download-authorized-assets.mjs',
+    'scripts/fetch-public-catalog.mjs',
     'scripts/normalize-local-export.mjs',
     'scripts/prepare-replica-workspace.mjs',
+    'scripts/report-capture-completeness.mjs',
     'scripts/verify-local-assets.mjs',
     'scripts/validate_replica_brief.py'
   ];
@@ -2163,6 +2194,11 @@ function validateCloneWebsiteContract() {
     'download-authorized-assets.mjs',
     'normalize-local-export.mjs',
     'verify-local-assets.mjs'
+  ]) && hasAll(read(`${base}/references/capture-automation.md`), [
+    'capture-preflight.mjs',
+    'fetch-public-catalog.mjs',
+    'capture-screenshots.mjs',
+    'report-capture-completeness.mjs'
   ])
     ? ok('Clone Website routes platform stacks and keeps authorized asset workflow explicit')
     : fail('Clone Website platform routing or authorized asset workflow drifted');
