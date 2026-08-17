@@ -236,6 +236,17 @@ export function expectedKindFromPath(relative) {
   return extension.slice(1);
 }
 
+export function acceptHeaderForImageKind(kind) {
+  const map = {
+    avif: 'image/avif',
+    gif: 'image/gif',
+    jpeg: 'image/jpeg',
+    png: 'image/png',
+    webp: 'image/webp',
+  };
+  return map[kind] ?? '*/*';
+}
+
 export function isPublicIp(address) {
   const family = net.isIP(address);
   if (family === 4) {

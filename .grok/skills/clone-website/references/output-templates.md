@@ -56,6 +56,23 @@ Store the intake at `.replica/brief.json`:
 }
 ```
 
+Optional authorized capture block (only for `owned` or `written-permission`):
+
+```json
+"capture": {
+  "enabled": true,
+  "platform": "shopify",
+  "approved_hosts": ["store.example.com"],
+  "interactive_capture_approved": true,
+  "max_catalog_items": 20,
+  "max_content_pages": 6,
+  "max_routes": 20,
+  "page_load_timeout_ms": 45000
+}
+```
+
+See `references/capture-automation.md` for the full wizard. Hostnames always come from the user's site, never from the kit.
+
 All paths in `source_inputs` are relative to `.replica/evidence/`. Do not place credentials or private exports there without an approved secure-data plan. Record exact user-approved routes, deployment, features, and data in `authorization.scope`; its routes, deployment, and features must match the requested behavior exactly.
 
 `target.url` identifies the site under study. For `public-research-local`, do not fetch it. For `owned` or `written-permission`, capture only within `authorization.scope`. `target.data_mode` must be `local-artifacts-only`, meaning captured artifacts are stored locally before implementation.

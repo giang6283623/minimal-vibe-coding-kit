@@ -13,8 +13,8 @@ Mermaid can render railroad diagrams from several grammar notations. Pick the ke
 
 | Diagram type    | Keyword              | Notation                                                                         |
 | --------------- | -------------------- | -------------------------------------------------------------------------------- |
-| EBNF            | `railroad-ebnf-beta` | Extended Backus–Naur Form (W3C and ISO 14977 styles)                             |
-| ABNF            | `railroad-abnf-beta` | Augmented Backus–Naur Form (RFC 5234)                                            |
+| EBNF            | `railroad-ebnf-beta` | Extended Backus-Naur Form (W3C and ISO 14977 styles)                             |
+| ABNF            | `railroad-abnf-beta` | Augmented Backus-Naur Form (RFC 5234)                                            |
 | PEG             | `railroad-peg-beta`  | Parsing Expression Grammar                                                       |
 | IR (primitives) | `railroad-beta`      | Mermaid's railroad intermediate representation, written as explicit constructors |
 

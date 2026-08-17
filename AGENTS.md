@@ -92,3 +92,4 @@ Use this when improving a repo over repeated experiments:
 
 Daily enhancement must propose changes, not silently apply them. The expected output is a report plus a diff proposal for user approval.
 <!-- END: minimal-vibe-coding-kit -->
+

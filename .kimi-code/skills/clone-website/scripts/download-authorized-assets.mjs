@@ -7,6 +7,7 @@ import path from 'node:path';
 import process from 'node:process';
 
 import {
+  acceptHeaderForImageKind,
   expectedKindFromPath,
   fail,
   imageKind,
@@ -51,11 +52,11 @@ async function resolvePublicAddress(hostname) {
   return answers[0];
 }
 
-function requestImage(url, address, limits) {
+function requestImage(url, address, limits, expectedKind) {
   return new Promise((resolve, reject) => {
     const request = https.request({
       headers: {
-        Accept: 'image/avif,image/webp,image/png,image/jpeg,image/gif',
+        Accept: acceptHeaderForImageKind(expectedKind),
         'User-Agent': 'minimal-vibe-clone-asset-owner-tool/1',
       },
       hostname: url.hostname,
@@ -188,9 +189,10 @@ async function main() {
       continue;
     }
     const address = await resolvePublicAddress(url.hostname);
+    const expectedKind = expectedKindFromPath(asset.output);
     let response;
     try {
-      response = await requestImage(url, address, manifest.limits);
+      response = await requestImage(url, address, manifest.limits, expectedKind);
     } catch (error) {
       fail(`asset ${index + 1} download failed: ${error.message}`);
     }

@@ -625,7 +625,7 @@ Both approaches can be combined. Dot notation like `namespace A.B.C` will automa
 
 By default (`hierarchicalNamespaces: true`), each segment of a dotted or syntactically-nested namespace name renders as its own cluster, producing a nested layout.
 
-Setting `hierarchicalNamespaces: false` in the class diagram config switches to **compact mode**: only namespaces the user explicitly declares are drawn — each as a single flat box labelled with its fully-qualified name. Auto-created intermediate ancestors are skipped, and classes inside them are moved to their nearest declared namespace.
+Setting `hierarchicalNamespaces: false` in the class diagram config switches to **compact mode**: only namespaces the user explicitly declares are drawn: each as a single flat box labelled with its fully-qualified name. Auto-created intermediate ancestors are skipped, and classes inside them are moved to their nearest declared namespace.
 
 ```mermaid-example
 ---
@@ -968,7 +968,7 @@ classDiagram
 
 > **Success** The tooltip functionality and the ability to link to urls are available from version 0.5.2.
 
-Beginner's tip—a full example using interactive links in an HTML page:
+Beginner's tip: a full example using interactive links in an HTML page:
 
 ```html
 <body>

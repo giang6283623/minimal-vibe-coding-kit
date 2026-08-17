@@ -1798,7 +1798,7 @@ flowchart LR
     click D href "https://www.github.com" "Open this in a new tab" _blank
 ```
 
-Beginner's tip—a full example using interactive links in a html context:
+Beginner's tip: a full example using interactive links in a html context:
 
 ```html
 <body>
@@ -2003,9 +2003,9 @@ flowchart LR
 >
 > The recommended approach is to use the `classDef` syntax shown in the [Classes](#classes) section above, which works correctly and is the intended styling mechanism.
 >
-> If external CSS is strictly required, every property must use `!important` to override Mermaid's styles — but this is not recommended.
+> If external CSS is strictly required, every property must use `!important` to override Mermaid's styles, but this is not recommended.
 
-**Working approach — use `classDef` instead:**
+**Working approach: use `classDef` instead:**
 
 ```mermaid-example
 flowchart LR

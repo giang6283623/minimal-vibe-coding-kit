@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "target": {
+    "url": "https://store.example.com/",
+    "routes": [
+      "/",
+      "/collections/all"
+    ],
+    "data_mode": "local-artifacts-only"
+  },
+  "authorization": {
+    "status": "owned",
+    "evidence": "The user states that they own the source storefront and approve bounded capture.",
+    "content_rights": "owned",
+    "scope": {
+      "routes": ["/", "/collections/all"],
+      "deployment": "local-only",
+      "features": [],
+      "data": ["product-data", "source-content"]
+    }
+  },
+  "replica": {
+    "source_platform": "shopify",
+    "fidelity": "F2",
+    "scope": "S3",
+    "backend_level": "B0",
+    "target_stack": "astro-typescript",
+    "local_development": {
+      "mode": "host-native",
+      "container_engine": "none"
+    },
+    "deployment": "local-only"
+  },
+  "limits": {
+    "max_pages": 20,
+    "max_items": 20,
+    "viewports": [
+      {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      }
+    ]
+  },
+  "features": {
+    "identity": false,
+    "cart": false,
+    "checkout": false,
+    "payments": false,
+    "external_forms": false,
+    "live_customer_data": false
+  },
+  "capture": {
+    "enabled": true,
+    "platform": "shopify",
+    "approved_hosts": ["store.example.com"],
+    "interactive_capture_approved": true,
+    "max_catalog_items": 20,
+    "max_content_pages": 6,
+    "max_routes": 20,
+    "page_load_timeout_ms": 45000
+  },
+  "source_inputs": [],
+  "exclusions": []
+}

@@ -13,8 +13,8 @@ A TreeView diagram is used to represent hierarchical data in the form of a direc
 
 The structure of the tree depends only on indentation. Labels can be **bare** (unquoted) or **quoted** (for names containing spaces).
 
-- Directories are indicated by a trailing `/` on the label — they render in bold text.
-- Icons are hidden by default — enable the built-in file/folder icons with the `showIcons` config option, or set one per node with `icon()`.
+- Directories are indicated by a trailing `/` on the label: they render in bold text.
+- Icons are hidden by default; enable the built-in file/folder icons with the `showIcons` config option, or set one per node with `icon()`.
 - Quoted labels (`"my file"`) support spaces in names.
 
 ```
@@ -37,7 +37,7 @@ treeView-beta
 
 ## Box-Drawing Input
 
-As an alternative to indentation, you can use box-drawing characters to define the tree structure. The parser auto-detects the format — no extra keyword or config is needed. This is how most file tree diagrams are drawn already, so you can turn those into Mermaid diagrams with very little effort.
+As an alternative to indentation, you can use box-drawing characters to define the tree structure. The parser auto-detects the format; no extra keyword or config is needed. This is how most file tree diagrams are drawn already, so you can turn those into Mermaid diagrams with very little effort.
 
 Both standard (`├──`, `└──`, `│`) and heavy (`┣━━`, `┗━━`, `┃`) Unicode variants are supported.
 
@@ -59,7 +59,7 @@ treeView-beta
 └── README.md
 ```
 
-All annotations work the same way — just append them after the label:
+All annotations work the same way: just append them after the label:
 
 ```mermaid-example
 treeView-beta
@@ -135,7 +135,7 @@ treeView-beta
 
 ### Inline descriptions with `##`
 
-Add a visible description after `##` — rendered next to the label in italic:
+Add a visible description after `##`, rendered next to the label in italic:
 
 ```mermaid-example
 treeView-beta
@@ -155,7 +155,7 @@ treeView-beta
 
 ### Icons
 
-Icons are hidden by default. Set the `showIcons` config option to `true` to show the built-in icons — `file` for files and `folder` for directories:
+Icons are hidden by default. Set the `showIcons` config option to `true` to show the built-in icons: `file` for files and `folder` for directories:
 
 ```mermaid-example
 ---
@@ -183,7 +183,7 @@ treeView-beta
 
 #### File-type icons via config maps
 
-Mermaid ships no filename/extension mapping — file-type icons are fully user-configured through the `filenameIcons` and `extensionIcons` config options, using icons from a registered [icon pack](https://github.com/mermaid-js/mermaid/blob/mermaid%4011.16.0/packages/mermaid/src/docs/config/icons.md) such as [material-icon-theme](https://icon-sets.iconify.design/material-icon-theme/). Values are resolved like `icon()` references — `pack:name` is used as-is, unprefixed names resolve via `defaultIconPack`, and `none` hides the icon for matching files. Directories and unmapped files keep the built-in `folder`/`file` icons:
+Mermaid ships no filename/extension mapping: file-type icons are fully user-configured through the `filenameIcons` and `extensionIcons` config options, using icons from a registered [icon pack](https://github.com/mermaid-js/mermaid/blob/mermaid%4011.16.0/packages/mermaid/src/docs/config/icons.md) such as [material-icon-theme](https://icon-sets.iconify.design/material-icon-theme/). Values are resolved like `icon()` references: `pack:name` is used as-is, unprefixed names resolve via `defaultIconPack`, and `none` hides the icon for matching files. Directories and unmapped files keep the built-in `folder`/`file` icons:
 
 ```mermaid-example
 ---
@@ -249,10 +249,10 @@ treeView-beta
     package.json
 ```
 
-When `defaultIconPack` is set, unprefixed names resolve in that pack — `icon(rust)` becomes shorthand for `icon(material-icon-theme:rust)`. The built-in `file` and `folder` icons can always be referenced without a prefix, e.g. `icon(folder)`.
+When `defaultIconPack` is set, unprefixed names resolve in that pack: `icon(rust)` becomes shorthand for `icon(material-icon-theme:rust)`. The built-in `file` and `folder` icons can always be referenced without a prefix, e.g. `icon(folder)`.
 
 > **Note**
-> Icon packs are not bundled with Mermaid — they must be registered with `registerIconPacks` by the site embedding the diagram. See [registering icon packs](https://github.com/mermaid-js/mermaid/blob/mermaid%4011.16.0/packages/mermaid/src/docs/config/icons.md). An unregistered icon renders as a question mark.
+> Icon packs are not bundled with Mermaid; they must be registered with `registerIconPacks` by the site embedding the diagram. See [registering icon packs](https://github.com/mermaid-js/mermaid/blob/mermaid%4011.16.0/packages/mermaid/src/docs/config/icons.md). An unregistered icon renders as a question mark.
 
 #### Hiding icons
 
@@ -314,7 +314,7 @@ Use `%%` for invisible comments (standard Mermaid convention):
 
 ```
 treeView-beta
-    %% Generated files — do not edit
+    %% Generated files: do not edit
     src/
         generated/
         index.js
@@ -342,7 +342,7 @@ treeView-beta
 
 Unicode and emoji in labels:
 
-Labels are rendered exactly as written — unicode characters and consecutive spaces are preserved. Since the built-in icons are hidden by default, emoji make handy inline icons:
+Labels are rendered exactly as written: unicode characters and consecutive spaces are preserved. Since the built-in icons are hidden by default, emoji make handy inline icons:
 
 ```mermaid-example
 treeView-beta
