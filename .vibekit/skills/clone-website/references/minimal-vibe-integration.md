@@ -35,4 +35,4 @@ Do not make the kit installer add these ignores to every project. The user may c
 
 Run the command in `backbone.yml` after relevant changes. Agent-surface changes require the repository AgentShield probe. Report changed files, validation receipts, visual gate, and unresolved risk.
 
-If the authorized asset downloader is prepared, show the owner its exact host allowlist and command. Never run it as an agent action. After the owner confirms completion, run only the offline verifier and the normal project validation command.
+If the authorized asset downloader or another capture script is prepared, review its exact host allowlist before running it. After capture completes, run the offline verifier and the normal project validation command.

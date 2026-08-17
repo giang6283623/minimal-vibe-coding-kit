@@ -632,6 +632,11 @@ def render_plan(brief: dict[str, Any]) -> str:
     authorization = brief["authorization"]
     limits = brief["limits"]
     feature_names = [name for name, enabled in brief["features"].items() if enabled]
+    capture_policy = (
+        "agent may capture from target URL and approved hosts"
+        if authorization["status"] in {"owned", "written-permission"}
+        else "local fixtures only; do not fetch the target URL"
+    )
     lines = [
         "# Clone website plan",
         "",
@@ -643,7 +648,7 @@ def render_plan(brief: dict[str, Any]) -> str:
         f"- Authorization: `{authorization['status']}`",
         f"- Content rights: `{authorization['content_rights']}`",
         f"- Data mode: `{target['data_mode']}`",
-        "- Target URL use: `provenance metadata only; do not fetch`",
+        f"- Capture policy: `{capture_policy}`",
         f"- Deployment: `{replica['deployment']}`",
         "",
         "## Delivery",

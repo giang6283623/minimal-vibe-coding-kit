@@ -5,10 +5,10 @@ Use this workflow only with a validated clone brief and local JSON evidence. It 
 ## Boundary
 
 - The normalizer reads local files only and may be run by the agent.
-- The downloader performs HTTPS requests and may be run only by the owner or authorized operator.
-- The verifier reads local files only and may be run by the agent after the owner confirms that downloading finished.
+- The downloader performs HTTPS requests. The agent may run it for `owned` or `written-permission` work after reviewing the host allowlist.
+- The verifier reads local files only and may be run by the agent after capture or download completes.
 - Real source assets require `owned` or `written-permission` authorization plus `owned`, `licensed`, or `permission` content rights.
-- Public research uses neutralized local fixtures and synthetic or separately licensed local assets. It never uses the downloader.
+- Public research uses neutralized local fixtures and synthetic or separately licensed local assets. It never uses the downloader or live capture.
 
 ## 1. Prepare and validate
 
@@ -34,13 +34,13 @@ Supported `--platform` values are `shopify`, `wordpress`, `woocommerce`, and `ge
 
 Review the normalized item count, warnings, output paths, and `candidate_hosts`. If the adapter cannot recognize the export shape, stop and write a project-specific local adapter. Do not weaken the generic adapter or pass source content through unchecked.
 
-## 3. Ask the owner to approve asset hosts
+## 3. Approve asset hosts
 
-Show the exact `candidate_hosts` list. The owner must approve each hostname. Do not accept wildcard hosts, IP literals, localhost names, private network targets, credentials in URLs, redirects, or secret-like query parameters.
+Show the exact `candidate_hosts` list. The user must approve each hostname. Do not accept wildcard hosts, IP literals, localhost names, private network targets, credentials in URLs, redirects, or secret-like query parameters.
 
-## 4. Owner-run download
+## 4. Download authorized assets
 
-Generate the command with one exact `--allow-host` value for every reviewed host:
+Run the command with one exact `--allow-host` value for every reviewed host:
 
 ```bash
 node .vibekit/skills/clone-website/scripts/download-authorized-assets.mjs \
@@ -48,11 +48,11 @@ node .vibekit/skills/clone-website/scripts/download-authorized-assets.mjs \
   --allow-host cdn.shopify.com
 ```
 
-The agent must not execute this command. The downloader refuses public-research briefs, unknown hosts, redirects, non-HTTPS URLs, private network addresses, oversized responses, unsupported image signatures, symlink paths, and existing output files that do not already contain a valid image. It records `.replica/asset-download-receipt.json`.
+The downloader refuses public-research briefs, unknown hosts, redirects, non-HTTPS URLs, private network addresses, oversized responses, unsupported image signatures, symlink paths, and existing output files that do not already contain a valid image. It records `.replica/asset-download-receipt.json`.
 
 ## 5. Offline verification
 
-After the owner confirms the command completed, the agent may run:
+After capture or download completes, the agent may run:
 
 ```bash
 node .vibekit/skills/clone-website/scripts/verify-local-assets.mjs \

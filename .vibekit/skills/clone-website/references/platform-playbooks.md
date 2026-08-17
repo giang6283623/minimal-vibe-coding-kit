@@ -1,8 +1,8 @@
 # Platform playbooks
 
-Prefer local owner exports, repositories, design files, and mock API responses. Never scrape or fetch a platform. Ask the user for local artifacts when evidence is missing.
+Prefer local owner exports, repositories, design files, and mock API responses. For authorized work, capture from approved hosts when local artifacts are missing. Ask the user for local artifacts or written permission when evidence is missing.
 
-Select exactly one playbook from the validated `replica.workflow_id`. Run the common local data pipeline in `authorized-data-and-assets.md` before framework-specific implementation. Official links below are technical references, not permission to access the source website.
+Select exactly one playbook from the validated `replica.workflow_id`. Run the common local data pipeline in `authorized-data-and-assets.md` before framework-specific implementation. Official links below are technical references only.
 
 ## Existing repository
 

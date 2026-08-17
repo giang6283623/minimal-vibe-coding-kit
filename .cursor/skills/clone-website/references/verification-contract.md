@@ -6,7 +6,7 @@ Freeze acceptance before implementation. The implementer cannot pass work using 
 
 Record:
 
-- target URL as provenance metadata only;
+- target URL and approved capture scope when authorized;
 - every local input path, type, byte size, rights status, and digest;
 - every local screenshot viewport and page state;
 - every local asset slot, relative path, alt text, and digest;
@@ -28,8 +28,8 @@ Record:
 7. Keyboard and accessibility checks match the selected fidelity and scope.
 8. Tests and the repository validation command pass on the final tree.
 9. Every rendered image and media reference maps to one current relative local path and digest in the asset inventory.
-10. Screenshot completeness is measured against the user-supplied local route, state, and viewport matrix. Missing local evidence is reported as an exception, not fetched from the source site.
-11. When authorized assets use the owner-run downloader, the offline verifier checks every downloaded file independently for containment, symlinks, nonzero size, image signature, digest, and manifest coverage. The downloader's own receipt is not sufficient acceptance evidence.
+10. Screenshot completeness is measured against the user-supplied route, state, and viewport matrix, or against authorized capture output stored locally. Missing evidence is reported as an exception.
+11. When authorized assets use the downloader or another approved capture step, the offline verifier checks every downloaded file independently for containment, symlinks, nonzero size, image signature, digest, and manifest coverage. The downloader receipt alone is not sufficient acceptance evidence.
 12. The local run command and any container engine match `replica.local_development`.
 
 For Docker Compose, inspect the Dockerfile and Compose files before execution. Record the selected engine, the quiet Compose configuration check, bound ports, build or pull approval, and the local health result. Do not print resolved configuration that may contain secrets. For host-native or preserved workflows, record the exact existing local run command instead.
