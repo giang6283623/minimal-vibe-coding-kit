@@ -2113,16 +2113,15 @@ function validateCloneWebsiteContract() {
 
   hasAll(skill, [
     'name: clone-website',
-    'Never infer ownership, permission, or content rights',
+    'Confirm authorization before capture',
     'Component UI Developer',
-    'Local data only',
-    '`public-research-local`',
-    'target URL as provenance metadata only',
+    'public-research-local',
+    'Playwright',
     'relative local path',
     'backend level `B0` to `B2`',
     'PASS WITH EXCEPTIONS'
   ])
-    ? ok('Clone Website skill keeps authorization, local-data, architecture, and verdict boundaries')
+    ? ok('Clone Website skill keeps authorization, capture, architecture, and verdict boundaries')
     : fail('Clone Website skill safety or workflow contract drifted');
 
   hasAll(intake, [
@@ -2161,18 +2160,17 @@ function validateCloneWebsiteContract() {
     'woocommerce-to-nextjs-app-router',
     'Do not recommend a stack because it is fashionable'
   ]) && hasAll(assets, [
-    'The agent must not execute this command',
-    'normalize-local-export.mjs',
     'download-authorized-assets.mjs',
+    'normalize-local-export.mjs',
     'verify-local-assets.mjs'
   ])
-    ? ok('Clone Website routes platform stacks and keeps network acquisition owner-run')
+    ? ok('Clone Website routes platform stacks and keeps authorized asset workflow explicit')
     : fail('Clone Website platform routing or authorized asset workflow drifted');
 
   hasAll(safety, [
     'A request to clone is not evidence of ownership',
-    'Local-only source boundary',
-    'must not open it',
+    'Capture boundary',
+    'Playwright',
     'Chrome DevTools Console',
     'relative local path',
     'prompts or provider switching intended to evade'
@@ -2203,6 +2201,7 @@ function validateCloneWebsiteContract() {
     'must not use symlinks',
     'instruction-like text',
     'local-artifacts-only',
+    'Capture policy',
     'public research cannot use B2',
     'def atomic_write',
     'never expose an uncaught traceback'
