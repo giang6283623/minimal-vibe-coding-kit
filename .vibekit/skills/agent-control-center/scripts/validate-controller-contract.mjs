@@ -14,7 +14,48 @@ const SELECTION_SOURCES = new Set([
   'verified-single-route',
   'verified-auto'
 ]);
+const PROVIDERS = new Set([
+  'current',
+  'native',
+  'codex',
+  'claude',
+  'cursor',
+  'opencode',
+  'grok',
+  'kimi'
+]);
+const TRANSPORTS = new Set([
+  'native',
+  'host-sequential',
+  'native-subagents',
+  'codex-cli',
+  'claude-cli',
+  'cursor-cli',
+  'cursor-sdk',
+  'opencode-cli',
+  'grok-cli',
+  'kimi-cli',
+  'mcp',
+  'sdk',
+  'api',
+  'manual'
+]);
+const CONTROL_DECISIONS = new Set(['accept', 'retry', 'escalate', 'ask-user', 'stop']);
+const SELECTION_MECHANISMS = new Set([
+  'native-structured-question',
+  'parent-conversation',
+  'verified-single-route',
+  'verified-auto'
+]);
 const ROUTE_FIELDS = ['provider', 'transport', 'model', 'reasoning_effort'];
+const CONTROLLER_TRANSPORTS_BY_PROVIDER = new Map([
+  ['codex', new Set(['codex-cli', 'mcp', 'sdk', 'api', 'manual'])],
+  ['claude', new Set(['claude-cli', 'mcp', 'sdk', 'api', 'manual'])],
+  ['cursor', new Set(['cursor-cli', 'cursor-sdk', 'mcp', 'sdk', 'api', 'manual'])],
+  ['opencode', new Set(['opencode-cli', 'mcp', 'sdk', 'api', 'manual'])],
+  ['grok', new Set(['grok-cli', 'mcp', 'sdk', 'api', 'manual'])],
+  ['kimi', new Set(['kimi-cli', 'mcp', 'sdk', 'api', 'manual'])]
+]);
 
 function isRecord(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -33,6 +74,12 @@ function validateRoute(route, pathName, errors) {
     if (typeof route[field] !== 'string' || route[field].length === 0) {
       addError(errors, 'ROUTE_FIELD', `${pathName}.${field}`, 'route field must be a non-empty string');
     }
+  }
+  if (!PROVIDERS.has(route.provider)) {
+    addError(errors, 'ROUTE_PROVIDER', `${pathName}.provider`, 'provider is not supported by the controller contract');
+  }
+  if (!TRANSPORTS.has(route.transport)) {
+    addError(errors, 'ROUTE_TRANSPORT', `${pathName}.transport`, 'transport is not supported by the controller contract');
   }
   if (!SELECTION_SOURCES.has(route.selection_source)) {
     addError(
@@ -75,6 +122,51 @@ function requireOneEvent(trace, type, workId, errors) {
     return null;
   }
   return matches[0];
+}
+
+function requireString(event, field, pathName, errors, code = 'TRACE_FIELD') {
+  if (typeof event[field] !== 'string' || event[field].length === 0) {
+    addError(errors, code, `${pathName}.${field}`, `${field} must be a non-empty string`);
+    return false;
+  }
+  return true;
+}
+
+function validateSelectionEvent(selection, route, envelope, errors) {
+  if (!selection) return;
+  const { event, index } = selection;
+  const pathName = `trace[${index}]`;
+  if (event.actor !== 'host' || event.target !== 'controller') {
+    addError(errors, 'CONTROLLER_SELECTION_AUTHORITY', pathName, 'the host must select and bind the controller route');
+  }
+  for (const field of ROUTE_FIELDS) {
+    if (event[field] !== route?.[field]) {
+      addError(errors, 'CONTROLLER_SELECTION_BINDING', `${pathName}.${field}`, `${field} must match controller_route`);
+    }
+  }
+  if (event.selection_source !== route?.selection_source) {
+    addError(errors, 'CONTROLLER_SELECTION_BINDING', `${pathName}.selection_source`, 'selection_source must match controller_route');
+  }
+  if (!SELECTION_MECHANISMS.has(event.mechanism)) {
+    addError(errors, 'CONTROLLER_SELECTION_MECHANISM', `${pathName}.mechanism`, 'selection mechanism is unsupported');
+  }
+  if (event.selection_source === 'explicit-user') {
+    if (!['native-structured-question', 'parent-conversation'].includes(event.mechanism)) {
+      addError(errors, 'CONTROLLER_SELECTION_MECHANISM', `${pathName}.mechanism`, 'explicit-user selection requires a parent question mechanism');
+    }
+    if (event.mechanism === 'native-structured-question') {
+      requireString(event, 'question_tool', pathName, errors, 'CONTROLLER_SELECTION_QUESTION_TOOL');
+    }
+  }
+  if (event.selection_source === 'verified-auto' && event.mechanism !== 'verified-auto') {
+    addError(errors, 'CONTROLLER_SELECTION_MECHANISM', `${pathName}.mechanism`, 'verified-auto requires its matching mechanism');
+  }
+  if (event.selection_source === 'verified-single-route' && event.mechanism !== 'verified-single-route') {
+    addError(errors, 'CONTROLLER_SELECTION_MECHANISM', `${pathName}.mechanism`, 'verified-single-route requires its matching mechanism');
+  }
+  if (event.task_id !== envelope.task_id) {
+    addError(errors, 'CONTROLLER_SELECTION_TASK', `${pathName}.task_id`, 'controller selection must bind the task_id');
+  }
 }
 
 export function validateControllerContract(document) {
@@ -132,6 +224,15 @@ export function validateControllerContract(document) {
         'controller route provider must match the selected controller'
       );
     }
+    if (externalController
+      && !CONTROLLER_TRANSPORTS_BY_PROVIDER.get(envelope.controller_route.provider)?.has(envelope.controller_route.transport)) {
+      addError(
+        errors,
+        'CONTROLLER_ROUTE_TRANSPORT',
+        'taskEnvelope.controller_route.transport',
+        'controller transport is not compatible with the selected provider'
+      );
+    }
   }
 
   for (let index = 0; index < approvedWorkerRoutes.length; index += 1) {
@@ -162,20 +263,21 @@ export function validateControllerContract(document) {
         'manual-handoff must be derived exactly when controller transport is manual'
       );
     }
-    if (relay.mode === 'automatic-host-relay' && relay.resume_controller !== true) {
+    const statefulExternal = externalController && relay.mode !== 'manual-handoff';
+    if (statefulExternal && relay.resume_controller !== true) {
       addError(
         errors,
-        'AUTOMATIC_RELAY_RESUME',
+        'STATEFUL_RELAY_RESUME',
         'taskEnvelope.relay.resume_controller',
-        'automatic-host-relay requires verified controller resume support'
+        'every non-manual external relay requires verified controller resume support'
       );
     }
-    if (relay.mode !== 'automatic-host-relay' && relay.resume_controller !== false) {
+    if (!statefulExternal && relay.resume_controller !== false) {
       addError(
         errors,
-        'NON_AUTOMATIC_RELAY_RESUME',
+        'NON_STATEFUL_RELAY_RESUME',
         'taskEnvelope.relay.resume_controller',
-        'non-automatic relay modes must not claim controller resume'
+        'native and manual relay modes must not claim external controller resume'
       );
     }
   }
@@ -229,7 +331,11 @@ export function validateControllerContract(document) {
   const authorityActor = externalController ? 'controller' : 'host';
 
   let handoff = null;
+  let sessionStart = null;
+  let controllerSessionId = null;
   if (externalController) {
+    const selection = requireOneEvent(safeTrace, 'controller-route-selected', undefined, errors);
+    validateSelectionEvent(selection, envelope.controller_route, envelope, errors);
     handoff = requireOneEvent(safeTrace, 'task-envelope-sent', undefined, errors);
     if (handoff && (handoff.event.actor !== 'host' || handoff.event.target !== 'controller')) {
       addError(
@@ -238,6 +344,34 @@ export function validateControllerContract(document) {
         `trace[${handoff.index}]`,
         'external-controller task envelope must be sent by the host to the controller'
       );
+    }
+    if (handoff && handoff.event.task_id !== envelope.task_id) {
+      addError(errors, 'HANDOFF_TASK_BINDING', `trace[${handoff.index}].task_id`, 'task envelope handoff must bind the task_id');
+    }
+    if (selection && handoff && selection.index >= handoff.index) {
+      addError(errors, 'CONTROLLER_SELECTION_ORDER', `trace[${selection.index}]`, 'controller route selection must precede the task envelope handoff');
+    }
+    if (envelope.relay?.mode !== 'manual-handoff') {
+      sessionStart = requireOneEvent(safeTrace, 'controller-session-started', undefined, errors);
+      if (sessionStart) {
+        const pathName = `trace[${sessionStart.index}]`;
+        if (sessionStart.event.actor !== 'host' || sessionStart.event.target !== 'controller') {
+          addError(errors, 'CONTROLLER_SESSION_AUTHORITY', pathName, 'the host adapter must start the controller session');
+        }
+        requireString(sessionStart.event, 'issuer', pathName, errors, 'CONTROLLER_ADAPTER_ID');
+        if (requireString(sessionStart.event, 'session_id', pathName, errors, 'CONTROLLER_SESSION_ID')) {
+          controllerSessionId = sessionStart.event.session_id;
+        }
+        if (sessionStart.event.adapter_verified !== true || sessionStart.event.resume_supported !== true) {
+          addError(errors, 'CONTROLLER_SESSION_UNVERIFIED', pathName, 'session start must attest a verified adapter with explicit resume support');
+        }
+        if (envelope.controller === 'codex' && sessionStart.event.multi_agent !== false) {
+          addError(errors, 'CODEX_MULTI_AGENT_ENABLED', `${pathName}.multi_agent`, 'an external Codex controller must disable Codex multi-agent execution');
+        }
+        if (handoff && sessionStart.index <= handoff.index) {
+          addError(errors, 'CONTROLLER_SESSION_ORDER', pathName, 'controller session start must follow the task envelope handoff');
+        }
+      }
     }
     const forbiddenHostEvents = new Set(['host-decomposed', 'host-chose-workers', 'host-accepted']);
     safeTrace.forEach((event, index) => {
@@ -268,6 +402,9 @@ export function validateControllerContract(document) {
     if (handoff && issued && issued.index <= handoff.index) {
       addError(errors, 'CONTROLLER_FIRST_ORDER', `trace[${issued.index}]`, 'controller handoff must precede work orders');
     }
+    if (sessionStart && issued && issued.index <= sessionStart.index) {
+      addError(errors, 'CONTROLLER_SESSION_FIRST_ORDER', `trace[${issued.index}]`, 'session start must precede controller work orders');
+    }
     if (dispatched && dispatched.event.actor !== 'host') {
       addError(errors, 'DISPATCH_AUTHORITY', `trace[${dispatched.index}]`, 'the host must dispatch approved workers');
     }
@@ -291,6 +428,9 @@ export function validateControllerContract(document) {
     addError(errors, 'CONTROL_DECISION', 'trace', 'at least one control decision is required');
   }
   for (const { event, index } of decisions) {
+    if (!CONTROL_DECISIONS.has(event.decision)) {
+      addError(errors, 'CONTROL_DECISION_VALUE', `trace[${index}].decision`, 'control decision is unsupported');
+    }
     if (event.actor !== authorityActor) {
       addError(
         errors,
@@ -298,6 +438,45 @@ export function validateControllerContract(document) {
         `trace[${index}]`,
         `control decisions must be returned by the ${authorityActor}`
       );
+    }
+  }
+
+  if (externalController && envelope.relay?.mode !== 'manual-handoff') {
+    const resumes = matchingEvents(safeTrace, 'controller-session-resumed');
+    for (const resume of resumes) {
+      const pathName = `trace[${resume.index}]`;
+      if (resume.event.actor !== 'host' || resume.event.target !== 'controller') {
+        addError(errors, 'CONTROLLER_RESUME_AUTHORITY', pathName, 'the host adapter must resume the controller session');
+      }
+      if (resume.event.session_id !== controllerSessionId) {
+        addError(errors, 'CONTROLLER_SESSION_SUBSTITUTION', `${pathName}.session_id`, 'every resume must use the explicit started session_id');
+      }
+      if (resume.event.resume_supported !== true) {
+        addError(errors, 'CONTROLLER_RESUME_UNVERIFIED', pathName, 'controller resume must attest explicit-session support');
+      }
+      if (envelope.controller === 'codex' && resume.event.multi_agent !== false) {
+        addError(errors, 'CODEX_MULTI_AGENT_ENABLED', `${pathName}.multi_agent`, 'every external Codex controller resume must disable multi-agent execution');
+      }
+    }
+    const returnedToController = safeTrace
+      .map((event, index) => ({ event, index }))
+      .filter(({ event }) => ['proof-receipt-returned', 'user-answer-returned'].includes(event.type)
+        && event.target === 'controller');
+    for (const returned of returnedToController) {
+      const resume = resumes.find((candidate) => candidate.index > returned.index);
+      if (!resume) {
+        addError(
+          errors,
+          'CONTROLLER_RESUME_REQUIRED',
+          `trace[${returned.index}]`,
+          'every receipt or user answer returned to an external controller must resume the same session'
+        );
+        continue;
+      }
+      const laterDecision = decisions.find((decision) => decision.index > resume.index);
+      if (!laterDecision) {
+        addError(errors, 'CONTROLLER_DECISION_AFTER_RESUME', `trace[${resume.index}]`, 'a resumed controller must return a later control decision');
+      }
     }
   }
 

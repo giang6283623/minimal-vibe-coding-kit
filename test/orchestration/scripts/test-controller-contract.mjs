@@ -71,6 +71,42 @@ falseManualRelay.taskEnvelope.relay.mode = 'manual-handoff';
 falseManualRelay.taskEnvelope.relay.resume_controller = false;
 expectInvalid(falseManualRelay, 'MANUAL_RELAY_BINDING');
 
+const externalSequential = clone(cursorCodex);
+externalSequential.taskEnvelope.relay.mode = 'sequential-host-relay';
+expectValid(externalSequential);
+
+const missingSelection = clone(cursorCodex);
+missingSelection.trace.shift();
+expectInvalid(missingSelection, 'TRACE_CARDINALITY');
+
+const unsupportedProvider = clone(cursorCodex);
+unsupportedProvider.taskEnvelope.controller = 'imaginary-provider';
+unsupportedProvider.taskEnvelope.controller_route.provider = 'imaginary-provider';
+unsupportedProvider.trace[0].provider = 'imaginary-provider';
+expectInvalid(unsupportedProvider, 'ROUTE_PROVIDER');
+
+const unsupportedTransport = clone(cursorCodex);
+unsupportedTransport.taskEnvelope.controller_route.transport = 'telepathy';
+unsupportedTransport.trace[0].transport = 'telepathy';
+expectInvalid(unsupportedTransport, 'ROUTE_TRANSPORT');
+
+const mismatchedControllerTransport = clone(cursorCodex);
+mismatchedControllerTransport.taskEnvelope.controller_route.transport = 'claude-cli';
+mismatchedControllerTransport.trace[0].transport = 'claude-cli';
+expectInvalid(mismatchedControllerTransport, 'CONTROLLER_ROUTE_TRANSPORT');
+
+const unsupportedDecision = clone(cursorCodex);
+unsupportedDecision.trace.at(-1).decision = 'looks-good';
+expectInvalid(unsupportedDecision, 'CONTROL_DECISION_VALUE');
+
+const missingResume = clone(cursorCodex);
+missingResume.trace = missingResume.trace.filter((event) => event.type !== 'controller-session-resumed');
+expectInvalid(missingResume, 'CONTROLLER_RESUME_REQUIRED');
+
+const substitutedSession = clone(cursorCodex);
+substitutedSession.trace.find((event) => event.type === 'controller-session-resumed').session_id = 'different-session';
+expectInvalid(substitutedSession, 'CONTROLLER_SESSION_SUBSTITUTION');
+
 const wrongControllerAuthority = clone(cursorCodex);
 wrongControllerAuthority.trace.at(-1).actor = 'host';
 expectInvalid(wrongControllerAuthority, 'CONTROL_AUTHORITY');

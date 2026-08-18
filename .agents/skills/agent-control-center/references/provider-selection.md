@@ -56,6 +56,11 @@ Resolve these values in order:
    useful, with one recommendation based on the controller role. Revalidate
    free-form IDs against the same catalog. Ask for reasoning effort only when
    that route attests supported values for the selected model.
+   For the bundled Codex CLI bridge, bind the answer to the preflight
+   `catalogDigest` and `verifiedAt` values. If the parent exposes
+   `AskUserTool`, use it; otherwise follow the structured-tool fallback above.
+   This selection is host-declared unless the parent exposes an authenticated
+   question receipt. The local Codex cache does not attest the effective model.
 4. **Worker provider and transport.** For a topology with workers, show the
    verified host-native worker route first, then up to two ready alternatives,
    with one recommendation based on the worker role. Distinguish native agents,
@@ -150,8 +155,7 @@ For any external controller provider:
 2. the controller returns bounded work orders;
 3. the host verifies each order against the selected worker routes, then
    dispatches native workers or executes sequentially under host permissions;
-4. the host returns proof receipts to the same controller session when resume
-   is supported;
+4. the host returns proof receipts to the same explicit controller session;
 5. the controller verifies receipts and returns one control decision;
 6. on `retry` or `escalate`, repeat only within the original authority and
    budget;
@@ -161,3 +165,7 @@ The host may reject unsafe or unauthorized instructions, but it must not alter
 a receipt or approve the controller's work. The controller cannot widen host
 permissions or communicate directly with native workers unless the host exposes
 and authorizes such a route.
+
+Controller resume and worker concurrency are separate. A sequential worker
+route still requires explicit controller-session resume for every non-manual
+external controller. A one-shot CLI request is not a controller route.

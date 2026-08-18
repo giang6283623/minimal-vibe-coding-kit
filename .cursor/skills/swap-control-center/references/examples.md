@@ -8,17 +8,19 @@ provider, model, command, and status with current verified evidence.
 1. Cursor remains the host and parent user conversation.
 2. Cursor builds a live inventory, then uses `AskUserQuestion` or its exposed
    structured equivalent for unresolved choices. The user selects
-   `automatic-host-relay`, a ready Codex controller route and model, and a
-   separate Cursor-native worker route and model.
+   `automatic-host-relay`, a locally preflighted Codex controller route and
+   model, plus a separate Cursor-native worker route and model.
 3. Cursor records `host=cursor`, `controller=codex`, and the selected Cursor
    worker defaults. Controller and worker selections remain independent.
-4. Cursor sends the frozen task envelope to the Codex controller before
-   creating analysis lanes.
+4. Cursor starts the bundled Codex CLI bridge with the frozen task envelope,
+   captures its explicit session ID, and keeps Codex multi-agent execution
+   disabled before creating analysis lanes.
 5. Codex returns bounded work orders for Cursor-native agents. If Codex returns
    `ask-user`, Cursor asks in the parent conversation and returns the answer to
    the same Codex session.
 6. Cursor validates each order against the selected worker route, dispatches
-   those agents, and returns unaltered proof receipts to the same Codex session.
+   those agents, and returns unaltered proof receipts by resuming the same
+   explicit Codex session.
 7. Codex reviews the receipts and returns `accept`, `retry`, `escalate`,
    `ask-user`, or `stop`.
 8. Cursor presents the result or user decision. Cursor does not create its own

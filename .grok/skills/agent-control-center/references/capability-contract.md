@@ -80,6 +80,13 @@ a fresh authenticated route inventory. Official documentation can establish a
 supported command, but it cannot prove that the local account, quota, model, or
 transport is ready.
 
+For the bundled Codex CLI controller route, read `codex-cli-bridge.md`. Require
+the CLI version and model-cache writer version to match. Treat a mismatch as
+`installed-unverified`; never mutate the user cache or installation to force a
+pass. A match establishes only local consistency because the same-user cache is
+not an authenticated provider receipt. The bridge's deterministic fake-CLI
+suite verifies local adapter logic, not the live provider route.
+
 Never install packages, run remote installers, open login flows, enable billing,
 read credential files, weaken a sandbox, execute repository hooks, or send
 repository data to prove readiness.
@@ -103,6 +110,9 @@ repository data to prove readiness.
 - Authentication uncertainty: mark installed-unverified. Do not start login.
 - Missing isolation: downgrade to read-only or sequential execution, or stop.
 - Missing cancel or resume: reduce the budget and avoid long-running fan-out.
+- Missing explicit external-controller resume: do not start the relay. Both
+  automatic and sequential non-manual external modes require a stateful reply
+  path.
 - Missing receipt attestation: verify artifacts directly and report
   `requested-not-attested`.
 - Conflicting capabilities: use the weaker proven capability and preserve the

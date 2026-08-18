@@ -212,10 +212,16 @@ const reasoningSkillResources = {
   ],
   'agent-control-center': [
     'agents/openai.yaml',
+    'examples/cursor-codex-cursor-workers.json',
+    'examples/native-sequential.json',
     'references/controller-modes.md',
     'references/capability-contract.md',
     'references/handoff-contract.md',
-    'references/provider-selection.md'
+    'references/provider-selection.md',
+    'references/codex-cli-bridge.md',
+    'schemas/controller-response.schema.json',
+    'scripts/codex-cli-controller-bridge.mjs',
+    'scripts/validate-controller-contract.mjs'
   ],
   'swap-control-center': [
     'agents/openai.yaml',
@@ -1854,8 +1860,11 @@ function validateControlCenterContract() {
     'examples/native-sequential.json',
     'references/controller-modes.md',
     'references/capability-contract.md',
+    'references/codex-cli-bridge.md',
     'references/handoff-contract.md',
     'references/provider-selection.md',
+    'schemas/controller-response.schema.json',
+    'scripts/codex-cli-controller-bridge.mjs',
     'scripts/validate-controller-contract.mjs'
   ];
   const missingResources = resources.filter((file) => !exists(`${base}/${file}`));
@@ -1870,6 +1879,7 @@ function validateControlCenterContract() {
   const skill = read(`${base}/SKILL.md`);
   const controllerModes = read(`${base}/references/controller-modes.md`);
   const capabilities = read(`${base}/references/capability-contract.md`);
+  const codexBridge = read(`${base}/references/codex-cli-bridge.md`);
   const handoff = read(`${base}/references/handoff-contract.md`);
   const providerSelection = read(`${base}/references/provider-selection.md`);
   const swapPreset = read(`${swapBase}/SKILL.md`);
@@ -1891,6 +1901,7 @@ function validateControlCenterContract() {
     'bundled contract',
     'ORCHESTRATION_MODES.md',
     'requested-not-attested',
+    'codex-cli-bridge.md',
     'switch controllers silently'
   ])
     ? ok('Agent Control Center separates controller ownership, host authority, routing, and attestation')
@@ -1900,6 +1911,7 @@ function validateControlCenterContract() {
     '## Fixed provider',
     '### Codex',
     'Do not invoke `cursor-agent`',
+    'disables Codex multi-agent execution',
     'Manual is a transport, not a controller',
     'Allow at most one transfer per task',
     'A controller choice does not authorize multi-agent work'
@@ -1917,6 +1929,20 @@ function validateControlCenterContract() {
   ])
     ? ok('Agent Control Center classifies each provider transport independently and fails closed')
     : fail('Agent Control Center capability or quota contract drifted');
+
+  hasAll(codexBridge, [
+    'preflight',
+    '`installed-unverified`',
+    '`AskUserTool`',
+    '`catalogDigest`',
+    'explicit captured session',
+    'It never uses `--last`',
+    'multi-agent execution',
+    'Provider and model coverage',
+    'fake CLI tests'
+  ])
+    ? ok('Agent Control Center includes a stateful fail-closed Codex CLI bridge contract')
+    : fail('Agent Control Center Codex CLI bridge contract drifted');
 
   hasAll(handoff, [
     '## Task envelope',
@@ -1949,6 +1975,7 @@ function validateControlCenterContract() {
     '## Setup state machine',
     'Require explicit approval',
     '## Host-mediated controller loop',
+    'AskUserTool',
     '`requested-not-attested`'
   ])
     ? ok('Agent Control Center selects and sets up provider routes from live evidence')
@@ -1963,6 +1990,7 @@ function validateControlCenterContract() {
     '## Codex selection',
     'controller=codex',
     'Do not launch Codex analysis lanes',
+    'stateful bridge',
     'Do not require Cursor CLI',
     'Obtain explicit user',
     'Never run co-controllers',

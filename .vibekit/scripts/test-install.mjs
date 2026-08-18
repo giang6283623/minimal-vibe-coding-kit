@@ -141,6 +141,8 @@ try {
   assert(fs.existsSync(path.join(clean, '.vibekit/skills/vibekit-init/SKILL.md')), 'clean install creates .vibekit/skills');
   assert(fs.existsSync(path.join(clean, '.vibekit/skills/proofline-orchestration/scripts/run-proofline-sandbox.mjs')), 'clean install includes the canonical Proofline sandbox validator');
   assert(fs.existsSync(path.join(clean, '.vibekit/skills/proofline-orchestration/examples/auth-migration-case.json')), 'clean install includes the Proofline authentication case');
+  assert(fs.existsSync(path.join(clean, '.vibekit/skills/agent-control-center/scripts/codex-cli-controller-bridge.mjs')), 'clean install includes the Codex CLI controller bridge');
+  assert(fs.existsSync(path.join(clean, '.vibekit/skills/agent-control-center/schemas/controller-response.schema.json')), 'clean install includes the controller response schema');
   assert(fs.existsSync(path.join(clean, '.vibekit/skills/clone-website/scripts/validate_replica_brief.py')), 'clean install includes the canonical Clone Website brief validator');
   assert(fs.existsSync(path.join(clean, '.vibekit/skills/clone-website/references/local-development.md')), 'clean install includes the canonical Clone Website local development guide');
   assert(fs.existsSync(path.join(clean, '.vibekit/skills/clone-website/scripts/normalize-local-export.mjs')), 'clean install includes the canonical Clone Website local export normalizer');
@@ -150,6 +152,10 @@ try {
     assert(
       fs.existsSync(path.join(clean, mirror, 'skills/proofline-orchestration/scripts/run-proofline-sandbox.mjs')),
       `clean install includes the Proofline sandbox validator in ${mirror}`
+    );
+    assert(
+      fs.existsSync(path.join(clean, mirror, 'skills/agent-control-center/scripts/codex-cli-controller-bridge.mjs')),
+      `clean install includes the Codex CLI controller bridge in ${mirror}`
     );
     assert(
       fs.existsSync(path.join(clean, mirror, 'skills/clone-website/scripts/validate_replica_brief.py')),

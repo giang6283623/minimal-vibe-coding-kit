@@ -70,6 +70,9 @@ contact external people or systems.
    route as `ready`, `installed-unverified`, or `unavailable` with
    non-mutating probes only. A working application session does not prove that
    its CLI, SDK, API, MCP bridge, account quota, or model alias is ready.
+   For a Codex CLI controller, use the bundled preflight and stateful adapter
+   in [codex-cli-bridge.md](references/codex-cli-bridge.md). Never replace it
+   with a one-shot `codex exec` prompt that merely calls Codex a controller.
 3. **Resolve role routes.** Read
    [controller-modes.md](references/controller-modes.md) and
    [provider-selection.md](references/provider-selection.md). Resolve the
@@ -107,6 +110,8 @@ contact external people or systems.
    to the same controller session and relay its `accept`, `retry`, `escalate`,
    `ask-user`, or `stop` decision. For a native controller, decide in the
    parent. Never let a worker approve its own unverified mutation.
+   Both automatic and sequential non-manual external relay modes require the
+   same explicit controller session and two-way reply path.
 9. **Deliver.** Report the controller, host, topology, routes used, requested
    versus attested models, changed files, validation, fallbacks, and residual
    risks. State `requested-not-attested` when effective settings cannot be
