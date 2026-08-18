@@ -14,6 +14,7 @@ import {
   resolveCodexCandidates,
   runProcess,
   startController,
+  unavailableEnvelope,
 } from "../../../.vibekit/skills/agent-control-center/scripts/codex-cli-controller-bridge.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -197,6 +198,17 @@ async function expectReject(promise, pattern) {
 const project = projectFixture();
 const nowMs = Date.now();
 const now = new Date(nowMs).toISOString();
+const responseSchema = JSON.parse(fs.readFileSync(path.join(
+  root,
+  ".vibekit/skills/agent-control-center/schemas/controller-response.schema.json"
+), "utf8"));
+assert.equal(Object.prototype.hasOwnProperty.call(responseSchema, "oneOf"), false);
+assert.deepEqual(responseSchema.required, [
+  "version", "task_id", "kind", "work_orders", "question", "decision", "reason", "receipt_bindings",
+]);
+assert.deepEqual(responseSchema.properties.question.type, ["object", "null"]);
+assert.deepEqual(responseSchema.properties.decision.type, ["string", "null"]);
+checks += 4;
 const runtime = runtimeFixture(project, nowMs);
 const captureStart = path.join(os.tmpdir(), "mvck-bridge-capture-start-" + crypto.randomUUID() + ".json");
 const started = await startController({
@@ -228,7 +240,11 @@ if (process.platform !== "win32") assert.equal(fs.statSync(started.state_path).m
 const privateState = JSON.parse(fs.readFileSync(started.state_path, "utf8"));
 assert.equal("task_envelope" in privateState, false);
 assert.equal("objective" in privateState.task_contract, false);
-checks += 14;
+assert.equal(started.controller_response.question, null);
+assert.equal(started.controller_response.decision, null);
+assert.equal(started.controller_response.reason, null);
+assert.deepEqual(started.controller_response.receipt_bindings, []);
+checks += 18;
 
 const startCapture = JSON.parse(fs.readFileSync(captureStart, "utf8"));
 assert.equal(startCapture.args[0], "exec");
@@ -240,7 +256,8 @@ assert.ok(startCapture.args.includes("agents.enabled=false"));
 assert.equal(startCapture.args.includes("--last"), false);
 assert.equal(startCapture.args.includes("app-server"), false);
 assert.notEqual(startCapture.args[startCapture.args.indexOf("-C") + 1], project);
-checks += 9;
+assert.equal(startCapture.input.includes("Set inactive root fields to neutral schema values"), true);
+checks += 10;
 
 const receipt = {
   task_id: "task-controller-bridge-test",
@@ -652,6 +669,7 @@ for (const scenario of ["malformed", "duplicate-thread", "duplicate-message"]) {
 for (const [flag, pattern] of [
   ["FAKE_CODEX_EXTRA_FIELD", /unsupported fields/],
   ["FAKE_CODEX_WRITABLE", /authorization.mutation=true/],
+  ["FAKE_CODEX_CONFLICTING_ROOT", /unsupported fields/],
 ]) {
   await expectReject(
     startController({
@@ -871,7 +889,10 @@ const invalidExplicit = await preflightCodex({
 });
 assert.equal(invalidExplicit.status, "unavailable");
 assert.equal(invalidExplicit.code, "codex-explicit-invalid");
-checks += 2;
+assert.equal(invalidExplicit.recoveryPlan.actionId, "select-or-install-codex-route");
+assert.equal(invalidExplicit.recoveryPlan.approvalRequired, true);
+assert.equal(invalidExplicit.recoveryPlan.automaticMutation, false);
+checks += 5;
 
 const emptyExplicit = await preflightCodex({
   projectRoot: project,
@@ -917,13 +938,20 @@ const prereleaseMismatch = await preflightCodex({
   binaryOverride: { commandPath: process.execPath, realPath: fs.realpathSync(process.execPath) },
 });
 assert.equal(prereleaseMismatch.code, "model-cache-version-mismatch");
-checks += 1;
+assert.equal(prereleaseMismatch.recoveryPlan.actionId, "refresh-selected-codex-cache");
+assert.equal(prereleaseMismatch.recoveryPlan.approvalRequired, true);
+assert.equal(prereleaseMismatch.recoveryPlan.automaticMutation, false);
+assert.equal(prereleaseMismatch.recoveryPlan.forbidden.includes("Do not edit models_cache.json manually"), true);
+checks += 5;
 
 const prereleaseCacheRoot = fs.mkdtempSync(path.join(os.tmpdir(), "mvck-prerelease-cache-"));
 fs.writeFileSync(path.join(prereleaseCacheRoot, "models_cache.json"), JSON.stringify({
   fetched_at: now,
   client_version: "9.9.9-alpha.1",
-  models: [{ slug: "controller-model", supported_reasoning_levels: [{ effort: "high" }] }],
+  models: [{
+    slug: "gpt-5.6-sol",
+    supported_reasoning_levels: [{ effort: "high" }, { effort: "max" }, { effort: "ultra" }],
+  }],
 }));
 const prereleaseExact = await preflightCodex({
   projectRoot: project,
@@ -934,7 +962,17 @@ const prereleaseExact = await preflightCodex({
 });
 assert.equal(prereleaseExact.localAdapterStatus, "ready");
 assert.equal(prereleaseExact.releaseChannel, "prerelease");
-checks += 2;
+assert.deepEqual(prereleaseExact.models, [{ id: "gpt-5.6-sol", reasoningEfforts: ["high", "max", "ultra"] }]);
+checks += 3;
+
+const runtimeDriftEnvelope = unavailableEnvelope({
+  code: "runtime-drift",
+  message: "controller runtime no longer matches the verified start route",
+}, "rejected");
+assert.equal(runtimeDriftEnvelope.recoveryPlan.actionId, "close-and-repreflight");
+assert.equal(runtimeDriftEnvelope.recoveryPlan.approvalRequired, true);
+assert.equal(runtimeDriftEnvelope.recoveryPlan.automaticMutation, false);
+checks += 3;
 
 const mismatchedCache = JSON.parse(fs.readFileSync(path.join(cacheRoot, "models_cache.json"), "utf8"));
 mismatchedCache.client_version = "9.9.10";

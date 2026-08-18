@@ -3,16 +3,16 @@
   "title": "Minimal Vibe Coding Kit controller response",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "task_id", "kind"],
+  "required": ["version", "task_id", "kind", "work_orders", "question", "decision", "reason", "receipt_bindings"],
   "properties": {
-    "version": { "const": 1 },
+    "version": { "type": "integer", "const": 1 },
     "task_id": { "type": "string", "minLength": 1, "maxLength": 160 },
     "kind": {
+      "type": "string",
       "enum": ["work-orders", "ask-user", "control-decision"]
     },
     "work_orders": {
       "type": "array",
-      "minItems": 1,
       "maxItems": 32,
       "items": {
         "type": "object",
@@ -64,12 +64,12 @@
             "maxItems": 64,
             "items": { "type": "string", "minLength": 1, "maxLength": 4000 }
           },
-          "allow_child_dispatch": { "const": false }
+          "allow_child_dispatch": { "type": "boolean", "const": false }
         }
       }
     },
     "question": {
-      "type": "object",
+      "type": ["object", "null"],
       "additionalProperties": false,
       "required": ["question_id", "prompt", "options", "recommended_option"],
       "properties": {
@@ -85,9 +85,10 @@
       }
     },
     "decision": {
-      "enum": ["accept", "retry", "escalate", "stop"]
+      "type": ["string", "null"],
+      "enum": ["accept", "retry", "escalate", "stop", null]
     },
-    "reason": { "type": "string", "minLength": 1, "maxLength": 4000 },
+    "reason": { "type": ["string", "null"], "maxLength": 4000 },
     "receipt_bindings": {
       "type": "array",
       "maxItems": 64,
@@ -101,19 +102,5 @@
         }
       }
     }
-  },
-  "oneOf": [
-    {
-      "properties": { "kind": { "const": "work-orders" } },
-      "required": ["work_orders"]
-    },
-    {
-      "properties": { "kind": { "const": "ask-user" } },
-      "required": ["question"]
-    },
-    {
-      "properties": { "kind": { "const": "control-decision" } },
-      "required": ["decision", "reason", "receipt_bindings"]
-    }
-  ]
+  }
 }

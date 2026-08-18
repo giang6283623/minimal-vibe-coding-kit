@@ -124,7 +124,16 @@ if (scenario === "descendant-sleep") {
     };
     if (process.env.FAKE_CODEX_EXTRA_FIELD === "1") response.work_orders[0].shell_command = "not-approved";
     if (process.env.FAKE_CODEX_WRITABLE === "1") response.work_orders[0].read_only = false;
+    if (process.env.FAKE_CODEX_CONFLICTING_ROOT === "1") response.decision = "accept";
   }
+  response = {
+    work_orders: [],
+    question: null,
+    decision: null,
+    reason: null,
+    receipt_bindings: [],
+    ...response,
+  };
   if (scenario === "duplicate-message") {
     process.stdout.write(JSON.stringify({
       type: "item.completed",
