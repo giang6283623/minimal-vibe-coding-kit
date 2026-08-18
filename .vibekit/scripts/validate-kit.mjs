@@ -1912,6 +1912,8 @@ function validateControlCenterContract() {
     '### Codex',
     'Do not invoke `cursor-agent`',
     'disables Codex multi-agent execution',
+    'failed explicit override stops',
+    'Codex app-server owned by the Cursor extension',
     'Manual is a transport, not a controller',
     'Allow at most one transfer per task',
     'A controller choice does not authorize multi-agent work'
@@ -1924,6 +1926,8 @@ function validateControlCenterContract() {
     '`installed-unverified`',
     '`unavailable`',
     '`ready` applies to one transport only',
+    'including prerelease components',
+    'untrusted local candidate-order',
     'generic executable name',
     'Do not bypass the limit'
   ])
@@ -1932,6 +1936,10 @@ function validateControlCenterContract() {
 
   hasAll(codexBridge, [
     'preflight',
+    '## Executable selection',
+    '`MVCK_CODEX_BIN`',
+    '`routeBindingDigest`',
+    'bridge-owned child process',
     '`installed-unverified`',
     '`AskUserTool`',
     '`catalogDigest`',
@@ -1988,6 +1996,9 @@ function validateControlCenterContract() {
     'Resolve controller and worker routes independently',
     'Derive `manual-handoff` from a manual controller',
     '## Codex selection',
+    '### Cursor-hosted Codex executable priority',
+    '`MVCK_CODEX_BIN`',
+    'route-binding digest',
     'controller=codex',
     'Do not launch Codex analysis lanes',
     'stateful bridge',
@@ -2008,6 +2019,8 @@ function validateControlCenterContract() {
   ]) && hasAll(swapExamples, [
     '`automatic-host-relay`',
     '`controller=codex`',
+    '`MVCK_CODEX_BIN`',
+    'extension-owned app-server',
     'Cursor-native worker route and model',
     'does not create its own'
   ]) && hasAll(proofline, [

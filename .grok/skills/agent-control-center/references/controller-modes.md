@@ -39,6 +39,11 @@ dispatches and return receipts.
 For the bundled CLI route, run preflight before selection. It checks the local
 CLI-advertised resume surface and rejects CLI and model-cache version drift, but
 keeps the live route `installed-unverified` until an approved request succeeds.
+For a Cursor host, the bridge applies the explicit override, active
+host-declared `openai.chatgpt` registry, bounded installed extension, and PATH
+priority documented in `codex-cli-bridge.md`. Local extension metadata is not
+publisher attestation. A failed explicit override stops; automatic candidates
+may fall through only after a bounded redacted failure record.
 Use the returned local catalog to ask for model and reasoning effort in the
 parent through its exact structured question tool when available. Treat that
 selection record as host-declared unless separately authenticated. The bridge captures one session ID,
@@ -52,6 +57,10 @@ Cursor SDK as independent routes. A Codex controller bridge does not require
 Cursor CLI or Cursor SDK. If either Cursor adapter fails authentication, quota,
 or capability checks, keep it unavailable. Do not invoke `cursor-agent`,
 install an SDK, start login, or enable billing as a fallback.
+
+Do not attach to the Codex app-server owned by the Cursor extension. The bridge
+starts and resumes only its own child processes from the selected executable,
+and binds every turn to the same route and executable content digest.
 
 If no Codex route is ready, return `ask-user` with a verified alternate
 provider, `controller=native`, plan-only, or stop. Never switch the controller

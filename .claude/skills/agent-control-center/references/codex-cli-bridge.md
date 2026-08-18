@@ -4,6 +4,20 @@ Use the bundled bridge when an external Codex controller must remain in one
 explicit CLI session while the active host dispatches workers. This is a
 host-side adapter. It does not give Codex direct access to host-native agents.
 
+## Executable selection
+
+An explicit `MVCK_CODEX_BIN` absolute executable is the highest-priority route
+and fails closed without fallback. When the host is Cursor, automatic discovery
+then prefers the active host-declared `openai.chatgpt` registry entry, followed
+by other bounded non-obsolete extension candidates for the current platform,
+then the first executable `codex` entry on `PATH`.
+
+The Cursor host markers, extension registry, and manifest are untrusted local
+metadata. They help order candidates but do not prove publisher identity. Each
+candidate must independently pass the full non-mutating preflight. Automatic
+candidates may fall through with bounded redacted rejection records. The bridge
+never repairs a candidate, edits a cache, or normalizes prerelease versions.
+
 ## Readiness
 
 Run the non-mutating preflight first:
@@ -15,7 +29,10 @@ node .vibekit/skills/agent-control-center/scripts/codex-cli-controller-bridge.mj
 
 Preflight verifies the local executable identity, CLI-advertised command
 surface, login-status output, and a fresh same-user model cache written by the
-same CLI version. A passing preflight reports `localAdapterStatus: ready`, but
+same exact full CLI version. It binds the command path, real path, stat fields,
+content SHA-256, CLI and cache versions, cache and catalog digests, route source,
+and local provenance into `routeBindingDigest`. A passing preflight reports
+`localAdapterStatus: ready`, but
 the overall route remains `installed-unverified` until an authorized controller
 request creates a valid explicit session. The cache is local selection data,
 not an authenticated provider receipt. A CLI and cache version mismatch also
@@ -90,6 +107,13 @@ workflow, run `cancel <state-path>` or `close <state-path>`. The private
 state directory uses mode 0700, the state file uses mode 0600, and state expires
 after one hour. Retain it only as long as the current workflow or audit needs
 it.
+
+Every start and reply rechecks the same route binding and executable content.
+Reply preflights the stored executable directly instead of rediscovering a new
+candidate. Idle cancel and close validate and echo the stored binding without
+requiring the executable to remain available. Start and resume always use a
+new bridge-owned child process. They never attach to, signal, enumerate, or
+reuse an extension-owned app-server process, PID, socket, endpoint, or session.
 
 ## Provider and model coverage
 

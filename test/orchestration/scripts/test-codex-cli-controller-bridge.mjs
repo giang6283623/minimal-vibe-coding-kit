@@ -11,6 +11,7 @@ import {
   closeController,
   preflightCodex,
   replyController,
+  resolveCodexCandidates,
   runProcess,
   startController,
 } from "../../../.vibekit/skills/agent-control-center/scripts/codex-cli-controller-bridge.mjs";
@@ -18,6 +19,7 @@ import {
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "../../..");
 const fakeCli = path.join(root, "test/orchestration/fixtures/fake-codex-cli.mjs");
+const processExecutableSha256 = crypto.createHash("sha256").update(fs.readFileSync(process.execPath)).digest("hex");
 let checks = 0;
 
 function canonicalJson(value) {
@@ -39,9 +41,83 @@ function projectFixture() {
   return fs.realpathSync(project);
 }
 
+function cursorExtensionFixture(extensionsRoot, version, platformDirectory = "macos-aarch64", filename = "codex") {
+  const extensionRoot = path.join(extensionsRoot, "openai.chatgpt-" + version + "-darwin-arm64");
+  const binRoot = path.join(extensionRoot, "bin", platformDirectory);
+  fs.mkdirSync(binRoot, { recursive: true });
+  fs.writeFileSync(path.join(extensionRoot, "package.json"), JSON.stringify({
+    name: "chatgpt",
+    publisher: "openai",
+    version,
+  }));
+  const executable = path.join(binRoot, filename);
+  fs.copyFileSync(fakeCli, executable);
+  fs.chmodSync(executable, 0o755);
+  return { extensionRoot: fs.realpathSync(extensionRoot), executable: fs.realpathSync(executable), version };
+}
+
+function writeCursorRegistry(extensionsRoot, extension, installedTimestamp = 1) {
+  fs.writeFileSync(path.join(extensionsRoot, "extensions.json"), JSON.stringify([{
+    identifier: { id: "openai.chatgpt" },
+    version: extension.version,
+    location: { fsPath: extension.extensionRoot },
+    metadata: { installedTimestamp },
+  }]));
+}
+
+function candidatePreflightRunner(versions, throwing = new Map()) {
+  return async ({ binary, args }) => {
+    const selected = fs.realpathSync(binary);
+    if (throwing.has(selected)) throw new Error(throwing.get(selected));
+    const version = versions.get(selected) || "9.9.9";
+    const joined = args.join(" ");
+    if (joined.endsWith("--version")) return { code: 0, stdout: "codex-cli " + version + "\n", stderr: "" };
+    if (joined.includes("exec resume --help")) {
+      return { code: 0, stdout: "SESSION_ID --json --output-schema\n", stderr: "" };
+    }
+    if (joined.includes("exec --help")) {
+      return { code: 0, stdout: "--json --output-schema --model --disable --ignore-user-config\n", stderr: "" };
+    }
+    return { code: 0, stdout: "Logged in using ChatGPT\n", stderr: "" };
+  };
+}
+
 function runtimeFixture(project, now = Date.now()) {
   const models = [{ id: "controller-model", reasoningEfforts: ["medium", "high"] }];
   const executableStat = fs.statSync(process.execPath);
+  const executableIdentity = {
+    device: String(executableStat.dev),
+    inode: String(executableStat.ino),
+    size: executableStat.size,
+    modified_ms: Math.trunc(executableStat.mtimeMs),
+    mode: executableStat.mode,
+    sha256: processExecutableSha256,
+  };
+  const catalogDigest = digest(models);
+  const routeBinding = {
+    host: "current",
+    hostAttestation: "test-host",
+    source: "binary-override",
+    provenanceAttestation: "test-host-declared",
+    commandPath: process.execPath,
+    executableRealPath: fs.realpathSync(process.execPath),
+    executableIdentity,
+    executableIdentityDigest: digest(executableIdentity),
+    cliVersion: "9.9.9",
+    releaseChannel: "stable",
+    cacheVersion: "9.9.9",
+    cacheFileDigest: digest("test-cache-file"),
+    cacheSnapshotDigest: digest("test-cache-snapshot"),
+    catalogDigest,
+    extensionVersion: null,
+    extensionManifestDigest: null,
+    extensionRegistryDigest: null,
+    adapter: "mvck-codex-cli-controller-bridge",
+    provider: "codex",
+    transport: "codex-cli",
+    launchMode: "bridge-owned-child-process",
+    processReuse: false,
+  };
   return {
     version: 1,
     status: "installed-unverified",
@@ -53,18 +129,17 @@ function runtimeFixture(project, now = Date.now()) {
     projectRoot: project,
     commandPath: process.execPath,
     executableRealPath: fs.realpathSync(process.execPath),
-    executableIdentity: {
-      device: String(executableStat.dev),
-      inode: String(executableStat.ino),
-      size: executableStat.size,
-      modified_ms: Math.trunc(executableStat.mtimeMs),
-      mode: executableStat.mode,
-    },
+    executableIdentity,
+    executableIdentityDigest: routeBinding.executableIdentityDigest,
     cliVersion: "9.9.9",
     cacheVersion: "9.9.9",
+    cacheFileDigest: routeBinding.cacheFileDigest,
+    cacheSnapshotDigest: routeBinding.cacheSnapshotDigest,
     catalogFetchedAt: new Date(now).toISOString(),
-    catalogDigest: digest(models),
+    catalogDigest,
     models,
+    routeBinding,
+    routeBindingDigest: digest(routeBinding),
     modelBinding: "requested-not-attested",
     verifiedAt: new Date(now).toISOString(),
     expiresAt: new Date(now + 10 * 60 * 1000).toISOString(),
@@ -143,6 +218,9 @@ assert.equal(started.sequence, 1);
 assert.equal(started.phase, "awaiting-host");
 assert.equal(started.requested_runtime.attestation, "requested-not-attested");
 assert.equal(started.requested_runtime.multi_agent, "disabled");
+assert.equal(started.requested_runtime.route_binding_digest, runtime.routeBindingDigest);
+assert.equal(started.requested_runtime.route_binding.launchMode, "bridge-owned-child-process");
+assert.equal(started.requested_runtime.route_binding.processReuse, false);
 assert.ok(path.isAbsolute(started.state_path));
 assert.equal(started.state_path.startsWith(project + path.sep), false);
 assert.equal(fs.lstatSync(started.state_path).isSymbolicLink(), false);
@@ -150,7 +228,7 @@ if (process.platform !== "win32") assert.equal(fs.statSync(started.state_path).m
 const privateState = JSON.parse(fs.readFileSync(started.state_path, "utf8"));
 assert.equal("task_envelope" in privateState, false);
 assert.equal("objective" in privateState.task_contract, false);
-checks += 11;
+checks += 14;
 
 const startCapture = JSON.parse(fs.readFileSync(captureStart, "utf8"));
 assert.equal(startCapture.args[0], "exec");
@@ -160,8 +238,9 @@ assert.ok(startCapture.args.includes("--ignore-user-config"));
 assert.ok(startCapture.args.includes("multi_agent"));
 assert.ok(startCapture.args.includes("agents.enabled=false"));
 assert.equal(startCapture.args.includes("--last"), false);
+assert.equal(startCapture.args.includes("app-server"), false);
 assert.notEqual(startCapture.args[startCapture.args.indexOf("-C") + 1], project);
-checks += 8;
+checks += 9;
 
 const receipt = {
   task_id: "task-controller-bridge-test",
@@ -650,7 +729,9 @@ const closable = await startController({
 const closed = closeController({ statePath: closable.state_path, reason: "test-close", now: new Date(nowMs + 8000).toISOString() });
 assert.equal(closed.status, "closed");
 assert.equal(closed.close_reason, "test-close");
-checks += 2;
+assert.equal(closed.route_binding_digest, closeRuntime.routeBindingDigest);
+assert.equal(closed.route_binding.processReuse, false);
+checks += 4;
 
 const cacheRoot = fs.mkdtempSync(path.join(os.tmpdir(), "mvck-codex-cache-"));
 fs.writeFileSync(path.join(cacheRoot, "models_cache.json"), JSON.stringify({
@@ -679,7 +760,181 @@ const preflight = await preflightCodex({
 assert.equal(preflight.status, "installed-unverified");
 assert.equal(preflight.localAdapterStatus, "ready");
 assert.deepEqual(preflight.models, [{ id: "controller-model", reasoningEfforts: ["high"] }]);
+assert.equal(preflight.routeSource, "binary-override");
+assert.equal(preflight.routeBinding.processReuse, false);
+assert.equal(preflight.routeBinding.launchMode, "bridge-owned-child-process");
+assert.equal(preflight.routeBindingDigest, digest(preflight.routeBinding));
+checks += 7;
+
+const cursorHome = fs.mkdtempSync(path.join(os.tmpdir(), "mvck-cursor-home-"));
+const cursorExtensionsPath = path.join(cursorHome, ".cursor", "extensions");
+fs.mkdirSync(cursorExtensionsPath, { recursive: true });
+const cursorExtensionsRoot = fs.realpathSync(cursorExtensionsPath);
+const activeCursorExtension = cursorExtensionFixture(cursorExtensionsRoot, "26.5814.41407");
+const newerCursorExtension = cursorExtensionFixture(cursorExtensionsRoot, "26.814.41407");
+writeCursorRegistry(cursorExtensionsRoot, activeCursorExtension, 200);
+const cursorPathDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "mvck-cursor-path-"));
+const cursorPathCodex = path.join(cursorPathDirectory, "codex");
+fs.copyFileSync(fakeCli, cursorPathCodex);
+fs.chmodSync(cursorPathCodex, 0o755);
+const cursorEnv = {
+  ...process.env,
+  PATH: cursorPathDirectory,
+  CODEX_HOME: cacheRoot,
+  CODEX_INTERNAL_ORIGINATOR_OVERRIDE: "codex_vscode",
+  CURSOR_SPAWNED_BY_EXTENSION_ID: "openai.chatgpt",
+  CURSOR_SPAWN_CHAIN: "openai.chatgpt",
+};
+const allMatchingVersions = new Map([
+  [activeCursorExtension.executable, "9.9.9"],
+  [newerCursorExtension.executable, "9.9.9"],
+  [fs.realpathSync(cursorPathCodex), "9.9.9"],
+]);
+const cursorPreflight = await preflightCodex({
+  projectRoot: project,
+  runner: candidatePreflightRunner(allMatchingVersions),
+  env: cursorEnv,
+  now,
+  homeDirectory: cursorHome,
+  cursorExtensionsRoot,
+  platform: "darwin",
+  architecture: "arm64",
+});
+assert.equal(cursorPreflight.localAdapterStatus, "ready");
+assert.equal(cursorPreflight.host, "cursor");
+assert.equal(cursorPreflight.routeSource, "cursor-extension-active-host-declared");
+assert.equal(cursorPreflight.commandPath, activeCursorExtension.executable);
+assert.equal(cursorPreflight.provenanceAttestation, "local-structural-not-cryptographic");
+assert.equal(cursorPreflight.candidateAttempts.length, 0);
+checks += 6;
+
+const fallbackVersions = new Map(allMatchingVersions);
+fallbackVersions.set(activeCursorExtension.executable, "9.9.8");
+const fallbackPreflight = await preflightCodex({
+  projectRoot: project,
+  runner: candidatePreflightRunner(fallbackVersions),
+  env: cursorEnv,
+  now,
+  homeDirectory: cursorHome,
+  cursorExtensionsRoot,
+  platform: "darwin",
+  architecture: "arm64",
+});
+assert.equal(fallbackPreflight.localAdapterStatus, "ready");
+assert.equal(fallbackPreflight.routeSource, "cursor-extension-installed");
+assert.equal(fallbackPreflight.commandPath, newerCursorExtension.executable);
+assert.equal(fallbackPreflight.candidateAttempts.length, 1);
+assert.equal(fallbackPreflight.candidateAttempts[0].code, "model-cache-version-mismatch");
+checks += 5;
+
+const redactedFallback = await preflightCodex({
+  projectRoot: project,
+  runner: candidatePreflightRunner(allMatchingVersions, new Map([
+    [activeCursorExtension.executable, "Bearer secret-should-not-leak"],
+  ])),
+  env: cursorEnv,
+  now,
+  homeDirectory: cursorHome,
+  cursorExtensionsRoot,
+  platform: "darwin",
+  architecture: "arm64",
+});
+assert.equal(redactedFallback.routeSource, "cursor-extension-installed");
+assert.equal(redactedFallback.candidateAttempts[0].message.includes("secret-should-not-leak"), false);
+assert.equal(redactedFallback.candidateAttempts[0].message.includes("[REDACTED]"), true);
 checks += 3;
+
+const explicitPreflight = await preflightCodex({
+  projectRoot: project,
+  runner: candidatePreflightRunner(allMatchingVersions),
+  env: { ...cursorEnv, MVCK_CODEX_BIN: newerCursorExtension.executable },
+  now,
+  homeDirectory: cursorHome,
+  cursorExtensionsRoot,
+  platform: "darwin",
+  architecture: "arm64",
+});
+assert.equal(explicitPreflight.routeSource, "explicit-override");
+assert.equal(explicitPreflight.commandPath, newerCursorExtension.executable);
+assert.equal(explicitPreflight.fallbackPolicy, "stop");
+checks += 3;
+
+const invalidExplicit = await preflightCodex({
+  projectRoot: project,
+  runner: candidatePreflightRunner(allMatchingVersions),
+  env: { ...cursorEnv, MVCK_CODEX_BIN: path.join(cursorHome, "missing-codex") },
+  now,
+  homeDirectory: cursorHome,
+  cursorExtensionsRoot,
+  platform: "darwin",
+  architecture: "arm64",
+});
+assert.equal(invalidExplicit.status, "unavailable");
+assert.equal(invalidExplicit.code, "codex-explicit-invalid");
+checks += 2;
+
+const emptyExplicit = await preflightCodex({
+  projectRoot: project,
+  runner: candidatePreflightRunner(allMatchingVersions),
+  env: { ...cursorEnv, MVCK_CODEX_BIN: "" },
+  now,
+  homeDirectory: cursorHome,
+  cursorExtensionsRoot,
+  platform: "darwin",
+  architecture: "arm64",
+});
+assert.equal(emptyExplicit.code, "codex-explicit-invalid");
+checks += 1;
+
+const windowsHome = fs.mkdtempSync(path.join(os.tmpdir(), "mvck-windows-cursor-home-"));
+const windowsExtensionsPath = path.join(windowsHome, ".cursor", "extensions");
+fs.mkdirSync(windowsExtensionsPath, { recursive: true });
+const windowsExtensions = fs.realpathSync(windowsExtensionsPath);
+const windowsExtension = cursorExtensionFixture(windowsExtensions, "26.900.1", "windows-x86_64", "codex.exe");
+writeCursorRegistry(windowsExtensions, windowsExtension, 300);
+const windowsInventory = resolveCodexCandidates({
+  env: {
+    ...process.env,
+    PATH: "",
+    CODEX_INTERNAL_ORIGINATOR_OVERRIDE: "codex_vscode",
+    CURSOR_SPAWNED_BY_EXTENSION_ID: "openai.chatgpt",
+  },
+  homeDirectory: windowsHome,
+  cursorExtensionsRoot: windowsExtensions,
+  platform: "win32",
+  architecture: "x64",
+});
+assert.equal(windowsInventory.candidates[0].commandPath, windowsExtension.executable);
+assert.equal(windowsInventory.candidates[0].source, "cursor-extension-active-host-declared");
+checks += 2;
+
+const prereleaseRunner = candidatePreflightRunner(new Map([[fs.realpathSync(process.execPath), "9.9.9-alpha.1"]]));
+const prereleaseMismatch = await preflightCodex({
+  projectRoot: project,
+  runner: prereleaseRunner,
+  env: { ...process.env, CODEX_HOME: cacheRoot },
+  now,
+  binaryOverride: { commandPath: process.execPath, realPath: fs.realpathSync(process.execPath) },
+});
+assert.equal(prereleaseMismatch.code, "model-cache-version-mismatch");
+checks += 1;
+
+const prereleaseCacheRoot = fs.mkdtempSync(path.join(os.tmpdir(), "mvck-prerelease-cache-"));
+fs.writeFileSync(path.join(prereleaseCacheRoot, "models_cache.json"), JSON.stringify({
+  fetched_at: now,
+  client_version: "9.9.9-alpha.1",
+  models: [{ slug: "controller-model", supported_reasoning_levels: [{ effort: "high" }] }],
+}));
+const prereleaseExact = await preflightCodex({
+  projectRoot: project,
+  runner: prereleaseRunner,
+  env: { ...process.env, CODEX_HOME: prereleaseCacheRoot },
+  now,
+  binaryOverride: { commandPath: process.execPath, realPath: fs.realpathSync(process.execPath) },
+});
+assert.equal(prereleaseExact.localAdapterStatus, "ready");
+assert.equal(prereleaseExact.releaseChannel, "prerelease");
+checks += 2;
 
 const mismatchedCache = JSON.parse(fs.readFileSync(path.join(cacheRoot, "models_cache.json"), "utf8"));
 mismatchedCache.client_version = "9.9.10";
@@ -708,6 +963,7 @@ const cliPreflightPass = spawnSync(process.execPath, [bridgeCli, "preflight", pr
     ...process.env,
     PATH: fakeBinDirectory + path.delimiter + process.env.PATH,
     CODEX_HOME: cacheRoot,
+    MVCK_HOST: "current",
     FAKE_CODEX_VERSION: "9.9.9",
   },
 });
@@ -725,12 +981,63 @@ const cliPreflightFail = spawnSync(process.execPath, [bridgeCli, "preflight", pr
     ...process.env,
     PATH: fakeBinDirectory + path.delimiter + process.env.PATH,
     CODEX_HOME: cacheRoot,
+    MVCK_HOST: "current",
     FAKE_CODEX_VERSION: "9.9.9",
   },
 });
 assert.notEqual(cliPreflightFail.status, 0);
 assert.equal(JSON.parse(cliPreflightFail.stdout).localAdapterStatus, "installed-unverified");
 checks += 2;
+
+const integrityDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "mvck-integrity-codex-"));
+const integrityBinary = path.join(integrityDirectory, "codex");
+fs.copyFileSync(fakeCli, integrityBinary);
+fs.chmodSync(integrityBinary, 0o755);
+const integrityFixedTime = new Date(1700000000000);
+fs.utimesSync(integrityBinary, integrityFixedTime, integrityFixedTime);
+const integrityCacheRoot = fs.mkdtempSync(path.join(os.tmpdir(), "mvck-integrity-cache-"));
+fs.writeFileSync(path.join(integrityCacheRoot, "models_cache.json"), JSON.stringify({
+  fetched_at: now,
+  client_version: "9.9.9",
+  models: [{ slug: "controller-model", supported_reasoning_levels: [{ effort: "high" }] }],
+}));
+const integrityRuntime = await preflightCodex({
+  projectRoot: project,
+  runner: candidatePreflightRunner(new Map([[fs.realpathSync(integrityBinary), "9.9.9"]])),
+  env: { ...process.env, CODEX_HOME: integrityCacheRoot },
+  now,
+  binaryOverride: { commandPath: integrityBinary, realPath: fs.realpathSync(integrityBinary) },
+});
+assert.equal(integrityRuntime.localAdapterStatus, "ready");
+const integrityBefore = fs.statSync(integrityBinary);
+const integrityBytes = fs.readFileSync(integrityBinary);
+integrityBytes[integrityBytes.length - 2] ^= 1;
+fs.writeFileSync(integrityBinary, integrityBytes);
+fs.chmodSync(integrityBinary, integrityBefore.mode);
+fs.utimesSync(integrityBinary, integrityBefore.atime, integrityBefore.mtime);
+const integrityAfter = fs.statSync(integrityBinary);
+assert.equal(integrityAfter.size, integrityBefore.size);
+assert.equal(Math.trunc(integrityAfter.mtimeMs), Math.trunc(integrityBefore.mtimeMs));
+assert.equal(String(integrityAfter.ino), String(integrityBefore.ino));
+assert.notEqual(
+  crypto.createHash("sha256").update(fs.readFileSync(integrityBinary)).digest("hex"),
+  integrityRuntime.executableIdentity.sha256
+);
+checks += 5;
+await expectReject(
+  startController({
+    projectRoot: project,
+    rawRequest: {
+      version: 1,
+      task_envelope: taskEnvelope(project),
+      selection: selection(integrityRuntime),
+    },
+    runtime: integrityRuntime,
+    runner: () => { throw new Error("runner must not be called after executable content drift"); },
+    now,
+  }),
+  /executable identity changed/
+);
 
 const executableLink = path.join(os.tmpdir(), "mvck-codex-link-" + crypto.randomUUID());
 fs.symlinkSync(process.execPath, executableLink);
