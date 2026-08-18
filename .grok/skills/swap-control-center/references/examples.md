@@ -6,24 +6,29 @@ provider, model, command, and status with current verified evidence.
 ## Cursor host, external controller
 
 1. Cursor remains the host and parent user conversation.
-2. Cursor builds a live inventory, then uses `AskUserQuestion` or its exposed
+2. For a Codex CLI controller, Cursor runs the bridge preflight. An explicit
+   `MVCK_CODEX_BIN` route must verify or stop. Otherwise the bridge tries the
+   active host-declared `openai.chatgpt` registry path, other bounded extension
+   candidates, and then `PATH`. It records only untrusted local provenance and
+   never attaches to the extension-owned app-server.
+3. Cursor builds a live inventory, then uses `AskUserQuestion` or its exposed
    structured equivalent for unresolved choices. The user selects
    `automatic-host-relay`, a locally preflighted Codex controller route and
    model, plus a separate Cursor-native worker route and model.
-3. Cursor records `host=cursor`, `controller=codex`, and the selected Cursor
+4. Cursor records `host=cursor`, `controller=codex`, and the selected Cursor
    worker defaults. Controller and worker selections remain independent.
-4. Cursor starts the bundled Codex CLI bridge with the frozen task envelope,
+5. Cursor starts the bundled Codex CLI bridge with the frozen task envelope,
    captures its explicit session ID, and keeps Codex multi-agent execution
    disabled before creating analysis lanes.
-5. Codex returns bounded work orders for Cursor-native agents. If Codex returns
+6. Codex returns bounded work orders for Cursor-native agents. If Codex returns
    `ask-user`, Cursor asks in the parent conversation and returns the answer to
    the same Codex session.
-6. Cursor validates each order against the selected worker route, dispatches
+7. Cursor validates each order against the selected worker route, dispatches
    those agents, and returns unaltered proof receipts by resuming the same
    explicit Codex session.
-7. Codex reviews the receipts and returns `accept`, `retry`, `escalate`,
+8. Codex reviews the receipts and returns `accept`, `retry`, `escalate`,
    `ask-user`, or `stop`.
-8. Cursor presents the result or user decision. Cursor does not create its own
+9. Cursor presents the result or user decision. Cursor does not create its own
    lane plan, and Codex never claims direct control of the Cursor Agent window.
 
 ## CLI host, selected controller

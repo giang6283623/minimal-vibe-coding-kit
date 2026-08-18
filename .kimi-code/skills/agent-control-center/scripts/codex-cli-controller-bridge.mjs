@@ -22,6 +22,12 @@ const MAX_TIMEOUT_MS = 1800000;
 const STATE_TTL_MS = 60 * 60 * 1000;
 const CATALOG_TTL_MS = 24 * 60 * 60 * 1000;
 const CLOCK_SKEW_MS = 5 * 60 * 1000;
+const MAX_CURSOR_REGISTRY_BYTES = 1024 * 1024;
+const MAX_CURSOR_EXTENSION_CANDIDATES = 32;
+const MAX_EXTENSION_MANIFEST_BYTES = 256 * 1024;
+const CODEX_BINARY_OVERRIDE = "MVCK_CODEX_BIN";
+const HOST_OVERRIDE = "MVCK_HOST";
+const KNOWN_HOSTS = new Set(["current", "cursor", "codex", "claude", "opencode", "grok", "kimi"]);
 const PROVIDERS = new Set(["current", "codex", "claude", "cursor", "opencode", "grok", "kimi"]);
 const CONTROLLER_TRANSPORTS = new Set([
   "native", "codex-cli", "claude-cli", "cursor-cli", "opencode-cli",
@@ -167,18 +173,273 @@ function executableCandidates(name, env) {
     .flatMap((directory) => names.map((candidate) => path.resolve(directory, candidate)));
 }
 
-export function resolveCodexBinary(env = process.env) {
+function executableCandidate(commandPath, source, metadata = {}) {
+  printable(commandPath, "Codex executable path", 4096);
+  if (!path.isAbsolute(commandPath)) fail("codex-candidate-invalid", "Codex executable path must be absolute");
+  const resolved = path.resolve(commandPath);
+  let realPath;
+  try {
+    const stat = fs.statSync(resolved);
+    if (!stat.isFile()) fail("codex-candidate-invalid", "Codex executable is not a regular file");
+    fs.accessSync(resolved, fs.constants.X_OK);
+    realPath = fs.realpathSync(resolved);
+  } catch (error) {
+    if (error instanceof BridgeError) throw error;
+    fail("codex-candidate-invalid", "Codex executable is unavailable or not executable");
+  }
+  return { commandPath: resolved, realPath, source, ...metadata };
+}
+
+function pathCandidate(env) {
   for (const candidate of executableCandidates("codex", env)) {
     try {
-      const stat = fs.statSync(candidate);
-      if (!stat.isFile()) continue;
-      fs.accessSync(candidate, fs.constants.X_OK);
-      return { commandPath: candidate, realPath: fs.realpathSync(candidate) };
+      return executableCandidate(candidate, "path", {
+        provenanceAttestation: "path-host-declared",
+      });
     } catch {
       // Continue through PATH candidates.
     }
   }
   fail("codex-not-installed", "Codex CLI was not found on PATH");
+}
+
+export function resolveCodexBinary(env = process.env) {
+  const candidate = pathCandidate(env);
+  return { commandPath: candidate.commandPath, realPath: candidate.realPath };
+}
+
+function detectHost(env) {
+  if (typeof env[HOST_OVERRIDE] === "string" && env[HOST_OVERRIDE].length > 0) {
+    const host = printable(env[HOST_OVERRIDE], HOST_OVERRIDE, 40).toLowerCase();
+    if (!KNOWN_HOSTS.has(host)) fail("host-override-invalid", HOST_OVERRIDE + " is not a supported host identifier");
+    return { host, attestation: "host-declared-override" };
+  }
+  const spawnedBy = String(env.CURSOR_SPAWNED_BY_EXTENSION_ID || "").toLowerCase();
+  const spawnChain = String(env.CURSOR_SPAWN_CHAIN || "").toLowerCase().split(/[,:;\s]+/).filter(Boolean);
+  const originator = String(env.CODEX_INTERNAL_ORIGINATOR_OVERRIDE || "").toLowerCase();
+  if (originator === "codex_vscode" && (spawnedBy === "openai.chatgpt" || spawnChain.includes("openai.chatgpt"))) {
+    return { host: "cursor", attestation: "cursor-host-env-untrusted-local" };
+  }
+  return { host: "current", attestation: "host-not-attested" };
+}
+
+function safeJsonFile(filePath, maximum, code, label) {
+  const stat = fs.lstatSync(filePath);
+  if (stat.isSymbolicLink() || !stat.isFile() || stat.size > maximum) {
+    fail(code, label + " must be a bounded non-symlinked regular file");
+  }
+  const raw = fs.readFileSync(filePath);
+  let value;
+  try {
+    value = JSON.parse(raw.toString("utf8"));
+  } catch {
+    fail(code, label + " is not valid JSON");
+  }
+  return { value, fileDigest: digest(raw) };
+}
+
+function childPath(parent, candidate) {
+  const relative = path.relative(parent, candidate);
+  return relative.length > 0 && !relative.startsWith(".." + path.sep) && relative !== ".." && !path.isAbsolute(relative);
+}
+
+function compareNumericVersions(left, right) {
+  const a = left.split(".").map((part) => Number(part));
+  const b = right.split(".").map((part) => Number(part));
+  const maximum = Math.max(a.length, b.length);
+  for (let index = 0; index < maximum; index += 1) {
+    const difference = (a[index] || 0) - (b[index] || 0);
+    if (difference !== 0) return difference;
+  }
+  return 0;
+}
+
+function platformDirectoryMatches(name, platform, architecture) {
+  const normalized = name.toLowerCase();
+  const platforms = platform === "darwin" ? ["macos", "darwin"]
+    : platform === "win32" ? ["windows", "win32"] : [platform];
+  const architectures = architecture === "arm64" ? ["arm64", "aarch64"]
+    : architecture === "x64" ? ["x64", "x86_64", "amd64"] : [architecture];
+  return platforms.some((token) => normalized.includes(token))
+    && architectures.some((token) => normalized.includes(token));
+}
+
+function extensionExecutable(extensionRoot, platform, architecture) {
+  const binRoot = path.join(extensionRoot, "bin");
+  const stat = fs.lstatSync(binRoot);
+  if (stat.isSymbolicLink() || !stat.isDirectory()) fail("cursor-extension-invalid", "Cursor extension bin must be a directory");
+  const platformDirectories = fs.readdirSync(binRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && !entry.isSymbolicLink() && platformDirectoryMatches(entry.name, platform, architecture))
+    .map((entry) => entry.name)
+    .sort();
+  for (const directory of platformDirectories) {
+    for (const filename of platform === "win32" ? ["codex.exe", "codex"] : ["codex"]) {
+      const candidate = path.join(binRoot, directory, filename);
+      if (!fs.existsSync(candidate)) continue;
+      const directStat = fs.lstatSync(candidate);
+      if (directStat.isSymbolicLink() || !directStat.isFile()) continue;
+      const realPath = fs.realpathSync(candidate);
+      if (!childPath(extensionRoot, realPath)) fail("cursor-extension-invalid", "Cursor Codex executable escapes its extension root");
+      return candidate;
+    }
+  }
+  fail("cursor-extension-invalid", "Cursor extension has no Codex executable for this platform");
+}
+
+function validateCursorExtension(extensionRoot, extensionsRoot, expectedVersion, metadata, platform, architecture) {
+  const resolvedRoot = path.resolve(extensionRoot);
+  if (!childPath(extensionsRoot, resolvedRoot) || !fs.existsSync(resolvedRoot)) {
+    fail("cursor-extension-invalid", "Cursor extension path escapes the extensions root");
+  }
+  const rootStat = fs.lstatSync(resolvedRoot);
+  if (rootStat.isSymbolicLink() || !rootStat.isDirectory() || fs.realpathSync(resolvedRoot) !== resolvedRoot) {
+    fail("cursor-extension-invalid", "Cursor extension root must be a direct non-symlinked directory");
+  }
+  const manifestPath = path.join(resolvedRoot, "package.json");
+  const manifestFile = safeJsonFile(manifestPath, MAX_EXTENSION_MANIFEST_BYTES, "cursor-extension-invalid", "Cursor extension manifest");
+  const manifest = manifestFile.value;
+  if (!plainObject(manifest) || String(manifest.publisher).toLowerCase() !== "openai"
+      || String(manifest.name).toLowerCase() !== "chatgpt"
+      || typeof manifest.version !== "string" || !/^\d+(?:\.\d+)+$/.test(manifest.version)
+      || (expectedVersion && manifest.version !== expectedVersion)) {
+    fail("cursor-extension-invalid", "Cursor extension manifest identity or version does not match openai.chatgpt");
+  }
+  const commandPath = extensionExecutable(resolvedRoot, platform, architecture);
+  return executableCandidate(commandPath, metadata.source, {
+    provenanceAttestation: "local-structural-not-cryptographic",
+    extensionRoot: resolvedRoot,
+    extensionVersion: manifest.version,
+    extensionManifestDigest: manifestFile.fileDigest,
+    extensionRegistryDigest: metadata.registryDigest || null,
+    installedTimestamp: Number.isFinite(metadata.installedTimestamp) ? metadata.installedTimestamp : 0,
+  });
+}
+
+function readObsoleteExtensions(extensionsRoot) {
+  const obsoletePath = path.join(extensionsRoot, ".obsolete");
+  if (!fs.existsSync(obsoletePath)) return new Set();
+  const parsed = safeJsonFile(obsoletePath, MAX_CURSOR_REGISTRY_BYTES, "cursor-registry-invalid", "Cursor obsolete registry").value;
+  if (!plainObject(parsed)) fail("cursor-registry-invalid", "Cursor obsolete registry must be an object");
+  return new Set(Object.entries(parsed).filter(([, value]) => value === true).map(([key]) => key));
+}
+
+function registeredCursorCandidate(extensionsRoot, platform, architecture) {
+  const registryPath = path.join(extensionsRoot, "extensions.json");
+  if (!fs.existsSync(registryPath)) return null;
+  const registryFile = safeJsonFile(registryPath, MAX_CURSOR_REGISTRY_BYTES, "cursor-registry-invalid", "Cursor extension registry");
+  if (!Array.isArray(registryFile.value) || registryFile.value.length > 4096) {
+    fail("cursor-registry-invalid", "Cursor extension registry must be a bounded array");
+  }
+  const records = registryFile.value.filter((record) => plainObject(record)
+    && String(record.identifier?.id || "").toLowerCase() === "openai.chatgpt");
+  if (records.length !== 1) return null;
+  const record = records[0];
+  const location = record.location?.fsPath;
+  const version = record.version;
+  if (typeof location !== "string" || !path.isAbsolute(location) || typeof version !== "string") return null;
+  const obsolete = readObsoleteExtensions(extensionsRoot);
+  if (obsolete.has("openai.chatgpt-" + version)) return null;
+  return validateCursorExtension(location, extensionsRoot, version, {
+    source: "cursor-extension-active-host-declared",
+    registryDigest: registryFile.fileDigest,
+    installedTimestamp: record.metadata?.installedTimestamp,
+  }, platform, architecture);
+}
+
+function installedCursorCandidates(extensionsRoot, platform, architecture) {
+  if (!fs.existsSync(extensionsRoot)) return [];
+  const rootStat = fs.lstatSync(extensionsRoot);
+  if (rootStat.isSymbolicLink() || !rootStat.isDirectory() || fs.realpathSync(extensionsRoot) !== extensionsRoot) return [];
+  const obsolete = readObsoleteExtensions(extensionsRoot);
+  const candidates = [];
+  const entries = fs.readdirSync(extensionsRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && !entry.isSymbolicLink() && entry.name.startsWith("openai.chatgpt-"))
+    .sort((left, right) => left.name.localeCompare(right.name))
+    .slice(0, MAX_CURSOR_EXTENSION_CANDIDATES);
+  for (const entry of entries) {
+    try {
+      const candidate = validateCursorExtension(path.join(extensionsRoot, entry.name), extensionsRoot, null, {
+        source: "cursor-extension-installed",
+      }, platform, architecture);
+      if (obsolete.has("openai.chatgpt-" + candidate.extensionVersion)) continue;
+      candidates.push(candidate);
+    } catch {
+      // Invalid local extension metadata is not an eligible executable candidate.
+    }
+  }
+  return candidates.sort((left, right) => (
+    compareNumericVersions(right.extensionVersion, left.extensionVersion)
+    || left.realPath.localeCompare(right.realPath)
+  ));
+}
+
+export function resolveCodexCandidates({
+  env = process.env,
+  homeDirectory = os.homedir(),
+  platform = process.platform,
+  architecture = process.arch,
+  cursorExtensionsRoot,
+} = {}) {
+  const hostRecord = detectHost(env);
+  const explicit = env[CODEX_BINARY_OVERRIDE];
+  if (Object.prototype.hasOwnProperty.call(env, CODEX_BINARY_OVERRIDE)) {
+    if (typeof explicit !== "string" || explicit.length === 0) {
+      fail("codex-explicit-invalid", CODEX_BINARY_OVERRIDE + " must name one absolute executable path");
+    }
+    try {
+      return {
+        ...hostRecord,
+        fallbackPolicy: "stop",
+        candidates: [executableCandidate(explicit, "explicit-override", {
+          provenanceAttestation: "host-declared-explicit",
+        })],
+      };
+    } catch (error) {
+      if (error instanceof BridgeError) fail("codex-explicit-invalid", error.message);
+      throw error;
+    }
+  }
+  const candidates = [];
+  if (hostRecord.host === "cursor") {
+    const configuredRoot = cursorExtensionsRoot || path.join(homeDirectory, ".cursor", "extensions");
+    const extensionsRoot = path.resolve(configuredRoot);
+    try {
+      const active = registeredCursorCandidate(extensionsRoot, platform, architecture);
+      if (active) candidates.push(active);
+      candidates.push(...installedCursorCandidates(extensionsRoot, platform, architecture));
+    } catch {
+      // Untrusted or malformed Cursor metadata cannot block the safe PATH fallback.
+    }
+  }
+  try {
+    candidates.push(pathCandidate(env));
+  } catch {
+    // The aggregate caller reports that no candidate is installed.
+  }
+  const seen = new Set();
+  const deduplicated = candidates.filter((candidate) => {
+    if (seen.has(candidate.realPath)) return false;
+    seen.add(candidate.realPath);
+    return true;
+  });
+  if (deduplicated.length === 0) fail("codex-not-installed", "No bounded Codex executable candidate was found");
+  return { ...hostRecord, fallbackPolicy: "next-verified-candidate", candidates: deduplicated };
+}
+
+function fileSha256(filePath) {
+  const hash = crypto.createHash("sha256");
+  const descriptor = fs.openSync(filePath, "r");
+  const buffer = Buffer.allocUnsafe(1024 * 1024);
+  try {
+    let bytesRead;
+    do {
+      bytesRead = fs.readSync(descriptor, buffer, 0, buffer.length, null);
+      if (bytesRead > 0) hash.update(buffer.subarray(0, bytesRead));
+    } while (bytesRead > 0);
+  } finally {
+    fs.closeSync(descriptor);
+  }
+  return hash.digest("hex");
 }
 
 function executableIdentity(realPath) {
@@ -191,6 +452,7 @@ function executableIdentity(realPath) {
     size: stat.size,
     modified_ms: Math.trunc(stat.mtimeMs),
     mode: stat.mode,
+    sha256: fileSha256(realPath),
   };
 }
 
@@ -338,6 +600,7 @@ function normalizeCatalog(raw, cliVersion, nowMs) {
     fetchedAt: new Date(fetchedMs).toISOString(),
     models,
     catalogDigest: digest(models),
+    cacheSnapshotDigest: digest({ cacheVersion, fetchedAt: new Date(fetchedMs).toISOString(), models }),
   };
 }
 
@@ -356,12 +619,123 @@ function readCatalog(cliVersion, nowMs, env) {
     fail("model-cache-unsafe", "Codex model cache must be a non-symlinked regular file");
   }
   let parsed;
+  let raw;
   try {
-    parsed = JSON.parse(fs.readFileSync(cacheFile, "utf8"));
+    raw = fs.readFileSync(cacheFile);
+    parsed = JSON.parse(raw.toString("utf8"));
   } catch (error) {
     fail("model-cache-invalid", "Codex model cache could not be parsed: " + error.message);
   }
-  return normalizeCatalog(parsed, cliVersion, nowMs);
+  return { ...normalizeCatalog(parsed, cliVersion, nowMs), cacheFileDigest: digest(raw) };
+}
+
+async function preflightCandidate({ candidate, hostRecord, root, runner, env, nowMs, codexPrefixArgs }) {
+  const verifiedExecutableIdentity = executableIdentity(candidate.realPath);
+  const executableIdentityDigest = digest(verifiedExecutableIdentity);
+  const run = (args, timeoutMs = 10000) => runner({
+    binary: candidate.realPath,
+    args: [...codexPrefixArgs, ...args],
+    cwd: root,
+    timeoutMs,
+    env,
+    maxStdout: 256 * 1024,
+    maxStderr: 64 * 1024,
+  });
+  const [versionResult, execHelp, resumeHelp, loginStatus] = await Promise.all([
+    run(["--version"]),
+    run(["exec", "--help"]),
+    run(["exec", "resume", "--help"]),
+    run(["login", "status"]),
+  ]);
+  const results = [versionResult, execHelp, resumeHelp, loginStatus];
+  if (results.some((result) => result.code !== 0)) {
+    fail("codex-preflight-failed", "Codex version, exec, resume, or login preflight failed");
+  }
+  const cliVersion = parseCliVersion(versionResult.stdout + "\n" + versionResult.stderr);
+  const execText = execHelp.stdout + "\n" + execHelp.stderr;
+  const resumeText = resumeHelp.stdout + "\n" + resumeHelp.stderr;
+  for (const required of ["--json", "--output-schema", "--model", "--disable", "--ignore-user-config"]) {
+    if (!execText.includes(required)) fail("codex-capability-missing", "Codex exec help does not expose " + required);
+  }
+  if (!resumeText.includes("SESSION_ID") || !resumeText.includes("--json") || !resumeText.includes("--output-schema")) {
+    fail("codex-capability-missing", "Codex resume help does not expose explicit session JSON output and schema support");
+  }
+  const loginText = loginStatus.stdout + "\n" + loginStatus.stderr;
+  if (!/logged in/i.test(loginText)) fail("codex-auth-unverified", "Codex login status is not authenticated");
+  const catalog = readCatalog(cliVersion, nowMs, env);
+  const releaseChannel = cliVersion.includes("-") ? "prerelease" : "stable";
+  const routeBinding = {
+    host: hostRecord.host,
+    hostAttestation: hostRecord.attestation,
+    source: candidate.source,
+    provenanceAttestation: candidate.provenanceAttestation,
+    commandPath: candidate.commandPath,
+    executableRealPath: candidate.realPath,
+    executableIdentity: verifiedExecutableIdentity,
+    executableIdentityDigest,
+    cliVersion,
+    releaseChannel,
+    cacheVersion: catalog.cacheVersion,
+    cacheFileDigest: catalog.cacheFileDigest,
+    cacheSnapshotDigest: catalog.cacheSnapshotDigest,
+    catalogDigest: catalog.catalogDigest,
+    extensionVersion: candidate.extensionVersion || null,
+    extensionManifestDigest: candidate.extensionManifestDigest || null,
+    extensionRegistryDigest: candidate.extensionRegistryDigest || null,
+    adapter: ADAPTER_ID,
+    provider: "codex",
+    transport: "codex-cli",
+    launchMode: "bridge-owned-child-process",
+    processReuse: false,
+  };
+  return {
+    version: 1,
+    status: "installed-unverified",
+    code: "live-route-unverified",
+    message: "Local adapter preflight passed; the live provider route remains unverified until an authorized controller request succeeds",
+    localAdapterStatus: "ready",
+    liveRouteStatus: "installed-unverified",
+    provider: "codex",
+    transport: "codex-cli",
+    adapter: ADAPTER_ID,
+    host: hostRecord.host,
+    hostAttestation: hostRecord.attestation,
+    routeSource: candidate.source,
+    provenanceAttestation: candidate.provenanceAttestation,
+    projectRoot: root,
+    commandPath: candidate.commandPath,
+    executableRealPath: candidate.realPath,
+    executableIdentity: verifiedExecutableIdentity,
+    executableIdentityDigest,
+    cliVersion,
+    releaseChannel,
+    cacheVersion: catalog.cacheVersion,
+    cacheFileDigest: catalog.cacheFileDigest,
+    cacheSnapshotDigest: catalog.cacheSnapshotDigest,
+    catalogFetchedAt: catalog.fetchedAt,
+    catalogDigest: catalog.catalogDigest,
+    catalogSource: "same-user-local-cache",
+    catalogAttestation: "untrusted-local-data",
+    models: catalog.models,
+    routeBinding,
+    routeBindingDigest: digest(routeBinding),
+    capabilities: {
+      start: true,
+      reply: true,
+      close: true,
+      cancelIdle: true,
+      cancelActiveByHostSignal: true,
+      explicitSession: true,
+      structuredOutput: true,
+      multiAgentDisabled: true,
+      modelAttestation: false,
+      processAttachment: false,
+    },
+    modelBinding: "requested-not-attested",
+    selectionBinding: "host-declared-not-authenticated",
+    verifiedAt: new Date(nowMs).toISOString(),
+    expiresAt: new Date(nowMs + 10 * 60 * 1000).toISOString(),
+  };
 }
 
 export async function preflightCodex({
@@ -371,99 +745,73 @@ export async function preflightCodex({
   now = new Date().toISOString(),
   codexPrefixArgs = [],
   binaryOverride,
+  homeDirectory = os.homedir(),
+  platform = process.platform,
+  architecture = process.arch,
+  cursorExtensionsRoot,
 } = {}) {
   const root = resolveProjectRoot(projectRoot);
   const nowMs = isoTime(now, "preflight now");
-  let identity;
+  let inventory;
   try {
-    identity = binaryOverride || resolveCodexBinary(env);
+    inventory = binaryOverride ? {
+      host: binaryOverride.host || "current",
+      attestation: binaryOverride.hostAttestation || "test-binary-override",
+      fallbackPolicy: "stop",
+      candidates: [{
+        commandPath: binaryOverride.commandPath,
+        realPath: binaryOverride.realPath,
+        source: binaryOverride.source || "binary-override",
+        provenanceAttestation: binaryOverride.provenanceAttestation || "test-host-declared",
+        extensionVersion: binaryOverride.extensionVersion || null,
+        extensionManifestDigest: binaryOverride.extensionManifestDigest || null,
+        extensionRegistryDigest: binaryOverride.extensionRegistryDigest || null,
+      }],
+    } : resolveCodexCandidates({ env, homeDirectory, platform, architecture, cursorExtensionsRoot });
   } catch (error) {
     return unavailableEnvelope(error, "unavailable");
   }
-  const verifiedExecutableIdentity = executableIdentity(identity.realPath);
-  const run = (args, timeoutMs = 10000) => runner({
-    binary: identity.realPath,
-    args: [...codexPrefixArgs, ...args],
-    cwd: root,
-    timeoutMs,
-    env,
-    maxStdout: 256 * 1024,
-    maxStderr: 64 * 1024,
-  });
-  try {
-    const [versionResult, execHelp, resumeHelp, loginStatus] = await Promise.all([
-      run(["--version"]),
-      run(["exec", "--help"]),
-      run(["exec", "resume", "--help"]),
-      run(["login", "status"]),
-    ]);
-    const results = [versionResult, execHelp, resumeHelp, loginStatus];
-    if (results.some((result) => result.code !== 0)) {
-      fail("codex-preflight-failed", "Codex version, exec, resume, or login preflight failed");
+  const attempts = [];
+  for (const candidate of inventory.candidates) {
+    try {
+      const ready = await preflightCandidate({
+        candidate,
+        hostRecord: { host: inventory.host, attestation: inventory.attestation },
+        root,
+        runner,
+        env,
+        nowMs,
+        codexPrefixArgs,
+      });
+      return { ...ready, fallbackPolicy: inventory.fallbackPolicy, candidateAttempts: attempts };
+    } catch (error) {
+      attempts.push({
+        source: candidate.source,
+        commandPath: candidate.commandPath,
+        code: typeof error?.code === "string" ? error.code : "adapter-error",
+        message: redactMessage(error),
+      });
+      if (inventory.fallbackPolicy === "stop") break;
     }
-    const cliVersion = parseCliVersion(versionResult.stdout + "\n" + versionResult.stderr);
-    const execText = execHelp.stdout + "\n" + execHelp.stderr;
-    const resumeText = resumeHelp.stdout + "\n" + resumeHelp.stderr;
-    for (const required of ["--json", "--output-schema", "--model", "--disable", "--ignore-user-config"]) {
-      if (!execText.includes(required)) fail("codex-capability-missing", "Codex exec help does not expose " + required);
-    }
-    if (!resumeText.includes("SESSION_ID") || !resumeText.includes("--json") || !resumeText.includes("--output-schema")) {
-      fail("codex-capability-missing", "Codex resume help does not expose explicit session JSON output and schema support");
-    }
-    const loginText = loginStatus.stdout + "\n" + loginStatus.stderr;
-    if (!/logged in/i.test(loginText)) fail("codex-auth-unverified", "Codex login status is not authenticated");
-    const catalog = readCatalog(cliVersion, nowMs, env);
-    return {
-      version: 1,
-      status: "installed-unverified",
-      code: "live-route-unverified",
-      message: "Local adapter preflight passed; the live provider route remains unverified until an authorized controller request succeeds",
-      localAdapterStatus: "ready",
-      liveRouteStatus: "installed-unverified",
-      provider: "codex",
-      transport: "codex-cli",
-      adapter: ADAPTER_ID,
-      projectRoot: root,
-      commandPath: identity.commandPath,
-      executableRealPath: identity.realPath,
-      executableIdentity: verifiedExecutableIdentity,
-      cliVersion,
-      cacheVersion: catalog.cacheVersion,
-      catalogFetchedAt: catalog.fetchedAt,
-      catalogDigest: catalog.catalogDigest,
-      catalogSource: "same-user-local-cache",
-      catalogAttestation: "untrusted-local-data",
-      models: catalog.models,
-      capabilities: {
-        start: true,
-        reply: true,
-        close: true,
-        cancelIdle: true,
-        cancelActiveByHostSignal: true,
-        explicitSession: true,
-        structuredOutput: true,
-        multiAgentDisabled: true,
-        modelAttestation: false,
-      },
-      modelBinding: "requested-not-attested",
-      selectionBinding: "host-declared-not-authenticated",
-      verifiedAt: new Date(nowMs).toISOString(),
-      expiresAt: new Date(nowMs + 10 * 60 * 1000).toISOString(),
-    };
-  } catch (error) {
-    return {
-      ...unavailableEnvelope(error, "installed-unverified"),
-      provider: "codex",
-      transport: "codex-cli",
-      adapter: ADAPTER_ID,
-      localAdapterStatus: "installed-unverified",
-      liveRouteStatus: "installed-unverified",
-      projectRoot: root,
-      commandPath: identity.commandPath,
-      executableRealPath: identity.realPath,
-      executableIdentity: verifiedExecutableIdentity,
-    };
   }
+  const primary = attempts[0] || { code: "codex-not-installed", message: "No Codex candidate was available" };
+  return {
+    version: 1,
+    status: "installed-unverified",
+    adapter: ADAPTER_ID,
+    code: primary.code,
+    message: primary.message,
+    provider: "codex",
+    transport: "codex-cli",
+    localAdapterStatus: "installed-unverified",
+    liveRouteStatus: "installed-unverified",
+    host: inventory.host,
+    hostAttestation: inventory.attestation,
+    projectRoot: root,
+    selectedRoute: null,
+    fallbackPolicy: inventory.fallbackPolicy,
+    candidateAttempts: attempts,
+  };
 }
 
 function validateRoute(route, label) {
@@ -979,6 +1327,10 @@ function readState(rawPath) {
   if (!plainObject(state) || state.version !== 1 || state.adapter !== ADAPTER_ID) {
     fail("state-invalid", "controller state has an invalid adapter identity");
   }
+  if (!plainObject(state.route_binding) || typeof state.route_binding_digest !== "string"
+      || digest(state.route_binding) !== state.route_binding_digest) {
+    fail("state-invalid", "controller state route binding is missing or changed");
+  }
   return { statePath, state };
 }
 
@@ -1013,6 +1365,10 @@ function publicTurnEnvelope(state, response, traceType) {
     requested_runtime: {
       provider: "codex",
       transport: "codex-cli",
+      host: state.route_binding.host,
+      route_source: state.route_binding.source,
+      route_binding: state.route_binding,
+      route_binding_digest: state.route_binding_digest,
       model: state.model,
       reasoning_effort: state.reasoning_effort,
       attestation: "requested-not-attested",
@@ -1032,6 +1388,10 @@ function publicTurnEnvelope(state, response, traceType) {
       resume_supported: true,
       multi_agent: false,
       model_binding: "requested-not-attested",
+      route_binding_digest: state.route_binding_digest,
+      executable_identity_digest: state.route_binding.executableIdentityDigest,
+      launch_mode: "bridge-owned-child-process",
+      process_reuse: false,
     },
   };
 }
@@ -1054,7 +1414,8 @@ export async function startController({
   assertJsonBounds(rawRequest);
   if (!plainObject(rawRequest) || rawRequest.version !== 1) fail("invalid-input", "start request version 1 is required");
   if (!plainObject(runtime) || runtime.localAdapterStatus !== "ready" || runtime.adapter !== ADAPTER_ID
-      || !Array.isArray(runtime.models) || digest(runtime.models) !== runtime.catalogDigest) {
+      || !Array.isArray(runtime.models) || digest(runtime.models) !== runtime.catalogDigest
+      || !plainObject(runtime.routeBinding) || digest(runtime.routeBinding) !== runtime.routeBindingDigest) {
     fail("route-not-ready", "Codex controller route must pass the bundled preflight before start");
   }
   if (runtime.projectRoot !== root || isoTime(runtime.expiresAt, "runtime expiresAt") <= nowMs) {
@@ -1104,6 +1465,8 @@ export async function startController({
     schema_digest: schemaDigest,
     executable_real_path: runtime.executableRealPath,
     executable_identity: runtime.executableIdentity,
+    route_binding: runtime.routeBinding,
+    route_binding_digest: runtime.routeBindingDigest,
     cli_version: runtime.cliVersion,
     catalog_digest: runtime.catalogDigest,
     model: selection.model,
@@ -1277,6 +1640,8 @@ export async function replyController({
         || runtime.projectRoot !== state.repo_root || runtime.executableRealPath !== state.executable_real_path
         || runtime.cliVersion !== state.cli_version || runtime.catalogDigest !== state.catalog_digest
         || canonicalJson(runtime.executableIdentity) !== canonicalJson(state.executable_identity)
+        || !plainObject(runtime.routeBinding) || digest(runtime.routeBinding) !== runtime.routeBindingDigest
+        || runtime.routeBindingDigest !== state.route_binding_digest
         || isoTime(runtime.expiresAt, "runtime expiresAt") <= nowMs) {
       fail("runtime-drift", "controller runtime no longer matches the verified start route");
     }
@@ -1358,6 +1723,8 @@ export function closeController({ statePath, reason = "closed-by-host", now = ne
       session_id: next.session_id,
       sequence: next.sequence,
       close_reason: next.close_reason,
+      route_binding: next.route_binding,
+      route_binding_digest: next.route_binding_digest,
     };
   } finally {
     release();
@@ -1429,7 +1796,21 @@ async function main() {
     return;
   }
   const loaded = readState(target);
-  const runtime = await preflightCodex({ projectRoot: loaded.state.repo_root });
+  const binding = loaded.state.route_binding;
+  const runtime = await preflightCodex({
+    projectRoot: loaded.state.repo_root,
+    binaryOverride: {
+      commandPath: binding.commandPath,
+      realPath: binding.executableRealPath,
+      host: binding.host,
+      hostAttestation: binding.hostAttestation,
+      source: binding.source,
+      provenanceAttestation: binding.provenanceAttestation,
+      extensionVersion: binding.extensionVersion,
+      extensionManifestDigest: binding.extensionManifestDigest,
+      extensionRegistryDigest: binding.extensionRegistryDigest,
+    },
+  });
   if (runtime.localAdapterStatus !== "ready") fail("route-not-ready", runtime.message || "Codex preflight did not pass");
   writeJson(await replyController({ statePath: target, rawRequest: await readJsonInput(), runtime }));
 }

@@ -76,6 +76,31 @@ question tool, including `AskUserTool` when that tool is available. Preserve an
 explicit user choice. Do not offer values absent from the bridge preflight
 catalog.
 
+### Cursor-hosted Codex executable priority
+
+When Cursor hosts `provider=codex` with `transport=codex-cli`, let the stateful
+bridge select and verify the executable in this order:
+
+1. `MVCK_CODEX_BIN`, when the operator set one absolute executable path. This
+   explicit route must pass preflight or stop without automatic fallback.
+2. The `openai.chatgpt` extension path registered for the current
+   `codex_vscode` Cursor host.
+3. Other bounded, non-obsolete `openai.chatgpt` extension candidates that have
+   matching local registry or manifest structure for the current platform.
+4. The first executable `codex` entry on `PATH`.
+
+Cursor environment, registry, and extension manifest values are untrusted local
+routing evidence, not cryptographic publisher or model attestation. Every
+automatic candidate must pass executable identity, CLI capability, login, and
+exact full CLI-to-cache version checks before selection. Never equate a
+prerelease version with its base release.
+
+Bind preflight, catalog selection, start, reply, idle cancel, close, state, and
+public receipts to the same route-binding digest and executable SHA-256. Start
+a new bridge-owned child process from that executable. Never enumerate, attach
+to, signal, resume, or reuse the Cursor extension's app-server process or
+session.
+
 ## Fail-closed rules
 
 - Never choose a provider, model, effort, or route from documentation alone.

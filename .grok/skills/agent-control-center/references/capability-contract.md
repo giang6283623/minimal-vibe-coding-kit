@@ -81,11 +81,19 @@ supported command, but it cannot prove that the local account, quota, model, or
 transport is ready.
 
 For the bundled Codex CLI controller route, read `codex-cli-bridge.md`. Require
-the CLI version and model-cache writer version to match. Treat a mismatch as
+the complete CLI version and model-cache writer version to match exactly,
+including prerelease components. Treat a mismatch as
 `installed-unverified`; never mutate the user cache or installation to force a
 pass. A match establishes only local consistency because the same-user cache is
 not an authenticated provider receipt. The bridge's deterministic fake-CLI
 suite verifies local adapter logic, not the live provider route.
+
+For a Cursor-hosted Codex CLI route, treat host environment markers, the Cursor
+extension registry, and extension manifests as untrusted local candidate-order
+evidence. They do not prove OpenAI provenance. Require the selected executable's
+real path, stat identity, content SHA-256, CLI surface, login state, cache, and
+catalog to pass independently. Never treat an extension-owned app-server as an
+available controller session.
 
 Never install packages, run remote installers, open login flows, enable billing,
 read credential files, weaken a sandbox, execute repository hooks, or send
