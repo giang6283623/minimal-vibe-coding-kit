@@ -1,6 +1,6 @@
 {
   "name": "minimal-vibe-coding-kit",
-  "version": "0.5.13",
+  "version": "0.5.14",
   "description": "Project-agnostic AI coding workflow kit for Claude Code, Cursor, Codex, OpenCode, Grok, and Kimi with AgentShield security review.",
   "type": "module",
   "bin": {

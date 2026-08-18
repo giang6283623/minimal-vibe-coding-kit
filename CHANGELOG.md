@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+## 0.5.14 - 2026-08-18
+
+### Added
+
+- Added a dependency-free stateful Codex CLI controller bridge with non-mutating preflight, explicit session start and reply, idle cancel and close operations, a strict response schema, bounded private state, replay protection, exact route binding, and deterministic fake-CLI coverage.
+- Added authorized Clone Website capture automation for owned or written-permission sites, including capture preflight, bounded catalog collection, deterministic screenshot routes, user-launched loopback browser capture, retry-safe receipts, and completeness reporting.
+
+### Changed
+
+- Bound Cursor-host and Codex-controller workflows to the stateful bridge. The host now disables Codex multi-agent execution, dispatches only selected native worker routes, returns unmodified receipts to the explicit controller session, and relays controller questions back through the parent conversation.
+- Bound Codex controller model and reasoning-effort selection to the current bridge preflight catalog while preserving its local, unauthenticated trust level as `requested-not-attested`.
+- Expanded controller-contract validation for controller-first ordering, explicit session continuity, selection receipts, supported provider and transport pairs, receipt binding, cancellation, and protected Proofline or Owner acceptance.
+- Synchronized the controller, capture, validation, schema, script, and documentation changes across the canonical source and all five provider mirrors.
+
+### Fixed
+
+- Replaced improvised one-shot Codex controller prompts and ambiguous session resumption with a complete task envelope, explicit session ID, structured work orders, and a two-way receipt loop. Unsupported external controllers now require equivalent preflight, start, reply, cancel, and close adapters before automatic use.
+- Kept CLI and model-cache version mismatches fail-closed as `installed-unverified`, and clarified that preflight catalog values are local selection data rather than authenticated provider or effective-model evidence.
+- Corrected Linux Chrome detection for Clone Website capture and normalized invalid em and en dashes in changed Clone Website and Mermaid guidance.
+
+### Validation
+
+- `npm run validate:all` and `git diff --check` passed with zero validator failures or warnings, the complete install and test matrix, 190 orchestration checks, a clean dependency-free AgentShield probe, and all 1,182 on-disk skill files included in a 1,299-file npm tarball. The optional local `ecc-agentshield` package was absent, so the changed agent surfaces used the documented manual fallback with no critical, high, or medium findings.
+
 ## 0.5.13 - 2026-08-17
 
 ### Added
