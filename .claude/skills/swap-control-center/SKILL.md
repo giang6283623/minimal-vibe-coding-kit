@@ -40,6 +40,11 @@ controller.
    decomposition, work-order decisions, receipt review, and final acceptance.
    Topology skills execute controller-issued orders and do not create a second
    plan or controller.
+   For `provider=codex` and `transport=codex-cli`, use the bundled stateful
+   bridge in `../agent-control-center/references/codex-cli-bridge.md`. Do not
+   improvise a one-shot command. Other external providers require an equivalent
+   verified preflight, start, reply, cancel, and close adapter before automatic
+   use.
 7. If the user requests a later role swap, use the one-transfer contract in
    `controller-modes.md`. Pause dispatch, settle outstanding work, obtain any
    required approval, invalidate unused old orders, and resume with one new
@@ -60,10 +65,16 @@ ask before any fallback to another controller. Do not require Cursor CLI or
 Cursor SDK merely because Cursor is the active host.
 
 When Cursor hosts a Codex controller with Cursor workers, send the task envelope
-to Codex first. Codex returns bounded work orders, Cursor dispatches only the
-approved Cursor worker routes, Cursor returns proof receipts to the same Codex
-session, and Codex decides. Do not launch Codex analysis lanes unless the user
-independently selected a ready Codex worker route.
+through the stateful bridge first. Codex returns bounded work orders, Cursor
+dispatches only the approved Cursor worker routes, Cursor returns proof receipts
+to the same Codex session, and Codex decides. Do not launch Codex analysis lanes
+unless the user independently selected a ready Codex worker route.
+
+Before the first Codex controller request, use bridge preflight output to ask
+for the model and reasoning effort through the active parent's exact structured
+question tool, including `AskUserTool` when that tool is available. Preserve an
+explicit user choice. Do not offer values absent from the bridge preflight
+catalog.
 
 ## Fail-closed rules
 

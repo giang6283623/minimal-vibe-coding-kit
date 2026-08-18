@@ -25,18 +25,27 @@ change the active host, permission boundary, or topology.
 Use Codex as controller through one of these transports:
 
 1. a native Codex session;
-2. verified Codex MCP request-response tools exposed by the active host;
-3. another documented adapter with enforceable scope and receipts;
-4. a manual bounded handoff to an interactive Codex task.
+2. the bundled stateful Codex CLI bridge described in
+   `codex-cli-bridge.md`;
+3. verified Codex MCP request-response tools exposed by the active host;
+4. another documented adapter with enforceable scope and receipts;
+5. a manual bounded handoff to an interactive Codex task.
 
 For MCP, the client host calls Codex and receives controller output. Plain MCP
 does not give Codex a reverse channel to invoke arbitrary client tools or take
 over an agent window. The host must translate Codex work orders into native
 dispatches and return receipts.
 
-When a stateful Codex bridge exposes separate start and reply tools, retain its
-opaque task identifier only for the current workflow. Do not put credentials,
-account data, or unrelated task content in that state.
+For the bundled CLI route, run preflight before selection. It checks the local
+CLI-advertised resume surface and rejects CLI and model-cache version drift, but
+keeps the live route `installed-unverified` until an approved request succeeds.
+Use the returned local catalog to ask for model and reasoning effort in the
+parent through its exact structured question tool when available. Treat that
+selection record as host-declared unless separately authenticated. The bridge captures one session ID,
+disables Codex multi-agent execution on start and resume, and accepts only
+schema-bound controller output. Retain its private state path only for the
+current workflow. Do not put credentials, account data, or unrelated task
+content in that state.
 
 When a Cursor host selects Codex, treat the Cursor application, Cursor CLI, and
 Cursor SDK as independent routes. A Codex controller bridge does not require

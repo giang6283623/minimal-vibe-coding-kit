@@ -139,8 +139,7 @@ When the active host uses any external provider controller:
 2. the controller returns one or more bounded work orders;
 3. the host verifies every work order against the user-selected worker routes,
    then dispatches native workers or executes sequentially;
-4. the host returns proof receipts to the same Codex task when resume is
-   supported;
+4. the host returns proof receipts to the same explicit controller session;
 5. the controller verifies the evidence and returns the control decision;
 6. the host presents any user decision in the parent conversation through its
    exposed structured-question tool when available;
@@ -149,6 +148,23 @@ When the active host uses any external provider controller:
 
 This is request-response coordination. It is not direct remote control of the
 host UI.
+
+Every non-manual external controller relay is stateful, including
+`sequential-host-relay`. Sequential describes worker execution, not controller
+continuity. If the route cannot resume the explicit controller session, use a
+manual handoff, a native controller, plan-only output, or stop.
+
+For Codex CLI, use [codex-cli-bridge.md](codex-cli-bridge.md). The host must
+record `controller-route-selected`, `controller-session-started`, and each
+`controller-session-resumed` event. Every resume uses the same explicit session
+ID. Codex multi-agent execution remains disabled for every controller turn.
+Use exact expanded paths in this bridge. Do not send repository glob patterns
+or paths that cross symlinks.
+
+The Codex bridge validates complete Proof Receipts before ordinary acceptance.
+It does not authenticate Keeper signals or Owner approvals from caller JSON.
+For Proofline or Owner-gated tasks, the protected host verifier completes final
+acceptance outside the bridge.
 
 ## Complete examples and trace validation
 
@@ -167,12 +183,13 @@ node .vibekit/skills/agent-control-center/scripts/validate-controller-contract.m
   .vibekit/skills/agent-control-center/examples/cursor-codex-cursor-workers.json
 ```
 
-The dependency-free validator rejects route mismatches, missing independent
-route selection evidence, host decomposition before external-controller
-handoff, controller authority violations, out-of-order receipts, invalid manual
-relay bindings, and Proofline acceptance without a verified seal and required
-Owner approval. It validates the supplied record; it does not authenticate a
-provider, model, user, or host by itself.
+The dependency-free validator rejects unsupported providers, transports, or
+decisions; route mismatches; missing independent route selection evidence;
+missing or substituted controller sessions; host decomposition before
+external-controller handoff; out-of-order receipts; invalid relay bindings;
+and Proofline acceptance without a verified seal and required Owner approval.
+It validates the supplied record; it does not authenticate a provider, model,
+user, adapter, or host by itself.
 
 ## Manual handoff
 

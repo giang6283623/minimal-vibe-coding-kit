@@ -10,7 +10,7 @@
     },
     "controller_route": {
       "provider": "codex",
-      "transport": "mcp",
+      "transport": "codex-cli",
       "model": "catalog-verified-controller-model-id",
       "reasoning_effort": "high",
       "selection_source": "explicit-user"
@@ -78,9 +78,33 @@
   ],
   "trace": [
     {
+      "type": "controller-route-selected",
+      "actor": "host",
+      "target": "controller",
+      "task_id": "task-cursor-codex-review",
+      "provider": "codex",
+      "transport": "codex-cli",
+      "model": "catalog-verified-controller-model-id",
+      "reasoning_effort": "high",
+      "selection_source": "explicit-user",
+      "mechanism": "native-structured-question",
+      "question_tool": "AskUserTool"
+    },
+    {
       "type": "task-envelope-sent",
       "actor": "host",
-      "target": "controller"
+      "target": "controller",
+      "task_id": "task-cursor-codex-review"
+    },
+    {
+      "type": "controller-session-started",
+      "actor": "host",
+      "issuer": "mvck-codex-cli-controller-bridge",
+      "target": "controller",
+      "session_id": "0199a213-81c0-7800-8aa1-bbab2a035a53",
+      "adapter_verified": true,
+      "resume_supported": true,
+      "multi_agent": false
     },
     {
       "type": "work-order-issued",
@@ -113,6 +137,15 @@
       "actor": "host",
       "target": "controller",
       "work_id": "work-area-b"
+    },
+    {
+      "type": "controller-session-resumed",
+      "actor": "host",
+      "issuer": "mvck-codex-cli-controller-bridge",
+      "target": "controller",
+      "session_id": "0199a213-81c0-7800-8aa1-bbab2a035a53",
+      "resume_supported": true,
+      "multi_agent": false
     },
     {
       "type": "control-decision",
