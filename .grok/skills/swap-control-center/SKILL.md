@@ -101,6 +101,21 @@ a new bridge-owned child process from that executable. Never enumerate, attach
 to, signal, resume, or reuse the Cursor extension's app-server process or
 session.
 
+### Cursor Codex recovery
+
+When this route fails preflight, start, or reply, read
+[codex-extension-recovery.md](references/codex-extension-recovery.md). Run the
+non-mutating checks first and present the bridge's `recoveryPlan` as a proposal,
+not as authority. Before every fix, state the exact action, target, state
+change, quota or billing impact, risk, rollback, and verification, then wait for
+explicit approval in the parent conversation.
+
+Keep approvals single-use and action-specific. A cache refresh does not approve
+login, install, update, state close, model selection, or a live controller
+start. Never manually edit `models_cache.json`, normalize a prerelease version,
+repair an open session in place, or reuse a route-binding receipt after the
+executable, cache, login, or host route changes.
+
 ## Fail-closed rules
 
 - Never choose a provider, model, effort, or route from documentation alone.

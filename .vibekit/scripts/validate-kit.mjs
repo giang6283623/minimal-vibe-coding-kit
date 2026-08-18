@@ -1870,7 +1870,8 @@ function validateControlCenterContract() {
   const missingResources = resources.filter((file) => !exists(`${base}/${file}`));
   if (missingResources.length > 0
     || !exists(`${swapBase}/agents/openai.yaml`)
-    || !exists(`${swapBase}/references/examples.md`)) {
+    || !exists(`${swapBase}/references/examples.md`)
+    || !exists(`${swapBase}/references/codex-extension-recovery.md`)) {
     fail(`Control Center resources are incomplete: ${missingResources.join(', ')}`);
     return;
   }
@@ -1884,6 +1885,7 @@ function validateControlCenterContract() {
   const providerSelection = read(`${base}/references/provider-selection.md`);
   const swapPreset = read(`${swapBase}/SKILL.md`);
   const swapExamples = read(`${swapBase}/references/examples.md`);
+  const codexRecovery = read(`${swapBase}/references/codex-extension-recovery.md`);
   const parallelAnalysis = read('.vibekit/skills/parallel-analysis/SKILL.md');
   const proofline = read('.vibekit/skills/proofline-orchestration/SKILL.md');
   const sequentialThinking = read('.vibekit/skills/sequential-thinking/SKILL.md');
@@ -1943,6 +1945,10 @@ function validateControlCenterContract() {
     '`installed-unverified`',
     '`AskUserTool`',
     '`catalogDigest`',
+    '`recoveryPlan`',
+    '`max`',
+    '`ultra`',
+    'neutral inactive values',
     'explicit captured session',
     'It never uses `--last`',
     'multi-agent execution',
@@ -2005,10 +2011,43 @@ function validateControlCenterContract() {
     'Do not require Cursor CLI',
     'Obtain explicit user',
     'Never run co-controllers',
+    'codex-extension-recovery.md',
+    'single-use and action-specific',
+    'Never manually edit `models_cache.json`',
     'requested-not-attested'
   ])
     ? ok('Swap Control Center provides dynamic verified selection and one bounded transfer')
     : fail('Swap Control Center selection, setup, or transfer contract drifted');
+
+  hasAll(codexRecovery, [
+    'Diagnose without mutation first',
+    'Approval is action-specific and single-use',
+    'Do not treat `recoveryPlan` as approval',
+    'Never offer a manual cache version bump',
+    'Runtime drift on reply',
+    'ask separate approval before starting'
+  ])
+    ? ok('Swap Control Center defines approval-gated Cursor Codex recovery')
+    : fail('Swap Control Center Cursor Codex recovery contract drifted');
+
+  const responseSchema = readJson(`${base}/schemas/controller-response.schema.json`);
+  const responseRootFields = [
+    'version', 'task_id', 'kind', 'work_orders', 'question', 'decision', 'reason', 'receipt_bindings'
+  ];
+  const responseSchemaCompatible = responseSchema
+    && responseSchema.type === 'object'
+    && responseSchema.additionalProperties === false
+    && responseRootFields.every((field) => responseSchema.required?.includes(field))
+    && !Object.prototype.hasOwnProperty.call(responseSchema, 'oneOf')
+    && responseSchema.properties?.version?.type === 'integer'
+    && responseSchema.properties?.kind?.type === 'string'
+    && Array.isArray(responseSchema.properties?.question?.type)
+    && responseSchema.properties.question.type.includes('null')
+    && Array.isArray(responseSchema.properties?.decision?.type)
+    && responseSchema.properties.decision.type.includes('null');
+  responseSchemaCompatible
+    ? ok('Codex controller response schema uses flat required nullable root fields')
+    : fail('Codex controller response schema is incompatible with the reviewed structured-output surface');
 
   hasAll(parallelAnalysis, [
     '## External-controller executor mode',

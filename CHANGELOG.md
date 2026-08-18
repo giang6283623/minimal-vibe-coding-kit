@@ -6,14 +6,17 @@
 
 - Prioritized a verified Cursor-bundled Codex executable for Cursor-hosted Codex CLI controllers. The stateful bridge now tries an explicit `MVCK_CODEX_BIN`, the active host-declared `openai.chatgpt` registry path, other bounded extension candidates, and PATH in order.
 - Bound preflight, model catalog selection, start, reply, cancel, close, private state, and public receipts to one route digest with executable SHA-256, CLI and cache versions, and cache and catalog digests.
+- Added a propose-only Cursor Codex recovery workflow. Failed preflight and runtime-drift receipts now describe the exact approval-gated next action without editing user cache, login, installation, or controller state.
+- Accepted catalog-advertised `max` and `ultra` reasoning efforts while continuing to offer only the levels returned for the selected model.
 
 ### Fixed
 
 - Kept invalid explicit overrides and exact prerelease-to-release cache mismatches fail-closed, recorded bounded redacted automatic fallback attempts, and prevented any attachment to or reuse of Cursor's extension-owned Codex app-server.
+- Replaced the controller response schema's unsupported branch combinator with flat required nullable fields, and normalized only neutral inactive values before strict kind-specific validation.
 
 ### Validation
 
-- `npm test`, the 114-check deterministic bridge suite, the repository validator with zero failures or warnings, `git diff --check`, and the dependency-free AgentShield probe passed. The optional local `ecc-agentshield` package was absent, so the changed agent surfaces also used the documented manual fallback with no critical, high, or medium findings.
+- `npm test`, the 135-check deterministic bridge suite, the repository validator with zero failures or warnings, `git diff --check`, and the dependency-free AgentShield probe passed. The optional local `ecc-agentshield` package was absent, so the changed agent surfaces also used the documented manual fallback with no critical, high, or medium findings.
 
 ## 0.5.14 - 2026-08-18
 

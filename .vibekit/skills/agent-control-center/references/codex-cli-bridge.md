@@ -18,6 +18,13 @@ candidate must independently pass the full non-mutating preflight. Automatic
 candidates may fall through with bounded redacted rejection records. The bridge
 never repairs a candidate, edits a cache, or normalizes prerelease versions.
 
+Failed preflight and runtime-drift envelopes may include a propose-only
+`recoveryPlan`. It never authorizes or performs a repair. The host must show the
+exact state-changing or paid action in the parent conversation and obtain
+explicit single-use approval before acting. For the Cursor-specific decision
+flow, read
+`../../swap-control-center/references/codex-extension-recovery.md`.
+
 ## Readiness
 
 Run the non-mutating preflight first:
@@ -49,6 +56,9 @@ evidence. The bridge reports model and effort as `requested-not-attested`
 because Codex CLI accepts the request but does not authenticate the effective
 model in its JSONL events.
 
+The catalog may advertise `minimal`, `low`, `medium`, `high`, `xhigh`, `max`,
+or `ultra`. Offer only the exact efforts listed for the selected model.
+
 ## Start and reply
 
 Send one JSON object on stdin to `start`:
@@ -64,6 +74,12 @@ selection receipt, and an optional bounded `timeout_ms`. The bridge starts
 multi-agent execution, uses a private read-only working directory outside the
 repository, captures exactly one `thread_id`, and returns `state_path` plus the
 controller response.
+
+The output schema avoids branch combinators that the Codex structured-output
+API rejects. It requires every root field, uses empty arrays or null for
+inactive fields, and leaves kind-specific enforcement to the bridge. The bridge
+removes only neutral inactive values. Conflicting non-neutral fields still fail
+closed.
 
 The scope uses exact repository-relative paths. Expand and review any project
 globs before creating the envelope. The bridge rejects glob tokens and any
