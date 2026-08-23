@@ -990,6 +990,8 @@ checks += 2;
 
 const fakeBinDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "mvck-fake-codex-bin-"));
 const fakeCodexBinary = path.join(fakeBinDirectory, "codex");
+// Node 18 needs an explicit package scope for an extensionless ESM executable.
+fs.writeFileSync(path.join(fakeBinDirectory, "package.json"), '{"type":"module"}\n');
 fs.copyFileSync(fakeCli, fakeCodexBinary);
 fs.chmodSync(fakeCodexBinary, 0o755);
 const bridgeCli = path.join(root, ".vibekit/skills/agent-control-center/scripts/codex-cli-controller-bridge.mjs");

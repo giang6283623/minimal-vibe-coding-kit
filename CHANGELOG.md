@@ -19,6 +19,7 @@
 
 ### Fixed
 
+- Made the extensionless fake Codex CLI fixture explicit ESM so the Node 18 CI matrix runs the same preflight contract as Node 20 and Node 22.
 - Kept invalid explicit overrides and exact prerelease-to-release cache mismatches fail-closed, recorded bounded redacted automatic fallback attempts, and prevented any attachment to or reuse of Cursor's extension-owned Codex app-server.
 - Replaced the controller response schema's unsupported branch combinator with flat required nullable fields, and normalized only neutral inactive values before strict kind-specific validation.
 - Corrected the published Clone Website example, replaced the non-existent write executable with an explicit host-native grant, removed the user-controlled runtime clock override, recomputed source-input receipt digests, and rejected grants at their exact expiry boundary.
