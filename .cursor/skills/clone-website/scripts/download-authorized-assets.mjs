@@ -8,11 +8,14 @@ import process from 'node:process';
 
 import {
   acceptHeaderForImageKind,
+  canonicalNodeInvocation,
+  consumeLaunchAction,
   expectedKindFromPath,
   fail,
   imageKind,
   isPublicIp,
   loadValidatedBrief,
+  loadValidatedLaunch,
   printFailure,
   readJsonFile,
   resolveExistingFile,
@@ -168,6 +171,32 @@ async function main() {
   const candidateHosts = [...new Set(manifest.candidate_hosts.map((host) => String(host).toLowerCase()))].sort();
   if (JSON.stringify(candidateHosts) !== JSON.stringify(args.allowHosts)) {
     fail(`--allow-host values must exactly match candidate_hosts: ${candidateHosts.join(', ')}`);
+  }
+  if (brief.version === 2) {
+    const execution = brief.execution;
+    if (
+      execution?.network?.mode !== 'approved-hosts-only'
+      || !Array.isArray(execution.network.approved_hosts)
+      || !Array.isArray(execution.allowed_actions)
+      || !execution.allowed_actions.includes('download-approved-assets')
+    ) {
+      fail('v2 asset download requires approved-hosts-only network and download-approved-assets action');
+    }
+    const executionHosts = [...new Set(execution.network.approved_hosts.map((host) => String(host).toLowerCase()))].sort();
+    const missingApproval = candidateHosts.filter((host) => !executionHosts.includes(host));
+    if (missingApproval.length > 0) {
+      fail(`asset candidate hosts are outside the frozen execution allowlist: ${missingApproval.join(', ')}`);
+    }
+    const launch = loadValidatedLaunch(root);
+    const missingLaunchHost = candidateHosts.filter((host) => !launch.approvedHosts.includes(host));
+    if (missingLaunchHost.length > 0) {
+      fail(`asset candidate hosts are outside the current launch record: ${missingLaunchHost.join(', ')}`);
+    }
+    consumeLaunchAction(root, {
+      actionName: 'download-approved-assets',
+      argv: canonicalNodeInvocation(process.argv[1], process.argv.slice(2)),
+      targetPath: '.',
+    });
   }
   const results = [];
   const startedAt = Date.now();

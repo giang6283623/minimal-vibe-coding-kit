@@ -1,18 +1,20 @@
 # Intake and levels
 
-Use this reference only for unresolved choices. Infer repository facts, but never infer ownership, permission, licenses, or approval for sensitive features.
+Use this reference only for unresolved choices. For a full upfront questionnaire and autonomous execution contract, read `requirements-and-autonomy.md` first. Infer repository facts, but never infer ownership, permission, licenses, or approval for sensitive features.
 
 ## Question order
 
-1. Source and target route.
-2. Authority and content rights.
-3. Intended outcome and fidelity.
-4. Route or catalog scope.
-5. Backend level.
-6. Source platform and stack only when the existing repository does not settle them.
-7. Local development mode, and container engine only when Docker Compose is selected.
+1. Source, destination, authority, and content rights.
+2. Intended outcome, project type, project scale, fidelity, and scope.
+3. Routes, states, viewports, content, data, images, integrations, and quality gates.
+4. Backend level, source platform, and target stack only when the repository does not settle them.
+5. Local development mode, and container engine only when Docker Compose is selected.
+6. Execution mode, exact safe actions, exact network hosts, retry cap, and stop policies.
+7. One final launch, revise, or plan-only decision.
 
 Ask one to three questions per batch. Offer two or three mutually exclusive choices. Put the context-aware recommendation first. Keep each option to one advantage and one disadvantage.
+
+All batches before launch form one intake session. After an autonomous launch, do not repeat routine questions whose answers are frozen in the validated brief. Consolidate new authority needs into one `needs-owner-input` handoff.
 
 ## Source choices
 

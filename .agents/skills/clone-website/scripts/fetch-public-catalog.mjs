@@ -5,6 +5,8 @@ import process from 'node:process';
 
 import {
   atomicWrite,
+  canonicalNodeInvocation,
+  consumeLaunchAction,
   decodeXmlText,
   extractTitle,
   fail,
@@ -105,7 +107,14 @@ async function main() {
   const args = parseCli(process.argv.slice(2));
   requireCli(args, ['project-root']);
   const root = resolveProjectRoot(args['project-root']);
-  const { approvedHosts, brief, targetHost } = loadCaptureBrief(root);
+  const { approvedHosts, brief, launchDigest, normalizedDigest, targetHost } = loadCaptureBrief(root);
+  if (brief.version === 2) {
+    consumeLaunchAction(root, {
+      actionName: 'capture-approved-hosts',
+      argv: canonicalNodeInvocation(process.argv[1], process.argv.slice(2)),
+      targetPath: '.',
+    });
+  }
   const platform = brief.capture.platform || brief.replica.source_platform || 'generic';
   const maxCatalogItems = toInt(args['max-catalog-items'], brief.capture.max_catalog_items ?? 20);
   const maxContentPages = toInt(args['max-content-pages'], brief.capture.max_content_pages ?? brief.limits.max_pages);
@@ -128,22 +137,30 @@ async function main() {
   }
 
   const { receipt } = bundle;
+  if (brief.version === 2) {
+    receipt.launch_sha256 = launchDigest;
+    receipt.normalized_brief_sha256 = normalizedDigest;
+  }
 
   if (bundle.products) {
-    await atomicWrite(path.join(evidenceRoot, 'products.json'), bundle.products.body);
+    const digest = await atomicWrite(path.join(evidenceRoot, 'products.json'), bundle.products.body);
     receipt.products = {
+      bytes: bundle.products.body.length,
       count: JSON.parse(bundle.products.body.toString('utf8')).products?.length ?? 0,
       output: '.replica/evidence/products.json',
+      sha256: digest,
       url: sanitizeUrl(bundle.products.finalUrl),
     };
     process.stdout.write(`PASS saved ${receipt.products.count} catalog items -> ${receipt.products.output}\n`);
   }
 
   if (bundle.collections) {
-    await atomicWrite(path.join(evidenceRoot, 'collections.json'), bundle.collections.body);
+    const digest = await atomicWrite(path.join(evidenceRoot, 'collections.json'), bundle.collections.body);
     receipt.collections = {
+      bytes: bundle.collections.body.length,
       count: JSON.parse(bundle.collections.body.toString('utf8')).collections?.length ?? 0,
       output: '.replica/evidence/collections.json',
+      sha256: digest,
       url: sanitizeUrl(bundle.collections.finalUrl),
     };
     process.stdout.write(`PASS saved ${receipt.collections.count} collections -> ${receipt.collections.output}\n`);
@@ -155,11 +172,12 @@ async function main() {
       const route = bundle.genericRoutes[index];
       const slug = slugFromPathname(new URL(route, `https://${targetHost}`).pathname);
       const outputRelative = path.posix.join('.replica', 'evidence', 'pages', `${slug}.html`);
-      await atomicWrite(path.join(pagesRoot, `${slug}.html`), page.body);
+      const digest = await atomicWrite(path.join(pagesRoot, `${slug}.html`), page.body);
       receipt.generic_pages.push({
         bytes: page.body.length,
         output: outputRelative,
         route,
+        sha256: digest,
         title: extractTitle(page.body.toString('utf8')),
         url: sanitizeUrl(page.finalUrl),
       });
@@ -171,10 +189,11 @@ async function main() {
     const slug = slugFromPathname(new URL(url).pathname);
     const page = await fetchText(url, approvedHosts, 'text/html', limits);
     const outputRelative = path.posix.join('.replica', 'evidence', 'pages', `${slug}.html`);
-    await atomicWrite(path.join(pagesRoot, `${slug}.html`), page.body);
+    const digest = await atomicWrite(path.join(pagesRoot, `${slug}.html`), page.body);
     receipt.pages.push({
       bytes: page.body.length,
       output: outputRelative,
+      sha256: digest,
       title: extractTitle(page.body.toString('utf8')),
       url: sanitizeUrl(page.finalUrl),
     });

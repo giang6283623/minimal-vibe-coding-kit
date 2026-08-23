@@ -1,4 +1,4 @@
 interface:
   display_name: "Clone Website"
-  short_description: "Build authorized replicas from local artifacts"
-  default_prompt: "Use $clone-website to plan, build, and verify an authorized website replica from local or captured mock data, screenshots, exports, design files, and local assets."
+  short_description: "Build authorized websites from one complete brief"
+  default_prompt: "Use $clone-website to gather my full website requirements, freeze one launch plan, then build and verify the authorized site without routine stage prompts."

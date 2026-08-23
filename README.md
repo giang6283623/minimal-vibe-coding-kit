@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.14-2ea44f.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.15-2ea44f.svg)](CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -361,7 +361,7 @@ The optional Codex bridge is `codex mcp-server`, registered in the host's person
 
 ## Skills
 
-All 25 skills live canonically in `.vibekit/skills/`. Claude, Codex, OpenCode, Grok, and Kimi use all 25; Cursor uses the 20 interactive ones. OpenCode and Codex share `.agents/skills/`. Invoke them by name ("Use the X skill…") or via the commands above.
+All 26 skills live canonically in `.vibekit/skills/`. Claude, Codex, OpenCode, Grok, and Kimi use all 26; Cursor uses the 21 interactive ones. OpenCode and Codex share `.agents/skills/`. Invoke them by name ("Use the X skill…") or via the commands above.
 
 ```mermaid
 ---
@@ -398,12 +398,13 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("25 skills"))
+  root(("26 skills"))
     setup("Setup and safety")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
       s3("path-sensitive-<br/>shell-safety")
       s4("threat-model-<br/>security-review")
+      s5("model-provider-<br/>settings")
     think("Think and plan")
       t1("clearthought")
       t2("sequential-thinking")
@@ -456,6 +457,7 @@ mindmap
 | `prompt-sharpener`            | A complex task but only a rough prompt: sharpen it, then execute it in the same turn.                                                                                                                                                    | "/prompt-sharpener make the settings page load faster"                                                |
 | `claim`                       | Bringing something new into the repo (skill, rule, convention, tool): vet sources against official docs, fit-check, confirm, integrate, document.                                                                                        | "/claim add the conventional-commits rule from https://www.npmjs.com/package/minimal-vibe-coding-kit" |
 | `clone-website`               | Cloning or migrating an authorized website with dynamic fidelity, scope, stack, backend, rights, capture, and parity choices.                                                                                                           | "Use clone-website to reproduce this page as a safe local F2/S1 prototype."             |
+| `model-provider-settings`     | Setting up or updating provider-native model, reasoning, context, and compaction settings from current official documentation without inventing cross-provider aliases.                                                                 | "Use model-provider-settings to set Claude autoCompactWindow to 300000 and show the matching native options for my other coding agents." |
 | `wait-what`                   | The last answer did not land: the agent re-pitches it in plain language, in your language, restoring the missing premise with project glossary terms; no new work.                                                                       | "/wait-what the part about token budgets"                                                             |
 | `tutien`                      | A private, user-invoked xianxia coding-reflection mode with exact Git/chat evidence and an open-ended chronicle. While on, every reply uses an adaptive cultivation voice in the user's language; an explicit `humiliation=0..10` controls fictional-avatar defeat intensity; `/tutien off` restores normal prose. | "/tutien on humiliation=8"                                                                          |
 | `the-creator`                 | Creating original but workable art, designs, interfaces, methods, processes, or systems through ten cumulative creativity levels while preserving safety, logic, and functional acceptance. | "Use the-creator level 7 to invent a safer code-review process." |

@@ -270,6 +270,17 @@
       ]
     },
     {
+      "name": "model-provider-settings",
+      "surfaces": [
+        "claude",
+        "cursor",
+        "codex",
+        "opencode",
+        "grok",
+        "kimi"
+      ]
+    },
+    {
       "name": "wait-what",
       "surfaces": [
         "claude",

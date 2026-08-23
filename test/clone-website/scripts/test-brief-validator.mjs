@@ -10,7 +10,10 @@ import {
   acceptHeaderForImageKind,
   imageKind,
   isPublicIp,
+  loadValidatedBrief,
+  loadValidatedLaunch,
   safeRemoteImageUrl,
+  validateAutonomousRunState,
 } from '../../../.vibekit/skills/clone-website/scripts/asset-workflow-lib.mjs';
 import {
   detectChromeCommand,
@@ -26,6 +29,14 @@ const validator = path.join(
   'clone-website',
   'scripts',
   'validate_replica_brief.py'
+);
+const autonomousRunValidator = path.join(
+  kitRoot,
+  '.vibekit',
+  'skills',
+  'clone-website',
+  'scripts',
+  'validate-autonomous-run.mjs'
 );
 const prepareWorkspace = path.join(
   kitRoot,
@@ -75,6 +86,119 @@ const tempRoots = [];
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
+}
+
+function autonomousExecution({ hosts = [], capture = false } = {}) {
+  return {
+    mode: 'autonomous-a-to-z',
+    routine_stage_prompts: false,
+    allowed_actions: [
+      ...(capture ? ['capture-approved-hosts'] : []),
+      'inspect-local',
+      'normalize-local-data',
+      'process-local-assets',
+      'run-local-validation',
+      'start-local-preview',
+      'write-project',
+    ],
+    network: {
+      mode: hosts.length > 0 ? 'approved-hosts-only' : 'disabled',
+      approved_hosts: hosts,
+    },
+    credentials: 'never-request-or-store',
+    install: 'explicit-approval-required',
+    browser: 'user-operated-only',
+    deployment: 'prepare-only',
+    destructive_action: 'forbidden',
+    paid_action: 'forbidden',
+    unplanned_change: 'stop-and-report',
+    max_retries_per_stage: 2,
+  };
+}
+
+function customArchitectureReview() {
+  return {
+    data_boundary: 'Local normalized fixtures define the runtime data boundary.',
+    deployment_boundary: 'Only local preview preparation is included.',
+    image_boundary: 'Verified local assets are the only runtime image source.',
+    routing_boundary: 'Explicit routes are implemented in the selected framework.',
+    verification_boundary: 'Focused tests and repository validation define acceptance.',
+  };
+}
+
+function asV2(fixture, { projectType, projectScale, targetStack, routingMode = 'standard', execution } = {}) {
+  const brief = clone(fixture);
+  brief.version = 2;
+  brief.replica.source_platform ??= 'generic';
+  brief.replica.project_type = projectType;
+  brief.replica.project_scale = projectScale;
+  brief.replica.routing_mode = routingMode;
+  brief.replica.local_development ??= {
+    mode: 'preserve-existing',
+    container_engine: 'none',
+  };
+  if (targetStack) brief.replica.target_stack = targetStack;
+  brief.execution = execution ?? autonomousExecution();
+  return brief;
+}
+
+function sha256(value) {
+  return crypto.createHash('sha256').update(value).digest('hex');
+}
+
+function writeLaunch(root, {
+  actions = [{
+    id: 'inspect-1',
+    action: 'inspect-local',
+    target_path: '.',
+    argv: ['git', 'status', '--short'],
+    use_limit: 1,
+  }],
+  hosts = [],
+  issuedAt = null,
+  expiresAt = null,
+} = {}) {
+  const current = Date.now();
+  const normalizedBytes = fs.readFileSync(path.join(root, '.replica', 'brief.normalized.json'));
+  const receipt = JSON.parse(fs.readFileSync(path.join(root, '.replica', 'validation-receipt.json'), 'utf8'));
+  const launch = {
+    version: 1,
+    normalized_brief_sha256: sha256(normalizedBytes),
+    source_inputs_sha256: receipt.source_inputs_sha256,
+    mode: 'autonomous-a-to-z',
+    cost_ceiling_minor: 0,
+    issued_at: issuedAt ?? new Date(current - 60 * 60 * 1000).toISOString(),
+    expires_at: expiresAt ?? new Date(current + 60 * 60 * 1000).toISOString(),
+    owner_approval: {
+      status: 'approved',
+      channel: 'parent-session',
+      evidence_sha256: sha256('bounded owner approval fixture'),
+    },
+    actions,
+    approved_hosts: hosts,
+    prohibited: ['credentials', 'destructive cleanup', 'paid actions', 'real payments'],
+  };
+  const bytes = Buffer.from(`${JSON.stringify(launch, null, 2)}\n`);
+  fs.writeFileSync(path.join(root, '.replica', 'launch.json'), bytes);
+  return { digest: sha256(bytes), launch };
+}
+
+function writeRunState(root, launchDigest, overrides = {}) {
+  const normalizedBytes = fs.readFileSync(path.join(root, '.replica', 'brief.normalized.json'));
+  const state = {
+    version: 1,
+    normalized_brief_sha256: sha256(normalizedBytes),
+    launch_sha256: launchDigest,
+    phase: 'inspect',
+    completed_phases: [],
+    retry_count: 0,
+    terminal_state: null,
+    blockers: [],
+    last_checkpoint_sha256: sha256('initial checkpoint'),
+    ...overrides,
+  };
+  fs.writeFileSync(path.join(root, '.replica', 'run-state.json'), `${JSON.stringify(state, null, 2)}\n`);
+  return state;
 }
 
 function setAtPath(target, parts, value) {
@@ -185,6 +309,416 @@ try {
 
   const publicRoot = expectValid(publicFixture, 'safe public F2/S1/B0 brief');
   expectValid(ownedFixture, 'safe owned F4/S4/B2 brief');
+  expectValid(
+    JSON.parse(fs.readFileSync(path.join(
+      kitRoot,
+      '.vibekit',
+      'skills',
+      'clone-website',
+      'references',
+      'replica-brief.example.json'
+    ), 'utf8')),
+    'published replica brief example'
+  );
+
+  const v2Marketing = asV2(publicFixture, {
+    projectType: 'marketing-site',
+    projectScale: 'small',
+    targetStack: 'static-html-css-js',
+  });
+  const v2MarketingRoot = expectValid(v2Marketing, 'v2 autonomous small marketing site');
+  const v2MarketingPlan = fs.readFileSync(path.join(v2MarketingRoot, '.replica', 'plan.md'), 'utf8');
+  assert.match(v2MarketingPlan, /Project type: `marketing-site`/);
+  assert.match(v2MarketingPlan, /Project scale: `small`/);
+  assert.match(v2MarketingPlan, /Mode: `autonomous-a-to-z`/);
+  assert.match(v2MarketingPlan, /Routine stage prompts: `False`/);
+
+  const trustedNowMs = Date.now();
+  const validLaunch = writeLaunch(v2MarketingRoot);
+  assert.equal(loadValidatedLaunch(v2MarketingRoot, { nowMs: trustedNowMs }).launchDigest, validLaunch.digest);
+  writeRunState(v2MarketingRoot, validLaunch.digest);
+  assert.equal(validateAutonomousRunState(v2MarketingRoot, { nowMs: trustedNowMs }).state.phase, 'inspect');
+  const rawV2MarketingPath = path.join(v2MarketingRoot, '.replica', 'brief.json');
+  const rawV2Marketing = fs.readFileSync(rawV2MarketingPath);
+  fs.appendFileSync(rawV2MarketingPath, ' ');
+  assert.throws(
+    () => loadValidatedLaunch(v2MarketingRoot, { nowMs: trustedNowMs }),
+    /digest does not match raw brief/,
+    'raw brief drift invalidates downstream launch use'
+  );
+  fs.writeFileSync(rawV2MarketingPath, rawV2Marketing);
+  const launchCli = spawnSync('node', [
+    autonomousRunValidator,
+    '--project-root', v2MarketingRoot,
+  ], { cwd: v2MarketingRoot, encoding: 'utf8' });
+  assert.equal(launchCli.status, 0, launchCli.stderr);
+  assert.match(launchCli.stdout, /"status": "valid"/);
+
+  writeLaunch(v2MarketingRoot, {
+    actions: [{
+      id: 'node-version-1',
+      action: 'inspect-local',
+      target_path: '.',
+      argv: ['node', '--version'],
+      use_limit: 1,
+    }],
+  });
+  const mismatchedExecution = spawnSync('node', [
+    autonomousRunValidator,
+    '--project-root', v2MarketingRoot,
+    '--execute-action', 'node-version-1',
+    '--', 'node', '--help',
+  ], { cwd: v2MarketingRoot, encoding: 'utf8' });
+  assert.equal(mismatchedExecution.status, 2);
+  assert.match(mismatchedExecution.stderr, /actual action id, type, target path, and argv must match/i);
+  const exactExecution = spawnSync('node', [
+    autonomousRunValidator,
+    '--project-root', v2MarketingRoot,
+    '--execute-action', 'node-version-1',
+    '--', 'node', '--version',
+  ], { cwd: v2MarketingRoot, encoding: 'utf8' });
+  assert.equal(exactExecution.status, 0, exactExecution.stderr);
+  assert.match(exactExecution.stdout, /^v\d+/m);
+  const exhaustedExecution = spawnSync('node', [
+    autonomousRunValidator,
+    '--project-root', v2MarketingRoot,
+    '--execute-action', 'node-version-1',
+    '--', 'node', '--version',
+  ], { cwd: v2MarketingRoot, encoding: 'utf8' });
+  assert.equal(exhaustedExecution.status, 2);
+  assert.match(exhaustedExecution.stderr, /exhausted its use limit/i);
+
+  fs.writeFileSync(
+    path.join(v2MarketingRoot, 'print-action-environment.mjs'),
+    "process.stdout.write(process.env.NPM_TOKEN ?? 'credential-not-inherited');\n"
+  );
+  writeLaunch(v2MarketingRoot, {
+    actions: [{
+      id: 'environment-1',
+      action: 'inspect-local',
+      target_path: '.',
+      argv: ['node', 'print-action-environment.mjs'],
+      use_limit: 1,
+    }],
+  });
+  const sanitizedEnvironment = spawnSync('node', [
+    autonomousRunValidator,
+    '--project-root', v2MarketingRoot,
+    '--execute-action', 'environment-1',
+    '--', 'node', 'print-action-environment.mjs',
+  ], {
+    cwd: v2MarketingRoot,
+    encoding: 'utf8',
+    env: { ...process.env, NPM_TOKEN: 'must-not-reach-child' },
+  });
+  assert.equal(sanitizedEnvironment.status, 0, sanitizedEnvironment.stderr);
+  assert.equal(sanitizedEnvironment.stdout, 'credential-not-inherited');
+
+  writeLaunch(v2MarketingRoot, {
+    issuedAt: new Date(trustedNowMs - 2 * 60 * 60 * 1000).toISOString(),
+    expiresAt: new Date(trustedNowMs - 60 * 60 * 1000).toISOString(),
+  });
+  assert.throws(
+    () => loadValidatedLaunch(v2MarketingRoot, { nowMs: trustedNowMs }),
+    /expired/,
+    'expired launch records are rejected'
+  );
+  const untrustedClockOverride = spawnSync('node', [
+    autonomousRunValidator,
+    '--project-root', v2MarketingRoot,
+    '--launch-only',
+    '--now', new Date(trustedNowMs - 90 * 60 * 1000).toISOString(),
+  ], { cwd: v2MarketingRoot, encoding: 'utf8' });
+  assert.equal(untrustedClockOverride.status, 2);
+  assert.match(untrustedClockOverride.stderr, /unknown argument: --now/i);
+  const mismatchedLaunch = writeLaunch(v2MarketingRoot);
+  mismatchedLaunch.launch.normalized_brief_sha256 = '0'.repeat(64);
+  fs.writeFileSync(
+    path.join(v2MarketingRoot, '.replica', 'launch.json'),
+    `${JSON.stringify(mismatchedLaunch.launch, null, 2)}\n`
+  );
+  assert.throws(
+    () => loadValidatedLaunch(v2MarketingRoot, { nowMs: trustedNowMs }),
+    /does not match the validated normalized brief/,
+    'launch records are bound to one normalized brief'
+  );
+  const paidLaunch = writeLaunch(v2MarketingRoot);
+  paidLaunch.launch.cost_ceiling_minor = 1;
+  fs.writeFileSync(
+    path.join(v2MarketingRoot, '.replica', 'launch.json'),
+    `${JSON.stringify(paidLaunch.launch, null, 2)}\n`
+  );
+  assert.throws(
+    () => loadValidatedLaunch(v2MarketingRoot, { nowMs: trustedNowMs }),
+    /cost_ceiling_minor must be zero/,
+    'autonomous launch cannot grant a paid action'
+  );
+  writeLaunch(v2MarketingRoot, {
+    actions: [{
+      id: 'unsafe-validation-1',
+      action: 'run-local-validation',
+      target_path: '.',
+      argv: ['rm', '-rf', 'public'],
+      use_limit: 1,
+    }],
+  });
+  assert.throws(
+    () => loadValidatedLaunch(v2MarketingRoot, { nowMs: trustedNowMs }),
+    /forbidden destructive, network, shell, or deployment executable/,
+    'an allowed action label cannot smuggle a destructive command'
+  );
+  writeLaunch(v2MarketingRoot, {
+    actions: [{
+      id: 'unsafe-wrapper-1',
+      action: 'run-local-validation',
+      target_path: '.',
+      argv: ['env', 'rm', '-rf', 'public'],
+      use_limit: 1,
+    }],
+  });
+  assert.throws(
+    () => loadValidatedLaunch(v2MarketingRoot, { nowMs: trustedNowMs }),
+    /forbidden destructive, network, shell, or deployment executable/,
+    'command wrappers cannot bypass the executable denylist'
+  );
+  writeLaunch(v2MarketingRoot, {
+    actions: [{
+      id: 'unsafe-write-1',
+      action: 'write-project',
+      target_path: '.',
+      argv: ['node', 'rewrite-project.mjs'],
+      use_limit: 1,
+    }],
+  });
+  assert.throws(
+    () => loadValidatedLaunch(v2MarketingRoot, { nowMs: trustedNowMs }),
+    /write-project must use the host-native write sentinel/,
+    'write-project rejects executable command substitution'
+  );
+  writeLaunch(v2MarketingRoot, {
+    actions: [{
+      id: 'write-project-1',
+      action: 'write-project',
+      target_path: '.',
+      argv: ['host-native', 'write-project'],
+      use_limit: 1,
+    }],
+  });
+  const nativeWrite = spawnSync('node', [
+    autonomousRunValidator,
+    '--project-root', v2MarketingRoot,
+    '--consume-native-action', 'write-project-1',
+  ], { cwd: v2MarketingRoot, encoding: 'utf8' });
+  assert.equal(nativeWrite.status, 0, nativeWrite.stderr);
+  assert.match(nativeWrite.stdout, /"status": "authorized-for-host-native-write"/);
+  const exhaustedNativeWrite = spawnSync('node', [
+    autonomousRunValidator,
+    '--project-root', v2MarketingRoot,
+    '--consume-native-action', 'write-project-1',
+  ], { cwd: v2MarketingRoot, encoding: 'utf8' });
+  assert.equal(exhaustedNativeWrite.status, 2);
+  assert.match(exhaustedNativeWrite.stderr, /exhausted its use limit/i);
+  writeLaunch(v2MarketingRoot, { hosts: ['outside.example.com'] });
+  assert.throws(
+    () => loadValidatedLaunch(v2MarketingRoot, { nowMs: trustedNowMs }),
+    /host outside the validated execution allowlist/,
+    'launch hosts cannot widen the execution policy'
+  );
+  writeLaunch(v2MarketingRoot, {
+    actions: [{
+      id: 'download-1',
+      action: 'download-approved-assets',
+      target_path: '.',
+      argv: ['node', 'download-authorized-assets.mjs'],
+      use_limit: 1,
+    }],
+  });
+  assert.throws(
+    () => loadValidatedLaunch(v2MarketingRoot, { nowMs: trustedNowMs }),
+    /action is outside the validated execution allowlist/,
+    'launch actions cannot widen the execution policy'
+  );
+  const restoredLaunch = writeLaunch(v2MarketingRoot);
+  writeRunState(v2MarketingRoot, restoredLaunch.digest, {
+    phase: 'implement',
+    completed_phases: ['inspect'],
+  });
+  assert.throws(
+    () => validateAutonomousRunState(v2MarketingRoot, { nowMs: trustedNowMs }),
+    /next incomplete phase/,
+    'run state cannot skip autonomous phases'
+  );
+  writeRunState(v2MarketingRoot, restoredLaunch.digest, {
+    terminal_state: 'complete',
+  });
+  assert.throws(
+    () => validateAutonomousRunState(v2MarketingRoot, { nowMs: trustedNowMs }),
+    /requires every autonomous phase/,
+    'complete cannot be claimed before handoff'
+  );
+  writeRunState(v2MarketingRoot, restoredLaunch.digest, {
+    terminal_state: 'needs-owner-input',
+    blockers: ['New authenticated host requires owner authority.'],
+  });
+  assert.equal(
+    validateAutonomousRunState(v2MarketingRoot, { nowMs: trustedNowMs }).state.terminal_state,
+    'needs-owner-input'
+  );
+  writeRunState(v2MarketingRoot, restoredLaunch.digest, {
+    phase: 'handoff',
+    completed_phases: [
+      'inspect',
+      'validate',
+      'acquire',
+      'normalize',
+      'architect',
+      'implement',
+      'verify',
+      'harden',
+      'handoff',
+    ],
+    terminal_state: 'complete',
+  });
+  assert.equal(
+    validateAutonomousRunState(v2MarketingRoot, { nowMs: trustedNowMs }).state.terminal_state,
+    'complete'
+  );
+
+  expectValid(asV2(publicFixture, {
+    projectType: 'corporate-site',
+    projectScale: 'medium',
+    targetStack: 'static-html-css-js',
+  }), 'v2 autonomous medium corporate site');
+
+  for (const projectScale of ['small', 'medium', 'large']) {
+    expectValid(asV2(ownedFixture, {
+      projectType: 'ecommerce',
+      projectScale,
+      targetStack: 'nextjs-app-router',
+    }), `v2 autonomous ${projectScale} ecommerce site`);
+  }
+
+  const unknownProjectType = clone(v2Marketing);
+  unknownProjectType.replica.project_type = 'unknown-site';
+  expectInvalid(unknownProjectType, 'replica.project_type must be one of', 'v2 rejects unknown project type');
+
+  const unknownProjectScale = clone(v2Marketing);
+  unknownProjectScale.replica.project_scale = 'global';
+  expectInvalid(unknownProjectScale, 'replica.project_scale must be one of', 'v2 rejects unknown project scale');
+
+  const invalidStandardStack = clone(v2Marketing);
+  invalidStandardStack.replica.target_stack = 'unrouted-framework';
+  expectInvalid(invalidStandardStack, 'use replica.routing_mode custom-review', 'v2 standard routing rejects unknown stack');
+  invalidStandardStack.replica.routing_mode = 'custom-review';
+  invalidStandardStack.replica.architecture_review = customArchitectureReview();
+  expectValid(invalidStandardStack, 'v2 custom review preserves a user-selected stack');
+
+  const invalidStandardBackend = asV2(ownedFixture, {
+    projectType: 'ecommerce',
+    projectScale: 'large',
+    targetStack: 'astro-typescript',
+  });
+  expectInvalid(
+    invalidStandardBackend,
+    'replica.backend_level B2 is not standard for astro-typescript',
+    'v2 standard routing rejects an incompatible backend'
+  );
+  invalidStandardBackend.replica.routing_mode = 'custom-review';
+  invalidStandardBackend.replica.architecture_review = customArchitectureReview();
+  expectValid(invalidStandardBackend, 'v2 custom review records nonstandard backend boundaries');
+
+  const standardWithReview = clone(v2Marketing);
+  standardWithReview.replica.architecture_review = customArchitectureReview();
+  expectInvalid(
+    standardWithReview,
+    'replica.architecture_review is allowed only with custom-review routing',
+    'standard routing rejects an unnecessary custom review'
+  );
+
+  const autonomousWithPrompts = clone(v2Marketing);
+  autonomousWithPrompts.execution.routine_stage_prompts = true;
+  expectInvalid(autonomousWithPrompts, 'requires execution.routine_stage_prompts false', 'autonomous mode rejects routine prompts');
+
+  const disabledNetworkWithHost = clone(v2Marketing);
+  disabledNetworkWithHost.execution.network.approved_hosts = ['example.com'];
+  expectInvalid(disabledNetworkWithHost, 'disabled execution network requires an empty approved_hosts list', 'disabled network rejects hosts');
+
+  const planOnlyWrites = clone(v2Marketing);
+  planOnlyWrites.execution.mode = 'plan-only';
+  expectInvalid(planOnlyWrites, 'plan-only permits only the inspect-local action', 'plan-only rejects mutable actions');
+
+  const v2Capture = asV2(captureFixture, {
+    projectType: 'ecommerce',
+    projectScale: 'small',
+    targetStack: 'astro-typescript',
+    execution: autonomousExecution({ hosts: ['store.example.com'], capture: true }),
+  });
+  const v2CaptureRoot = expectValid(v2Capture, 'v2 capture uses one frozen host allowlist');
+  writeLaunch(v2CaptureRoot, {
+    hosts: ['store.example.com'],
+    actions: [{
+      id: 'capture-path-substitution-1',
+      action: 'capture-approved-hosts',
+      target_path: '.',
+      argv: ['node', '/tmp/fetch-public-catalog.mjs'],
+      use_limit: 1,
+    }],
+  });
+  assert.throws(
+    () => loadValidatedLaunch(v2CaptureRoot, { nowMs: trustedNowMs }),
+    /does not match the protected capture-approved-hosts entrypoint/,
+    'protected scripts require the exact local basename, not a substituted path'
+  );
+  const captureHostDrift = clone(v2Capture);
+  captureHostDrift.execution.network.approved_hosts = ['assets.example.com'];
+  expectInvalid(captureHostDrift, 'capture.approved_hosts are missing', 'v2 capture host must be in execution allowlist');
+
+  const boundSourceBrief = clone(v2Marketing);
+  const boundSourceRoot = createProject(boundSourceBrief);
+  const boundSourceName = 'content-caf\u00e9-\ud83d\ude00.json';
+  const boundSourcePath = path.join(boundSourceRoot, '.replica', 'evidence', boundSourceName);
+  const boundSourceBytes = Buffer.from('{"title":"Local fixture"}\n');
+  fs.writeFileSync(boundSourcePath, boundSourceBytes);
+  boundSourceBrief.source_inputs = [{
+    path: boundSourceName,
+    kind: 'mock-json',
+    rights: 'owned',
+    bytes: boundSourceBytes.length,
+    sha256: crypto.createHash('sha256').update(boundSourceBytes).digest('hex'),
+  }];
+  fs.writeFileSync(
+    path.join(boundSourceRoot, '.replica', 'brief.json'),
+    `${JSON.stringify(boundSourceBrief, null, 2)}\n`
+  );
+  const nonNeutralPublicSource = runValidator(boundSourceRoot);
+  assert.equal(nonNeutralPublicSource.status, 2);
+  assert.match(nonNeutralPublicSource.stderr, /public research v2 source_inputs must all use neutralized rights/i);
+  boundSourceBrief.source_inputs[0].rights = 'neutralized';
+  fs.writeFileSync(
+    path.join(boundSourceRoot, '.replica', 'brief.json'),
+    `${JSON.stringify(boundSourceBrief, null, 2)}\n`
+  );
+  const boundSourceValidation = runValidator(boundSourceRoot);
+  assert.equal(boundSourceValidation.status, 0, boundSourceValidation.stderr);
+  assert.equal(loadValidatedBrief(boundSourceRoot).sourceInputsVerified, 1);
+  const boundReceiptPath = path.join(boundSourceRoot, '.replica', 'validation-receipt.json');
+  const boundReceipt = JSON.parse(fs.readFileSync(boundReceiptPath, 'utf8'));
+  const originalSourceInputsDigest = boundReceipt.source_inputs_sha256;
+  boundReceipt.source_inputs_sha256 = '0'.repeat(64);
+  fs.writeFileSync(boundReceiptPath, `${JSON.stringify(boundReceipt, null, 2)}\n`);
+  assert.throws(
+    () => loadValidatedBrief(boundSourceRoot),
+    /receipt digest does not match the normalized source input inventory/,
+    'downstream consumers recompute the source input inventory digest'
+  );
+  boundReceipt.source_inputs_sha256 = originalSourceInputsDigest;
+  fs.writeFileSync(boundReceiptPath, `${JSON.stringify(boundReceipt, null, 2)}\n`);
+  fs.writeFileSync(boundSourcePath, '{"title":"Drifted fixture"}\n');
+  assert.throws(
+    () => loadValidatedBrief(boundSourceRoot),
+    /byte size drifted|digest drifted/,
+    'downstream consumers reject source input drift'
+  );
 
   const legacyNormalized = JSON.parse(
     fs.readFileSync(path.join(publicRoot, '.replica', 'brief.normalized.json'), 'utf8')
@@ -436,6 +970,62 @@ try {
       },
     },
   };
+  const capturedBytes = Buffer.from(`${JSON.stringify(shopifyExport, null, 2)}\n`);
+  const capturedPath = path.join(v2CaptureRoot, '.replica', 'evidence', 'products.json');
+  fs.writeFileSync(capturedPath, capturedBytes);
+  const captureLaunch = writeLaunch(v2CaptureRoot, {
+    hosts: ['store.example.com'],
+    actions: [{
+      id: 'capture-1',
+      action: 'capture-approved-hosts',
+      target_path: '.',
+      argv: ['node', 'fetch-public-catalog.mjs'],
+      use_limit: 1,
+    }, {
+      id: 'screenshots-1',
+      action: 'capture-approved-hosts',
+      target_path: '.',
+      argv: ['node', 'capture-screenshots.mjs'],
+      use_limit: 1,
+    }],
+  });
+  const captureLoaded = loadValidatedBrief(v2CaptureRoot);
+  fs.writeFileSync(
+    path.join(v2CaptureRoot, '.replica', 'evidence', 'fetch-receipt.json'),
+    `${JSON.stringify({
+      version: 1,
+      platform: 'shopify',
+      host: 'store.example.com',
+      fetched_at: '2026-08-23T08:00:00Z',
+      launch_sha256: captureLaunch.digest,
+      normalized_brief_sha256: captureLoaded.normalizedDigest,
+      pages: [],
+      products: {
+        bytes: capturedBytes.length,
+        count: 1,
+        output: '.replica/evidence/products.json',
+        sha256: sha256(capturedBytes),
+        url: 'https://store.example.com/products.json?limit=20',
+      },
+    }, null, 2)}\n`
+  );
+  const capturedNormalization = spawnSync('node', [
+    normalizeExport,
+    '--project-root', v2CaptureRoot,
+    '--platform', 'shopify',
+    '--input', 'products.json',
+  ], { cwd: v2CaptureRoot, encoding: 'utf8' });
+  assert.equal(capturedNormalization.status, 0, capturedNormalization.stderr);
+  fs.writeFileSync(capturedPath, `${JSON.stringify({ products: [] })}\n`);
+  const tamperedCapture = spawnSync('node', [
+    normalizeExport,
+    '--project-root', v2CaptureRoot,
+    '--platform', 'shopify',
+    '--input', 'products.json',
+  ], { cwd: v2CaptureRoot, encoding: 'utf8' });
+  assert.equal(tamperedCapture.status, 2);
+  assert.match(tamperedCapture.stderr, /captured input byte size|captured input digest/i);
+
   const adapterBrief = clone(ownedFixture);
   adapterBrief.replica.source_platform = 'shopify';
   adapterBrief.source_inputs = ['shopify-products.json'];
@@ -480,6 +1070,75 @@ try {
   ], { cwd: adapterRoot, encoding: 'utf8' });
   assert.equal(wrongHost.status, 2);
   assert.match(wrongHost.stderr, /must exactly match candidate_hosts/i);
+
+  const v2AssetBrief = asV2(ownedFixture, {
+    projectType: 'ecommerce',
+    projectScale: 'medium',
+    targetStack: 'nextjs-app-router',
+    execution: autonomousExecution({ hosts: ['cdn.shopify.com', 'store.example.com'] }),
+  });
+  v2AssetBrief.replica.source_platform = 'shopify';
+  v2AssetBrief.execution.allowed_actions.push('download-approved-assets');
+  const v2AssetRoot = createProject(v2AssetBrief);
+  const v2ExportBytes = Buffer.from(`${JSON.stringify(shopifyExport, null, 2)}\n`);
+  fs.writeFileSync(path.join(v2AssetRoot, '.replica', 'evidence', 'shopify-products.json'), v2ExportBytes);
+  v2AssetBrief.source_inputs = [{
+    path: 'shopify-products.json',
+    kind: 'api-export',
+    rights: 'owned',
+    bytes: v2ExportBytes.length,
+    sha256: crypto.createHash('sha256').update(v2ExportBytes).digest('hex'),
+  }];
+  fs.writeFileSync(
+    path.join(v2AssetRoot, '.replica', 'brief.json'),
+    `${JSON.stringify(v2AssetBrief, null, 2)}\n`
+  );
+  const v2AssetValidation = runValidator(v2AssetRoot);
+  assert.equal(v2AssetValidation.status, 0, v2AssetValidation.stderr);
+  const v2Normalization = spawnSync('node', [
+    normalizeExport,
+    '--project-root', v2AssetRoot,
+    '--platform', 'shopify',
+    '--input', 'shopify-products.json',
+  ], { cwd: v2AssetRoot, encoding: 'utf8' });
+  assert.equal(v2Normalization.status, 0, v2Normalization.stderr);
+  writeLaunch(v2AssetRoot, {
+    hosts: ['store.example.com'],
+    actions: [{
+      id: 'download-assets-1',
+      action: 'download-approved-assets',
+      target_path: '.',
+      argv: ['node', 'download-authorized-assets.mjs'],
+      use_limit: 1,
+    }],
+  });
+  const frozenHostBlock = spawnSync('node', [
+    downloadAssets,
+    '--project-root', v2AssetRoot,
+    '--allow-host', 'cdn.shopify.com',
+  ], { cwd: v2AssetRoot, encoding: 'utf8' });
+  assert.equal(frozenHostBlock.status, 2);
+  assert.match(frozenHostBlock.stderr, /outside the current launch record/i);
+  writeLaunch(v2AssetRoot, {
+    hosts: ['cdn.shopify.com'],
+    actions: [{
+      id: 'download-assets-2',
+      action: 'download-approved-assets',
+      target_path: '.',
+      argv: ['node', 'download-authorized-assets.mjs'],
+      use_limit: 1,
+    }],
+  });
+  const mismatchedDownloaderInvocation = spawnSync('node', [
+    downloadAssets,
+    '--project-root', v2AssetRoot,
+    '--allow-host', 'cdn.shopify.com',
+  ], { cwd: v2AssetRoot, encoding: 'utf8' });
+  assert.equal(mismatchedDownloaderInvocation.status, 2);
+  assert.match(
+    mismatchedDownloaderInvocation.stderr,
+    /actual action id, type, target path, and argv must match one launch grant/i
+  );
 
   const localAsset = path.join(adapterRoot, assetManifest.assets[0].output);
   fs.mkdirSync(path.dirname(localAsset), { recursive: true });

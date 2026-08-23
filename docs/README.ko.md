@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.14-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.15-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -169,7 +169,7 @@ your-project/
 
 ## 스킬
 
-전체 25개 스킬의 정본은 `.vibekit/skills/`에 있습니다. Claude, Codex, OpenCode, Grok, Kimi는 25개 모두를 미러링하고 Cursor는 상호작용형 20개를 미러링합니다.
+전체 26개 스킬의 정본은 `.vibekit/skills/`에 있습니다. Claude, Codex, OpenCode, Grok, Kimi는 26개 모두를 미러링하고 Cursor는 상호작용형 21개를 미러링합니다.
 
 | 스킬 | 사용 시점 |
 | --- | --- |
@@ -194,6 +194,7 @@ your-project/
 | `coding-level` | 코딩 설명의 깊이를 0부터 5까지 설정할 때 |
 | `claim` | 새로운 도구, 스킬, URL을 공식 출처와 대조한 뒤 통합할 때 |
 | `clone-website` | 권한, 충실도, 범위, 기술 스택, 백엔드, 캡처, 검증 경계를 정해 웹사이트를 복제하거나 마이그레이션할 때 |
+| `model-provider-settings` | 현재 공식 문서를 기준으로 provider 고유의 model, reasoning, context, compaction 설정을 안전하게 업데이트할 때 |
 | `wait-what` | 직전 답변이 이해되지 않았을 때: 쉬운 말로, 사용자의 언어로, 용어집 어휘를 써서 다시 설명 |
 | `tutien` | Git과 제공된 채팅 증거를 바탕으로 한 개인적인 선협 코딩 회고 모드 |
 | `the-creator` | 사용자가 명시적으로 창작 수준을 요청했을 때 |

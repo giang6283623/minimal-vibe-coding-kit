@@ -9,16 +9,27 @@ import path from 'node:path';
 import process from 'node:process';
 
 import {
+  canonicalNodeInvocation,
+  consumeLaunchAction,
   fail,
   isPublicIp,
   loadValidatedBrief,
+  loadValidatedLaunch,
   printFailure,
   resolveProjectRoot,
   sha256Bytes,
   WorkflowError,
 } from './asset-workflow-lib.mjs';
 
-export { fail, printFailure, resolveProjectRoot, sha256Bytes, WorkflowError };
+export {
+  canonicalNodeInvocation,
+  consumeLaunchAction,
+  fail,
+  printFailure,
+  resolveProjectRoot,
+  sha256Bytes,
+  WorkflowError,
+};
 
 export const MAX_RESPONSE_BYTES = 8 * 1024 * 1024;
 export const DEFAULT_PAGE_LOAD_MS = 45000;
@@ -64,7 +75,7 @@ export function hostnameFromUrl(rawUrl) {
   return parsed.hostname.toLowerCase();
 }
 
-export function loadCaptureBrief(root) {
+export function loadCaptureBrief(root, { requireLaunch = true } = {}) {
   const loaded = loadValidatedBrief(root);
   const { brief } = loaded;
   if (!brief.capture?.enabled) fail('normalized brief does not enable capture');
@@ -79,7 +90,15 @@ export function loadCaptureBrief(root) {
   if (!approvedHosts.includes(targetHost)) {
     fail('capture.approved_hosts must include the target URL hostname');
   }
-  return { ...loaded, approvedHosts, targetHost };
+  if (brief.version === 2 && requireLaunch) {
+    const launch = loadValidatedLaunch(root);
+    const missingLaunchHost = approvedHosts.filter((host) => !launch.approvedHosts.includes(host));
+    if (missingLaunchHost.length > 0) {
+      fail(`capture hosts are outside the current launch record: ${missingLaunchHost.join(', ')}`);
+    }
+    return { ...loaded, approvedHosts, launchDigest: launch.launchDigest, targetHost };
+  }
+  return { ...loaded, approvedHosts, launchDigest: null, targetHost };
 }
 
 export function safeHttpsUrl(raw, approvedHosts, label) {

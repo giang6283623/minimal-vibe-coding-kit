@@ -5,6 +5,8 @@ import path from 'node:path';
 import process from 'node:process';
 
 import {
+  canonicalNodeInvocation,
+  consumeLaunchAction,
   atomicWrite,
   completenessReport,
   DEFAULT_PAGE_LOAD_MS,
@@ -250,6 +252,13 @@ async function main() {
   requireCli(args, ['project-root', 'cdp']);
   const root = resolveProjectRoot(args['project-root']);
   const { brief, targetHost } = loadCaptureBrief(root);
+  if (brief.version === 2) {
+    consumeLaunchAction(root, {
+      actionName: 'capture-approved-hosts',
+      argv: canonicalNodeInvocation(process.argv[1], process.argv.slice(2)),
+      targetPath: '.',
+    });
+  }
   const routesFile = args['routes-file']
     ? path.resolve(root, args['routes-file'])
     : path.join(root, '.replica', 'capture-routes.json');

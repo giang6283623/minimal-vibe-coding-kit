@@ -144,6 +144,8 @@ try {
   assert(fs.existsSync(path.join(clean, '.vibekit/skills/agent-control-center/scripts/codex-cli-controller-bridge.mjs')), 'clean install includes the Codex CLI controller bridge');
   assert(fs.existsSync(path.join(clean, '.vibekit/skills/agent-control-center/schemas/controller-response.schema.json')), 'clean install includes the controller response schema');
   assert(fs.existsSync(path.join(clean, '.vibekit/skills/clone-website/scripts/validate_replica_brief.py')), 'clean install includes the canonical Clone Website brief validator');
+  assert(fs.existsSync(path.join(clean, '.vibekit/skills/clone-website/scripts/validate-autonomous-run.mjs')), 'clean install includes the canonical Clone Website autonomous validator');
+  assert(fs.existsSync(path.join(clean, '.vibekit/skills/clone-website/references/requirements-and-autonomy.md')), 'clean install includes the canonical Clone Website autonomy contract');
   assert(fs.existsSync(path.join(clean, '.vibekit/skills/clone-website/references/local-development.md')), 'clean install includes the canonical Clone Website local development guide');
   assert(fs.existsSync(path.join(clean, '.vibekit/skills/clone-website/scripts/normalize-local-export.mjs')), 'clean install includes the canonical Clone Website local export normalizer');
   assert(fs.existsSync(path.join(clean, '.vibekit/skills/clone-website/scripts/download-authorized-assets.mjs')), 'clean install includes the canonical Clone Website owner-run asset downloader');
@@ -160,6 +162,10 @@ try {
     assert(
       fs.existsSync(path.join(clean, mirror, 'skills/clone-website/scripts/validate_replica_brief.py')),
       `clean install includes the Clone Website brief validator in ${mirror}`
+    );
+    assert(
+      fs.existsSync(path.join(clean, mirror, 'skills/clone-website/scripts/validate-autonomous-run.mjs')),
+      `clean install includes the Clone Website autonomous validator in ${mirror}`
     );
     assert(
       fs.existsSync(path.join(clean, mirror, 'skills/clone-website/references/local-development.md')),
@@ -494,6 +500,10 @@ try {
     assert(
       fs.existsSync(path.join(solo, skillRoot, 'skills/clone-website/SKILL.md')),
       `${profile}-only install includes clone-website`
+    );
+    assert(
+      fs.existsSync(path.join(solo, skillRoot, 'skills/model-provider-settings/SKILL.md')),
+      `${profile}-only install includes model-provider-settings`
     );
     if (profile === 'kimi') {
       const doctor = JSON.parse(run(['.vibekit/scripts/doctor.mjs', solo, '--json']).stdout);
