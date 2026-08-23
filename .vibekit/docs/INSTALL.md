@@ -168,7 +168,7 @@ The installer also includes `visual-design-loop` for Claude, Codex, Grok, and Ki
 
 ## User-invoked utility skills
 
-Fifteen user-invoked skills install across Claude, Codex, Cursor, Grok, and Kimi surfaces:
+Sixteen user-invoked skills install across Claude, Codex, Cursor, Grok, and Kimi surfaces:
 
 - `memento`: write a `MEMENTO.md` working note before closing a multi-day task (`/memento`), then resume from it in the next session (`/memento resume`).
 - `coding-level`: set the explanation register from 0 (ELI5) to 5 (expert peer) with `/coding-level N`; stays active until reinvoked.
@@ -185,6 +185,7 @@ Fifteen user-invoked skills install across Claude, Codex, Cursor, Grok, and Kimi
 - `the-creator`: create original but workable art, designs, interfaces, methods, processes, or systems with `/the-creator level N`; each level cumulatively relaxes 10% of eligible conventions while preserving safety, logic, authorization, and functional acceptance.
 - `mermaid`: generate styled diagrams across 31 Mermaid types, adapt density to `/coding-level`, and optionally visualize multi-step documentation or debugging flows.
 - `clone-website`: plan, build, and verify a bounded website clone with explicit rights, dynamic fidelity, scope, stack, and backend choices, plus neutralized local research defaults.
+- `model-provider-settings`: inspect and update provider-native model, reasoning, context, and compaction settings from current official documentation, with exact scope, preview, approval, secret handling, rollback, and provider-specific verification.
 
 ### Control Center routing
 

@@ -2,21 +2,32 @@
 
 ## Unreleased
 
+## 0.5.15 - 2026-08-23
+
+### Added
+
+- Added `model-provider-settings` across Claude, Cursor, Codex, OpenCode, Grok, and Kimi. The skill verifies current official documentation at use time, separates provider-native model and compaction semantics, previews exact scoped patches, protects credentials and managed settings, and validates effective configuration without silently translating unsupported keys.
+- Added a version 2 Clone Website contract with project type and scale routing, bounded autonomous execution, frozen launch grants, source-input binding, ordered run state, and per-action use receipts across all provider mirrors.
+
 ### Changed
 
 - Prioritized a verified Cursor-bundled Codex executable for Cursor-hosted Codex CLI controllers. The stateful bridge now tries an explicit `MVCK_CODEX_BIN`, the active host-declared `openai.chatgpt` registry path, other bounded extension candidates, and PATH in order.
 - Bound preflight, model catalog selection, start, reply, cancel, close, private state, and public receipts to one route digest with executable SHA-256, CLI and cache versions, and cache and catalog digests.
 - Added a propose-only Cursor Codex recovery workflow. Failed preflight and runtime-drift receipts now describe the exact approval-gated next action without editing user cache, login, installation, or controller state.
 - Accepted catalog-advertised `max` and `ultra` reasoning efforts while continuing to offer only the levels returned for the selected model.
+- Changed Clone Website intake to one front-loaded requirements and launch gate, then a fail-closed inspect, validate, acquire, normalize, architect, implement, verify, harden, and handoff sequence.
 
 ### Fixed
 
 - Kept invalid explicit overrides and exact prerelease-to-release cache mismatches fail-closed, recorded bounded redacted automatic fallback attempts, and prevented any attachment to or reuse of Cursor's extension-owned Codex app-server.
 - Replaced the controller response schema's unsupported branch combinator with flat required nullable fields, and normalized only neutral inactive values before strict kind-specific validation.
+- Corrected the published Clone Website example, replaced the non-existent write executable with an explicit host-native grant, removed the user-controlled runtime clock override, recomputed source-input receipt digests, and rejected grants at their exact expiry boundary.
+- Blocked executable-wrapper and package-runner bypasses, required exact protected script basenames, removed inherited credential variables and interactive input from executable actions, and added a bounded action timeout.
+- Documented the limits of self-recorded action ledgers and checkpoint digests, and protected frozen governance evidence from host-native write batches.
 
 ### Validation
 
-- `npm test`, the 135-check deterministic bridge suite, the repository validator with zero failures or warnings, `git diff --check`, and the dependency-free AgentShield probe passed. The optional local `ecc-agentshield` package was absent, so the changed agent surfaces also used the documented manual fallback with no critical, high, or medium findings.
+- `npm run validate:all` and `git diff --check` passed with zero validator failures or warnings, the complete install and test matrix, the dependency-free AgentShield probe, and all 1,248 on-disk skill files included in a 1,365-file npm tarball. The optional local `ecc-agentshield` package was absent, so the changed agent surfaces also used the documented manual fallback. No unresolved P0 or P1 issue remains; the host-native write and arbitrary project-script boundaries stay explicit residual limits.
 
 ## 0.5.14 - 2026-08-18
 

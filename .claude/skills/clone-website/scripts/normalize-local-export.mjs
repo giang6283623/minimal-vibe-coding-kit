@@ -8,6 +8,7 @@ import {
   extensionForImageUrl,
   fail,
   loadValidatedBrief,
+  loadValidatedLaunch,
   printFailure,
   readJsonFile,
   resolveExistingFile,
@@ -138,6 +139,36 @@ function price(platform, item) {
   return null;
 }
 
+function assertBoundCaptureInput(root, inputName, inputFile, normalizedDigest) {
+  const launch = loadValidatedLaunch(root);
+  const receiptFile = resolveExistingFile(
+    root,
+    '.replica/evidence/fetch-receipt.json',
+    'capture fetch receipt',
+    '.replica/evidence/'
+  );
+  const receipt = readJsonFile(receiptFile, 'capture fetch receipt');
+  if (receipt?.version !== 1) fail('capture fetch receipt version must be integer 1');
+  if (receipt.normalized_brief_sha256 !== normalizedDigest) {
+    fail('capture fetch receipt does not match the validated normalized brief');
+  }
+  if (receipt.launch_sha256 !== launch.launchDigest) {
+    fail('capture fetch receipt does not match the current launch record');
+  }
+  const expectedOutput = `.replica/evidence/${inputName}`;
+  const candidates = [receipt.products, receipt.collections]
+    .filter((entry) => entry && typeof entry === 'object' && !Array.isArray(entry));
+  const entry = candidates.find((candidate) => candidate.output === expectedOutput);
+  if (!entry) fail('--input must be listed in source_inputs or the bound capture fetch receipt');
+  const stat = fs.statSync(inputFile);
+  if (!Number.isInteger(entry.bytes) || entry.bytes !== stat.size) {
+    fail('captured input byte size does not match the capture fetch receipt');
+  }
+  if (typeof entry.sha256 !== 'string' || entry.sha256 !== sha256File(inputFile)) {
+    fail('captured input digest does not match the capture fetch receipt');
+  }
+}
+
 function main() {
   const args = parseArgs(process.argv.slice(2));
   const root = resolveProjectRoot(args['project-root']);
@@ -146,8 +177,16 @@ function main() {
   if (briefPlatform !== 'generic' && briefPlatform !== args.platform) {
     fail(`platform ${args.platform} does not match validated source platform ${briefPlatform}`);
   }
-  if (!brief.source_inputs.includes(args.input)) fail('--input must be listed in the validated brief source_inputs');
+  const sourceInputPaths = brief.source_inputs.map((entry) => (
+    typeof entry === 'string' ? entry : entry?.path
+  ));
   const input = resolveExistingFile(root, `.replica/evidence/${args.input}`, 'local export', '.replica/evidence/');
+  if (!sourceInputPaths.includes(args.input)) {
+    if (brief.version !== 2 || !brief.capture?.enabled) {
+      fail('--input must be listed in the validated brief source_inputs');
+    }
+    assertBoundCaptureInput(root, args.input, input, normalizedDigest);
+  }
   const source = readJsonFile(input, 'local export');
   const items = platformItems(args.platform, source);
   if (items.length === 0) fail(`no supported ${args.platform} records were found in the local export`);

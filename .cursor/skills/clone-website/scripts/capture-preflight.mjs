@@ -118,7 +118,7 @@ async function main() {
 
   if (briefState.capture_enabled && briefState.interactive_capture_approved) {
     try {
-      loadCaptureBrief(root);
+      loadCaptureBrief(root, { requireLaunch: false });
       process.stdout.write('PASS capture brief gate satisfied\n');
     } catch (error) {
       process.stdout.write(`WARN capture brief gate: ${error.message}\n`);

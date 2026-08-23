@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.14-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.15-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -169,7 +169,7 @@ Das optionale Cursor SDK Routing verwendet den aktuellen Modellkatalog des Konto
 
 ## Skills
 
-Alle 25 Skills liegen kanonisch unter `.vibekit/skills/`. Claude, Codex, OpenCode, Grok und Kimi spiegeln alle 25, Cursor spiegelt die 20 interaktiven Skills.
+Alle 26 Skills liegen kanonisch unter `.vibekit/skills/`. Claude, Codex, OpenCode, Grok und Kimi spiegeln alle 26, Cursor spiegelt die 21 interaktiven Skills.
 
 | Skill | Wann er sinnvoll ist |
 | --- | --- |
@@ -194,6 +194,7 @@ Alle 25 Skills liegen kanonisch unter `.vibekit/skills/`. Claude, Codex, OpenCod
 | `coding-level` | Einstellung der Erklärungstiefe von 0 bis 5 |
 | `claim` | Prüfung neuer Tools, Skills oder URLs gegen offizielle Quellen vor der Integration |
 | `clone-website` | Klonen oder Migrieren einer autorisierten Website mit klaren Grenzen für Rechte, Wiedergabetreue, Umfang, Stack, Backend, Erfassung und Prüfung |
+| `model-provider-settings` | Sichere Aktualisierung nativer Modell-, Reasoning-, Kontext- und Komprimierungseinstellungen anhand aktueller offizieller Dokumentation |
 | `wait-what` | Wenn die letzte Antwort nicht ankam: Neuvortrag in einfacher Sprache, in der Sprache des Nutzers, mit dem Projektglossar |
 | `tutien` | Privater Xianxia-Coding-Rückblick auf Basis von Git und bereitgestellten Chat-Belegen |
 | `the-creator` | Originale kreative Arbeit, wenn der Benutzer ausdrücklich eine Kreativitätsstufe aufruft |

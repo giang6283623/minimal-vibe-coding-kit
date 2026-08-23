@@ -4,13 +4,14 @@ Use this workflow for authorized `owned` or `written-permission` clones when loc
 
 The kit stays brand-neutral. Every hostname, route, and asset host comes from the user's validated brief and explicit approval answers. Do not hardcode a customer domain inside skill files.
 
-## Agent questions (structured approval)
+## Front-loaded capture intake
 
-Use the active parent runtime's structured-question tool when available (Ask Question in Cursor, `AskUserQuestion` in Claude and Kimi, `request_user_input` in Codex). Ask one to three questions per batch.
+Use the active parent runtime's structured-question tool when available (Ask Question in Cursor, `AskUserQuestion` in Claude and Kimi, `request_user_input` in Codex). Question-tool limits may require several small batches, but complete the capture intake before launch.
 
 1. **Authorization:** owned, written permission, or public research (local files only).
 2. **Capture scope:** catalog JSON, content pages, screenshots, or all three.
-3. **Approved hosts:** show the exact hostname list from `capture.approved_hosts` and require explicit approval before any network script runs.
+3. **Approved hosts:** show the exact hostname list from `capture.approved_hosts`, copy it into the v2 execution network allowlist, and require explicit approval before launch.
+4. **Browser participation:** explain during intake that screenshot capture requires one throwaway browser session. Record whether the user will open it before the autonomous run reaches capture.
 
 Record answers in `.replica/brief.json`, including:
 
@@ -59,13 +60,15 @@ python3 .vibekit/skills/clone-website/scripts/validate_replica_brief.py \
 
 Continue only when `.replica/validation-receipt.json` has `status: valid`.
 
-## Step 2: Fetch public catalog data (agent-run)
+## Step 2: Fetch authorized catalog data (agent-run)
 
-After the user approves every hostname in `capture.approved_hosts`:
+After the launch record approves every hostname in `capture.approved_hosts` and the v2 execution policy includes `capture-approved-hosts`:
 
 ```bash
 node .vibekit/skills/clone-website/scripts/fetch-public-catalog.mjs --project-root .
 ```
+
+For v2, record this fetch command and the later screenshot command as separate `capture-approved-hosts` launch actions. Each entrypoint compares its actual argv and consumes its own use count before network or browser work.
 
 Supported capture platforms today:
 
@@ -82,13 +85,15 @@ node .vibekit/skills/clone-website/scripts/build-capture-routes.mjs --project-ro
 
 Writes `.replica/capture-routes.json`.
 
-## Step 4: Screenshots (user-run browser)
+## Step 4: Screenshots (one user-run browser session)
 
 The agent must not start Chrome or attach to an existing personal browser profile.
 
-1. Ask the user to confirm they are ready to launch a throwaway browser session.
-2. Print the OS-specific launch command from preflight.
-3. Ask the user to run the screenshot script in a second terminal after the browser is open.
+1. During intake, tell the user that a throwaway browser session is required and print the OS-specific launch command from preflight.
+2. The user opens that session before capture starts.
+3. The agent runs the screenshot script after the loopback DevTools port is ready.
+
+Do not insert another routine confirmation between these steps. If the browser is unavailable, finish safe local work, set `needs-owner-input`, and include this with any other blockers in one consolidated question.
 
 Screenshot capture:
 
@@ -121,7 +126,7 @@ This compares expected route-viewport PNGs with files on disk and prints a retry
 
 ## Step 6: Normalize and verify
 
-After capture, add new evidence files to `source_inputs` if needed, re-validate the brief, then continue with `references/authorized-data-and-assets.md`.
+For v2 runs, the fetch receipt binds newly generated catalog evidence to the normalized brief and current launch digests, plus each output path, byte size, and SHA-256. The local normalizer verifies that receipt so approved capture can continue without changing the original source inventory. If an operator adds any other source input, update its v2 bytes and digest, re-validate the brief, invalidate the old launch record, and return to the launch gate.
 
 ## Platform notes
 
@@ -129,7 +134,7 @@ After capture, add new evidence files to `source_inputs` if needed, re-validate 
 - **Linux:** preflight checks `google-chrome`, `chromium`, or `microsoft-edge` on PATH.
 - **Windows:** preflight checks standard Program Files install paths.
 
-Asset downloads for remote images still use `download-authorized-assets.mjs` with user-approved `--allow-host` values from the normalized asset manifest. Those hosts are chosen by the user during intake, not embedded in the kit.
+Asset downloads for remote images still use `download-authorized-assets.mjs` with `--allow-host` values from the normalized asset manifest. Those hosts must also exist in the execution allowlist frozen during intake. They are never embedded in the kit.
 
 ## Safety
 

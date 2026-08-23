@@ -70,8 +70,76 @@ CAPTURE_PLATFORMS = {
     "wordpress",
 }
 SOURCE_PLATFORMS = CAPTURE_PLATFORMS | {
+    "adobe-commerce",
+    "bigcommerce",
+    "custom",
     "existing-repository",
+    "headless-cms",
+    "squarespace",
     "static-site",
+    "webflow",
+    "wix",
+}
+PROJECT_TYPES = {
+    "content-site",
+    "corporate-site",
+    "ecommerce",
+    "marketing-site",
+    "web-application",
+}
+PROJECT_SCALES = {"small", "medium", "large"}
+ROUTED_TARGET_STACKS = {
+    "adobe-commerce": {"nextjs-app-router", "preserve-existing"},
+    "bigcommerce": {"astro-typescript", "nextjs-app-router", "preserve-existing"},
+    "custom": {"preserve-existing"},
+    "existing-repository": {"preserve-existing"},
+    "generic": {"astro-typescript", "nextjs-app-router", "static-html-css-js"},
+    "headless-cms": {"astro-typescript", "nextjs-app-router", "preserve-existing"},
+    "shopify": {"astro-typescript", "nextjs-app-router", "preserve-existing", "shopify-hydrogen"},
+    "squarespace": {"astro-typescript", "nextjs-app-router", "preserve-existing"},
+    "static-site": {"astro-typescript", "nextjs-app-router", "static-html-css-js"},
+    "webflow": {"astro-typescript", "nextjs-app-router", "preserve-existing"},
+    "wix": {"astro-typescript", "preserve-existing", "wix-headless"},
+    "woocommerce": {"astro-typescript", "nextjs-app-router", "preserve-existing", "woocommerce-native"},
+    "wordpress": {"astro-typescript", "nextjs-app-router", "preserve-existing", "wordpress-block-theme"},
+}
+STANDARD_STACK_BACKENDS = {
+    "astro-typescript": {"B0"},
+    "nextjs-app-router": {"B0", "B1", "B2"},
+    "preserve-existing": {"B0", "B1", "B2"},
+    "shopify-hydrogen": {"B1", "B2"},
+    "static-html-css-js": {"B0"},
+    "wix-headless": {"B1", "B2"},
+    "woocommerce-native": {"B1", "B2"},
+    "wordpress-block-theme": {"B1", "B2"},
+}
+SOURCE_INPUT_KINDS = {
+    "api-export",
+    "cms-export",
+    "design-file",
+    "image",
+    "mock-json",
+    "repository-export",
+    "screenshot",
+    "other",
+}
+SOURCE_INPUT_RIGHTS = {"owned", "licensed", "permission", "neutralized"}
+EXECUTION_MODES = {"autonomous-a-to-z", "guided-checkpoints", "plan-only"}
+EXECUTION_ACTIONS = {
+    "capture-approved-hosts",
+    "download-approved-assets",
+    "inspect-local",
+    "normalize-local-data",
+    "prepare-deployment",
+    "process-local-assets",
+    "run-local-validation",
+    "start-local-preview",
+    "write-project",
+}
+AUTONOMOUS_REQUIRED_ACTIONS = {
+    "inspect-local",
+    "run-local-validation",
+    "write-project",
 }
 LOCAL_DEVELOPMENT_MODES = {
     "custom",
@@ -289,13 +357,32 @@ def resolve_replica_path(root: Path, raw: str, label: str, *, must_exist: bool) 
     return resolved
 
 
-def validate_source_inputs(root: Path, values: Any) -> list[str]:
-    if not isinstance(values, list) or len(values) > 50:
-        fail("source_inputs must be an array with at most 50 entries")
+def validate_source_inputs(root: Path, values: Any, *, version: int) -> list[Any]:
+    if not isinstance(values, list) or len(values) > 100:
+        fail("source_inputs must be an array with at most 100 entries")
     evidence_root = (root / ".replica" / "evidence").resolve(strict=False)
-    normalized: list[str] = []
+    normalized: list[Any] = []
     for index, item in enumerate(values):
-        raw = text_value(item, f"source_inputs[{index}]", 512, untrusted=True)
+        if version == 1:
+            raw = text_value(item, f"source_inputs[{index}]", 512, untrusted=True)
+            kind = None
+            rights = None
+            declared_bytes = None
+            declared_sha256 = None
+        else:
+            source = object_value(item, f"source_inputs[{index}]")
+            exact_keys(
+                source,
+                {"path", "kind", "rights", "bytes", "sha256"},
+                f"source_inputs[{index}]",
+            )
+            raw = text_value(source["path"], f"source_inputs[{index}].path", 512, untrusted=True)
+            kind = enum_value(source["kind"], f"source_inputs[{index}].kind", SOURCE_INPUT_KINDS)
+            rights = enum_value(source["rights"], f"source_inputs[{index}].rights", SOURCE_INPUT_RIGHTS)
+            declared_bytes = int_value(source["bytes"], f"source_inputs[{index}].bytes", 0, MAX_SOURCE_BYTES)
+            declared_sha256 = text_value(source["sha256"], f"source_inputs[{index}].sha256", 64)
+            if not re.fullmatch(r"[a-f0-9]{64}", declared_sha256):
+                fail(f"source_inputs[{index}].sha256 must be a lowercase SHA-256 digest")
         pure = PurePosixPath(raw)
         if pure.is_absolute() or ".." in pure.parts or raw.startswith("~"):
             fail(f"source_inputs[{index}] must be relative to .replica/evidence/")
@@ -319,7 +406,130 @@ def validate_source_inputs(root: Path, values: Any) -> list[str]:
             fail(f"source_inputs[{index}] must be a regular file")
         if resolved.stat().st_size > MAX_SOURCE_BYTES:
             fail(f"source_inputs[{index}] exceeds {MAX_SOURCE_BYTES} bytes")
-        normalized.append(pure.as_posix())
+        if version == 1:
+            normalized.append(pure.as_posix())
+            continue
+        actual_bytes = resolved.stat().st_size
+        actual_sha256 = hashlib.sha256(resolved.read_bytes()).hexdigest()
+        if declared_bytes != actual_bytes:
+            fail(f"source_inputs[{index}].bytes does not match the current file")
+        if declared_sha256 != actual_sha256:
+            fail(f"source_inputs[{index}].sha256 does not match the current file")
+        normalized.append(
+            {
+                "bytes": actual_bytes,
+                "kind": kind,
+                "path": pure.as_posix(),
+                "rights": rights,
+                "sha256": actual_sha256,
+            }
+        )
+    return normalized
+
+
+def validate_execution(
+    raw: Any,
+    *,
+    authorization_status: str,
+    capture: dict[str, Any] | None,
+) -> dict[str, Any]:
+    execution = object_value(raw, "execution")
+    exact_keys(
+        execution,
+        {
+            "allowed_actions",
+            "browser",
+            "credentials",
+            "deployment",
+            "destructive_action",
+            "install",
+            "max_retries_per_stage",
+            "mode",
+            "network",
+            "paid_action",
+            "routine_stage_prompts",
+            "unplanned_change",
+        },
+        "execution",
+    )
+    mode = enum_value(execution["mode"], "execution.mode", EXECUTION_MODES)
+    routine_stage_prompts = bool_value(
+        execution["routine_stage_prompts"],
+        "execution.routine_stage_prompts",
+    )
+    if mode == "guided-checkpoints" and not routine_stage_prompts:
+        fail("guided-checkpoints requires execution.routine_stage_prompts true")
+    if mode != "guided-checkpoints" and routine_stage_prompts:
+        fail(f"{mode} requires execution.routine_stage_prompts false")
+    allowed_actions = enum_list(
+        execution["allowed_actions"],
+        "execution.allowed_actions",
+        EXECUTION_ACTIONS,
+        len(EXECUTION_ACTIONS),
+    )
+    if mode == "autonomous-a-to-z" and not AUTONOMOUS_REQUIRED_ACTIONS.issubset(allowed_actions):
+        fail("autonomous-a-to-z requires inspect-local, write-project, and run-local-validation actions")
+    if mode == "plan-only" and any(action not in {"inspect-local"} for action in allowed_actions):
+        fail("plan-only permits only the inspect-local action")
+
+    network = object_value(execution["network"], "execution.network")
+    exact_keys(network, {"mode", "approved_hosts"}, "execution.network")
+    network_mode = enum_value(
+        network["mode"],
+        "execution.network.mode",
+        {"approved-hosts-only", "disabled"},
+    )
+    hosts_raw = network["approved_hosts"]
+    if not isinstance(hosts_raw, list) or len(hosts_raw) > 20:
+        fail("execution.network.approved_hosts must be an array with at most 20 entries")
+    approved_hosts = [
+        safe_hostname(str(host), f"execution.network.approved_hosts[{index}]")
+        for index, host in enumerate(hosts_raw)
+    ]
+    if len(set(approved_hosts)) != len(approved_hosts):
+        fail("execution.network.approved_hosts must not contain duplicates")
+    approved_hosts = sorted(approved_hosts)
+    if network_mode == "disabled" and approved_hosts:
+        fail("disabled execution network requires an empty approved_hosts list")
+    if network_mode == "approved-hosts-only" and not approved_hosts:
+        fail("approved-hosts-only execution network requires at least one hostname")
+    remote_actions = {"capture-approved-hosts", "download-approved-assets"}.intersection(allowed_actions)
+    if network_mode == "disabled" and remote_actions:
+        fail("disabled execution network cannot allow capture or download actions")
+    if authorization_status == "public-research-local" and network_mode != "disabled":
+        fail("public research execution network must be disabled")
+    if capture is not None:
+        if network_mode != "approved-hosts-only":
+            fail("capture requires execution.network.mode approved-hosts-only")
+        if "capture-approved-hosts" not in allowed_actions:
+            fail("capture requires capture-approved-hosts in execution.allowed_actions")
+        missing_hosts = sorted(set(capture["approved_hosts"]) - set(approved_hosts))
+        if missing_hosts:
+            fail(f"capture.approved_hosts are missing from execution.network.approved_hosts: {', '.join(missing_hosts)}")
+
+    fixed_policies = {
+        "browser": ("execution.browser", {"user-operated-only"}),
+        "credentials": ("execution.credentials", {"never-request-or-store"}),
+        "deployment": ("execution.deployment", {"explicit-approval-required", "prepare-only"}),
+        "destructive_action": ("execution.destructive_action", {"explicit-approval-required", "forbidden"}),
+        "install": ("execution.install", {"explicit-approval-required", "reuse-existing-only"}),
+        "paid_action": ("execution.paid_action", {"forbidden"}),
+        "unplanned_change": ("execution.unplanned_change", {"stop-and-report"}),
+    }
+    normalized: dict[str, Any] = {
+        "allowed_actions": allowed_actions,
+        "max_retries_per_stage": int_value(
+            execution["max_retries_per_stage"],
+            "execution.max_retries_per_stage",
+            0,
+            3,
+        ),
+        "mode": mode,
+        "network": {"approved_hosts": approved_hosts, "mode": network_mode},
+        "routine_stage_prompts": routine_stage_prompts,
+    }
+    for field, (label, allowed) in fixed_policies.items():
+        normalized[field] = enum_value(execution[field], label, allowed)
     return normalized
 
 
@@ -413,6 +623,9 @@ def validate_capture(
 
 
 def validate_brief(raw: dict[str, Any], root: Path) -> dict[str, Any]:
+    version = raw.get("version")
+    if isinstance(version, bool) or not isinstance(version, int) or version not in {1, 2}:
+        fail("version must be integer 1 or 2")
     root_fields = {
         "version",
         "target",
@@ -423,6 +636,8 @@ def validate_brief(raw: dict[str, Any], root: Path) -> dict[str, Any]:
         "source_inputs",
         "exclusions",
     }
+    if version == 2:
+        root_fields.add("execution")
     allowed_root = root_fields | {"capture"}
     unknown = sorted(set(raw) - allowed_root)
     if unknown:
@@ -430,9 +645,6 @@ def validate_brief(raw: dict[str, Any], root: Path) -> dict[str, Any]:
     missing = sorted(root_fields - set(raw))
     if missing:
         fail(f"brief is missing fields: {', '.join(missing)}")
-    if isinstance(raw["version"], bool) or not isinstance(raw["version"], int) or raw["version"] != 1:
-        fail("version must be integer 1")
-
     target = object_value(raw["target"], "target")
     target_fields = {
         "url",
@@ -509,6 +721,7 @@ def validate_brief(raw: dict[str, Any], root: Path) -> dict[str, Any]:
 
     replica = object_value(raw["replica"], "replica")
     replica_fields = {
+        "architecture_review",
         "fidelity",
         "scope",
         "backend_level",
@@ -516,12 +729,24 @@ def validate_brief(raw: dict[str, Any], root: Path) -> dict[str, Any]:
         "deployment",
         "source_platform",
         "local_development",
+        "project_scale",
+        "project_type",
+        "routing_mode",
     }
+    replica_required = {"fidelity", "scope", "backend_level", "target_stack", "deployment"}
+    if version == 2:
+        replica_required |= {
+            "local_development",
+            "project_scale",
+            "project_type",
+            "routing_mode",
+            "source_platform",
+        }
     exact_keys(
         replica,
         replica_fields,
         "replica",
-        {"fidelity", "scope", "backend_level", "target_stack", "deployment"},
+        replica_required,
     )
     source_platform = enum_value(
         replica.get("source_platform", "generic"),
@@ -534,6 +759,53 @@ def validate_brief(raw: dict[str, Any], root: Path) -> dict[str, Any]:
     target_stack = text_value(replica["target_stack"], "replica.target_stack", 64)
     if not STACK_RE.fullmatch(target_stack):
         fail("replica.target_stack must be a lowercase stack identifier")
+    project_type = enum_value(
+        replica.get("project_type", "marketing-site"),
+        "replica.project_type",
+        PROJECT_TYPES,
+    )
+    project_scale = enum_value(
+        replica.get("project_scale", "small"),
+        "replica.project_scale",
+        PROJECT_SCALES,
+    )
+    routing_mode = enum_value(
+        replica.get("routing_mode", "custom-review"),
+        "replica.routing_mode",
+        {"custom-review", "standard"},
+    )
+    if routing_mode == "standard" and target_stack not in ROUTED_TARGET_STACKS[source_platform]:
+        fail(
+            f"replica.target_stack is not standard for {source_platform}; "
+            "select a routed stack or use replica.routing_mode custom-review"
+        )
+    if routing_mode == "standard" and backend_level not in STANDARD_STACK_BACKENDS[target_stack]:
+        fail(
+            f"replica.backend_level {backend_level} is not standard for {target_stack}; "
+            "select a compatible backend or use replica.routing_mode custom-review"
+        )
+    architecture_review = None
+    if version == 2 and routing_mode == "custom-review":
+        review = object_value(replica.get("architecture_review"), "replica.architecture_review")
+        review_fields = {
+            "data_boundary",
+            "deployment_boundary",
+            "image_boundary",
+            "routing_boundary",
+            "verification_boundary",
+        }
+        exact_keys(review, review_fields, "replica.architecture_review")
+        architecture_review = {
+            field: text_value(
+                review[field],
+                f"replica.architecture_review.{field}",
+                300,
+                untrusted=True,
+            )
+            for field in sorted(review_fields)
+        }
+    elif "architecture_review" in replica:
+        fail("replica.architecture_review is allowed only with custom-review routing")
     workflow_id = f"{source_platform}-to-{target_stack}"
     local_development_raw = object_value(
         replica.get(
@@ -633,7 +905,13 @@ def validate_brief(raw: dict[str, Any], root: Path) -> dict[str, Any]:
     normalized_features = {key: bool_value(features[key], f"features.{key}") for key in sorted(FEATURE_FIELDS)}
     active_features = sorted(key for key, enabled in normalized_features.items() if enabled)
 
-    source_inputs = validate_source_inputs(root, raw["source_inputs"])
+    source_inputs = validate_source_inputs(root, raw["source_inputs"], version=version)
+    if version == 2 and authorization_status == "public-research-local":
+        non_neutralized_inputs = [
+            source["path"] for source in source_inputs if source["rights"] != "neutralized"
+        ]
+        if non_neutralized_inputs:
+            fail("public research v2 source_inputs must all use neutralized rights")
     exclusions_raw = raw["exclusions"]
     if not isinstance(exclusions_raw, list) or len(exclusions_raw) > 50:
         fail("exclusions must be an array with at most 50 entries")
@@ -692,6 +970,13 @@ def validate_brief(raw: dict[str, Any], root: Path) -> dict[str, Any]:
         source_platform=source_platform,
         target_url=target_url,
     )
+    execution = None
+    if version == 2:
+        execution = validate_execution(
+            raw["execution"],
+            authorization_status=authorization_status,
+            capture=capture,
+        )
 
     normalized_brief: dict[str, Any] = {
         "authorization": {
@@ -717,6 +1002,9 @@ def validate_brief(raw: dict[str, Any], root: Path) -> dict[str, Any]:
             "deployment": deployment,
             "fidelity": fidelity,
             "local_development": local_development,
+            "project_scale": project_scale,
+            "project_type": project_type,
+            "routing_mode": routing_mode,
             "scope": scope,
             "source_platform": source_platform,
             "target_stack": target_stack,
@@ -728,10 +1016,14 @@ def validate_brief(raw: dict[str, Any], root: Path) -> dict[str, Any]:
             "routes": routes,
             "url": target_url,
         },
-        "version": 1,
+        "version": version,
     }
     if capture is not None:
         normalized_brief["capture"] = capture
+    if architecture_review is not None:
+        normalized_brief["replica"]["architecture_review"] = architecture_review
+    if execution is not None:
+        normalized_brief["execution"] = execution
     return normalized_brief
 
 
@@ -765,8 +1057,11 @@ def render_plan(brief: dict[str, Any]) -> str:
         f"- Fidelity: `{replica['fidelity']}`",
         f"- Scope: `{replica['scope']}`",
         f"- Backend: `{replica['backend_level']}`",
+        f"- Project type: `{replica['project_type']}`",
+        f"- Project scale: `{replica['project_scale']}`",
         f"- Source platform: `{replica['source_platform']}`",
         f"- Stack: `{replica['target_stack']}`",
+        f"- Stack routing: `{replica['routing_mode']}`",
         f"- Local development: `{replica['local_development']['mode']}`",
         f"- Container engine: `{replica['local_development']['container_engine']}`",
         *(
@@ -790,6 +1085,22 @@ def render_plan(brief: dict[str, Any]) -> str:
                 f"- Platform: `{brief['capture']['platform']}`",
                 f"- Approved hosts: `{', '.join(brief['capture']['approved_hosts'])}`",
                 f"- Interactive capture approved: `{brief['capture']['interactive_capture_approved']}`",
+                "",
+            ]
+        )
+    if brief.get("execution"):
+        execution = brief["execution"]
+        lines.extend(
+            [
+                "## Execution",
+                "",
+                f"- Mode: `{execution['mode']}`",
+                f"- Routine stage prompts: `{execution['routine_stage_prompts']}`",
+                f"- Allowed actions: `{', '.join(execution['allowed_actions'])}`",
+                f"- Network: `{execution['network']['mode']}`",
+                f"- Approved network hosts: `{', '.join(execution['network']['approved_hosts']) or 'none'}`",
+                f"- Maximum retries per stage: `{execution['max_retries_per_stage']}`",
+                f"- Unplanned change: `{execution['unplanned_change']}`",
                 "",
             ]
         )
@@ -909,6 +1220,14 @@ def main() -> int:
                 "brief_sha256": sha256_bytes(brief_path.read_bytes()),
                 "normalized_sha256": sha256_bytes(normalized_text.encode("utf-8")),
                 "plan_sha256": sha256_bytes(plan_text.encode("utf-8")),
+                "source_inputs_sha256": sha256_bytes(
+                    json.dumps(
+                        normalized["source_inputs"],
+                        sort_keys=True,
+                        ensure_ascii=True,
+                        separators=(",", ":"),
+                    ).encode("utf-8")
+                ),
                 "status": "valid",
                 "version": 1,
             },

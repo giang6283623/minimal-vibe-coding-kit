@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "target": {
     "url": "https://example.com/products",
     "routes": [
@@ -20,10 +20,13 @@
   },
   "replica": {
     "source_platform": "generic",
+    "project_type": "marketing-site",
+    "project_scale": "small",
     "fidelity": "F2",
     "scope": "S1",
     "backend_level": "B0",
     "target_stack": "static-html-css-js",
+    "routing_mode": "standard",
     "local_development": {
       "mode": "preserve-existing",
       "container_engine": "none"
@@ -53,6 +56,30 @@
     "payments": false,
     "external_forms": false,
     "live_customer_data": false
+  },
+  "execution": {
+    "mode": "autonomous-a-to-z",
+    "routine_stage_prompts": false,
+    "allowed_actions": [
+      "inspect-local",
+      "normalize-local-data",
+      "process-local-assets",
+      "run-local-validation",
+      "start-local-preview",
+      "write-project"
+    ],
+    "network": {
+      "mode": "disabled",
+      "approved_hosts": []
+    },
+    "credentials": "never-request-or-store",
+    "install": "explicit-approval-required",
+    "browser": "user-operated-only",
+    "deployment": "prepare-only",
+    "destructive_action": "forbidden",
+    "paid_action": "forbidden",
+    "unplanned_change": "stop-and-report",
+    "max_retries_per_stage": 2
   },
   "source_inputs": [],
   "exclusions": [

@@ -545,11 +545,11 @@ function validateThreatModelSecurityReviewContract() {
   const ui = read(`${base}/agents/openai.yaml`);
   const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
   const sourceDiscoveryValid = !isKitSourceRepo || (
-    hasAll(read('README.md'), ['All 25 skills', '| `threat-model-security-review`'])
-    && hasAll(read('docs/README.vi.md'), ['Cả 25 skill', '| `threat-model-security-review`'])
-    && hasAll(read('docs/README.zh-CN.md'), ['全部 25 个技能', '| `threat-model-security-review`'])
-    && hasAll(read('docs/README.ja.md'), ['25 個すべてのスキル', '| `threat-model-security-review`'])
-    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Fifteen user-invoked skills', '`threat-model-security-review`'])
+    hasAll(read('README.md'), ['All 26 skills', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 26 skill', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 26 个技能', '| `threat-model-security-review`'])
+    && hasAll(read('docs/README.ja.md'), ['26 個すべてのスキル', '| `threat-model-security-review`'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Sixteen user-invoked skills', '`threat-model-security-review`'])
     && hasAll(read('.vibekit/docs/SECURITY_MODEL.md'), [
       '`threat-model-security-review` covers application source',
       '`agentshield-security-review` covers agent instructions'
@@ -749,11 +749,11 @@ function validateCleanDeliveryContract() {
   }
 
   const discoveryValid = !isKitSourceRepo || (
-    hasAll(read('README.md'), ['All 25 skills', 'clean-delivery'])
-    && hasAll(read('docs/README.vi.md'), ['Cả 25 skill', 'clean-delivery'])
-    && hasAll(read('docs/README.zh-CN.md'), ['全部 25 个技能', 'clean-delivery'])
-    && hasAll(read('docs/README.ja.md'), ['25 個すべてのスキル', 'clean-delivery'])
-    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Fifteen user-invoked skills', 'clean-delivery'])
+    hasAll(read('README.md'), ['All 26 skills', 'clean-delivery'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 26 skill', 'clean-delivery'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 26 个技能', 'clean-delivery'])
+    && hasAll(read('docs/README.ja.md'), ['26 個すべてのスキル', 'clean-delivery'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Sixteen user-invoked skills', 'clean-delivery'])
     && hasAll(read('package.json'), [
       'test:clean-delivery',
       '.claude/skills/clean-delivery/',
@@ -1322,14 +1322,14 @@ function validateGraphEngineeringContract() {
 
   const sourceDiscoveryValid = !isKitSourceRepo || (
     hasAll(readme, [
-      'All 25 skills',
+      'All 26 skills',
       'Graph engineering: verified orchestration',
       'edgeLabelBackground: "#FFFFFF"'
     ])
     && readmeVi.includes('Graph engineering: điều phối có xác minh')
     && readmeZh.includes('图工程：经验证的编排')
     && readmeJa.includes('Graph engineering：検証付き orchestration')
-    && install.includes('Fifteen user-invoked skills')
+    && install.includes('Sixteen user-invoked skills')
     && hasAll(pkg, [
       '.claude/skills/graph-engineering-verified-orchestration/',
       '.cursor/skills/graph-engineering-verified-orchestration/'
@@ -1658,11 +1658,11 @@ function validateProoflineContract() {
   }
 
   const sourceDiscoveryValid = !isKitSourceRepo || (
-    hasAll(read('README.md'), ['All 25 skills', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('docs/README.vi.md'), ['Cả 25 skill', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('docs/README.zh-CN.md'), ['全部 25 个技能', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('docs/README.ja.md'), ['25 個すべてのスキル', '| `proofline-orchestration`', '`/proofline`'])
-    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Fifteen user-invoked skills', '`proofline-orchestration`'])
+    hasAll(read('README.md'), ['All 26 skills', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 26 skill', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 26 个技能', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('docs/README.ja.md'), ['26 個すべてのスキル', '| `proofline-orchestration`', '`/proofline`'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Sixteen user-invoked skills', '`proofline-orchestration`'])
     && hasAll(read('package.json'), [
       '.claude/skills/proofline-orchestration/',
       '.cursor/skills/proofline-orchestration/'
@@ -1820,18 +1820,18 @@ function validateTheCreatorContract() {
 
   const discoveryValid = !isKitSourceRepo || (
     exists('README.md')
-    && read('README.md').includes('All 25 skills')
+    && read('README.md').includes('All 26 skills')
     && exists('docs/README.vi.md')
-    && read('docs/README.vi.md').includes('Cả 25 skill')
+    && read('docs/README.vi.md').includes('Cả 26 skill')
     && read('docs/README.vi.md').includes('| `the-creator`')
     && exists('docs/README.zh-CN.md')
-    && read('docs/README.zh-CN.md').includes('全部 25 个技能')
+    && read('docs/README.zh-CN.md').includes('全部 26 个技能')
     && read('docs/README.zh-CN.md').includes('| `the-creator`')
     && exists('docs/README.ja.md')
-    && read('docs/README.ja.md').includes('25 個すべてのスキル')
+    && read('docs/README.ja.md').includes('26 個すべてのスキル')
     && read('docs/README.ja.md').includes('| `the-creator`')
     && exists('.vibekit/docs/INSTALL.md')
-    && read('.vibekit/docs/INSTALL.md').includes('Fifteen user-invoked skills')
+    && read('.vibekit/docs/INSTALL.md').includes('Sixteen user-invoked skills')
     && exists('.vibekit/init/CLAUDE-template.md')
     && read('.vibekit/init/CLAUDE-template.md').includes('/the-creator level N')
     && exists('package.json')
@@ -2156,14 +2156,14 @@ function validateControlCenterContract() {
     ].join(', ')}`);
 
   const sourceDiscoveryValid = !isKitSourceRepo || (
-    hasAll(read('README.md'), ['All 25 skills', '| `agent-control-center`', '| `swap-control-center`'])
-    && hasAll(read('docs/README.vi.md'), ['Cả 25 skill', '| `agent-control-center`', '| `swap-control-center`'])
-    && hasAll(read('docs/README.zh-CN.md'), ['全部 25 个技能', '| `agent-control-center`', '| `swap-control-center`'])
-    && hasAll(read('docs/README.ja.md'), ['25 個すべてのスキル', '| `agent-control-center`', '| `swap-control-center`'])
+    hasAll(read('README.md'), ['All 26 skills', '| `agent-control-center`', '| `swap-control-center`'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 26 skill', '| `agent-control-center`', '| `swap-control-center`'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 26 个技能', '| `agent-control-center`', '| `swap-control-center`'])
+    && hasAll(read('docs/README.ja.md'), ['26 個すべてのスキル', '| `agent-control-center`', '| `swap-control-center`'])
     && read('docs/README.ko.md').includes('| `swap-control-center`')
     && read('docs/README.de.md').includes('| `swap-control-center`')
     && read('docs/README.bg.md').includes('| `swap-control-center`')
-    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Fifteen user-invoked skills', '`agent-control-center`', '`swap-control-center`'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Sixteen user-invoked skills', '`agent-control-center`', '`swap-control-center`'])
     && hasAll(read('package.json'), [
       '.claude/skills/agent-control-center/',
       '.claude/skills/swap-control-center/',
@@ -2183,10 +2183,12 @@ function validateCloneWebsiteContract() {
     'agents/openai.yaml',
     'references/capture-automation.md',
     'references/intake-and-levels.md',
+    'references/local-development.md',
     'references/minimal-vibe-integration.md',
     'references/output-templates.md',
     'references/platform-playbooks.md',
     'references/replica-brief.example.json',
+    'references/requirements-and-autonomy.md',
     'references/safety-and-rights.md',
     'references/verification-contract.md',
     'references/workflow-routing.md',
@@ -2200,6 +2202,7 @@ function validateCloneWebsiteContract() {
     'scripts/normalize-local-export.mjs',
     'scripts/prepare-replica-workspace.mjs',
     'scripts/report-capture-completeness.mjs',
+    'scripts/validate-autonomous-run.mjs',
     'scripts/verify-local-assets.mjs',
     'scripts/validate_replica_brief.py'
   ];
@@ -2217,6 +2220,8 @@ function validateCloneWebsiteContract() {
   const assets = read(`${base}/references/authorized-data-and-assets.md`);
   const safety = read(`${base}/references/safety-and-rights.md`);
   const verification = read(`${base}/references/verification-contract.md`);
+  const autonomy = read(`${base}/references/requirements-and-autonomy.md`);
+  const autonomousValidator = read(`${base}/scripts/validate-autonomous-run.mjs`);
   const validator = read(`${base}/scripts/validate_replica_brief.py`);
   const workspace = read(`${base}/scripts/prepare-replica-workspace.mjs`);
   const ui = read(`${base}/agents/openai.yaml`);
@@ -2294,7 +2299,15 @@ function validateCloneWebsiteContract() {
     'The implementer cannot pass work using only a self-authored checklist',
     'Local browser traffic contains no external requests',
     'Public research may claim layout parity only',
-    'Every rendered image and media reference maps to one current relative local path'
+    'Every rendered image and media reference maps to one current relative local path',
+    'A self-recorded digest is not proof by itself'
+  ]) && hasAll(autonomy, [
+    '["host-native", "write-project"]',
+    '--consume-native-action <id>',
+    "parent host's sandbox"
+  ]) && hasAll(autonomousValidator, [
+    '--consume-native-action',
+    'authorized-for-host-native-write'
   ])
     ? ok('Clone Website separates rights, local evidence, and independent verification')
     : fail('Clone Website rights or verification contract drifted');
@@ -2354,14 +2367,14 @@ function validateCloneWebsiteContract() {
   }
 
   const sourceDiscoveryValid = !isKitSourceRepo || (
-    hasAll(read('README.md'), ['All 25 skills', 'Cursor uses the 20 interactive ones', '| `clone-website`'])
-    && hasAll(read('docs/README.vi.md'), ['Cả 25 skill', 'Cursor mirror 20 skill', '| `clone-website`'])
-    && hasAll(read('docs/README.zh-CN.md'), ['全部 25 个技能', '20 个交互式技能', '| `clone-website`'])
-    && hasAll(read('docs/README.ja.md'), ['25 個すべてのスキル', '20 個をミラー', '| `clone-website`'])
+    hasAll(read('README.md'), ['All 26 skills', 'Cursor uses the 21 interactive ones', '| `clone-website`'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 26 skill', 'Cursor mirror 21 skill', '| `clone-website`'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 26 个技能', '21 个交互式技能', '| `clone-website`'])
+    && hasAll(read('docs/README.ja.md'), ['26 個すべてのスキル', '21 個をミラー', '| `clone-website`'])
     && read('docs/README.ko.md').includes('| `clone-website`')
     && read('docs/README.de.md').includes('| `clone-website`')
     && read('docs/README.bg.md').includes('| `clone-website`')
-    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Fifteen user-invoked skills', '`clone-website`'])
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Sixteen user-invoked skills', '`clone-website`'])
     && hasAll(read('package.json'), [
       '"test:clone-website"',
       '.claude/skills/clone-website/',
@@ -2371,6 +2384,132 @@ function validateCloneWebsiteContract() {
   sourceDiscoveryValid
     ? ok('Clone Website discovery, localization, packaging, and tests stay synchronized')
     : fail('Clone Website discovery, localization, packaging, or tests drifted');
+}
+
+function validateModelProviderSettingsContract() {
+  const base = '.vibekit/skills/model-provider-settings';
+  const hasAll = (text, snippets) => snippets.every((snippet) => text.includes(snippet));
+  const files = [
+    `${base}/SKILL.md`,
+    `${base}/agents/openai.yaml`,
+    `${base}/references/codex.md`,
+    `${base}/references/claude-code.md`,
+    `${base}/references/cursor.md`,
+    `${base}/references/opencode.md`,
+    `${base}/references/grok-build.md`,
+    `${base}/references/kimi-code.md`
+  ];
+  const missing = files.filter((rel) => !exists(rel));
+  if (missing.length > 0) {
+    fail(`Model Provider Settings is incomplete: ${missing.join(', ')}`);
+    return;
+  }
+
+  const skill = read(`${base}/SKILL.md`);
+  const ui = read(`${base}/agents/openai.yaml`);
+  const codex = read(`${base}/references/codex.md`);
+  const claude = read(`${base}/references/claude-code.md`);
+  const cursor = read(`${base}/references/cursor.md`);
+  const opencode = read(`${base}/references/opencode.md`);
+  const grok = read(`${base}/references/grok-build.md`);
+  const kimi = read(`${base}/references/kimi-code.md`);
+  const combined = [skill, codex, claude, cursor, opencode, grok, kimi].join('\n');
+
+  hasAll(skill, [
+    'Re-open the linked official documentation at use time',
+    'used-token-trigger',
+    'effective-window',
+    'remaining-token-reserve',
+    'percentage-trigger',
+    'manual-only',
+    'Obtain exact-path approval before any user-global write',
+    'Missing native support is a valid result',
+    'Do not claim a configuration is effective when only file syntax was checked'
+  ])
+    ? ok('Model Provider Settings keeps intent, scope, and verification provider-specific')
+    : fail('Model Provider Settings routing or authority contract drifted');
+
+  hasAll(codex, [
+    'https://developers.openai.com/codex/config-reference/',
+    'model_auto_compact_token_limit = 300000',
+    'model_auto_compact_token_limit_scope = "total"',
+    'model_provider',
+    'model_providers'
+  ]) && hasAll(claude, [
+    'https://code.claude.com/docs/en/settings',
+    '"autoCompactWindow": 300000',
+    'CLAUDE_CODE_AUTO_COMPACT_WINDOW',
+    '100000 to 1000000'
+  ]) && hasAll(cursor, [
+    'https://cursor.com/docs/cli/reference/configuration',
+    'Only permissions can be configured at project scope',
+    '/summarize',
+    'unsupported'
+  ]) && hasAll(opencode, [
+    'https://opencode.ai/docs/config/',
+    'https://opencode.ai/v2/docs/compaction',
+    '"reserved": 10000',
+    '"buffer": 20000',
+    'Never mix stable `provider` settings with V2 `providers` settings'
+  ]) && hasAll(grok, [
+    'https://docs.x.ai/build/settings/reference',
+    'auto_compact_threshold_percent = 85',
+    '0 through 100',
+    'grok inspect'
+  ]) && hasAll(kimi, [
+    'https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/config-files',
+    'reserved_context_size = 50000',
+    'has no project-level model or provider configuration mechanism',
+    'kimi doctor config <candidate-path>'
+  ])
+    ? ok('Model Provider Settings preserves all six native schemas and compaction meanings')
+    : fail('Model Provider Settings provider examples or official sources drifted');
+
+  if (combined.includes('http://')) {
+    fail('Model Provider Settings contains a non-HTTPS source');
+  } else {
+    ok('Model Provider Settings sources use HTTPS');
+  }
+
+  if (/(?:sk-(?:ant-|proj-)?[A-Za-z0-9]{8,}|xai-[A-Za-z0-9]{8,}|Bearer\s+[A-Za-z0-9]{8,})/.test(combined)) {
+    fail('Model Provider Settings contains a credential-like literal');
+  } else {
+    ok('Model Provider Settings examples contain no credential-like literals');
+  }
+
+  const manifestEntry = manifestSkills.find((skillEntry) => skillEntry.name === 'model-provider-settings');
+  const allSurfaces = ['claude', 'cursor', 'codex', 'opencode', 'grok', 'kimi'];
+  if (manifestEntry && allSurfaces.every((surface) => manifestEntry.surfaces.includes(surface))) {
+    ok('Model Provider Settings is registered for all six provider surfaces');
+  } else {
+    fail('Model Provider Settings provider manifest coverage drifted');
+  }
+
+  hasAll(ui, [
+    'display_name: "Model Provider Settings"',
+    'Use $model-provider-settings'
+  ])
+    ? ok('Model Provider Settings UI metadata matches the skill name')
+    : fail('Model Provider Settings UI metadata drifted');
+
+  const sourceDiscoveryValid = !isKitSourceRepo || (
+    hasAll(read('README.md'), ['All 26 skills', 'Cursor uses the 21 interactive ones', '| `model-provider-settings`'])
+    && hasAll(read('docs/README.vi.md'), ['Cả 26 skill', 'Cursor mirror 21 skill', '| `model-provider-settings`'])
+    && hasAll(read('docs/README.zh-CN.md'), ['全部 26 个技能', '21 个交互式技能', '| `model-provider-settings`'])
+    && hasAll(read('docs/README.ja.md'), ['26 個すべてのスキル', '21 個をミラー', '| `model-provider-settings`'])
+    && read('docs/README.ko.md').includes('| `model-provider-settings`')
+    && read('docs/README.de.md').includes('| `model-provider-settings`')
+    && read('docs/README.bg.md').includes('| `model-provider-settings`')
+    && hasAll(read('.vibekit/docs/INSTALL.md'), ['Sixteen user-invoked skills', '`model-provider-settings`'])
+    && hasAll(read('package.json'), [
+      '.claude/skills/model-provider-settings/',
+      '.cursor/skills/model-provider-settings/'
+    ])
+    && read('.vibekit/scripts/test-install.mjs').includes('includes model-provider-settings')
+  );
+  sourceDiscoveryValid
+    ? ok('Model Provider Settings discovery, localization, packaging, and install tests stay synchronized')
+    : fail('Model Provider Settings discovery, localization, packaging, or install tests drifted');
 }
 
 validateAutoresearchContract();
@@ -2385,6 +2524,7 @@ validateProoflineContract();
 validateTheCreatorContract();
 validateControlCenterContract();
 validateCloneWebsiteContract();
+validateModelProviderSettingsContract();
 
 function parseFrontmatter(text) {
   const match = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -2523,9 +2663,9 @@ if (isKitSourceRepo && pkg?.version) {
     : fail('Localized README navigation drifted');
 
   const translatedReadmeContracts = [
-    { rel: 'docs/README.ko.md', markers: ['## 빠른 시작', '전체 25개 스킬', '## 고급 사용', '## 기여', '## 라이선스'] },
-    { rel: 'docs/README.de.md', markers: ['## Schnellstart', 'Alle 25 Skills', '## Erweitert', '## Mitwirken', '## Lizenz'] },
-    { rel: 'docs/README.bg.md', markers: ['## Бърз старт', 'Всички 25 умения', '## Разширена употреба', '## Принос', '## Лиценз'] }
+    { rel: 'docs/README.ko.md', markers: ['## 빠른 시작', '전체 26개 스킬', '## 고급 사용', '## 기여', '## 라이선스'] },
+    { rel: 'docs/README.de.md', markers: ['## Schnellstart', 'Alle 26 Skills', '## Erweitert', '## Mitwirken', '## Lizenz'] },
+    { rel: 'docs/README.bg.md', markers: ['## Бърз старт', 'Всички 26 умения', '## Разширена употреба', '## Принос', '## Лиценз'] }
   ];
   const sharedCoverage = [
     '`/init-vibe`',

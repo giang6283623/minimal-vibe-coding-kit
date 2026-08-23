@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.14-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.15-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -355,7 +355,7 @@ Cursor SDK tùy chọn dùng danh sách model trực tiếp của tài khoản, 
 
 ## Skills
 
-Cả 25 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex, OpenCode, Grok và Kimi mirror đủ 25; Cursor mirror 20 skill tương tác. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
+Cả 26 skill nằm canonical trong `.vibekit/skills/`. Claude, Codex, OpenCode, Grok và Kimi mirror đủ 26; Cursor mirror 21 skill tương tác. Gọi bằng tên ("Use the X skill…") hoặc qua các command ở trên.
 
 ```mermaid
 ---
@@ -392,12 +392,13 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("25 skill"))
+  root(("26 skill"))
     setup("Thiết lập và an toàn")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
       s3("path-sensitive-<br/>shell-safety")
       s4("threat-model-<br/>security-review")
+      s5("model-provider-<br/>settings")
     think("Tư duy và kế hoạch")
       t1("clearthought")
       t2("sequential-thinking")
@@ -450,6 +451,7 @@ mindmap
 | `prompt-sharpener`            | Task phức tạp nhưng prompt mù mờ: cải thiện prompt rồi thực thi ngay trong cùng lượt.                                                                                                                                                                  | "/prompt-sharpener make the settings page load faster"                                  |
 | `claim`                       | Đưa thứ mới vào repo (skill, rule, quy ước, tool): kiểm chứng nguồn chính thức, kiểm tra độ khớp, xác nhận, tích hợp, ghi tài liệu.                                                                                                                    | "/claim add the conventional-commits rule from https://www.conventionalcommits.org"     |
 | `clone-website`               | Clone hoặc migrate website được phép với lựa chọn rõ về fidelity, scope, stack, backend, quyền, capture và parity.                                                                                                                                    | "Use clone-website để tạo prototype local F2/S1 an toàn cho trang này."                  |
+| `model-provider-settings`     | Thiết lập hoặc cập nhật model, reasoning, context và compaction theo cấu hình native của từng provider và tài liệu chính thức hiện hành, không tự tạo alias dùng chung.                                                                             | "Use model-provider-settings để đặt Claude autoCompactWindow thành 300000 và map an toàn các coding agent khác." |
 | `wait-what`                   | Câu trả lời vừa rồi chưa rõ: agent dừng lại và trình bày lại bằng ngôn ngữ đơn giản, đúng ngôn ngữ của bạn, khôi phục tiền đề còn thiếu bằng thuật ngữ trong glossary; không làm việc mới.                                                             | "/wait-what đoạn nói về token budget"                                                   |
 | `tutien`                      | Chế độ tu tiên riêng tư do người dùng gọi, có bằng chứng Git/chat chính xác và trường thiên mở. Khi bật, mọi phản hồi dùng văn phong tu tiên linh hoạt theo ngôn ngữ người dùng; `humiliation=0..10` điều khiển độ bại trận của vai tu sĩ hư cấu. `/tutien off` khôi phục văn phong thường. | "/tutien on humiliation=8"                                                             |
 | `the-creator`                 | Sáng tạo art, design, interface, method, process hoặc system qua 10 level cộng dồn; mỗi level bỏ thêm 10% convention đủ điều kiện nhưng giữ nguyên safety, logic và functional acceptance. | "Use the-creator level 7 để tạo một quy trình code review mới." |

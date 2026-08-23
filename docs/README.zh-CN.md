@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
-[![Version](https://img.shields.io/badge/version-0.5.14-2ea44f.svg)](../CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.15-2ea44f.svg)](../CHANGELOG.md)
 ![Claude](https://img.shields.io/badge/Claude%20Code-Commands%20%26%20Skills-111111)
 ![Cursor](https://img.shields.io/badge/Cursor-Rules%20%26%20Commands-1f6feb)
 ![Codex](https://img.shields.io/badge/Codex-AGENTS.md%20%26%20Plugin-6f42c1)
@@ -355,7 +355,7 @@ flowchart LR
 
 ## 技能
 
-全部 25 个技能的规范版本位于 `.vibekit/skills/`。Claude、Codex、OpenCode、Grok 和 Kimi 镜像全部 25 个技能；Cursor 镜像其中 20 个交互式技能。可以直接按名称调用（例如“Use the X skill…”），也可以使用上面的命令。
+全部 26 个技能的规范版本位于 `.vibekit/skills/`。Claude、Codex、OpenCode、Grok 和 Kimi 镜像全部 26 个技能；Cursor 镜像其中 21 个交互式技能。可以直接按名称调用（例如“Use the X skill…”），也可以使用上面的命令。
 
 ```mermaid
 ---
@@ -392,12 +392,13 @@ config:
     cScaleLabel5: "#FFFFFF"
 ---
 mindmap
-  root(("25 个技能"))
+  root(("26 个技能"))
     setup("设置与安全")
       s1("vibekit-init")
       s2("agentshield-<br/>security-review")
       s3("path-sensitive-<br/>shell-safety")
       s4("threat-model-<br/>security-review")
+      s5("model-provider-<br/>settings")
     think("思考与规划")
       t1("clearthought")
       t2("sequential-thinking")
@@ -450,6 +451,7 @@ mindmap
 | `prompt-sharpener`              | 复杂任务只有粗略提示词时：优化提示词并在同一轮执行。                                                 | "/prompt-sharpener make the settings page load faster"                                                |
 | `claim`                         | 将新技能、规则、约定或工具带入仓库：验证官方来源、检查适配性、确认、集成并记录文档。                 | "/claim add the conventional-commits rule from https://www.conventionalcommits.org"                   |
 | `clone-website`                 | 在明确权限、保真度、范围、技术栈、后端、采集和验证边界后，克隆或迁移网站。                         | "Use clone-website 为这个页面创建安全的本地 F2/S1 原型。"                                             |
+| `model-provider-settings`       | 根据当前官方文档设置或更新各供应商原生的模型、推理、上下文和压缩配置，不创建跨供应商的虚构别名。   | "Use model-provider-settings 将 Claude autoCompactWindow 设为 300000，并安全映射其他 coding agent。" |
 | `wait-what`                     | 上一条回答没有讲明白：agent 停下来，用通俗语言并按你的语言重新讲解，用 glossary 术语补回缺失的前提；不做新工作。 | "/wait-what 关于 token 预算的部分"                                                                    |
 | `tutien`                        | 由用户调用的私密修仙模式，使用准确的 Git/聊天证据并维护开放式连载故事。启用期间，每次回复都按用户语言使用自然的修仙文风；`humiliation=0..10` 控制虚构修士角色的败阵强度。`/tutien off` 恢复正常文风。 | "/tutien on humiliation=8"                                                                         |
 | `the-creator`                   | 通过 10 个累积创意等级创造新颖但可用的艺术、设计、界面、方法、流程或系统；每级放宽 10% 的适用惯例，同时保持安全、逻辑和功能验收不变。 | "Use the-creator level 7 设计一种更安全的代码审查流程。" |

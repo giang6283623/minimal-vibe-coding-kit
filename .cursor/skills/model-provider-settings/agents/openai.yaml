@@ -1,0 +1,4 @@
+interface:
+  display_name: "Model Provider Settings"
+  short_description: "Safely update provider-native model settings"
+  default_prompt: "Use $model-provider-settings to inspect and safely update my coding-agent model and compaction settings from current official documentation."
