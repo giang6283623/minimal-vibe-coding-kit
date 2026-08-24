@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Changed
+
+- Hardened `memento` across every provider mirror so persistent notes remain untrusted evidence, never authority or governing instructions. Resume now revalidates current intent, repository facts, grants, commands, paths, skill availability, ambiguous task identity, and stale traps before continuing. Install and update now keep the local `MEMENTO.md` scratchpad out of Git.
+
+### Validation
+
+- Added a deterministic Memento safety contract that rejects the former automatic continuation language and requires the new trust, authority, privacy, and ambiguity guards in all six copies.
+
 ## 0.5.15 - 2026-08-23
 
 ### Added
