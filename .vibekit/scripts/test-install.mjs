@@ -193,6 +193,10 @@ try {
     fs.readFileSync(path.join(clean, '.gitignore'), 'utf8').includes('.vibekit/parallel-analysis.json'),
     'clean install ignores the parallel-analysis adapter cache'
   );
+  assert(
+    fs.readFileSync(path.join(clean, '.gitignore'), 'utf8').includes('MEMENTO.md'),
+    'clean install ignores the local Memento scratchpad'
+  );
   assert(!fs.existsSync(path.join(clean, 'skills')), 'clean install does not create root skills');
   assert(!fs.existsSync(path.join(clean, '.vbkit-scripts')), 'clean install does not create legacy .vbkit-scripts');
   assert(!fs.existsSync(path.join(clean, '.vbkit-commands')), 'clean install does not create legacy .vbkit-commands');
@@ -297,6 +301,8 @@ try {
   assert(fs.existsSync(path.join(upd, '.vibekit/KIT_VERSION')), 'install stamps .vibekit/KIT_VERSION');
   fs.appendFileSync(path.join(upd, 'backbone.yml'), '# user-custom-line\n');
   fs.writeFileSync(path.join(upd, '.vibekit/skills/memento/SKILL.md'), '# stale kit file\n');
+  const updGitignorePath = path.join(upd, '.gitignore');
+  fs.writeFileSync(updGitignorePath, fs.readFileSync(updGitignorePath, 'utf8').replace('\nMEMENTO.md\n', '\n'));
   fs.rmSync(path.join(upd, '.claude/skills/coding-level'), { recursive: true, force: true });
 
   fs.writeFileSync(path.join(upd, '.codex-plugin/plugin.json'), `${JSON.stringify(sourcePlugin, null, 2)}\n`);
@@ -308,6 +314,7 @@ try {
   assert(updPlugin.name === `mvck-${updSlug}`, 'update re-applies the project-scoped Codex plugin name');
   assert(fs.existsSync(path.join(upd, '.claude/skills/coding-level/SKILL.md')), 'update re-adds missing kit skill mirrors');
   assert(fs.readFileSync(path.join(upd, 'backbone.yml'), 'utf8').includes('# user-custom-line'), 'update preserves user-modified backbone.yml');
+  assert(fs.readFileSync(updGitignorePath, 'utf8').includes('MEMENTO.md'), 'update restores the Memento scratchpad ignore rule');
   const backupRoot = path.join(upd, '.vibekit', 'update-backup');
   assert(fs.existsSync(backupRoot) && fs.readdirSync(backupRoot).length >= 1, 'update backs up replaced kit files');
   assert(
