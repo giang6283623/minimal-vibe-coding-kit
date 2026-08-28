@@ -4,6 +4,8 @@
 
 # Minimal Vibe Coding Kit
 
+> **说明：** 出于一些原因，我会继续开发一个独立的 Premium 版本，而不是这个 OSS 版本。Premium 版本将进行全面改进，并融入更多原创想法；每次更新前，我和朋友们都会在各自的项目中反复实践和试错。这个 OSS 版本仍会保留在这里，作为备用，供仍有需要且觉得它有用的人使用。
+
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
 [![Version](https://img.shields.io/badge/version-0.5.15-2ea44f.svg)](../CHANGELOG.md)
