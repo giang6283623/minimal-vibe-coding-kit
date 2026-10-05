@@ -4,7 +4,11 @@
 
 # Minimal Vibe Coding Kit
 
-> **Hinweis:** Aus verschiedenen Gründen werde ich die Entwicklung an einer separaten Premium-Version fortsetzen und nicht an dieser OSS-Version. Die Premium-Version wird grundlegend überarbeitet und enthält mehr originelle Ideen. Sie stützt sich auf Erfahrungen und wiederholtes Ausprobieren in meinen Projekten und den Projekten meiner Freunde vor jedem Update. Diese OSS-Version bleibt hier als Ausweichlösung für alle verfügbar, die sie weiterhin benötigen und nützlich finden.
+[![Premium-Version auf camera.ai.vn holen](https://img.shields.io/badge/Get%20Premium-camera.ai.vn-e11d48?style=for-the-badge)](https://camera.ai.vn)
+
+> **Premium-Version verfügbar: [camera.ai.vn](https://camera.ai.vn)**
+>
+> Die Premium-Version des Minimal Vibe Coding Kit ist unter [camera.ai.vn](https://camera.ai.vn) verfügbar. Neue Entwicklung findet dort statt. Sie ist grundlegend überarbeitet und enthält mehr originelle Ideen. Sie stützt sich auf Erfahrungen und wiederholtes Ausprobieren in meinen Projekten und den Projekten meiner Freunde vor jedem Update. Diese OSS-Version bleibt hier als Ausweichlösung für alle verfügbar, die sie weiterhin benötigen und nützlich finden.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
@@ -510,6 +514,12 @@ Veröffentlichungscheckliste: [PUSH_TO_GITHUB.md](../.vibekit/init/PUSH_TO_GITHU
 | Falscher Stack erkannt | Veraltete Lockfiles entfernen oder `backbone.yml` direkt bearbeiten. |
 | Der Agent ändert einen geschützten Pfad | Den Pfad zu `policy.protected_paths` hinzufügen. |
 | Skripte fehlen nach der Installation | Installation mit `--force` erneut ausführen. |
+
+## Premium-Version
+
+Du möchtest die aktiv weiterentwickelte Ausgabe? **Minimal Vibe Coding Kit Premium** gibt es unter **[camera.ai.vn](https://camera.ai.vn)**. Sie ist grundlegend überarbeitet und enthält mehr originelle Ideen, die vor jedem Update in echten Projekten getestet wurden. Diese OSS-Version bleibt hier als kostenlose Ausweichlösung.
+
+[![Premium-Version auf camera.ai.vn holen](https://img.shields.io/badge/Get%20Premium-camera.ai.vn-e11d48?style=for-the-badge)](https://camera.ai.vn)
 
 ## Mitwirken
 
