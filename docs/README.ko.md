@@ -4,7 +4,11 @@
 
 # Minimal Vibe Coding Kit
 
-> **안내:** 몇 가지 이유로 이 OSS 버전 대신 별도의 Premium 버전을 계속 개발하려고 합니다. Premium 버전은 전면적으로 개선하고, 업데이트 전에 저와 친구들의 프로젝트에서 여러 차례 경험하고 시행착오를 거쳐 얻은 내용을 바탕으로 더 많은 창의적인 아이디어를 담을 예정입니다. 이 OSS 버전은 여전히 필요하고 유용하다고 생각하는 분들을 위한 대안으로 이곳에 계속 남겨 두겠습니다.
+[![camera.ai.vn에서 Premium 버전 받기](https://img.shields.io/badge/Get%20Premium-camera.ai.vn-e11d48?style=for-the-badge)](https://camera.ai.vn)
+
+> **Premium 버전 이용 가능: [camera.ai.vn](https://camera.ai.vn)**
+>
+> Minimal Vibe Coding Kit의 Premium 버전은 [camera.ai.vn](https://camera.ai.vn)에서 만나볼 수 있습니다. 앞으로의 새로운 개발은 그곳에서 진행합니다. 전면적으로 개선했고, 업데이트 전에 저와 친구들의 프로젝트에서 여러 차례 경험하고 시행착오를 거쳐 얻은 내용을 바탕으로 더 많은 창의적인 아이디어를 담았습니다. 이 OSS 버전은 여전히 필요하고 유용하다고 생각하는 분들을 위한 대안으로 이곳에 계속 남겨 두겠습니다.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
@@ -510,6 +514,12 @@ npm run validate:all
 | 잘못된 스택 감지 | 오래된 lockfile을 제거하거나 `backbone.yml`을 직접 수정합니다. |
 | 보호해야 할 경로를 수정함 | 해당 경로를 `policy.protected_paths`에 추가합니다. |
 | 설치 후 스크립트가 없음 | `--force`로 설치를 다시 실행합니다. |
+
+## Premium 버전
+
+계속 개발되고 있는 버전이 필요하신가요? **Minimal Vibe Coding Kit Premium**은 **[camera.ai.vn](https://camera.ai.vn)**에서 받을 수 있습니다. 전면적으로 개선했고, 업데이트 전에 실제 프로젝트에서 검증한 더 많은 창의적인 아이디어를 담았습니다. 이 OSS 버전은 무료 대안으로 이곳에 계속 남겨 두겠습니다.
+
+[![camera.ai.vn에서 Premium 버전 받기](https://img.shields.io/badge/Get%20Premium-camera.ai.vn-e11d48?style=for-the-badge)](https://camera.ai.vn)
 
 ## 기여
 

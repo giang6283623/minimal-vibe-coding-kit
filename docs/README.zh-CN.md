@@ -4,7 +4,11 @@
 
 # Minimal Vibe Coding Kit
 
-> **说明：** 出于一些原因，我会继续开发一个独立的 Premium 版本，而不是这个 OSS 版本。Premium 版本将进行全面改进，并融入更多原创想法；每次更新前，我和朋友们都会在各自的项目中反复实践和试错。这个 OSS 版本仍会保留在这里，作为备用，供仍有需要且觉得它有用的人使用。
+[![前往 camera.ai.vn 获取 Premium 版本](https://img.shields.io/badge/Get%20Premium-camera.ai.vn-e11d48?style=for-the-badge)](https://camera.ai.vn)
+
+> **Premium 版本已上线: [camera.ai.vn](https://camera.ai.vn)**
+>
+> Minimal Vibe Coding Kit 的 Premium 版本已在 [camera.ai.vn](https://camera.ai.vn) 上线。后续的新开发都在那里进行。它经过全面改进，并融入更多原创想法；每次更新前，我和朋友们都会在各自的项目中反复实践和试错。这个 OSS 版本仍会保留在这里，作为备用，供仍有需要且觉得它有用的人使用。
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
@@ -1040,6 +1044,12 @@ npm run validate:all    # npm test + AgentShield 探针 + npm 打包预检
 | 安装后缺少脚本                     | 使用 `--force` 重新安装，或手动复制 `.vibekit/scripts/`。                                                                |
 
 </details>
+
+## Premium 版本
+
+想使用持续开发的版本？**Minimal Vibe Coding Kit Premium** 可在 **[camera.ai.vn](https://camera.ai.vn)** 获取。它经过全面改进，每次更新前都会在真实项目中验证更多原创想法。这个 OSS 版本会继续留在这里，作为免费的备用选择。
+
+[![前往 camera.ai.vn 获取 Premium 版本](https://img.shields.io/badge/Get%20Premium-camera.ai.vn-e11d48?style=for-the-badge)](https://camera.ai.vn)
 
 ## 贡献
 

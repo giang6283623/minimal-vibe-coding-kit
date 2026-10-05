@@ -4,7 +4,11 @@
 
 # Minimal Vibe Coding Kit
 
-> **Lưu ý:** Vì một vài lý do, tôi sẽ tiếp tục phát triển một phiên bản Premium riêng thay vì phiên bản OSS này. Phiên bản Premium sẽ được cải tiến toàn diện và có nhiều ý tưởng sáng tạo hơn, dựa trên kinh nghiệm cùng quá trình thử sai nhiều lần trong các dự án của tôi và bạn bè trước mỗi lần cập nhật. Tuy vậy, phiên bản OSS này vẫn sẽ được giữ lại ở đây như một phương án dự phòng cho bất kỳ ai còn cần và thấy nó hữu ích.
+[![Nhận bản Premium tại camera.ai.vn](https://img.shields.io/badge/Get%20Premium-camera.ai.vn-e11d48?style=for-the-badge)](https://camera.ai.vn)
+
+> **Đã có phiên bản Premium: [camera.ai.vn](https://camera.ai.vn)**
+>
+> Phiên bản Premium của Minimal Vibe Coding Kit hiện có tại [camera.ai.vn](https://camera.ai.vn). Các phát triển mới được thực hiện ở đó. Phiên bản này được cải tiến toàn diện và có nhiều ý tưởng sáng tạo hơn, dựa trên kinh nghiệm cùng quá trình thử sai nhiều lần trong các dự án của tôi và bạn bè trước mỗi lần cập nhật. Phiên bản OSS này vẫn sẽ được giữ lại ở đây như một phương án dự phòng cho bất kỳ ai còn cần và thấy nó hữu ích.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
@@ -1040,6 +1044,12 @@ Checklist publish: [.vibekit/init/PUSH_TO_GITHUB.md](../.vibekit/init/PUSH_TO_GI
 | Thiếu script sau khi cài     | Chạy lại install với `--force`, hoặc copy thủ công `.vibekit/scripts/`.                                                  |
 
 </details>
+
+## Phiên bản Premium
+
+Bạn muốn dùng bản đang được phát triển tích cực? **Minimal Vibe Coding Kit Premium** có tại **[camera.ai.vn](https://camera.ai.vn)**. Bản này được cải tiến toàn diện, có thêm nhiều ý tưởng sáng tạo đã được thử trong dự án thực tế trước mỗi lần cập nhật. Phiên bản OSS này vẫn được giữ ở đây như một phương án dự phòng miễn phí.
+
+[![Nhận bản Premium tại camera.ai.vn](https://img.shields.io/badge/Get%20Premium-camera.ai.vn-e11d48?style=for-the-badge)](https://camera.ai.vn)
 
 ## Đóng góp
 

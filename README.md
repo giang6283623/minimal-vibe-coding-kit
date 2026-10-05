@@ -4,7 +4,11 @@
 
 # Minimal Vibe Coding Kit
 
-> **Note:** For several reasons, I will continue development in a separate Premium version instead of this OSS version. The Premium version will be thoroughly reworked and include more original ideas, drawing on lessons from repeatedly testing and refining it in my own projects and my friends' projects before each update. This OSS version will remain here as a fallback for anyone who still needs it and finds it useful.
+[![Get Premium at camera.ai.vn](https://img.shields.io/badge/Get%20Premium-camera.ai.vn-e11d48?style=for-the-badge)](https://camera.ai.vn)
+
+> **Premium version available: [camera.ai.vn](https://camera.ai.vn)**
+>
+> The Premium version of Minimal Vibe Coding Kit is live at [camera.ai.vn](https://camera.ai.vn). New development happens there. It is thoroughly reworked and includes more original ideas, drawing on lessons from repeatedly testing and refining it in my own projects and my friends' projects before each update. This OSS version will remain here as a fallback for anyone who still needs it and finds it useful.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
@@ -1048,6 +1052,12 @@ Publishing checklist: [.vibekit/init/PUSH_TO_GITHUB.md](.vibekit/init/PUSH_TO_GI
 | Scripts missing after install       | Re-run install with `--force`, or copy `.vibekit/scripts/` manually.                                               |
 
 </details>
+
+## Premium version
+
+Want the actively developed edition? **Minimal Vibe Coding Kit Premium** is available at **[camera.ai.vn](https://camera.ai.vn)**. It is thoroughly reworked, with more original ideas tested in real projects before each update. This OSS version stays here as a free fallback.
+
+[![Get Premium at camera.ai.vn](https://img.shields.io/badge/Get%20Premium-camera.ai.vn-e11d48?style=for-the-badge)](https://camera.ai.vn)
 
 ## Contributing
 

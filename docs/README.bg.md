@@ -4,7 +4,11 @@
 
 # Minimal Vibe Coding Kit
 
-> **Бележка:** Поради няколко причини ще продължа да разработвам отделна Premium версия вместо тази OSS версия. Premium версията ще бъде изцяло преработена и ще включва повече оригинални идеи, основани на опита и многократните проби и грешки в моите проекти и проектите на приятелите ми преди всяка актуализация. Тази OSS версия ще остане тук като резервен вариант за всеки, който все още се нуждае от нея и я намира за полезна.
+[![Вземете Premium версията на camera.ai.vn](https://img.shields.io/badge/Get%20Premium-camera.ai.vn-e11d48?style=for-the-badge)](https://camera.ai.vn)
+
+> **Premium версията е налична: [camera.ai.vn](https://camera.ai.vn)**
+>
+> Premium версията на Minimal Vibe Coding Kit е налична на [camera.ai.vn](https://camera.ai.vn). Новата разработка се случва там. Тя е изцяло преработена и включва повече оригинални идеи, основани на опита и многократните проби и грешки в моите проекти и проектите на приятелите ми преди всяка актуализация. Тази OSS версия ще остане тук като резервен вариант за всеки, който все още се нуждае от нея и я намира за полезна.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/badge/npm-minimal--vibe--coding--kit-cb3837?logo=npm)](https://www.npmjs.com/package/minimal-vibe-coding-kit)
@@ -510,6 +514,12 @@ Checklist за публикуване: [PUSH_TO_GITHUB.md](../.vibekit/init/PUSH
 | Открит е грешен stack | Премахнете остарели lockfiles или редактирайте `backbone.yml` директно. |
 | Агентът променя защитен path | Добавете path към `policy.protected_paths`. |
 | След инсталиране липсват scripts | Изпълнете install отново с `--force`. |
+
+## Premium версия
+
+Търсите активно развиваната версия? **Minimal Vibe Coding Kit Premium** е налична на **[camera.ai.vn](https://camera.ai.vn)**. Тя е изцяло преработена и включва повече оригинални идеи, изпробвани в реални проекти преди всяка актуализация. Тази OSS версия остава тук като безплатен резервен вариант.
+
+[![Вземете Premium версията на camera.ai.vn](https://img.shields.io/badge/Get%20Premium-camera.ai.vn-e11d48?style=for-the-badge)](https://camera.ai.vn)
 
 ## Принос
 
