@@ -32,6 +32,18 @@ If you use this kit and it actually helps you, drop a star. It tells me it’s u
 
 ---
 
+## Watch the 72-second tour
+
+See the three steps on screen: install the kit, paste one prompt, and say `yes`. The videos have no voice-over. Captions explain each step.
+
+<div align="center">
+
+| [English](https://youtu.be/g30r380eMzQ) | [Tiếng Việt](https://youtu.be/ckuUOzCqJYY) |
+| :---: | :---: |
+| [![Watch the English video: Minimal Vibe Coding Kit](https://img.youtube.com/vi/g30r380eMzQ/maxresdefault.jpg)](https://youtu.be/g30r380eMzQ) | [![Xem video tiếng Việt: Minimal Vibe Coding Kit](https://img.youtube.com/vi/ckuUOzCqJYY/maxresdefault.jpg)](https://youtu.be/ckuUOzCqJYY) |
+
+</div>
+
 ## What is this?
 
 A small kit of shared **rules**, **skills**, and **commands**, plus one **`backbone.yml`** manifest, so Claude Code, Cursor, Codex, OpenCode, Grok, and Kimi all understand your project the same way.

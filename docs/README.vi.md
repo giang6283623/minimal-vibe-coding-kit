@@ -32,6 +32,18 @@ Nếu bộ kit này thực sự giúp ích cho bạn, hãy tặng repo một Sta
 
 ---
 
+## Xem video 72 giây
+
+Xem ba bước trên màn hình: cài kit, dán một prompt, rồi gõ `yes`. Video không có giọng đọc. Phụ đề giải thích từng bước.
+
+<div align="center">
+
+| [Tiếng Việt](https://youtu.be/ckuUOzCqJYY) | [English](https://youtu.be/g30r380eMzQ) |
+| :---: | :---: |
+| [![Xem video tiếng Việt: Minimal Vibe Coding Kit](https://img.youtube.com/vi/ckuUOzCqJYY/maxresdefault.jpg)](https://youtu.be/ckuUOzCqJYY) | [![Watch the English video: Minimal Vibe Coding Kit](https://img.youtube.com/vi/g30r380eMzQ/maxresdefault.jpg)](https://youtu.be/g30r380eMzQ) |
+
+</div>
+
 ## Bộ kit này là gì?
 
 Một bộ kit nhỏ gồm **rules**, **skills**, **commands** dùng chung, cộng một manifest **`backbone.yml`**, giúp Claude Code, Cursor, Codex, OpenCode, Grok và Kimi hiểu project của bạn theo cùng một cách.
