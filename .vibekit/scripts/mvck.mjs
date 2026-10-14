@@ -444,11 +444,11 @@ function parseCodexDefaultModeChoice(value) {
 }
 
 async function promptCodexDefaultModeChoice() {
-  console.log('\nCodex structured questions in Default mode (recommended)');
-  console.log('Enable clear multiple-choice questions when a decision materially affects the work?');
-  console.log('1. Yes (recommended) - enable this project setting.');
-  console.log('2. No - keep it disabled now and ask again on the next init or update.');
-  console.log("3. Don't show this again - keep it disabled and stop asking in this project.");
+  console.log('\nCodex multiple-choice questions (recommended)');
+  console.log('Turn on multiple-choice questions in Codex for this project? Codex then shows a short list to pick from. You type less.');
+  console.log('1. Yes (recommended) - turn it on for this project.');
+  console.log('2. No - leave it off now. Ask again on the next init or update.');
+  console.log("3. Don't show this again - leave it off and stop asking in this project.");
 
   const readline = createInterface({ input: process.stdin, output: process.stdout });
   try {

@@ -182,6 +182,10 @@ try {
     'clean install includes the three-choice Codex init preference'
   );
   assert(
+    fs.readFileSync(path.join(clean, '.vibekit/init/FIRST_TIME_INIT.md'), 'utf8').includes('## Question style (first init)'),
+    'clean install includes the plain first-init question style'
+  );
+  assert(
     fs.readFileSync(path.join(clean, '.codex/config.example.toml'), 'utf8').includes('default_mode_request_user_input = true'),
     'clean install documents the Codex Default-mode feature'
   );

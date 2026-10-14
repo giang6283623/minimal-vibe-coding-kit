@@ -666,9 +666,9 @@ if (shouldWrite) {
     ? '- Offer to create .vibekit/docs/CONTEXT.md (glossary) from .vibekit/docs/templates/CONTEXT_TEMPLATE.md.'
     : `- CONTEXT glossary found at ${inferred.context}; keep it current.`);
   console.log('\nSetup preferences (record answers in conventions.custom_rules; see FIRST_TIME_INIT.md "Setup preferences"):');
-  console.log(`- Safe delete: trash command ${trashAvailable() ? 'available' : 'NOT found (recommend: macOS 14+ built-in; older macOS `brew install trash`; Linux `sudo apt install trash-cli`; any OS `npm i -g trash-cli`)'} - ask: use trash instead of rm? (recommended: yes)`);
+  console.log(`- Safe delete: trash command ${trashAvailable() ? 'available' : 'NOT found (recommend: macOS 14+ built-in; older macOS `brew install trash`; Linux `sudo apt install trash-cli`; any OS `npm i -g trash-cli`)'} - ask: move deleted files to the trash so they can be restored? (recommended: yes)`);
   console.log('- Writing style: recorded by default - no emoji and no em/en dashes in generated prose; ASCII punctuation only.');
-  console.log('- Default coding level: ask 0-5 (0 ELI5, 1 Junior, 2 Mid-level, 3 Senior, 4 Tech Lead, 5 God); changeable later with /coding-level N.');
+  console.log('- Default coding level: ask how much to explain, 0 to 5 (not sure? 1; the table is in FIRST_TIME_INIT.md); changeable later with /coding-level N.');
   console.log('\nConvention review questions:');
   for (const question of inferred.conventions.reviewQuestions) console.log(`- ${question}`);
   console.log('\nProposed backbone.yml:\n');
