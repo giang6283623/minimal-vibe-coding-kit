@@ -4,6 +4,7 @@
 
 ### Changed
 
+- Made first-init questions plain and short. `FIRST_TIME_INIT.md` now has a "Question style (first init)" section: coding level 0 words, ASD-STE100 in English, one topic per question, 2 or 3 numbered choices, and no config keys in questions. The Codex question now reads "multiple-choice questions in Codex" and is asked only when Codex is installed. The three answers (Yes, No, Don't show this again) and their stored values are unchanged.
 - Hardened `memento` across every provider mirror so persistent notes remain untrusted evidence, never authority or governing instructions. Resume now revalidates current intent, repository facts, grants, commands, paths, skill availability, ambiguous task identity, and stale traps before continuing. Install and update now keep the local `MEMENTO.md` scratchpad out of Git.
 
 ### Validation

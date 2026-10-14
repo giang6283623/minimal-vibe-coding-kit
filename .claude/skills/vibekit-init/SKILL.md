@@ -25,6 +25,8 @@ node .vibekit/scripts/init-backbone.mjs . --propose
 7. Write only after explicit `yes`.
 8. Validate after writing.
 
+Ask every first-init question in the plain style from `Question style (first init)` in `.vibekit/init/FIRST_TIME_INIT.md`: coding level 0 words, ASD-STE100 in English, one topic, 2 or 3 numbered choices, no config keys.
+
 ## Project understanding (PRD)
 
 Detection reports `project.mode` (`greenfield` = no source yet, `brownfield` = existing code) and whether a PRD exists.
@@ -36,7 +38,7 @@ Detection reports `project.mode` (`greenfield` = no source yet, `brownfield` = e
 
 ## Codex setup preference
 
-Follow the three-choice `Codex structured questions in Default mode` procedure in `.vibekit/init/FIRST_TIME_INIT.md`. Recommend Yes with its short benefit, treat No as temporary, persist Don't show this again as project-local dismissal, and never edit the user's global `~/.codex/config.toml`. Include any resulting `.codex/config.toml` or `.vibekit/preferences.json` change in the approval diff.
+Follow the three-choice `Codex multiple-choice questions` procedure in `.vibekit/init/FIRST_TIME_INIT.md`. Ask it only when Codex is installed and supports it. Recommend Yes with its short reason, treat No as temporary, persist Don't show this again as project-local dismissal, and never edit the user's global `~/.codex/config.toml`. Include any resulting `.codex/config.toml` or `.vibekit/preferences.json` change in the approval diff.
 
 ## Convention detection
 

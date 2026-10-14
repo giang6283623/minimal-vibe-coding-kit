@@ -76,9 +76,9 @@ npx --yes minimal-vibe-coding-kit@latest update . --dry-run
 npx --yes minimal-vibe-coding-kit@latest update . --dry-run --json
 ```
 
-### Codex structured questions
+### Codex multiple-choice questions
 
-When the Codex profile is active and the installed Codex CLI lists `default_mode_request_user_input`, an interactive update recommends enabling structured questions in Default mode for that project. This lets Codex present clear multiple-choice questions when a decision materially affects the work.
+When the Codex profile is active and the installed Codex CLI lists `default_mode_request_user_input`, an interactive update asks if you want multiple-choice questions in Codex for that project. Codex then shows a short list to pick from, and you type less.
 
 The choices are:
 

@@ -4,6 +4,19 @@ Audience: Claude, Cursor, Codex, OpenCode, Grok, Kimi, or any AI coding agent in
 
 Keep this flow short. Detailed schema notes live in `.vibekit/docs/BACKBONE_REFERENCE.md`.
 
+## Question style (first init)
+
+The user has not picked a coding level yet. Until they do, write every message and question at coding level 0: plain words, no jargon. In English, follow ASD-STE100: short sentences, one idea in each, active voice, one word for one meaning.
+
+For each question:
+
+- Ask one topic only. Start with one short sentence that says why you ask.
+- Give 2 or 3 numbered choices. Mark one as recommended.
+- Put config keys, file names, and tool settings in the diff, not in the question. Name a tool only when the question is about that tool.
+- Ask a tool question only when that tool is installed and the answer changes something for the user.
+- Reply in the user's language. Keep commands, paths, and code names unchanged.
+- Keep the final approval question exactly as written in "Propose before writing".
+
 ## Requirements to print before starting
 
 Before writing anything, print this checklist and mark each item as found, missing, or inferred:
@@ -71,13 +84,13 @@ Then:
 
 ## Setup preferences
 
-Ask the two general questions and the conditional Codex question right after the PRD interview. Persist the safe-delete and coding-level answers as `backbone.yml` `conventions.custom_rules` entries in the same proposed diff. Handle the Codex preference as project-local config, then record the standing writing-style default from section 4 without asking.
+Ask the two general questions and the conditional Codex question right after the PRD interview, one at a time, in the style above. Persist the safe-delete and coding-level answers as `backbone.yml` `conventions.custom_rules` entries in the same proposed diff. Handle the Codex preference as project-local config, then record the standing writing-style default from section 4 without asking.
 
 ### 1. Safe delete (trash instead of rm)
 
 1. Detect first: run `command -v trash` (read-only).
-2. If `trash` is available, ask: "Use `trash` instead of `rm` for deletions so they are recoverable? (recommended: yes)"
-3. If `trash` is missing, recommend installing it, then ask the same question:
+2. If `trash` is available, ask: "Move deleted files to the trash, so you can get them back? (recommended: yes)" Choices: 1. Yes, 2. No.
+3. If `trash` is missing, say so in one sentence, show only the tip for the user's system, then ask the same question:
    - macOS 14 or newer: already built in at `/usr/bin/trash`, nothing to install.
    - Older macOS: `brew install trash` (https://formulae.brew.sh/formula/trash)
    - Linux: `sudo apt install trash-cli` or `pip install trash-cli` (https://github.com/andreafrancia/trash-cli)
@@ -88,7 +101,7 @@ Ask the two general questions and the conditional Codex question right after the
 
 ### 2. Default coding level
 
-Show this table exactly and ask: "Which explanation level should I use by default? Reply 0-5. You can change it anytime with `/coding-level N`."
+Show this table exactly and ask: "How much should I explain when I work? Pick a number from 0 to 5. Not sure? Pick 1. You can change it later with `/coding-level N`."
 
 | N | Level | Short description |
 | --- | --- | --- |
@@ -101,7 +114,7 @@ Show this table exactly and ask: "Which explanation level should I use by defaul
 
 Record the answer as a custom rule: `Default coding level: N (<Level>) - apply this explanation depth every session; change with /coding-level N.`
 
-### 3. Codex structured questions in Default mode
+### 3. Codex multiple-choice questions (Codex only)
 
 Only offer this preference when a Codex surface is installed (`.agents/`, `.codex/`, or `.codex-plugin/`) and `codex features list` includes `default_mode_request_user_input`. The feature is under development, so skip the question when the installed Codex version does not list it.
 
@@ -110,12 +123,12 @@ Before asking, inspect `.codex/config.toml` and `.vibekit/preferences.json`. Ski
 Ask:
 
 ```text
-Enable Codex structured questions in Default mode for this project? (recommended: yes)
-Benefit: Codex can present clear multiple-choice questions when a decision materially affects the work, reducing ambiguous back-and-forth.
+Turn on multiple-choice questions in Codex for this project? (recommended: yes)
+Why: Codex can then show a short list to pick from. You type less.
 
-1. Yes - enable it for this project.
-2. No - keep it disabled now and ask again on the next init or update.
-3. Don't show this again - keep it disabled and stop asking in this project.
+1. Yes - turn it on for this project.
+2. No - leave it off now. I will ask again on the next init or update.
+3. Don't show this again - leave it off and stop asking in this project.
 ```
 
 Handle the answer in the same proposed diff:
